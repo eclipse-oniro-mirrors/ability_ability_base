@@ -1,39 +1,42 @@
-# ability_ability_base
+# 元能力基础部件
 
-#### 介绍
-{**以下是 Gitee 平台说明，您可以替换此简介**
-Gitee 是 OSCHINA 推出的基于 Git 的代码托管平台（同时支持 SVN）。专为开发者提供稳定、高效、安全的云端软件开发协作平台
-无论是个人、团队、或是企业，都能够用 Gitee 实现代码托管、项目管理、协作开发。企业项目请看 [https://gitee.com/enterprises](https://gitee.com/enterprises)}
+## 简介
 
-#### 软件架构
-软件架构说明
+**ability_base**部件作为元能力的基础定义部件，提供组件启动参数（Want），系统环境参数（Configration），URI参数的定义，用于启动应用，获取环境参数等功能。
+
+## 部件内子模块职责
+
+| 子模块名称       | 职责                                                         |
+| ---------------- | ------------------------------------------------------------|
+| Want模块         | 组件启动参数模块；                                            |
+| Configration模块 | 系统环境参数模块；                                            |
+| URI模块          | URI参数定义模块；                                             |
+| base模块         | 基础数据类型模块；                                            |
+
+## 目录
+
+```
+foundation/ability/ability_base
+├── frameworks
+│   └── js
+│       └── napi					# ability_base的napi代码实现
+│   └── native 					    # ability_base的核心代码实现
+├── interfaces
+│   └── inner_api 				    # ability_base的系统内部件间接口 
+└── test							# 测试目录
+```
+
+## 使用说明
+功能模块开发指导可参考[**示例文档**](https://gitee.com/openharmony/docs/blob/master/zh-cn/application-dev/ability/Readme-CN.md)
 
 
-#### 安装教程
+## 相关仓
+元能力子系统
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+[**ability_base**]
 
-#### 使用说明
+ability_runtime
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+form_runtime
 
-#### 参与贡献
-
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
-
-
-#### 特技
-
-1.  使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2.  Gitee 官方博客 [blog.gitee.com](https://blog.gitee.com)
-3.  你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解 Gitee 上的优秀开源项目
-4.  [GVP](https://gitee.com/gvp) 全称是 Gitee 最有价值开源项目，是综合评定出的优秀开源项目
-5.  Gitee 官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6.  Gitee 封面人物是一档用来展示 Gitee 会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+idl
