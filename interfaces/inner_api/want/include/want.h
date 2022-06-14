@@ -770,6 +770,8 @@ public:
     */
     Want &SetDeviceId(const std::string &deviceId);
 
+    std::string GetDeviceId() const;
+
     /**
      * @description: Sets an ModuleName object in a Want.
      * @param moduleName Indicates the ModuleName description.
@@ -846,7 +848,6 @@ private:
     void ToUriStringInner(std::string &uriString) const;
     nlohmann::json ToJson() const;
     bool ReadFromJson(nlohmann::json &wantJson);
-
 };
 }  // namespace AAFwk
 }  // namespace OHOS
