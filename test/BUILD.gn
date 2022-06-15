@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("//foundation/aafwk/standard/ability_base/ability_base.gni")
+import("//foundation/ability/ability_base/ability_base.gni")
 
 base_output_path = "aafwk/base_test"
 
@@ -36,7 +36,7 @@ ohos_unittest("base_test") {
 }
 
 ######################################################################
-want_output_path = "ability_runtime/want_test"
+want_output_path = "ability_base/want_test"
 
 ###############################################################################
 config("want_private_config") {
