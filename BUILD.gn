@@ -23,10 +23,7 @@ config("base_config") {
 
 config("base_public_config") {
   visibility = [ ":*" ]
-  include_dirs = [
-    "interfaces/inner_api/base/include",
-    "//utils/native/base/include",
-  ]
+  include_dirs = [ "interfaces/inner_api/base/include" ]
 }
 
 ohos_shared_library("base") {
@@ -132,13 +129,13 @@ config("want_config") {
 config("want_public_config") {
   visibility = [ ":*" ]
   include_dirs = [
-    "//utils/native/base/include",
     "${ability_base_innerapi_path}/base/include",
     "${ability_base_innerapi_path}/uri/include",
     "${ability_base_innerapi_path}/want/include",
     "${ability_runtime_innerapi_path}/log/include",
     "//third_party/jsoncpp/include",
     "//third_party/json/include",
+    "//utils/native/base/include",
   ]
 }
 
