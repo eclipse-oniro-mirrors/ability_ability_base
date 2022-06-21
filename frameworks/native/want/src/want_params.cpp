@@ -475,7 +475,7 @@ bool WantParams::WriteToParcelWantParams(Parcel &parcel, sptr<IInterface> &o) co
     if (!parcel.WriteInt32(VALUE_TYPE_WANTPARAMS)) {
         return false;
     }
-    return parcel.WriteString16(Str8ToStr16(static_cast<WantParamWrapper *>(IWantParams::Query(o))->ToString()));
+    return parcel.WriteParcelable(&value);
 }
 
 bool WantParams::WriteToParcelFD(Parcel &parcel, const WantParams &value) const
@@ -886,9 +886,9 @@ bool WantParams::WriteArrayToParcelWantParams(Parcel &parcel, IArray *ao) const
         return false;
     }
     for (const auto& wp : array) {
-        auto wrapper = AAFwk::WantParamWrapper::Box(wp);
-        auto str = static_cast<WantParamWrapper *>(IWantParams::Query(wrapper))->ToString();
-        parcel.WriteString16(Str8ToStr16(str));
+        if (!parcel.WriteParcelable(&wp)) {
+            return false;
+        }
     }
     return true;
 }
@@ -1041,8 +1041,8 @@ bool WantParams::ReadFromParcelArrayWantParams(Parcel &parcel, sptr<IArray> &ao)
     int32_t size = parcel.ReadInt32();
     std::vector<sptr<IInterface>> arrayWantParams;
     for (int32_t i = 0; i < size; ++i) {
-        std::u16string value = parcel.ReadString16();
-        sptr<IInterface> interface = WantParamWrapper::Parse(Str16ToStr8(value));
+        sptr<WantParams> value = parcel.ReadStrongParcelable<WantParams>();
+        sptr<IInterface> interface = WantParamWrapper::Box(*value);
         if (interface != nullptr) {
             arrayWantParams.push_back(interface);
         }
@@ -1197,8 +1197,8 @@ bool WantParams::ReadFromParcelWantParamWrapper(Parcel &parcel, const std::strin
         return ReadFromParcelRemoteObject(parcel, key);
     }
 
-    std::u16string value = parcel.ReadString16();
-    sptr<IInterface> intf = WantParamWrapper::Parse(Str16ToStr8(value));
+    sptr<WantParams> value = parcel.ReadStrongParcelable<WantParams>();
+    sptr<IInterface> intf = WantParamWrapper::Box(*value);
     if (intf) {
         SetParam(key, intf);
     }
