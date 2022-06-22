@@ -1,6 +1,6 @@
 {
     "name": "@ohos/ability_base",
-    "description": "aafwk子系统中的基础库,want,base等",
+    "description": "ability子系统中的基础库,want,base等",
     "version": "3.1",
     "license": "Apache License 2.0",
     "publishAs": "code-segment",
