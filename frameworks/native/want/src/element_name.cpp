@@ -84,6 +84,37 @@ std::string ElementName::GetURI() const
     return deviceId_ + "/" + bundleName_ + "/" + moduleName_ + "/" + abilityName_;
 }
 
+bool ElementName::ParseURI(const std::string &uri)
+{
+    const size_t memberNum = 4;
+    std::vector<std::string> uriVec;
+    Split(uri, "/", uriVec);
+    if (uriVec.size() != memberNum) {
+        return false;
+    }
+
+    int index = 0;
+    deviceId_ = uriVec[index++];
+    bundleName_ = uriVec[index++];
+    moduleName_ = uriVec[index++];
+    abilityName_ = uriVec[index++];
+    return true;
+}
+
+void ElementName::Split(const std::string &str, const std::string &delim, std::vector<std::string> &vec)
+{
+    std::string::size_type pos1 = 0;
+    std::string::size_type pos2 = str.find(delim);
+    while (std::string::npos != pos2) {
+        vec.push_back(str.substr(pos1, pos2 - pos1));
+        pos1 = pos2 + delim.size();
+        pos2 = str.find(delim, pos1);
+    }
+    if (pos1 != str.size()) {
+        vec.push_back(str.substr(pos1));
+    }
+}
+
 bool ElementName::operator==(const ElementName &element) const
 {
     return (deviceId_ == element.GetDeviceID() && bundleName_ == element.GetBundleName() &&
