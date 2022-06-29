@@ -34,6 +34,8 @@ public:
 
     std::string GetURI() const;
 
+    bool ParseURI(const std::string &uri);
+
     bool operator==(const ElementName &element) const;
 
     inline void SetDeviceID(const std::string &id)
@@ -85,6 +87,8 @@ public:
     void SetElementAbilityName(ElementName *element, const char *abilityName);
     void SetElementModuleName(ElementName *element, const char *moduleName);
     void ClearElement(ElementName *element);
+
+    void Split(const std::string &str, const std::string &delim, std::vector<std::string> &vec);
 
 private:
     std::string deviceId_;
