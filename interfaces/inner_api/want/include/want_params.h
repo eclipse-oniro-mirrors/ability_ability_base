@@ -73,7 +73,7 @@ public:
 
     std::string GetStringParam(const std::string& key);
 
-    int GetStringParam(const std::string& key, const int defaultValue);
+    int GetIntParam(const std::string& key, const int defaultValue);
 
     const std::map<std::string, sptr<IInterface>> &GetParams() const;
 

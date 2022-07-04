@@ -393,7 +393,7 @@ std::string WantParams::GetStringParam(const std::string& key)
     return std::string();
 }
 
-int WantParams::GetStringParam(const std::string& key, const int defaultValue)
+int WantParams::GetIntParam(const std::string& key, const int defaultValue)
 {
     auto value = GetParam(key);
     IInteger *ao = IInteger::Query(value);
