@@ -119,6 +119,12 @@ int32_t ConvertDisplayId(std::string displayId)
     return std::stoi(displayId);
 }
 
+Global::Resource::InputDevice ConvertHasPointerDevice(std::string hasPointerDevice)
+{
+    return hasPointerDevice == "true" ? Global::Resource::InputDevice::INPUTDEVICE_POINTINGDEVICE :
+        Global::Resource::InputDevice::INPUTDEVICE_NOT_SET;
+}
+
 std::string GetColorModeStr(int32_t colormode)
 {
     std::string ret("no_color_mode");

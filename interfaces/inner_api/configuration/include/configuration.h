@@ -38,6 +38,7 @@ namespace ConfigurationInner {
     const std::vector<std::string> SystemConfigurationKeyStore {
         OHOS::AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE,
         OHOS::AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE,
+        OHOS::AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE,
         OHOS::AppExecFwk::ConfigurationInner::APPLICATION_DIRECTION,
         OHOS::AppExecFwk::ConfigurationInner::APPLICATION_DENSITYDPI,
         OHOS::AppExecFwk::ConfigurationInner::APPLICATION_DISPLAYID,
