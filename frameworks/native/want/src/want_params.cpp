@@ -373,6 +373,36 @@ sptr<IInterface> WantParams::GetParam(const std::string &key) const
     return it->second;
 }
 
+WantParams WantParams::GetWantParams(const std::string& key) const
+{
+    auto value = GetParam(key);
+    IWantParams *wp = IWantParams::Query(value);
+    if (wp != nullptr) {
+        return WantParamWrapper::Unbox(wp);
+    }
+    return WantParams();
+}
+
+std::string WantParams::GetStringParam(const std::string& key) const
+{
+    auto value = GetParam(key);
+    IString *ao = IString::Query(value);
+    if (ao != nullptr) {
+        return String::Unbox(ao);
+    }
+    return std::string();
+}
+
+int WantParams::GetIntParam(const std::string& key, const int defaultValue) const
+{
+    auto value = GetParam(key);
+    IInteger *ao = IInteger::Query(value);
+    if (ao != nullptr) {
+        return Integer::Unbox(ao);
+    }
+    return defaultValue;
+}
+
 /**
  * @description: Obtains the parameter value based on a given key.
  * @param key Indicates the key matching the parameter.
