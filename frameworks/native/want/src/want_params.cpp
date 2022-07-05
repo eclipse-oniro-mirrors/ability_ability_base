@@ -373,7 +373,7 @@ sptr<IInterface> WantParams::GetParam(const std::string &key) const
     return it->second;
 }
 
-WantParams WantParams::GetWantParams(const std::string& key)
+WantParams WantParams::GetWantParams(const std::string& key) const
 {
     auto value = GetParam(key);
     IWantParams *wp = IWantParams::Query(value);
@@ -383,7 +383,7 @@ WantParams WantParams::GetWantParams(const std::string& key)
     return WantParams();
 }
 
-std::string WantParams::GetStringParam(const std::string& key)
+std::string WantParams::GetStringParam(const std::string& key) const
 {
     auto value = GetParam(key);
     IString *ao = IString::Query(value);
@@ -393,7 +393,7 @@ std::string WantParams::GetStringParam(const std::string& key)
     return std::string();
 }
 
-int WantParams::GetIntParam(const std::string& key, const int defaultValue)
+int WantParams::GetIntParam(const std::string& key, const int defaultValue) const
 {
     auto value = GetParam(key);
     IInteger *ao = IInteger::Query(value);

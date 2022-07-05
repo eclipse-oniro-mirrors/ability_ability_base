@@ -69,11 +69,11 @@ public:
 
     sptr<IInterface> GetParam(const std::string &key) const;
 
-    WantParams GetWantParams(const std::string& key);
+    WantParams GetWantParams(const std::string& key) const;
 
-    std::string GetStringParam(const std::string& key);
+    std::string GetStringParam(const std::string& key) const;
 
-    int GetIntParam(const std::string& key, const int defaultValue);
+    int GetIntParam(const std::string& key, const int defaultValue) const;
 
     const std::map<std::string, sptr<IInterface>> &GetParams() const;
 
