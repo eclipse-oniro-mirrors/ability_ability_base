@@ -1072,9 +1072,11 @@ bool WantParams::ReadFromParcelArrayWantParams(Parcel &parcel, sptr<IArray> &ao)
     std::vector<sptr<IInterface>> arrayWantParams;
     for (int32_t i = 0; i < size; ++i) {
         sptr<WantParams> value = parcel.ReadStrongParcelable<WantParams>();
-        sptr<IInterface> interface = WantParamWrapper::Box(*value);
-        if (interface != nullptr) {
-            arrayWantParams.push_back(interface);
+        if (value != nullptr) {
+            sptr<IInterface> interface = WantParamWrapper::Box(*value);
+            if (interface != nullptr) {
+                arrayWantParams.push_back(interface);
+            }
         }
     }
 
@@ -1228,10 +1230,13 @@ bool WantParams::ReadFromParcelWantParamWrapper(Parcel &parcel, const std::strin
     }
 
     sptr<WantParams> value = parcel.ReadStrongParcelable<WantParams>();
-    sptr<IInterface> intf = WantParamWrapper::Box(*value);
-    if (intf) {
-        SetParam(key, intf);
+    if (value != nullptr) {
+        sptr<IInterface> intf = WantParamWrapper::Box(*value);
+        if (intf) {
+            SetParam(key, intf);
+        }
     }
+
     return true;
 }
 
