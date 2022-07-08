@@ -58,7 +58,7 @@
                 },
                 {
                     "header": {
-                      "header_base": "//foundation/ability/ability_base/interfaces/inner_api/want/include/",
+                      "header_base": "//foundation/ability/ability_base/interfaces/kits/native/want/include/",
                       "header_files": [
                         "element_name.h",
                         "want.h",
@@ -74,7 +74,7 @@
                 },
                 {
                     "header": {
-                      "header_base": "//foundation/ability/ability_base/interfaces/inner_api/configuration/include",
+                      "header_base": "//foundation/ability/ability_base/interfaces/kits/native/configuration/include",
                       "header_files": [
                         "configuration.h",
                         "global_configuration_key.h"
@@ -84,7 +84,7 @@
                 },
                 {
                   "header": {
-                    "header_base": "//foundation/ability/ability_base/interfaces/inner_api/uri/include",
+                    "header_base": "//foundation/ability/ability_base/interfaces/kits/native/uri/include",
                     "header_files": [
                       "uri.h"
                     ]

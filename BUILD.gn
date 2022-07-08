@@ -14,8 +14,6 @@
 import("//build/ohos.gni")
 import("//foundation/ability/ability_base/ability_base.gni")
 
-baseImpl = "${ability_base_path}/frameworks/native"
-
 ################################### base ########################################
 config("base_config") {
   visibility = [ ":*" ]
@@ -28,19 +26,19 @@ config("base_public_config") {
 
 ohos_shared_library("base") {
   sources = [
-    "${baseImpl}/base/src/base.cpp",
-    "${baseImpl}/base/src/base_object.cpp",
-    "${baseImpl}/base/src/bool_wrapper.cpp",
-    "${baseImpl}/base/src/byte_wrapper.cpp",
-    "${baseImpl}/base/src/double_wrapper.cpp",
-    "${baseImpl}/base/src/float_wrapper.cpp",
-    "${baseImpl}/base/src/int_wrapper.cpp",
-    "${baseImpl}/base/src/long_wrapper.cpp",
-    "${baseImpl}/base/src/remote_object_wrapper.cpp",
-    "${baseImpl}/base/src/short_wrapper.cpp",
-    "${baseImpl}/base/src/string_wrapper.cpp",
-    "${baseImpl}/base/src/user_object_wrapper.cpp",
-    "${baseImpl}/base/src/zchar_wrapper.cpp",
+    "interfaces/inner_api/base/src/base.cpp",
+    "interfaces/inner_api/base/src/base_object.cpp",
+    "interfaces/inner_api/base/src/bool_wrapper.cpp",
+    "interfaces/inner_api/base/src/byte_wrapper.cpp",
+    "interfaces/inner_api/base/src/double_wrapper.cpp",
+    "interfaces/inner_api/base/src/float_wrapper.cpp",
+    "interfaces/inner_api/base/src/int_wrapper.cpp",
+    "interfaces/inner_api/base/src/long_wrapper.cpp",
+    "interfaces/inner_api/base/src/remote_object_wrapper.cpp",
+    "interfaces/inner_api/base/src/short_wrapper.cpp",
+    "interfaces/inner_api/base/src/string_wrapper.cpp",
+    "interfaces/inner_api/base/src/user_object_wrapper.cpp",
+    "interfaces/inner_api/base/src/zchar_wrapper.cpp",
   ]
   configs = [ ":base_config" ]
   public_configs = [ ":base_public_config" ]
@@ -53,7 +51,7 @@ ohos_shared_library("base") {
 ################################### configuration ########################################
 config("configuration_sdk_config") {
   include_dirs = [
-    "interfaces/inner_api/configuration/include",
+    "interfaces/kits/native/configuration/include",
     "${ability_runtime_innerapi_path}/log/include",
     "//third_party/json/include",
   ]
@@ -61,8 +59,8 @@ config("configuration_sdk_config") {
 
 ohos_shared_library("configuration") {
   sources = [
-    "${baseImpl}/configuration/src/configuration.cpp",
-    "${baseImpl}/configuration/src/configuration_convertor.cpp",
+    "interfaces/kits/native/configuration/src/configuration.cpp",
+    "interfaces/kits/native/configuration/src/configuration_convertor.cpp",
   ]
 
   public_configs = [ ":configuration_sdk_config" ]
@@ -89,7 +87,7 @@ ohos_shared_library("configuration") {
 ################################### zuri ########################################
 config("zuri_config") {
   visibility = [ ":*" ]
-  include_dirs = [ "interfaces/inner_api/uri/include" ]
+  include_dirs = [ "interfaces/kits/native/uri/include" ]
   cflags = []
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
@@ -99,7 +97,7 @@ config("zuri_config") {
 ohos_shared_library("zuri") {
   public_configs = [ ":zuri_config" ]
 
-  sources = [ "${baseImpl}/uri/src/uri.cpp" ]
+  sources = [ "interfaces/kits/native/uri/src/uri.cpp" ]
 
   deps = []
 
@@ -129,9 +127,9 @@ config("want_config") {
 config("want_public_config") {
   visibility = [ ":*" ]
   include_dirs = [
-    "${ability_base_innerapi_path}/base/include",
-    "${ability_base_innerapi_path}/uri/include",
-    "${ability_base_innerapi_path}/want/include",
+    "interfaces/inner_api/base/include",
+    "interfaces/kits/native/uri/include",
+    "interfaces/kits/native/want/include",
     "${ability_runtime_innerapi_path}/log/include",
     "//third_party/jsoncpp/include",
     "//third_party/json/include",
@@ -139,21 +137,19 @@ config("want_public_config") {
   ]
 }
 
-wantImpl = "${ability_base_native_path}/want/src"
-
 ohos_shared_library("want") {
   sources = [
-    "${wantImpl}/array_wrapper.cpp",
-    "${wantImpl}/element_name.cpp",
-    "${wantImpl}/extra_params.cpp",
-    "${wantImpl}/operation.cpp",
-    "${wantImpl}/operation_builder.cpp",
-    "${wantImpl}/pac_map.cpp",
-    "${wantImpl}/patterns_matcher.cpp",
-    "${wantImpl}/skills.cpp",
-    "${wantImpl}/want.cpp",
-    "${wantImpl}/want_params.cpp",
-    "${wantImpl}/want_params_wrapper.cpp",
+    "interfaces/kits/native/want/src/array_wrapper.cpp",
+    "interfaces/kits/native/want/src/element_name.cpp",
+    "interfaces/kits/native/want/src/extra_params.cpp",
+    "interfaces/kits/native/want/src/operation.cpp",
+    "interfaces/kits/native/want/src/operation_builder.cpp",
+    "interfaces/kits/native/want/src/pac_map.cpp",
+    "interfaces/kits/native/want/src/patterns_matcher.cpp",
+    "interfaces/kits/native/want/src/skills.cpp",
+    "interfaces/kits/native/want/src/want.cpp",
+    "interfaces/kits/native/want/src/want_params.cpp",
+    "interfaces/kits/native/want/src/want_params_wrapper.cpp",
   ]
 
   deps = [ "//third_party/jsoncpp:jsoncpp" ]
