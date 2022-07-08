@@ -817,6 +817,7 @@ public:
     static const std::string PARAM_RESV_CALLER_TOKEN;
     static const std::string PARAM_RESV_CALLER_UID;
     static const std::string PARAM_RESV_CALLER_PID;
+    static const std::string PARAM_RESV_FOR_RESULT;
 
     // module name string
     static const std::string PARAM_MODULE_NAME;
