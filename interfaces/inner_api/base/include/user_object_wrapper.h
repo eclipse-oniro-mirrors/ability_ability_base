@@ -15,10 +15,8 @@
 #ifndef OHOS_AAFWK_USER_OBJECT_WRAPPER_H
 #define OHOS_AAFWK_USER_OBJECT_WRAPPER_H
 #include <memory>
-#include <functional>
 #include "base_object.h"
 #include "refbase.h"
-#include "user_object_base.h"
 
 namespace OHOS {
 namespace AAFwk {

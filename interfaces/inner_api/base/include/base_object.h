@@ -15,8 +15,6 @@
 #ifndef OHOS_AAFWK_BASE_OBJECT_H
 #define OHOS_AAFWK_BASE_OBJECT_H
 
-#include <string>
-
 #include "base_interfaces.h"
 #include "refbase.h"
 
