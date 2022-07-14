@@ -19,7 +19,6 @@
 #include <vector>
 #include <memory>
 #include "uri.h"
-#include "string_ex.h"
 
 namespace OHOS {
 namespace AAFwk {
