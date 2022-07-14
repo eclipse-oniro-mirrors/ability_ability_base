@@ -25,6 +25,7 @@ namespace GlobalConfigurationKey {
     /* Must be synchronized with the keystore(SystemConfigurationKeyStore)in the configuration */
     static const std::string SYSTEM_LANGUAGE {"ohos.system.language"};
     static const std::string SYSTEM_COLORMODE {"ohos.system.colorMode"};
+    static const std::string INPUT_POINTER_DEVICE {"input.pointer.device"};
 } // namespace GlobalConfigurationKey
 } // namespace AAFwk
 } // namespace OHOS
