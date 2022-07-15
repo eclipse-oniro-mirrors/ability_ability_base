@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef UTILS_NATIVE_INCLUDE_URI_H_
-#define UTILS_NATIVE_INCLUDE_URI_H_
+#ifndef OHOS_ABILITY_BASE_URI_H_
+#define OHOS_ABILITY_BASE_URI_H_
 
 #include <string>
 #include <vector>
@@ -210,4 +210,4 @@ private:
     size_t cachedFsi_;
 };
 } // namespace OHOS
-#endif // UTILS_NATIVE_INCLUDE_URI_H_
+#endif // OHOS_ABILITY_BASE_URI_H_

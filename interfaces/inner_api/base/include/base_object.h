@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef OHOS_AAFWK_BASE_OBJECT_H
-#define OHOS_AAFWK_BASE_OBJECT_H
+#ifndef OHOS_ABILITY_BASE_BASE_OBJECT_H
+#define OHOS_ABILITY_BASE_BASE_OBJECT_H
 
 #include "base_interfaces.h"
 #include "refbase.h"
@@ -90,4 +90,4 @@ public:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_BASE_OBJECT_H
+#endif  // OHOS_ABILITY_BASE_BASE_OBJECT_H

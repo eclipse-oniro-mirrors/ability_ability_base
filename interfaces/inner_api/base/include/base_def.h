@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef OHOS_AAFWK_BASE_DEF_H
-#define OHOS_AAFWK_BASE_DEF_H
+#ifndef OHOS_ABILITY_BASE_BASE_DEF_H
+#define OHOS_ABILITY_BASE_BASE_DEF_H
 
 #include "base_types.h"
 #include "errors.h"
@@ -153,4 +153,4 @@ namespace AAFwk {
 #endif
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_BASE_DEF_H
+#endif  // OHOS_ABILITY_BASE_BASE_DEF_H

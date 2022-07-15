@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_APPEXECFWK_PAC_MAP_H
-#define OHOS_APPEXECFWK_PAC_MAP_H
+#ifndef OHOS_ABILITY_BASE_PAC_MAP_H
+#define OHOS_ABILITY_BASE_PAC_MAP_H
 
 #include <string>
 #include <iostream>

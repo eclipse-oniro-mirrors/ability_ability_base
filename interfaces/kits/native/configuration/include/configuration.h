@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_INTERFACES_INNERKITS_CONFIGURATION_H
-#define OHOS_AAFWK_INTERFACES_INNERKITS_CONFIGURATION_H
+#ifndef OHOS_ABILITY_BASE_CONFIGURATION_H
+#define OHOS_ABILITY_BASE_CONFIGURATION_H
 
 #include <unordered_map>
 #include <string>
@@ -212,4 +212,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_INTERFACES_INNERKITS_CONFIGURATION_H
+#endif  // OHOS_ABILITY_BASE_CONFIGURATION_H

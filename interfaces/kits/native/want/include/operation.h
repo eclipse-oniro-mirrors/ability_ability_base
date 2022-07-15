@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_OPERATION_H
-#define OHOS_AAFWK_OPERATION_H
+#ifndef OHOS_ABILITY_BASE_OPERATION_H
+#define OHOS_ABILITY_BASE_OPERATION_H
 
 #include <string>
 #include "uri.h"
@@ -215,4 +215,4 @@ private:
 }  // namespace AAFwk
 }  // namespace OHOS
 
-#endif  // OHOS_AAFWK_WANT_PARAMS_H
+#endif  // OHOS_ABILITY_BASE_OPERATION_H

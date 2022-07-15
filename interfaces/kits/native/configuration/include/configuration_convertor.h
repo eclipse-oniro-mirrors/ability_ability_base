@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_INTERFACES_INNERKITS_CONFIGURATION_CONVERTOR_H
-#define OHOS_AAFWK_INTERFACES_INNERKITS_CONFIGURATION_CONVERTOR_H
+#ifndef OHOS_ABILITY_BASE_CONFIGURATION_CONVERTOR_H
+#define OHOS_ABILITY_BASE_CONFIGURATION_CONVERTOR_H
 
 #include <string>
 #include "res_common.h"
@@ -38,4 +38,4 @@ std::string GetDirectionStr(int32_t height, int32_t width);
 
 std::string GetDensityStr(float density);
 } // namespace OHOS::AppExecFwk
-#endif  // OHOS_AAFWK_INTERFACES_INNERKITS_CONFIGURATION_CONVERTOR_H
+#endif  // OHOS_ABILITY_BASE_CONFIGURATION_CONVERTOR_H

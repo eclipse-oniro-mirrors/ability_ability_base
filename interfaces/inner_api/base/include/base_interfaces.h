@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef OHOS_AAFWK_BASE_IINTERFACE_H
-#define OHOS_AAFWK_BASE_IINTERFACE_H
+#ifndef OHOS_ABILITY_BASE_BASE_IINTERFACES_H
+#define OHOS_ABILITY_BASE_BASE_IINTERFACES_H
 #include <memory>
 #include <string>
 
@@ -225,4 +225,4 @@ INTERFACE(IRemoteObjectWrap, 520d74e7 - 9aff - 7191 - 31b5 - f60c47f25c41)
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_BASE_IINTERFACE_H
+#endif  // OHOS_ABILITY_BASE_BASE_IINTERFACES_H

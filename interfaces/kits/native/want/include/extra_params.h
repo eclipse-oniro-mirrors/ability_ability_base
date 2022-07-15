@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef FOUNDATION_APPEXECFWK_OHOS_EXTRA_PARAMS_H
-#define FOUNDATION_APPEXECFWK_OHOS_EXTRA_PARAMS_H
+#ifndef OHOS_ABILITY_BASE_EXTRA_PARAMS_H
+#define OHOS_ABILITY_BASE_EXTRA_PARAMS_H
 
 #include <string>
 
@@ -201,4 +201,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_OHOS_EXTRA_PARAMS_H
+#endif  // OHOS_ABILITY_BASE_EXTRA_PARAMS_H

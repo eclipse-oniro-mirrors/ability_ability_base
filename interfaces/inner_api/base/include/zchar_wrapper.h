@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef OHOS_AAFWK_CHAR_H
-#define OHOS_AAFWK_CHAR_H
+#ifndef OHOS_ABILITY_BASE_ZCHAR_WRAPPER_H
+#define OHOS_ABILITY_BASE_ZCHAR_WRAPPER_H
 
 #include "base_object.h"
 #include "refbase.h"

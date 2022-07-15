@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_ARRAY_H
-#define OHOS_AAFWK_ARRAY_H
+#ifndef OHOS_ABILITY_BASE_ARRAY_WRAPPER_H
+#define OHOS_ABILITY_BASE_ARRAY_WRAPPER_H
 
 #include <functional>
 #include <vector>
@@ -97,4 +97,4 @@ private:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_DOUBLE_H
+#endif  // OHOS_ABILITY_BASE_ARRAY_WRAPPER_H

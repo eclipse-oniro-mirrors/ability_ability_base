@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef OHOS_AAFWK_USER_OBJECT_WRAPPER_H
-#define OHOS_AAFWK_USER_OBJECT_WRAPPER_H
+#ifndef OHOS_ABILITY_BASE_USER_OBJECT_WRAPPER_H
+#define OHOS_ABILITY_BASE_USER_OBJECT_WRAPPER_H
 #include <memory>
 #include "base_object.h"
 #include "refbase.h"
@@ -49,4 +49,4 @@ private:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_USER_OBJECT_WRAPPER_H
+#endif  // OHOS_ABILITY_BASE_USER_OBJECT_WRAPPER_H
