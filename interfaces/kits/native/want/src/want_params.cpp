@@ -1082,7 +1082,7 @@ bool WantParams::ReadFromParcelArrayWantParams(Parcel &parcel, sptr<IArray> &ao)
 
     ao = new (std::nothrow) AAFwk::Array(arrayWantParams.size(), AAFwk::g_IID_IWantParams);
     if (ao != nullptr) {
-        for (int i = 0; i < size; i++) {
+        for (int i = 0; i < arrayWantParams.size(); i++) {
             ao->Set(i, arrayWantParams[i]);
         }
         return true;
