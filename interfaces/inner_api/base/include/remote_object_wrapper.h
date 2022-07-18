@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_REMOTE_OBJECT_WRAP_H
-#define OHOS_AAFWK_REMOTE_OBJECT_WRAP_H
+#ifndef OHOS_ABILITY_BASE_REMOTE_OBJECT_WRAPPER_H
+#define OHOS_ABILITY_BASE_REMOTE_OBJECT_WRAPPER_H
 
 #include "base_object.h"
 #include "foundation/communication/ipc/interfaces/innerkits/ipc_core/include/iremote_object.h"
@@ -44,4 +44,4 @@ private:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_REMOTE_OBJECT_WRAP_H
+#endif  // OHOS_ABILITY_BASE_REMOTE_OBJECT_WRAPPER_H

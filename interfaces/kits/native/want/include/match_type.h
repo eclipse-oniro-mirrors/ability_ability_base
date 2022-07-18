@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef OHOS_AAFWK_MATCH_TYPE_H
-#define OHOS_AAFWK_MATCH_TYPE_H
+#ifndef OHOS_ABILITY_BASE_MATCH_TYPE_H
+#define OHOS_ABILITY_BASE_MATCH_TYPE_H
 
 namespace OHOS {
 namespace AAFwk {
@@ -26,4 +26,4 @@ enum class MatchType {
 }
 }  // namespace OHOS
 
-#endif  // OHOS_AAFWK_MATCH_TYPE_H
+#endif  // OHOS_ABILITY_BASE_MATCH_TYPE_H

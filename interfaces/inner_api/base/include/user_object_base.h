@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef OHOS_APPEXECFWK_USER_OBJECT_BASE_H
-#define OHOS_APPEXECFWK_USER_OBJECT_BASE_H
+#ifndef OHOS_ABILITY_BASE_USER_OBJECT_BASE_H
+#define OHOS_ABILITY_BASE_USER_OBJECT_BASE_H
 #include <unordered_map>
 #include "parcel.h"
 #include "string_ex.h"
@@ -127,4 +127,4 @@ private:
     }
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_APPEXECFWK_USER_OBJECT_BASE_H
+#endif  // OHOS_ABILITY_BASE_USER_OBJECT_BASE_H

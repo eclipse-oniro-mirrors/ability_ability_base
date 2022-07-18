@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_WANT_H
-#define OHOS_AAFWK_WANT_H
+#ifndef OHOS_ABILITY_BASE_WANT_H
+#define OHOS_ABILITY_BASE_WANT_H
 
 #include <string>
 #include <vector>
@@ -853,4 +853,4 @@ private:
 }  // namespace AAFwk
 }  // namespace OHOS
 
-#endif  // OHOS_AAFWK_WANT_H
+#endif  // OHOS_ABILITY_BASE_WANT_H

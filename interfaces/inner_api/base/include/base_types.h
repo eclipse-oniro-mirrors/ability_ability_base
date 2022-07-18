@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef OHOS_AAFWK_BASE_TYPES_H
-#define OHOS_AAFWK_BASE_TYPES_H
+#ifndef OHOS_ABILITY_BASE_BASE_TYPES_H
+#define OHOS_ABILITY_BASE_BASE_TYPES_H
 
 #include <stdint.h>
 #include <string.h>
@@ -52,4 +52,4 @@ inline bool operator!=(const InterfaceID &iid1, /* [in] */
 }
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_BASE_TYPES_H
+#endif  // OHOS_ABILITY_BASE_BASE_TYPES_H

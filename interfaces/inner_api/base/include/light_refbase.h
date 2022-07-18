@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef OHOS_AAFWK_LIGHTREFBASE_H
-#define OHOS_AAFWK_LIGHTREFBASE_H
+#ifndef OHOS_ABILITY_BASE_LIGHT_REFBASE_H
+#define OHOS_ABILITY_BASE_LIGHT_REFBASE_H
 
 #include <atomic>
 
@@ -63,4 +63,4 @@ int LightRefCountBase::GetRefCount() const
 }
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_LIGHTREFBASE_H
+#endif  // OHOS_ABILITY_BASE_LIGHT_REFBASE_H

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_OPERATION_BUILDER_H
-#define OHOS_AAFWK_OPERATION_BUILDER_H
+#ifndef OHOS_ABILITY_BASE_OPERATION_BUILDER_H
+#define OHOS_ABILITY_BASE_OPERATION_BUILDER_H
 #include <string>
 #include <vector>
 #include <memory>
@@ -83,4 +83,4 @@ private:
 }  // namespace AAFwk
 }  // namespace OHOS
 
-#endif  // OHOS_AAFWK_OPERATION_BUILDER_H
+#endif  // OHOS_ABILITY_BASE_OPERATION_BUILDER_H
