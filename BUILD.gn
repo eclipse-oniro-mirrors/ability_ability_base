@@ -52,7 +52,7 @@ ohos_shared_library("base") {
 config("configuration_sdk_config") {
   include_dirs = [
     "interfaces/kits/native/configuration/include",
-    "${ability_runtime_innerapi_path}/log/include",
+    "${ability_base_innerapi_path}/log/include",
     "//third_party/json/include",
   ]
 }
@@ -130,7 +130,7 @@ config("want_public_config") {
     "interfaces/inner_api/base/include",
     "interfaces/kits/native/uri/include",
     "interfaces/kits/native/want/include",
-    "${ability_runtime_innerapi_path}/log/include",
+    "${ability_base_innerapi_path}/log/include",
     "//third_party/jsoncpp/include",
     "//third_party/json/include",
     "//utils/native/base/include",
