@@ -42,7 +42,7 @@ ohos_shared_library("base") {
   ]
   configs = [ ":base_config" ]
   public_configs = [ ":base_public_config" ]
-  external_deps = [ "utils_base:utils" ]
+  external_deps = [ "c_utils:utils" ]
 
   subsystem_name = "ability"
   part_name = "ability_base"
@@ -75,9 +75,9 @@ ohos_shared_library("configuration") {
   }
 
   external_deps = [
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "resource_management:global_resmgr",
-    "utils_base:utils",
   ]
 
   subsystem_name = "ability"
@@ -102,8 +102,8 @@ ohos_shared_library("zuri") {
   deps = []
 
   external_deps = [
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
-    "utils_base:utils",
   ]
 
   subsystem_name = "ability"
@@ -133,7 +133,7 @@ config("want_public_config") {
     "${ability_base_innerapi_path}/log/include",
     "//third_party/jsoncpp/include",
     "//third_party/json/include",
-    "//utils/native/base/include",
+    "//commonlibrary/c_utils/base/include",
   ]
 }
 
@@ -157,9 +157,9 @@ ohos_shared_library("want") {
   external_deps = [
     "ability_base:base",
     "ability_base:zuri",
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "utils_base:utils",
   ]
 
   configs = [ ":want_config" ]

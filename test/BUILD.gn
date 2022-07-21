@@ -30,7 +30,7 @@ ohos_unittest("base_test") {
 
   external_deps = [
     "ability_base:base",
-    "utils_base:utils",
+    "c_utils:utils",
   ]
 }
 
@@ -70,16 +70,14 @@ ohos_unittest("operation_test") {
     "${ability_base_path}:want_public_config",
   ]
 
-  deps = [
-    "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
-  ]
+  deps = [ "//third_party/googletest:gtest_main" ]
 
   external_deps = [
     "ability_base:base",
     "ability_base:want",
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
   ]
 }
 
@@ -95,12 +93,12 @@ ohos_unittest("patterns_matcher_test") {
   deps = [
     "${ability_base_path}:base",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
   ]
 }
@@ -114,16 +112,14 @@ ohos_unittest("skills_test") {
     "${ability_base_path}:want_public_config",
   ]
 
-  deps = [
-    "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
-  ]
+  deps = [ "//third_party/googletest:gtest_main" ]
 
   external_deps = [
     "ability_base:base",
     "ability_base:want",
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
   ]
 }
@@ -141,11 +137,11 @@ ohos_unittest("want_params_test") {
     "${ability_base_path}:base",
     "${ability_base_path}:want",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
     "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]
@@ -157,16 +153,14 @@ ohos_unittest("want_params_wrapper_test") {
 
   configs = [ ":module_private_want_param_wrapper_config" ]
 
-  deps = [
-    "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
-  ]
+  deps = [ "//third_party/googletest:gtest_main" ]
 
   external_deps = [
     "ability_base:base",
     "ability_base:want",
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]
@@ -181,16 +175,14 @@ ohos_unittest("want_test") {
     "${ability_base_path}:want_public_config",
   ]
 
-  deps = [
-    "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
-  ]
+  deps = [ "//third_party/googletest:gtest_main" ]
 
   external_deps = [
     "ability_base:base",
     "ability_base:want",
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
   ]
 }
