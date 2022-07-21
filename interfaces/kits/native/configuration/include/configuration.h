@@ -26,11 +26,11 @@
 namespace OHOS {
 namespace AppExecFwk {
 namespace ConfigurationInner {
-    const std::string CONNECTION_SYMBOL {"#"};
-    const std::string EMPTY_STRING {""};
-    const std::string APPLICATION_DIRECTION {"ohos.application.direction"};
-    const std::string APPLICATION_DENSITYDPI {"ohos.application.densitydpi"};
-    const std::string APPLICATION_DISPLAYID {"ohos.application.displayid"};
+    constexpr const char* CONNECTION_SYMBOL = "#";
+    constexpr const char* EMPTY_STRING = "";
+    constexpr const char* APPLICATION_DIRECTION = "ohos.application.direction";
+    constexpr const char* APPLICATION_DENSITYDPI = "ohos.application.densitydpi";
+    constexpr const char* APPLICATION_DISPLAYID = "ohos.application.displayid";
 
     /*
      * This must be synchronized with the value in GlobalConfigurationKey
@@ -43,11 +43,11 @@ namespace ConfigurationInner {
         OHOS::AppExecFwk::ConfigurationInner::APPLICATION_DISPLAYID,
     };
 
-    const std::string COLOR_MODE_LIGHT {"light"};
-    const std::string COLOR_MODE_DARK {"dark"};
+    constexpr const char* COLOR_MODE_LIGHT = "light";
+    constexpr const char* COLOR_MODE_DARK = "dark";
 
-    const std::string DIRECTION_VERTICAL {"vertical"};
-    const std::string DIRECTION_HORIZONTAL {"horizontal"};
+    constexpr const char* DIRECTION_VERTICAL = "vertical";
+    constexpr const char* DIRECTION_HORIZONTAL = "horizontal";
 };
 
 class Configuration final: public Parcelable {
