@@ -23,8 +23,8 @@ namespace AAFwk {
 namespace GlobalConfigurationKey {
     /* For the time being, there is no uniform standard */
     /* Must be synchronized with the keystore(SystemConfigurationKeyStore)in the configuration */
-    static const std::string SYSTEM_LANGUAGE {"ohos.system.language"};
-    static const std::string SYSTEM_COLORMODE {"ohos.system.colorMode"};
+    constexpr const char* SYSTEM_LANGUAGE = "ohos.system.language";
+    constexpr const char* SYSTEM_COLORMODE = "ohos.system.colorMode";
 } // namespace GlobalConfigurationKey
 } // namespace AAFwk
 } // namespace OHOS
