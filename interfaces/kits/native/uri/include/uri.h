@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_BASE_URI_H_
-#define OHOS_ABILITY_BASE_URI_H_
+#ifndef OHOS_ABILITY_BASE_URI_H
+#define OHOS_ABILITY_BASE_URI_H
 
 #include <string>
 #include <vector>
