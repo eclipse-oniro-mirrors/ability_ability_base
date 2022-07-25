@@ -169,6 +169,11 @@ public:
      */
     static Uri* Unmarshalling(Parcel& parcel);
 
+    // no object in parcel
+    static constexpr int VALUE_NULL = -1;
+    // object exist in parcel
+    static constexpr int VALUE_OBJECT = 1;
+
 private:
     bool CheckScheme();
     std::string ParseScheme();

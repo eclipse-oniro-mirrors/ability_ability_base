@@ -26,10 +26,6 @@
 
 namespace OHOS {
 namespace AAFwk {
-constexpr const char* FD = "FD";
-constexpr const char* REMOTE_OBJECT = "RemoteObject";
-constexpr const char* TYPE_PROPERTY = "type";
-constexpr const char* VALUE_PROPERTY = "value";
 class UnsupportedData {
 public:
     std::u16string key;
@@ -92,6 +88,11 @@ public:
     static WantParams *Unmarshalling(Parcel &parcel);
 
     void DumpInfo(int level) const;
+
+    constexpr const char* FD = "FD";
+    constexpr const char* REMOTE_OBJECT = "RemoteObject";
+    constexpr const char* TYPE_PROPERTY = "type";
+    constexpr const char* VALUE_PROPERTY = "value";
 
 private:
     enum {
