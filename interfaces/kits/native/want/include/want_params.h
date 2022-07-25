@@ -26,10 +26,10 @@
 
 namespace OHOS {
 namespace AAFwk {
-constexpr const char* FD = "FD";
-constexpr const char* REMOTE_OBJECT = "RemoteObject";
-constexpr const char* TYPE_PROPERTY = "type";
-constexpr const char* VALUE_PROPERTY = "value";
+extern const char* FD;
+extern const char* REMOTE_OBJECT;
+extern const char* TYPE_PROPERTY;
+extern const char* VALUE_PROPERTY;
 class UnsupportedData {
 public:
     std::u16string key;
