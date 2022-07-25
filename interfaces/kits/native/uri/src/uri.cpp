@@ -506,27 +506,4 @@ Uri* Uri::Unmarshalling(Parcel& parcel)
 {
     return new Uri(Str16ToStr8(parcel.ReadString16()));
 }
-
-bool Uri::ReadUriFromParcel(Parcel& parcel, Uri& uri)
-{
-    // uri_
-    int32_t empty = VALUE_NULL;
-    if (!parcel.ReadInt32(empty)) {
-        return false;
-    }
-
-    if (empty != VALUE_OBJECT) {
-        return false;
-    }
-
-    auto uriTemp = parcel.ReadParcelable<Uri>();
-    if (uriTemp == nullptr) {
-        return false;
-    }
-
-    uri = *uriTemp;
-    delete uriTemp;
-    uriTemp = nullptr;
-    return true;
-}
 } // namespace OHOS

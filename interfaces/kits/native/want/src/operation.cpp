@@ -302,10 +302,21 @@ bool Operation::ReadFromParcel(Parcel &parcel)
     READ_PARCEL_AND_RETURN_FALSE_IF_FAIL(Uint32, parcel, flags_);
 
     // uri_
-    if (!Uri::ReadUriFromParcel(parcel, uri_)) {
+    int32_t empty = VALUE_NULL;
+    if (!parcel.ReadInt32(empty)) {
         return false;
     }
 
+    if (empty == VALUE_OBJECT) {
+        auto uri = parcel.ReadParcelable<Uri>();
+        if (uri != nullptr) {
+            uri_ = *uri;
+            delete uri;
+            uri = nullptr;
+        } else {
+            return false;
+        }
+    }
     return true;
 }
 
