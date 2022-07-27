@@ -36,6 +36,10 @@
 
 namespace OHOS {
 namespace AAFwk {
+const char* FD = "FD";
+const char* REMOTE_OBJECT = "RemoteObject";
+const char* TYPE_PROPERTY = "type";
+const char* VALUE_PROPERTY = "value";
 UnsupportedData::~UnsupportedData()
 {
     if (buffer != nullptr) {
