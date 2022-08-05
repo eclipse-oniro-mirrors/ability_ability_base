@@ -65,10 +65,7 @@ ohos_shared_library("configuration") {
 
   public_configs = [ ":configuration_sdk_config" ]
 
-  defines = [
-    "ABILITYBASE_LOG_TAG = \"Configuration\"",
-    "ABILITYBASE_LOG_DOMAIN = 0xD002200",
-  ]
+  defines = [ "ABILITYBASE_LOG_TAG = \"Configuration\"" ]
   cflags = []
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
@@ -118,10 +115,7 @@ config("want_config") {
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
-  defines = [
-    "ABILITYBASE_LOG_TAG = \"Ability\"",
-    "ABILITYBASE_LOG_DOMAIN = 0xD002200",
-  ]
+  defines = [ "ABILITYBASE_LOG_TAG = \"Want\"" ]
 }
 
 config("want_public_config") {
