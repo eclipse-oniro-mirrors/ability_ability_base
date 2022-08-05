@@ -34,6 +34,7 @@
 #include "zchar_wrapper.h"
 #include "array_wrapper.h"
 #include "parcel_macro_base.h"
+#include "remote_object_wrapper.h"
 #include "string_ex.h"
 #include "want_params_wrapper.h"
 
@@ -503,6 +504,45 @@ std::vector<bool> Want::GetBoolArrayParam(const std::string &key) const
         Array::ForEach(ao, func);
     }
     return array;
+}
+
+Want& Want::SetParam(const std::string& key, const sptr<IRemoteObject>& remoteObject)
+{
+    WantParams wp;
+    wp.SetParam(AAFwk::TYPE_PROPERTY, AAFwk::String::Box(AAFwk::REMOTE_OBJECT));
+    wp.SetParam(AAFwk::VALUE_PROPERTY, AAFwk::RemoteObjectWrap::Box(remoteObject));
+    parameters_.SetParam(key, WantParamWrapper::Box(wp));
+    return *this;
+}
+
+sptr<IRemoteObject> Want::GetRemoteObject(const std::string &key) const
+{
+    auto value = parameters_.GetParam(key);
+    IWantParams* iwp = IWantParams::Query(value);
+    if (iwp == nullptr) {
+        ABILITYBASE_LOGI("%{public}s is invalid.", key.c_str());
+        return nullptr;
+    }
+    auto wp = WantParamWrapper::Unbox(iwp);
+
+    auto type = wp.GetParam(TYPE_PROPERTY);
+    IString* iString = IString::Query(type);
+    if (iString == nullptr) {
+        ABILITYBASE_LOGI("it not contains TYPE_PROPERTY.");
+        return nullptr;
+    }
+    if (REMOTE_OBJECT != String::Unbox(iString)) {
+        ABILITYBASE_LOGE("invalid type.");
+        return nullptr;
+    }
+
+    auto remoteObjVal = wp.GetParam(VALUE_PROPERTY);
+    IRemoteObjectWrap* iRemoteObj = IRemoteObjectWrap::Query(remoteObjVal);
+    if (iRemoteObj == nullptr) {
+        ABILITYBASE_LOGE("it not contains VALUE_PROPERTY.");
+        return nullptr;
+    }
+    return RemoteObjectWrap::UnBox(iRemoteObj);
 }
 
 /**
