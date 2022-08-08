@@ -51,10 +51,11 @@ class WantParams final : public Parcelable {
 public:
     WantParams() = default;
     WantParams(const WantParams &wantParams);
+    WantParams(WantParams &&other) noexcept;
     inline ~WantParams()
     {}
     WantParams &operator=(const WantParams &other);
-
+    WantParams &operator=(WantParams &&other) noexcept;
     bool operator==(const WantParams &other);
 
     static sptr<IInterface> GetInterfaceByType(int typeId, const std::string &value);
@@ -129,7 +130,7 @@ private:
         VALUE_TYPE_REMOTE_OBJECT = 104
     };
 
-    bool WriteArrayToParcel(Parcel &parcel, IArray *ao) const;
+    bool WriteArrayToParcel(Parcel &parcel, IArray *ao, int depth) const;
     bool ReadArrayToParcel(Parcel &parcel, int type, sptr<IArray> &ao);
     bool ReadFromParcel(Parcel &parcel);
     bool ReadFromParcelParam(Parcel &parcel, const std::string &key, int type);
@@ -167,9 +168,9 @@ private:
     bool WriteArrayToParcelLong(Parcel &parcel, IArray *ao) const;
     bool WriteArrayToParcelFloat(Parcel &parcel, IArray *ao) const;
     bool WriteArrayToParcelDouble(Parcel &parcel, IArray *ao) const;
-    bool WriteArrayToParcelWantParams(Parcel &parcel, IArray *ao) const;
+    bool WriteArrayToParcelWantParams(Parcel &parcel, IArray *ao, int depth) const;
 
-    bool WriteMarshalling(Parcel &parcel, sptr<IInterface> &o) const;
+    bool WriteMarshalling(Parcel &parcel, sptr<IInterface> &o, int depth) const;
     bool WriteToParcelString(Parcel &parcel, sptr<IInterface> &o) const;
     bool WriteToParcelBool(Parcel &parcel, sptr<IInterface> &o) const;
     bool WriteToParcelByte(Parcel &parcel, sptr<IInterface> &o) const;
@@ -179,11 +180,11 @@ private:
     bool WriteToParcelLong(Parcel &parcel, sptr<IInterface> &o) const;
     bool WriteToParcelFloat(Parcel &parcel, sptr<IInterface> &o) const;
     bool WriteToParcelDouble(Parcel &parcel, sptr<IInterface> &o) const;
-    bool WriteToParcelWantParams(Parcel &parcel, sptr<IInterface> &o) const;
+    bool WriteToParcelWantParams(Parcel &parcel, sptr<IInterface> &o, int depth) const;
     bool WriteToParcelFD(Parcel &parcel, const WantParams &value) const;
     bool WriteToParcelRemoteObject(Parcel &parcel, const WantParams &value) const;
 
-    bool DoMarshalling(Parcel &parcel) const;
+    bool DoMarshalling(Parcel &parcel, int depth = 1) const;
     bool ReadUnsupportedData(Parcel &parcel, const std::string &key, int type);
 
     friend class WantParamWrapper;

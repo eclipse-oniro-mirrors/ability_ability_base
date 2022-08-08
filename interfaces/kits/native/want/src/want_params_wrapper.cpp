@@ -68,6 +68,12 @@ sptr<IWantParams> WantParamWrapper::Box(const WantParams &value)
     return object;
 }
 
+sptr<IWantParams> WantParamWrapper::Box(WantParams &&value)
+{
+    sptr<IWantParams> object = new (std::nothrow) WantParamWrapper(std::move(value));
+    return object;
+}
+
 WantParams WantParamWrapper::Unbox(IWantParams *object)
 {
     WantParams value;
