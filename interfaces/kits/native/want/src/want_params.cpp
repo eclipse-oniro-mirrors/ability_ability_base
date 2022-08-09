@@ -40,6 +40,7 @@ const char* FD = "FD";
 const char* REMOTE_OBJECT = "RemoteObject";
 const char* TYPE_PROPERTY = "type";
 const char* VALUE_PROPERTY = "value";
+constexpr int32_t MAX_RECURSION_DEPTH = 100;
 UnsupportedData::~UnsupportedData()
 {
     if (buffer != nullptr) {
@@ -150,6 +151,12 @@ WantParams::WantParams(const WantParams &wantParams)
     params_.clear();
     NewParams(wantParams, *this);
 }
+
+WantParams::WantParams(WantParams && other) noexcept
+{
+    *this = std::move(other);
+}
+
 // inner use function
 bool WantParams::NewParams(const WantParams &source, WantParams &dest)
 {
@@ -177,8 +184,7 @@ bool WantParams::NewParams(const WantParams &source, WantParams &dest)
         } else if (IRemoteObjectWrap::Query(o) != nullptr) {
             dest.params_[it->first] = RemoteObjectWrap::Box(RemoteObjectWrap::UnBox(IRemoteObjectWrap::Query(o)));
         } else if (IWantParams::Query(o) != nullptr) {
-            WantParams newDest(WantParamWrapper::Unbox(IWantParams::Query(o)));
-            dest.params_[it->first] = WantParamWrapper::Box(newDest);
+            dest.params_[it->first] = WantParamWrapper::Box(WantParamWrapper::Unbox(IWantParams::Query(o)));
         } else if (IArray::Query(o) != nullptr) {
             sptr<IArray> destAO = nullptr;
             if (!NewArrayData(IArray::Query(o), destAO)) {
@@ -235,6 +241,19 @@ WantParams &WantParams::operator=(const WantParams &other)
     }
     return *this;
 }
+
+WantParams &WantParams::operator=(WantParams &&other) noexcept
+{
+    if (this != &other) {
+        // free existing resources.
+        params_.clear();
+        params_ = other.params_;
+        // free other resources.
+        other.params_.clear();
+    }
+    return *this;
+}
+
 bool WantParams::operator==(const WantParams &other)
 {
     if (this->params_.size() != other.params_.size()) {
@@ -490,7 +509,7 @@ bool WantParams::WriteToParcelBool(Parcel &parcel, sptr<IInterface> &o) const
     return parcel.WriteInt8(value);
 }
 
-bool WantParams::WriteToParcelWantParams(Parcel &parcel, sptr<IInterface> &o) const
+bool WantParams::WriteToParcelWantParams(Parcel &parcel, sptr<IInterface> &o, int depth) const
 {
     WantParams value = WantParamWrapper::Unbox(IWantParams::Query(o));
 
@@ -509,7 +528,7 @@ bool WantParams::WriteToParcelWantParams(Parcel &parcel, sptr<IInterface> &o) co
     if (!parcel.WriteInt32(VALUE_TYPE_WANTPARAMS)) {
         return false;
     }
-    return parcel.WriteParcelable(&value);
+    return value.DoMarshalling(parcel, depth + 1);
 }
 
 bool WantParams::WriteToParcelFD(Parcel &parcel, const WantParams &value) const
@@ -614,7 +633,7 @@ bool WantParams::WriteToParcelDouble(Parcel &parcel, sptr<IInterface> &o) const
     return parcel.WriteDouble(value);
 }
 
-bool WantParams::WriteMarshalling(Parcel &parcel, sptr<IInterface> &o) const
+bool WantParams::WriteMarshalling(Parcel &parcel, sptr<IInterface> &o, int depth) const
 {
     if (IString::Query(o) != nullptr) {
         return WriteToParcelString(parcel, o);
@@ -635,20 +654,23 @@ bool WantParams::WriteMarshalling(Parcel &parcel, sptr<IInterface> &o) const
     } else if (IDouble::Query(o) != nullptr) {
         return WriteToParcelDouble(parcel, o);
     } else if (IWantParams::Query(o) != nullptr) {
-        return WriteToParcelWantParams(parcel, o);
+        return WriteToParcelWantParams(parcel, o, depth);
     } else {
         IArray *ao = IArray::Query(o);
         if (ao != nullptr) {
             sptr<IArray> array(ao);
-            return WriteArrayToParcel(parcel, array);
+            return WriteArrayToParcel(parcel, array, depth);
         } else {
             return true;
         }
     }
 }
 
-bool WantParams::DoMarshalling(Parcel &parcel) const
+bool WantParams::DoMarshalling(Parcel &parcel, int depth) const
 {
+    if (depth >= MAX_RECURSION_DEPTH) {
+        return false;
+    }
     size_t size = params_.size();
     if (!cachedUnsupportedData_.empty()) {
         size += cachedUnsupportedData_.size();
@@ -665,7 +687,7 @@ bool WantParams::DoMarshalling(Parcel &parcel) const
         if (!parcel.WriteString16(Str8ToStr16(key))) {
             return false;
         }
-        if (!WriteMarshalling(parcel, o)) {
+        if (!WriteMarshalling(parcel, o, depth)) {
             return false;
         }
         iter++;
@@ -898,7 +920,7 @@ bool WantParams::WriteArrayToParcelDouble(Parcel &parcel, IArray *ao) const
     return parcel.WriteDoubleVector(array);
 }
 
-bool WantParams::WriteArrayToParcelWantParams(Parcel &parcel, IArray *ao) const
+bool WantParams::WriteArrayToParcelWantParams(Parcel &parcel, IArray *ao, int depth) const
 {
     if (ao == nullptr) {
         return false;
@@ -919,15 +941,16 @@ bool WantParams::WriteArrayToParcelWantParams(Parcel &parcel, IArray *ao) const
     if (!parcel.WriteInt32(array.size())) {
         return false;
     }
+
     for (const auto& wp : array) {
-        if (!parcel.WriteParcelable(&wp)) {
+        if (!wp.DoMarshalling(parcel, depth + 1)) {
             return false;
         }
     }
     return true;
 }
 
-bool WantParams::WriteArrayToParcel(Parcel &parcel, IArray *ao) const
+bool WantParams::WriteArrayToParcel(Parcel &parcel, IArray *ao, int depth) const
 {
     if (Array::IsStringArray(ao)) {
         return WriteArrayToParcelString(parcel, ao);
@@ -948,7 +971,7 @@ bool WantParams::WriteArrayToParcel(Parcel &parcel, IArray *ao) const
     } else if (Array::IsDoubleArray(ao)) {
         return WriteArrayToParcelDouble(parcel, ao);
     } else if (Array::IsWantParamsArray(ao)) {
-        return WriteArrayToParcelWantParams(parcel, ao);
+        return WriteArrayToParcelWantParams(parcel, ao, depth);
     } else {
         return true;
     }
@@ -1075,7 +1098,7 @@ bool WantParams::ReadFromParcelArrayWantParams(Parcel &parcel, sptr<IArray> &ao)
     int32_t size = parcel.ReadInt32();
     std::vector<sptr<IInterface>> arrayWantParams;
     for (int32_t i = 0; i < size; ++i) {
-        sptr<WantParams> value = parcel.ReadStrongParcelable<WantParams>();
+        sptr<WantParams> value(Unmarshalling(parcel));
         if (value != nullptr) {
             sptr<IInterface> interface = WantParamWrapper::Box(*value);
             if (interface != nullptr) {
@@ -1233,7 +1256,7 @@ bool WantParams::ReadFromParcelWantParamWrapper(Parcel &parcel, const std::strin
         return ReadFromParcelRemoteObject(parcel, key);
     }
 
-    sptr<WantParams> value = parcel.ReadStrongParcelable<WantParams>();
+    sptr<WantParams> value(Unmarshalling(parcel));
     if (value != nullptr) {
         sptr<IInterface> intf = WantParamWrapper::Box(*value);
         if (intf) {

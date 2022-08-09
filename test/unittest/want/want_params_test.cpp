@@ -194,7 +194,6 @@ HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_Parcelable_0500, Function | Medium
  */
 HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_Parcelable_0600, Function | MediumTest | Level1)
 {
-    sptr<AAFwk::IArray> ao = new (std::nothrow) AAFwk::Array(2, AAFwk::g_IID_IWantParams);
     WantParams wp;
 
     wp.SetParam("hello", String::Box("World"));
@@ -253,6 +252,81 @@ HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_Parcelable_0700, Function | Medium
 
     EXPECT_EQ(valueStr0, String::Unbox(IString::Query(str0)));
     EXPECT_EQ(valueStr1, String::Unbox(IString::Query(str1)));
+}
+/**
+ * @brief Helper function to generate a wantParam with desired nested depth.
+ * @param depth the desired depth.
+ */
+WantParams MaliciousRecursionGenerator(int depth)
+{
+    WantParams wp;
+    if (depth <= 1) {
+        wp.SetParam("hello", String::Box("World"));
+        wp.SetParam("welcome", String::Box("NY"));
+        return wp;
+    } else {
+        wp.SetParam(std::to_string(depth), AAFwk::WantParamWrapper::Box(MaliciousRecursionGenerator(depth-1)));
+    }
+    return wp;
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_Parcelable_0800
+ * @tc.name: Marshalling/Unmarshalling
+ * @tc.desc: Test within the recursion depth limits when marshalling with nested wantParam.
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_Parcelable_0800, Function | MediumTest | Level1)
+{
+    WantParams wp = MaliciousRecursionGenerator(98);
+    wantParamsIn_->SetParam("l99",  AAFwk::WantParamWrapper::Box(wp));
+    Parcel in;
+    EXPECT_EQ(wantParamsIn_->Marshalling(in), true);
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_Parcelable_0900
+ * @tc.name: Marshalling/Unmarshalling
+ * @tc.desc: Test exceeding the recursion depth limits when marshalling with nested wantParam.
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_Parcelable_0900, Function | MediumTest | Level1)
+{
+    WantParams wp = MaliciousRecursionGenerator(99);
+    wantParamsIn_->SetParam("l100",  AAFwk::WantParamWrapper::Box(wp));
+    Parcel in;
+    EXPECT_EQ(wantParamsIn_->Marshalling(in), false);
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_Parcelable_1000
+ * @tc.name: Marshalling/Unmarshalling
+ * @tc.desc: Test exceeding the recursion depth limits when marshalling with nested wantParam.
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_Parcelable_1000, Function | MediumTest | Level1)
+{
+    WantParams wp = MaliciousRecursionGenerator(100);
+    wantParamsIn_->SetParam("l101",  AAFwk::WantParamWrapper::Box(wp));
+    Parcel in;
+    EXPECT_EQ(wantParamsIn_->Marshalling(in), false);
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_Parcelable_1100
+ * @tc.name: DeepCopy
+ * @tc.desc: Test copy constructor of wantParam uses DeepCopy.
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_Parcelable_1100, Function | MediumTest | Level1)
+{
+    WantParams wp = MaliciousRecursionGenerator(0);
+    sptr<IWantParams> wrapper = AAFwk::WantParamWrapper::Box(wp);
+    WantParams wp2;
+    wp2.SetParam("l1",  wrapper);
+    // DeepCopy
+    WantParams wp3(wp2);
+    // The wrapper ptr should not be the same.
+    EXPECT_NE(wp3.GetParam("l1"), wp2.GetParam("l1"));
+    // checks if inner values remain the same, wp1 should contain the values in wp
+    WantParams wp1 = WantParamWrapper::Unbox(IWantParams::Query(wp3.GetParam("l1")));
+    EXPECT_EQ(String::Unbox(IString::Query(wp1.GetParam("hello"))), "World");
 }
 }
 }

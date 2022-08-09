@@ -36,6 +36,11 @@ class WantParamWrapper final : public Object, public IWantParams {
 public:
     inline WantParamWrapper(const WantParams &value) : wantParams_(value)
     {}
+    /**
+     * @brief Constructor for move semantics
+     */
+    inline WantParamWrapper(WantParams &&value) : wantParams_(std::move(value))
+    {}
 
     inline ~WantParamWrapper()
     {}
@@ -49,6 +54,13 @@ public:
     std::string ToString() override;
 
     static sptr<IWantParams> Box(const WantParams &value);
+    /**
+     * @brief Wrap a wantParam into a WantParamWrapper using move semantics and return the wrapper.
+     *
+     * @param value
+     * @return sptr<IWantParams>
+     */
+    static sptr<IWantParams> Box(WantParams &&value);
 
     static WantParams Unbox(IWantParams *object);
 
