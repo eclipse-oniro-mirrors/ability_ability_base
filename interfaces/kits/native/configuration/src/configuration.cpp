@@ -62,7 +62,7 @@ bool Configuration::MakeTheKey(std::string &getKey, int id, const std::string &p
     getKey += std::to_string(id);
     getKey += ConfigurationInner::CONNECTION_SYMBOL;
     getKey += param;
-    ABILITYBASE_LOGW(" getKey [%{public}s]", getKey.c_str());
+    ABILITYBASE_LOGD(" getKey [%{public}s]", getKey.c_str());
 
     return true;
 }
@@ -201,7 +201,7 @@ const std::string& Configuration::GetName() const
 
 bool Configuration::ReadFromParcel(Parcel &parcel)
 {
-    ABILITYBASE_LOGW("ReadFromParcel");
+    ABILITYBASE_LOGD("ReadFromParcel");
     defaultDisplayId_ = parcel.ReadInt32();
     int32_t configSize = parcel.ReadInt32();
     std::vector<std::string> keys;
