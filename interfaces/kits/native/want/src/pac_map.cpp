@@ -1576,6 +1576,10 @@ bool PacMap::ParseJsonItemArrayShort(PacMapList &mapList, const std::string &key
         return true;
     }
 
+    if (arrayValue.size() < 0 || arrayValue.size() > INT_MAX) {
+        return false;
+    }
+
     std::vector<short> shortList;
     for (Json::ArrayIndex i = 0; i < arrayValue.size(); i++) {
         shortList.push_back(arrayValue[i].asInt());
@@ -1589,6 +1593,10 @@ bool PacMap::ParseJsonItemArrayInteger(PacMapList &mapList, const std::string &k
     Json::Value arrayValue = item["data"];
     if (arrayValue.isNull()) {
         return true;
+    }
+
+    if (arrayValue.size() < 0 || arrayValue.size() > INT_MAX) {
+        return false;
     }
 
     std::vector<int> intList;
@@ -1616,6 +1624,10 @@ bool PacMap::ParseJsonItemArrayLong(PacMapList &mapList, const std::string &key,
         return true;
     }
 
+    if (arrayValue.size() < 0 || arrayValue.size() > INT_MAX) {
+        return false;
+    }
+
     std::vector<long> longList;
     for (Json::ArrayIndex i = 0; i < arrayValue.size(); i++) {
         if (!IsNumber(arrayValue[i].asString())) {
@@ -1635,6 +1647,10 @@ bool PacMap::ParseJsonItemArrayChar(PacMapList &mapList, const std::string &key,
         return true;
     }
 
+    if (arrayValue.size() < 0 || arrayValue.size() > INT_MAX) {
+        return false;
+    }
+
     std::vector<char> charList;
     for (Json::ArrayIndex i = 0; i < arrayValue.size(); i++) {
         charList.push_back(arrayValue[i].asInt());
@@ -1648,6 +1664,10 @@ bool PacMap::ParseJsonItemArrayByte(PacMapList &mapList, const std::string &key,
     Json::Value arrayValue = item["data"];
     if (arrayValue.isNull()) {
         return true;
+    }
+
+    if (arrayValue.size() < 0 || arrayValue.size() > INT_MAX) {
+        return false;
     }
 
     std::vector<AAFwk::byte> byteList;
@@ -1665,6 +1685,10 @@ bool PacMap::ParseJsonItemArrayBoolean(PacMapList &mapList, const std::string &k
         return true;
     }
 
+    if (arrayValue.size() < 0 || arrayValue.size() > INT_MAX) {
+        return false;
+    }
+
     std::vector<bool> boolList;
     for (Json::ArrayIndex i = 0; i < arrayValue.size(); i++) {
         boolList.push_back(arrayValue[i].asBool());
@@ -1679,6 +1703,11 @@ bool PacMap::ParseJsonItemArrayFloat(PacMapList &mapList, const std::string &key
     if (arrayValue.isNull()) {
         return true;
     }
+
+    if (arrayValue.size() < 0 || arrayValue.size() > INT_MAX) {
+        return false;
+    }
+
     std::vector<float> floatList;
     for (Json::ArrayIndex i = 0; i < arrayValue.size(); i++) {
         floatList.push_back(std::atof(arrayValue[i].asString().c_str()));
@@ -1694,6 +1723,10 @@ bool PacMap::ParseJsonItemArrayDouble(PacMapList &mapList, const std::string &ke
         return true;
     }
 
+    if (arrayValue.size() < 0 || arrayValue.size() > INT_MAX) {
+        return false;
+    }
+
     std::vector<double> doubleList;
     for (Json::ArrayIndex i = 0; i < arrayValue.size(); i++) {
         doubleList.push_back(std::atof(arrayValue[i].asString().c_str()));
@@ -1707,6 +1740,10 @@ bool PacMap::ParseJsonItemArrayString(PacMapList &mapList, const std::string &ke
     Json::Value arrayValue = item["data"];
     if (arrayValue.isNull()) {
         return true;
+    }
+
+    if (arrayValue.size() < 0 || arrayValue.size() > INT_MAX) {
+        return false;
     }
 
     std::vector<std::string> stringList;

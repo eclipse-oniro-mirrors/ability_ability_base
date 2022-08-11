@@ -89,6 +89,10 @@ bool Array::Equals(IObject &other) /* [in] */
         return false;
     }
 
+    if (size_ < 0 || size_ > INT_MAX) {
+        return false;
+    }
+
     for (long i = 0; i < size_; i++) {
         if (!Object::Equals(*(values_[i].GetRefPtr()), *(otherObj->values_[i].GetRefPtr()))) {
             return false;
