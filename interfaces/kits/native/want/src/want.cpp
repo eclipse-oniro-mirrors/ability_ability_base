@@ -1912,67 +1912,33 @@ std::string Want::Encode(const std::string &str)
 
 bool Want::CheckAndSetParameters(Want &want, const std::string &key, std::string &prop, const std::string &value)
 {
+    sptr<IInterface> valueObj;
     if (prop[0] == String::SIGNATURE && prop[1] == '.') {
-        sptr<IString> valueObj = String::Parse(value);
-        if (valueObj == nullptr) {
-            return false;
-        }
-        want.parameters_.SetParam(key, valueObj);
+        valueObj = String::Parse(value);
     } else if (prop[0] == Boolean::SIGNATURE && prop[1] == '.') {
-        sptr<IBoolean> valueObj = Boolean::Parse(value);
-        if (valueObj == nullptr) {
-            return false;
-        }
-        want.parameters_.SetParam(key, valueObj);
+        valueObj = Boolean::Parse(value);
     } else if (prop[0] == Char::SIGNATURE && prop[1] == '.') {
-        sptr<IChar> valueObj = Char::Parse(value);
-        if (valueObj == nullptr) {
-            return false;
-        }
-        want.parameters_.SetParam(key, valueObj);
+        valueObj = Char::Parse(value);
     } else if (prop[0] == Byte::SIGNATURE && prop[1] == '.') {
-        sptr<IByte> valueObj = Byte::Parse(value);
-        if (valueObj == nullptr) {
-            return false;
-        }
-        want.parameters_.SetParam(key, valueObj);
+        valueObj = Byte::Parse(value);
     } else if (prop[0] == Short::SIGNATURE && prop[1] == '.') {
-        sptr<IShort> valueObj = Short::Parse(value);
-        if (valueObj == nullptr) {
-            return false;
-        }
-        want.parameters_.SetParam(key, valueObj);
+        valueObj = Short::Parse(value);
     } else if (prop[0] == Integer::SIGNATURE && prop[1] == '.') {
-        sptr<IInteger> valueObj = Integer::Parse(value);
-        if (valueObj == nullptr) {
-            return false;
-        }
-        want.parameters_.SetParam(key, valueObj);
+        valueObj = Integer::Parse(value);
     } else if (prop[0] == Long::SIGNATURE && prop[1] == '.') {
-        sptr<ILong> valueObj = Long::Parse(value);
-        if (valueObj == nullptr) {
-            return false;
-        }
-        want.parameters_.SetParam(key, valueObj);
+        valueObj = Long::Parse(value);
     } else if (prop[0] == Float::SIGNATURE && prop[1] == '.') {
-        sptr<IFloat> valueObj = Float::Parse(value);
-        if (valueObj == nullptr) {
-            return false;
-        }
-        want.parameters_.SetParam(key, valueObj);
+        valueObj = Float::Parse(value);
     } else if (prop[0] == Double::SIGNATURE && prop[1] == '.') {
-        sptr<IDouble> valueObj = Double::Parse(value);
-        if (valueObj == nullptr) {
-            return false;
-        }
-        want.parameters_.SetParam(key, valueObj);
+        valueObj = Double::Parse(value);
     } else if (prop[0] == Array::SIGNATURE && prop[1] == '.') {
-        sptr<IArray> valueObj = Array::Parse(value);
-        if (valueObj == nullptr) {
-            return false;
-        }
-        want.parameters_.SetParam(key, valueObj);
+        valueObj = Array::Parse(value);
     }
+
+    if (valueObj == nullptr) {
+        return false;
+    }
+    want.parameters_.SetParam(key, valueObj);
     return true;
 }
 
