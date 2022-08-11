@@ -28,6 +28,9 @@
 
 namespace OHOS {
 namespace AAFwk {
+namespace {
+const int MAX_SIZE = 1024;
+};
 IINTERFACE_IMPL_1(Array, Object, IArray);
 
 Array::Array(long size, const InterfaceID &id) : size_(size), typeId_(id)
@@ -86,6 +89,10 @@ bool Array::Equals(IObject &other) /* [in] */
     }
 
     if (otherObj->size_ != size_ || otherObj->typeId_ != typeId_) {
+        return false;
+    }
+
+    if (size_ < 0 || size_ > MAX_SIZE) {
         return false;
     }
 
