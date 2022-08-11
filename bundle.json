@@ -12,7 +12,9 @@
     "component": {
         "name": "ability_base",
         "subsystem": "ability",
-        "syscap": [],
+        "syscap": [
+          "SystemCapability.Ability.AbilityBase"
+        ],
         "features": [],
         "adapted_system_type": [
             "standard"
