@@ -861,12 +861,24 @@ private:
     static std::string Encode(const std::string &str);
     static bool ParseContent(const std::string &content, std::string &prop, std::string &value);
     static bool ParseUriInternal(const std::string &content, OHOS::AppExecFwk::ElementName &element, Want &want);
+    static bool CheckUri(const std::string &uri);
     bool ReadFromParcel(Parcel &parcel);
     static bool CheckAndSetParameters(Want &want, const std::string &key, std::string &prop, const std::string &value);
     Uri GetLowerCaseScheme(const Uri &uri);
     void ToUriStringInner(std::string &uriString) const;
     nlohmann::json ToJson() const;
     bool ReadFromJson(nlohmann::json &wantJson);
+    void UriStringAppendParam(std::string &uriString) const;
+    bool WriteUri(Parcel &parcel) const;
+    bool WriteEntities(Parcel &parcel) const;
+    bool WriteElement(Parcel &parcel) const;
+    bool WriteParameters(Parcel &parcel) const;
+    bool WritePicker(Parcel &parcel) const;
+    bool ReadUri(Parcel &parcel);
+    bool ReadEntities(Parcel &parcel);
+    bool ReadElement(Parcel &parcel);
+    bool ReadParameters(Parcel &parcel);
+    bool ReadPicker(Parcel &parcel);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

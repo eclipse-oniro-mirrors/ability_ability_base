@@ -1248,21 +1248,14 @@ Want *Want::CloneOperation()
  */
 Want *Want::ParseUri(const std::string &uri)
 {
-    if (uri.length() <= 0) {
+    if (!CheckUri(uri)) {
         return nullptr;
     }
-    std::string head = WANT_HEADER;
-    std::string end = ";end";
-    if (uri.find(head) != 0) {
-        return nullptr;
-    }
-    if (uri.rfind(end) != (uri.length() - end.length())) {
-        return nullptr;
-    }
+
     bool ret = true;
     std::string content;
     std::size_t pos;
-    std::size_t begin = head.length();
+    std::size_t begin = WANT_HEADER.length();
     ElementName element;
     Want *want = new (std::nothrow) Want();
     if (want == nullptr) {
@@ -1443,34 +1436,7 @@ void Want::ToUriStringInner(std::string &uriString) const
         uriString.append(";");
     }
 
-    auto params = parameters_.GetParams();
-    auto iter = params.cbegin();
-    while (iter != params.cend()) {
-        sptr<IInterface> o = iter->second;
-        if (IString::Query(o) != nullptr) {
-            uriString += String::SIGNATURE;
-        } else if (IBoolean::Query(o) != nullptr) {
-            uriString += Boolean::SIGNATURE;
-        } else if (IChar::Query(o) != nullptr) {
-            uriString += Char::SIGNATURE;
-        } else if (IByte::Query(o) != nullptr) {
-            uriString += Byte::SIGNATURE;
-        } else if (IShort::Query(o) != nullptr) {
-            uriString += Short::SIGNATURE;
-        } else if (IInteger::Query(o) != nullptr) {
-            uriString += Integer::SIGNATURE;
-        } else if (ILong::Query(o) != nullptr) {
-            uriString += Long::SIGNATURE;
-        } else if (IFloat::Query(o) != nullptr) {
-            uriString += Float::SIGNATURE;
-        } else if (IDouble::Query(o) != nullptr) {
-            uriString += Double::SIGNATURE;
-        } else if (IArray::Query(o) != nullptr) {
-            uriString += Array::SIGNATURE;
-        }
-        uriString += "." + Encode(iter->first) + "=" + Encode(Object::ToString(*(o.GetRefPtr()))) + ";";
-        iter++;
-    }
+    UriStringAppendParam(uriString);
 }
 /**
  * @description: Formats a specified URI.
@@ -1569,37 +1535,13 @@ bool Want::Marshalling(Parcel &parcel) const
     }
 
     // write uri
-    if (GetUriString().empty()) {
-        if (!parcel.WriteInt32(VALUE_NULL)) {
-            return false;
-        }
-    } else {
-        if (!parcel.WriteInt32(VALUE_OBJECT)) {
-            return false;
-        }
-        if (!parcel.WriteString16(Str8ToStr16(GetUriString()))) {
-            return false;
-        }
+    if (!WriteUri(parcel)) {
+        return false;
     }
 
     // write entities
-    std::vector<std::u16string> entityU16;
-    std::vector<std::string> entities = GetEntities();
-    for (std::vector<std::string>::size_type i = 0; i < entities.size(); i++) {
-        entityU16.push_back(Str8ToStr16(entities[i]));
-    }
-
-    if (entityU16.size() == 0) {
-        if (!parcel.WriteInt32(VALUE_NULL)) {
-            return false;
-        }
-    } else {
-        if (!parcel.WriteInt32(VALUE_OBJECT)) {
-            return false;
-        }
-        if (!parcel.WriteString16Vector(entityU16)) {
-            return false;
-        }
+    if (!WriteEntities(parcel)) {
+        return false;
     }
 
     // write flags
@@ -1608,33 +1550,13 @@ bool Want::Marshalling(Parcel &parcel) const
     }
 
     // write element
-    ElementName emptyElement;
-    ElementName element = GetElement();
-    if (element == emptyElement) {
-        if (!parcel.WriteInt32(VALUE_NULL)) {
-            return false;
-        }
-    } else {
-        if (!parcel.WriteInt32(VALUE_OBJECT)) {
-            return false;
-        }
-        if (!parcel.WriteParcelable(&element)) {
-            return false;
-        }
+    if (!WriteElement(parcel)) {
+        return false;
     }
 
     // write parameters
-    if (parameters_.Size() == 0) {
-        if (!parcel.WriteInt32(VALUE_NULL)) {
-            return false;
-        }
-    } else {
-        if (!parcel.WriteInt32(VALUE_OBJECT)) {
-            return false;
-        }
-        if (!parcel.WriteParcelable(&parameters_)) {
-            return false;
-        }
+    if (!WriteParameters(parcel)) {
+        return false;
     }
 
     // write package
@@ -1643,17 +1565,8 @@ bool Want::Marshalling(Parcel &parcel) const
     }
 
     // write picker
-    if (picker_ == nullptr) {
-        if (!parcel.WriteInt32(VALUE_NULL)) {
-            return false;
-        }
-    } else {
-        if (!parcel.WriteInt32(VALUE_OBJECT)) {
-            return false;
-        }
-        if (!parcel.WriteParcelable(picker_)) {
-            return false;
-        }
+    if (!WritePicker(parcel)) {
+        return false;
     }
 
     return true;
@@ -1677,36 +1590,18 @@ Want *Want::Unmarshalling(Parcel &parcel)
 
 bool Want::ReadFromParcel(Parcel &parcel)
 {
-    int empty;
-    std::string value;
-    std::vector<std::string> entities;
     // read action
     operation_.SetAction(Str16ToStr8(parcel.ReadString16()));
 
     // read uri
-    empty = VALUE_NULL;
-    if (!parcel.ReadInt32(empty)) {
+    if (!ReadUri(parcel)) {
         return false;
-    }
-    if (empty == VALUE_OBJECT) {
-        SetUri(Str16ToStr8(parcel.ReadString16()));
     }
 
     // read entities
-    std::vector<std::u16string> entityU16;
-    empty = VALUE_NULL;
-    if (!parcel.ReadInt32(empty)) {
+    if (!ReadEntities(parcel)) {
         return false;
     }
-    if (empty == VALUE_OBJECT) {
-        if (!parcel.ReadString16Vector(&entityU16)) {
-            return false;
-        }
-    }
-    for (std::vector<std::u16string>::size_type i = 0; i < entityU16.size(); i++) {
-        entities.push_back(Str16ToStr8(entityU16[i]));
-    }
-    operation_.SetEntities(entities);
 
     // read flags
     unsigned int flags;
@@ -1716,56 +1611,21 @@ bool Want::ReadFromParcel(Parcel &parcel)
     operation_.SetFlags(flags);
 
     // read element
-    empty = VALUE_NULL;
-    if (!parcel.ReadInt32(empty)) {
+    if (!ReadElement(parcel)) {
         return false;
-    }
-
-    if (empty == VALUE_OBJECT) {
-        auto element = parcel.ReadParcelable<ElementName>();
-        if (element != nullptr) {
-            SetElement(*element);
-            delete element;
-        } else {
-            return false;
-        }
     }
 
     // read parameters
-    empty = VALUE_NULL;
-    if (!parcel.ReadInt32(empty)) {
+    if (!ReadParameters(parcel)) {
         return false;
-    }
-
-    if (empty == VALUE_OBJECT) {
-        auto params = parcel.ReadParcelable<WantParams>();
-        if (params != nullptr) {
-            parameters_ = *params;
-            delete params;
-            params = nullptr;
-            std::string moduleName = GetStringParam(PARAM_MODULE_NAME);
-            SetModuleName(moduleName);
-        } else {
-            return false;
-        }
     }
 
     // read package
     operation_.SetBundleName(Str16ToStr8(parcel.ReadString16()));
 
     // read picker
-    empty = VALUE_NULL;
-    if (!parcel.ReadInt32(empty)) {
+    if (!ReadPicker(parcel)) {
         return false;
-    }
-
-    if (empty == VALUE_OBJECT) {
-        auto picker = parcel.ReadParcelable<Want>();
-        if (picker != nullptr) {
-            picker_ = picker;
-        } else {
-            return false;
-        }
     }
 
     return true;
@@ -2077,6 +1937,250 @@ Want& Want::SetModuleName(const std::string &moduleName)
 std::string Want::GetModuleName() const
 {
     return operation_.GetModuleName();
+}
+
+bool Want::CheckUri(const std::string &uri)
+{
+    if (uri.length() <= 0) {
+        return false;
+    }
+
+    std::string head = WANT_HEADER;
+    std::string end = ";end";
+    if (uri.find(head) != 0) {
+        return false;
+    }
+    if (uri.rfind(end) != (uri.length() - end.length())) {
+        return false;
+    }
+
+    return true;
+}
+
+void Want::UriStringAppendParam(std::string &uriString) const
+{
+    auto params = parameters_.GetParams();
+    auto iter = params.cbegin();
+    while (iter != params.cend()) {
+        sptr<IInterface> o = iter->second;
+        if (IString::Query(o) != nullptr) {
+            uriString += String::SIGNATURE;
+        } else if (IBoolean::Query(o) != nullptr) {
+            uriString += Boolean::SIGNATURE;
+        } else if (IChar::Query(o) != nullptr) {
+            uriString += Char::SIGNATURE;
+        } else if (IByte::Query(o) != nullptr) {
+            uriString += Byte::SIGNATURE;
+        } else if (IShort::Query(o) != nullptr) {
+            uriString += Short::SIGNATURE;
+        } else if (IInteger::Query(o) != nullptr) {
+            uriString += Integer::SIGNATURE;
+        } else if (ILong::Query(o) != nullptr) {
+            uriString += Long::SIGNATURE;
+        } else if (IFloat::Query(o) != nullptr) {
+            uriString += Float::SIGNATURE;
+        } else if (IDouble::Query(o) != nullptr) {
+            uriString += Double::SIGNATURE;
+        } else if (IArray::Query(o) != nullptr) {
+            uriString += Array::SIGNATURE;
+        }
+        uriString += "." + Encode(iter->first) + "=" + Encode(Object::ToString(*(o.GetRefPtr()))) + ";";
+        iter++;
+    }
+}
+
+bool Want::WriteUri(Parcel &parcel) const
+{
+    if (GetUriString().empty()) {
+        if (!parcel.WriteInt32(VALUE_NULL)) {
+            return false;
+        }
+    } else {
+        if (!parcel.WriteInt32(VALUE_OBJECT)) {
+            return false;
+        }
+        if (!parcel.WriteString16(Str8ToStr16(GetUriString()))) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool Want::WriteEntities(Parcel &parcel) const
+{
+    std::vector<std::u16string> entityU16;
+    std::vector<std::string> entities = GetEntities();
+    for (std::vector<std::string>::size_type i = 0; i < entities.size(); i++) {
+        entityU16.push_back(Str8ToStr16(entities[i]));
+    }
+
+    if (entityU16.size() == 0) {
+        if (!parcel.WriteInt32(VALUE_NULL)) {
+            return false;
+        }
+    } else {
+        if (!parcel.WriteInt32(VALUE_OBJECT)) {
+            return false;
+        }
+        if (!parcel.WriteString16Vector(entityU16)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool Want::WriteElement(Parcel &parcel) const
+{
+    ElementName emptyElement;
+    ElementName element = GetElement();
+    if (element == emptyElement) {
+        if (!parcel.WriteInt32(VALUE_NULL)) {
+            return false;
+        }
+    } else {
+        if (!parcel.WriteInt32(VALUE_OBJECT)) {
+            return false;
+        }
+        if (!parcel.WriteParcelable(&element)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool Want::WriteParameters(Parcel &parcel) const
+{
+    if (parameters_.Size() == 0) {
+        if (!parcel.WriteInt32(VALUE_NULL)) {
+            return false;
+        }
+    } else {
+        if (!parcel.WriteInt32(VALUE_OBJECT)) {
+            return false;
+        }
+        if (!parcel.WriteParcelable(&parameters_)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool Want::WritePicker(Parcel &parcel) const
+{
+    if (picker_ == nullptr) {
+        if (!parcel.WriteInt32(VALUE_NULL)) {
+            return false;
+        }
+    } else {
+        if (!parcel.WriteInt32(VALUE_OBJECT)) {
+            return false;
+        }
+        if (!parcel.WriteParcelable(picker_)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool Want::ReadUri(Parcel &parcel)
+{
+    int empty = VALUE_NULL;
+    if (!parcel.ReadInt32(empty)) {
+        return false;
+    }
+    if (empty == VALUE_OBJECT) {
+        SetUri(Str16ToStr8(parcel.ReadString16()));
+    }
+
+    return true;
+}
+
+bool Want::ReadEntities(Parcel &parcel)
+{
+    std::vector<std::u16string> entityU16;
+    std::vector<std::string> entities;
+    int empty = VALUE_NULL;
+    if (!parcel.ReadInt32(empty)) {
+        return false;
+    }
+    if (empty == VALUE_OBJECT) {
+        if (!parcel.ReadString16Vector(&entityU16)) {
+            return false;
+        }
+    }
+    for (std::vector<std::u16string>::size_type i = 0; i < entityU16.size(); i++) {
+        entities.push_back(Str16ToStr8(entityU16[i]));
+    }
+    operation_.SetEntities(entities);
+
+    return true;
+}
+
+bool Want::ReadElement(Parcel &parcel)
+{
+    int empty = VALUE_NULL;
+    if (!parcel.ReadInt32(empty)) {
+        return false;
+    }
+
+    if (empty == VALUE_OBJECT) {
+        auto element = parcel.ReadParcelable<ElementName>();
+        if (element != nullptr) {
+            SetElement(*element);
+            delete element;
+        } else {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool Want::ReadParameters(Parcel &parcel)
+{
+    int empty = VALUE_NULL;
+    if (!parcel.ReadInt32(empty)) {
+        return false;
+    }
+
+    if (empty == VALUE_OBJECT) {
+        auto params = parcel.ReadParcelable<WantParams>();
+        if (params != nullptr) {
+            parameters_ = *params;
+            delete params;
+            params = nullptr;
+            std::string moduleName = GetStringParam(PARAM_MODULE_NAME);
+            SetModuleName(moduleName);
+        } else {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool Want::ReadPicker(Parcel &parcel)
+{
+    int empty = VALUE_NULL;
+    if (!parcel.ReadInt32(empty)) {
+        return false;
+    }
+
+    if (empty == VALUE_OBJECT) {
+        auto picker = parcel.ReadParcelable<Want>();
+        if (picker != nullptr) {
+            picker_ = picker;
+        } else {
+            return false;
+        }
+    }
+
+    return true;
 }
 }  // namespace AAFwk
 }  // namespace OHOS
