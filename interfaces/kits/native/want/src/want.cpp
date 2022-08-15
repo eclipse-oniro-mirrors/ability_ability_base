@@ -1793,6 +1793,8 @@ bool Want::CheckAndSetParameters(Want &want, const std::string &key, std::string
         valueObj = Double::Parse(value);
     } else if (prop[0] == Array::SIGNATURE && prop[1] == '.') {
         valueObj = Array::Parse(value);
+    } else {
+        return true;
     }
 
     if (valueObj == nullptr) {
