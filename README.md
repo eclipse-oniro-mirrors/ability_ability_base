@@ -37,6 +37,8 @@ foundation/ability/ability_base
 
 [ability_runtime](https://gitee.com/openharmony/ability_ability_runtime)
 
+[dmsfwk](https://gitee.com/openharmony/ability_dmsfwk)
+
 [form_fwk](https://gitee.com/openharmony/ability_form_fwk)
 
 [idl_tool](https://gitee.com/openharmony/ability_idl_tool)
