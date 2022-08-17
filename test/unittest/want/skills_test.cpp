@@ -15,12 +15,12 @@
 
 #include <gtest/gtest.h>
 
-#include "skills.h"
-#include "string_wrapper.h"
 #include "bool_wrapper.h"
 #include "int_wrapper.h"
 #include "long_wrapper.h"
-#include "utils/native/base/include/refbase.h"
+#include "refbase.h"
+#include "skills.h"
+#include "string_wrapper.h"
 
 using namespace testing::ext;
 using namespace OHOS::AAFwk;
