@@ -63,7 +63,7 @@ INTERFACE(IWeakReferenceSource, bc3f5250 - 34d7 - 42d2 - 9b40 - ffce83fd4061)
     virtual ErrCode GetWeakReference(sptr<IWeakReference> & weakRef) = 0; /* [out] */
 };
 
-class Object : public RefBase, public IObject, public IWeakReferenceSource {
+class Object : public virtual RefBase, public IObject, public IWeakReferenceSource {
 public:
     void IncStrongRef(const void *id = nullptr) override; /* [in] */
 
