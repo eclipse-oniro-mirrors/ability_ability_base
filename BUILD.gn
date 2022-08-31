@@ -24,6 +24,10 @@ config("base_public_config") {
   include_dirs = [ "interfaces/inner_api/base/include" ]
 }
 
+config("base_all_dependent_config") {
+  include_dirs = [ "${ability_base_innerapi_path}/base/include" ]
+}
+
 ohos_shared_library("base") {
   sources = [
     "interfaces/inner_api/base/src/base.cpp",
@@ -42,6 +46,9 @@ ohos_shared_library("base") {
   ]
   configs = [ ":base_config" ]
   public_configs = [ ":base_public_config" ]
+
+  all_dependent_configs = [ ":base_all_dependent_config" ]
+
   external_deps = [ "c_utils:utils" ]
 
   subsystem_name = "ability"
@@ -91,8 +98,14 @@ config("zuri_config") {
   }
 }
 
+config("zuri_all_dependent_config") {
+  include_dirs = [ "${ability_base_kits_native_path}/uri/include" ]
+}
+
 ohos_shared_library("zuri") {
   public_configs = [ ":zuri_config" ]
+
+  all_dependent_configs = [ ":zuri_all_dependent_config" ]
 
   sources = [ "interfaces/kits/native/uri/src/uri.cpp" ]
 
@@ -131,6 +144,10 @@ config("want_public_config") {
   ]
 }
 
+config("want_all_dependent_config") {
+  include_dirs = [ "${ability_base_kits_native_path}/want/include" ]
+}
+
 ohos_shared_library("want") {
   sources = [
     "interfaces/kits/native/want/src/array_wrapper.cpp",
@@ -147,6 +164,8 @@ ohos_shared_library("want") {
   ]
 
   deps = [ "//third_party/jsoncpp:jsoncpp" ]
+
+  all_dependent_configs = [ ":want_all_dependent_config" ]
 
   external_deps = [
     "ability_base:base",
