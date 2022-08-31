@@ -66,6 +66,7 @@ const std::string Want::OCT_EQUALSTO("075");   // '='
 const std::string Want::OCT_SEMICOLON("073");  // ';'
 const std::string Want::MIME_TYPE("mime-type");
 const std::string Want::WANT_HEADER("#Intent;");
+const std::string Want::WANT_END(";end");
 
 const std::string Want::PARAM_RESV_WINDOW_MODE("ohos.aafwk.param.windowMode");
 const std::string Want::PARAM_RESV_DISPLAY_ID("ohos.aafwk.param.displayId");
@@ -1947,12 +1948,10 @@ bool Want::CheckUri(const std::string &uri)
         return false;
     }
 
-    std::string head = WANT_HEADER;
-    std::string end = ";end";
-    if (uri.find(head) != 0) {
+    if (uri.find(WANT_HEADER) != 0) {
         return false;
     }
-    if (uri.rfind(end) != (uri.length() - end.length())) {
+    if (uri.rfind(WANT_END) != (uri.length() - WANT_END.length())) {
         return false;
     }
 
@@ -2011,25 +2010,24 @@ bool Want::WriteUri(Parcel &parcel) const
 
 bool Want::WriteEntities(Parcel &parcel) const
 {
-    std::vector<std::u16string> entityU16;
     std::vector<std::string> entities = GetEntities();
-    for (std::vector<std::string>::size_type i = 0; i < entities.size(); i++) {
-        entityU16.push_back(Str8ToStr16(entities[i]));
-    }
-
-    if (entityU16.size() == 0) {
+    if (entities.empty()) {
         if (!parcel.WriteInt32(VALUE_NULL)) {
             return false;
         }
-    } else {
-        if (!parcel.WriteInt32(VALUE_OBJECT)) {
-            return false;
-        }
-        if (!parcel.WriteString16Vector(entityU16)) {
-            return false;
-        }
+        return true;
     }
-
+    
+    std::vector<std::u16string> entityU16;
+    for (std::vector<std::string>::size_type i = 0; i < entities.size(); i++) {
+        entityU16.push_back(Str8ToStr16(entities[i]));
+    }
+    if (!parcel.WriteInt32(VALUE_OBJECT)) {
+        return false;
+    }
+    if (!parcel.WriteString16Vector(entityU16)) {
+        return false;
+    }
     return true;
 }
 
@@ -2173,15 +2171,16 @@ bool Want::ReadPicker(Parcel &parcel)
         return false;
     }
 
-    if (empty == VALUE_OBJECT) {
-        auto picker = parcel.ReadParcelable<Want>();
-        if (picker != nullptr) {
-            picker_ = picker;
-        } else {
-            return false;
-        }
+    if (empty != VALUE_OBJECT) {
+        return true;
+    }
+    
+    auto picker = parcel.ReadParcelable<Want>();
+    if (picker == nullptr) {
+        return false;
     }
 
+    picker_ = picker;
     return true;
 }
 }  // namespace AAFwk

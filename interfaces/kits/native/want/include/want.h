@@ -849,6 +849,7 @@ private:
     static const std::string OCT_SEMICOLON;
     static const std::string MIME_TYPE;
     static const std::string WANT_HEADER;
+    static const std::string WANT_END;
 
     // no object in parcel
     static constexpr int VALUE_NULL = -1;
