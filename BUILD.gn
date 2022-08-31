@@ -60,6 +60,7 @@ config("configuration_sdk_config") {
   include_dirs = [
     "interfaces/kits/native/configuration/include",
     "${ability_base_innerapi_path}/log/include",
+    "${base_global_innerapi_path}/include",
     "//third_party/json/include",
   ]
 }
@@ -81,7 +82,6 @@ ohos_shared_library("configuration") {
   external_deps = [
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
-    "resource_management:global_resmgr",
   ]
 
   subsystem_name = "ability"
