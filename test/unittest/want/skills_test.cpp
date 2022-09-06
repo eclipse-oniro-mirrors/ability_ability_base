@@ -756,6 +756,104 @@ INSTANTIATE_TEST_CASE_P(SkillsMatchTestP, SkillsMatchTest,
         SkillsMatchType("entity.system.entity1", "action.system.action1", true)));
 
 /**
+ * @tc.name: AaFwk_Skills_match_0200
+ * @tc.desc: Verify Matching rules action segment
+ * @tc.type: FUNC
+ * @tc.require: I5PZK2
+ */
+HWTEST_F(SkillsBaseTest, AaFwk_Skills_match_0200, Function | MediumTest | Level1)
+{
+    Skills skills;
+    std::string filterEntity = "entity.system.entity1";
+    skills.AddEntity(filterEntity);
+    Want want;
+    want.AddEntity(filterEntity);
+    // Both actions are empty.
+    EXPECT_EQ(true, skills.Match(want));
+}
+
+/**
+ * @tc.name: AaFwk_Skills_match_0300
+ * @tc.desc: Verify Matching rules action segment
+ * @tc.type: FUNC
+ * @tc.require: I5PZK2
+ */
+HWTEST_F(SkillsBaseTest, AaFwk_Skills_match_0300, Function | MediumTest | Level1)
+{
+    Skills skills;
+    std::string filterEntity = "entity.system.entity1";
+    skills.AddEntity(filterEntity);
+    Want want;
+    want.AddEntity(filterEntity);
+    want.SetAction("action.system.action1");
+    // empty actions in skill vs non-empty actions in want
+    EXPECT_EQ(false, skills.Match(want));
+}
+
+/**
+ * @tc.name: AaFwk_Skills_match_0400
+ * @tc.desc: Verify Matching rules action segment
+ * @tc.type: FUNC
+ * @tc.require: I5PZK2
+ */
+HWTEST_F(SkillsBaseTest, AaFwk_Skills_match_0400, Function | MediumTest | Level1)
+{
+    Skills skills;
+    std::string filterEntity = "entity.system.entity1";
+    std::string filterAction1 = "action.system.action1";
+    std::string filterAction2 = "action.system.action2";
+    skills.AddEntity(filterEntity);
+    skills.AddAction(filterAction1);
+    skills.AddAction(filterAction2);
+    Want want;
+    want.AddEntity(filterEntity);
+    want.SetAction(filterAction1);
+    // actions that in skill contains non-empty actions in want
+    EXPECT_EQ(true, skills.Match(want));
+}
+
+/**
+ * @tc.name: AaFwk_Skills_match_0500
+ * @tc.desc: Verify Matching rules action segment
+ * @tc.type: FUNC
+ * @tc.require: I5PZK2
+ */
+HWTEST_F(SkillsBaseTest, AaFwk_Skills_match_0600, Function | MediumTest | Level1)
+{
+    Skills skills;
+    std::string filterEntity = "entity.system.entity1";
+    std::string filterAction1 = "action.system.action1";
+    std::string filterAction2 = "action.system.action2";
+    skills.AddEntity(filterEntity);
+    skills.AddAction(filterAction2);
+    Want want;
+    want.AddEntity(filterEntity);
+    // non-empty actions that in skill vs empty actions in want
+    EXPECT_EQ(false, skills.Match(want));
+}
+
+/**
+ * @tc.name: AaFwk_Skills_match_0600
+ * @tc.desc: Verify Matching rules action segment
+ * @tc.type: FUNC
+ * @tc.require: I5PZK2
+ */
+HWTEST_F(SkillsBaseTest, AaFwk_Skills_match_0500, Function | MediumTest | Level1)
+{
+    Skills skills;
+    std::string filterEntity = "entity.system.entity1";
+    std::string filterAction1 = "action.system.action1";
+    std::string filterAction2 = "action.system.action2";
+    skills.AddEntity(filterEntity);
+    skills.AddAction(filterAction2);
+    Want want;
+    want.AddEntity(filterEntity);
+    want.SetAction(filterAction1);
+    // actions that in skill doesn't contain non-empty actions in want
+    EXPECT_EQ(false, skills.Match(want));
+}
+
+/**
  * @tc.number: AaFwk_Skills_Skills_0100
  * @tc.name: Skills() and Skills(Skills)
  * @tc.desc:  Verify Skills().
