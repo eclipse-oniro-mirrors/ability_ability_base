@@ -1956,7 +1956,7 @@ HWTEST_P(WantParametersBoolArrayTest, AaFwk_Want_BoolArray_0100, Function | Medi
     EXPECT_EQ(result, want_->GetByteParam(getKey, defaultValue));
 }
 
-INSTANTIATE_TEST_CASE_P(WantParametersBoolArrayTestCaseP, WantParametersBoolArrayTest,
+INSTANTIATE_TEST_SUITE_P(WantParametersBoolArrayTestCaseP, WantParametersBoolArrayTest,
     testing::Values(testByteType("", "aa", '#', 'U', 'U'), testByteType("", "", 'N', 'K', 'N'),
         testByteType("1*中_aR", "aa", 'a', '%', '%'), testByteType("1*中_aR", "1*中_aR", 'a', 'z', 'a')));
 
@@ -2008,7 +2008,7 @@ HWTEST_P(WantBoolArrayParamTest, AaFwk_Want_BoolArray_0200, Function | MediumTes
     EXPECT_EQ(result, want_->GetBoolArrayParam(getKey));
 }
 
-INSTANTIATE_TEST_CASE_P(WantBoolArrayParamTestCaseP, WantBoolArrayParamTest,
+INSTANTIATE_TEST_SUITE_P(WantBoolArrayParamTestCaseP, WantBoolArrayParamTest,
     testing::Values(testBoolArrayType("", "aa", {true, false}, {}, {}),
         testBoolArrayType("", "", {true, false}, {}, {true, false}),
         testBoolArrayType("1*中_aR", "aa", {true, false}, {}, {}),
@@ -2063,7 +2063,7 @@ HWTEST_P(WantCharArrayParamTest, AaFwk_Want_Parameters_CharArray_0100, Function 
     EXPECT_EQ(result, want_->GetCharArrayParam(getKey));
 }
 
-INSTANTIATE_TEST_CASE_P(WantCharArrayParamTestCaseP, WantCharArrayParamTest,
+INSTANTIATE_TEST_SUITE_P(WantCharArrayParamTestCaseP, WantCharArrayParamTest,
     testing::Values(testCharArrayType("", "aa", {U'中', U'文'}, {}, {}),
         testCharArrayType("", "", {U'中', U'文'}, {}, {U'中', U'文'}),
         testCharArrayType("1*中_aR", "aa", {U'中', U'文'}, {}, {}),
@@ -2170,7 +2170,7 @@ HWTEST_P(WantCharParamTest, AaFwk_Want_Parameters_Char_0100, Function | MediumTe
     EXPECT_EQ(result, want_->GetCharParam(getKey, defaultValue));
 }
 
-INSTANTIATE_TEST_CASE_P(WantParametersCharTestCaseP, WantCharParamTest,
+INSTANTIATE_TEST_SUITE_P(WantParametersCharTestCaseP, WantCharParamTest,
     testing::Values(testCharType("", "aa", U'#', U'中', U'中'), testCharType("", "", U'中', U'K', U'中'),
         testCharType("1*中_aR", "aa", U'a', U'中', U'中'), testCharType("1*中_aR", "1*中_aR", U'中', U'z', U'中')));
 
@@ -2278,7 +2278,7 @@ HWTEST_P(WantDoubleArrayParamTest, AaFwk_Want_DoubleArray_0100, Function | Mediu
     EXPECT_EQ(result, want_->GetDoubleArrayParam(getKey));
 }
 
-INSTANTIATE_TEST_CASE_P(WantDoubleArrayParamTestCaseP, WantDoubleArrayParamTest,
+INSTANTIATE_TEST_SUITE_P(WantDoubleArrayParamTestCaseP, WantDoubleArrayParamTest,
     testing::Values(testDoubleArrayType("", "aa", {-1.1, -2.1}, {}, {}),
         testDoubleArrayType("", "", {-41.1, -42.1}, {}, {-41.1, -42.1}),
         testDoubleArrayType("1*中_aR", "aa", {50.1, 51.1}, {}, {}),
@@ -2390,7 +2390,7 @@ HWTEST_P(WantFloatArrayParamTest, AaFwk_Want_FloatArray_0100, Function | MediumT
     EXPECT_EQ(result, want_->GetFloatArrayParam(getKey));
 }
 
-INSTANTIATE_TEST_CASE_P(WantFloatArrayParamTestCaseP, WantFloatArrayParamTest,
+INSTANTIATE_TEST_SUITE_P(WantFloatArrayParamTestCaseP, WantFloatArrayParamTest,
     testing::Values(testFloatArrayType("", "aa", {-1.1, -2.1}, {}, {}),
         testFloatArrayType("", "", {-41.1, -42.1}, {}, {-41.1, -42.1}),
         testFloatArrayType("1*中_aR", "aa", {50.1, 51.1}, {}, {}),
@@ -2499,7 +2499,7 @@ HWTEST_P(WantLongArrayParamTest, AaFwk_Want_LongArray_0100, Function | MediumTes
     EXPECT_EQ(result, want_->GetLongArrayParam(getKey));
 }
 
-INSTANTIATE_TEST_CASE_P(WantLongArrayParamTestCaseP, WantLongArrayParamTest,
+INSTANTIATE_TEST_SUITE_P(WantLongArrayParamTestCaseP, WantLongArrayParamTest,
     testing::Values(testLongArrayType("", "aa", {-1, 3, 25, -9}, {}, {}),
         testLongArrayType("", "", {-41, 0, 0, 9}, {}, {-41, 0, 0, 9}),
         testLongArrayType("1*中_aR", "aa", {50, 2, -9}, {}, {}),
@@ -2608,7 +2608,7 @@ HWTEST_P(WantShortArrayParamTest, AaFwk_Want_ShortArray_0100, Function | MediumT
     EXPECT_EQ(result, want_->GetShortArrayParam(getKey));
 }
 
-INSTANTIATE_TEST_CASE_P(WantShortArrayParamTestCaseP, WantShortArrayParamTest,
+INSTANTIATE_TEST_SUITE_P(WantShortArrayParamTestCaseP, WantShortArrayParamTest,
     testing::Values(testShortArrayType("", "aa", {-1, 3, 25, -9}, {}, {}),
         testShortArrayType("", "", {-41, 0, 0, 9}, {}, {-41, 0, 0, 9}),
         testShortArrayType("1*中_aR", "aa", {50, 2, -9}, {}, {}),
@@ -2714,7 +2714,7 @@ HWTEST_P(WantShortParamTest, AaFwk_Want_Short_0100, Function | MediumTest | Leve
     EXPECT_EQ(result, want_->GetShortParam(getKey, defaultValue));
 }
 
-INSTANTIATE_TEST_CASE_P(WantShortParamTestCaseP, WantShortParamTest,
+INSTANTIATE_TEST_SUITE_P(WantShortParamTestCaseP, WantShortParamTest,
     testing::Values(testShortType("", "aa", -1, 100, 100), testShortType("", "", -9, -41, -9),
         testShortType("1*中_aR", "aa", 50, 5, 5), testShortType("1*中_aR", "1*中_aR", -5000, 5000, -5000)));
 
@@ -2820,7 +2820,7 @@ HWTEST_P(WantStringArrayParamTest, AaFwk_Want_StringArray_0100, Function | Mediu
     EXPECT_EQ(result, want_->GetStringArrayParam(getKey));
 }
 
-INSTANTIATE_TEST_CASE_P(WantStringArrayParamTestCaseP, WantStringArrayParamTest,
+INSTANTIATE_TEST_SUITE_P(WantStringArrayParamTestCaseP, WantStringArrayParamTest,
     testing::Values(testStrArrayType("", "aa", {"1*中_aR", "dbdb"}, {}, {}),
         testStrArrayType("", "", {"1*中_aR", "dbdb"}, {}, {"1*中_aR", "dbdb"}),
         testStrArrayType("1*中_aR", "aa", {"1*中_aR", "dbdb"}, {}, {}),
@@ -2932,7 +2932,7 @@ HWTEST_P(WantStringParamTest, AaFwk_Want_String_0100, Function | MediumTest | Le
     EXPECT_EQ(result, want_->GetStringParam(getKey));
 }
 
-INSTANTIATE_TEST_CASE_P(WantStringParamTestCaseP, WantStringParamTest,
+INSTANTIATE_TEST_SUITE_P(WantStringParamTestCaseP, WantStringParamTest,
     testing::Values(testStrType("", "aa", "1*中_aR", "", ""), testStrType("", "", "1*中_aR", "", "1*中_aR"),
         testStrType("1*中_aR", "aa", "aaa", "", ""), testStrType("1*中_aR", "1*中_aR", "aaa", "", "aaa")));
 
@@ -3034,7 +3034,7 @@ HWTEST_P(WantLongParamTest, AaFwk_Want_LongParam_0100, Function | MediumTest | L
     EXPECT_EQ(result, want_->GetLongParam(getKey, defaultValue));
 }
 
-INSTANTIATE_TEST_CASE_P(WantLongParamTestCaseP, WantLongParamTest,
+INSTANTIATE_TEST_SUITE_P(WantLongParamTestCaseP, WantLongParamTest,
     testing::Values(testLongType("b1", "b1", -1, 100, -1), testLongType("b3", "b4", 600, 200, 200),
         testLongType("b5", "b5", 50, 6, 50), testLongType("b6", "b7", 1000, 2200, 2200)));
 
@@ -3142,7 +3142,7 @@ HWTEST_P(WantIntParamTest, AaFwk_Want_IntParam_0100, Function | MediumTest | Lev
     EXPECT_EQ(result, want_->GetIntParam(getKey, defaultValue));
 }
 
-INSTANTIATE_TEST_CASE_P(WantParametersIntTestCaseP, WantIntParamTest,
+INSTANTIATE_TEST_SUITE_P(WantParametersIntTestCaseP, WantIntParamTest,
     testing::Values(testIntType("", "aa", -1, 100, 100), testIntType("", "", -9, -41, -9),
         testIntType("1*中_aR", "aa", 50, 5, 5), testIntType("1*中_aR", "1*中_aR", -5000, 5000, -5000)));
 
@@ -3250,7 +3250,7 @@ HWTEST_P(WantIntArrayParamTest, AaFwk_Want_IntArrayParam_0100, Function | Medium
     EXPECT_EQ(result, want_->GetIntArrayParam(getKey));
 }
 
-INSTANTIATE_TEST_CASE_P(WantIntArrayParamTestCaseP, WantIntArrayParamTest,
+INSTANTIATE_TEST_SUITE_P(WantIntArrayParamTestCaseP, WantIntArrayParamTest,
     testing::Values(testIntArrayType("", "aa", {-1, 3, 25, -9}, {}, {}),
         testIntArrayType("", "", {-41, 0, 0, 9}, {}, {-41, 0, 0, 9}),
         testIntArrayType("1*中_aR", "aa", {50, 2, -9}, {}, {}),
@@ -3359,7 +3359,7 @@ HWTEST_P(WantFloatParamTest, AaFwk_Want_FloatParam_0100, Function | MediumTest |
     EXPECT_EQ(result, want_->GetFloatParam(getKey, defaultValue));
 }
 
-INSTANTIATE_TEST_CASE_P(WantFloatParamTestCaseP, WantFloatParamTest,
+INSTANTIATE_TEST_SUITE_P(WantFloatParamTestCaseP, WantFloatParamTest,
     testing::Values(testFloatType("", "aa", -1.1, 100.1, 100.1), testFloatType("", "", -9.1, -41.1, -9.1),
         testFloatType("1*中_aR", "aa", 50.1, 5.1, 5.1), testFloatType("1*中_aR", "1*中_aR", -5000.1, 5000.1, -5000.1)));
 
@@ -3467,7 +3467,7 @@ HWTEST_P(WantDoubleParamTest, AaFwk_Want_DoubleParam_0100, Function | MediumTest
     EXPECT_EQ(result, want_->GetDoubleParam(getKey, defaultValue));
 }
 
-INSTANTIATE_TEST_CASE_P(WantDoubleParamTestCaseP, WantDoubleParamTest,
+INSTANTIATE_TEST_SUITE_P(WantDoubleParamTestCaseP, WantDoubleParamTest,
     testing::Values(testDoubleType("", "aa", -1.1, 100.1, 100.1), testDoubleType("", "", -9.1, -41.1, -9.1),
         testDoubleType("1*中_aR", "aa", 50.1, 5.1, 5.1),
         testDoubleType("1*中_aR", "1*中_aR", -5000.1, 5000.1, -5000.1)));
@@ -3576,7 +3576,7 @@ HWTEST_P(WantByteArrayParamTest, AaFwk_Want_ByteArray_0100, Function | MediumTes
     EXPECT_EQ(result, want_->GetByteArrayParam(getKey));
 }
 
-INSTANTIATE_TEST_CASE_P(WantByteArrayParamTestCaseP, WantByteArrayParamTest,
+INSTANTIATE_TEST_SUITE_P(WantByteArrayParamTestCaseP, WantByteArrayParamTest,
     testing::Values(testByteArrayType("", "aa", {'*', 'D'}, {}, {}),
         testByteArrayType("", "", {'%', ')'}, {}, {'%', ')'}), testByteArrayType("1*中_aR", "aa", {'R', '.'}, {}, {}),
         testByteArrayType("1*中_aR", "1*中_aR", {'R', 'b'}, {}, {'R', 'b'})));
@@ -3682,7 +3682,7 @@ HWTEST_P(WantBoolParamTest, AaFwk_Want_BoolParam_0100, Function | MediumTest | L
     EXPECT_EQ(result, want_->GetBoolParam(getKey, defaultValue));
 }
 
-INSTANTIATE_TEST_CASE_P(WantBoolParamTestCaseP, WantBoolParamTest,
+INSTANTIATE_TEST_SUITE_P(WantBoolParamTestCaseP, WantBoolParamTest,
     testing::Values(testBoolType("b1", "aa", true, true, true), testBoolType("b1", "aa", true, false, false),
         testBoolType("b2", "b2", true, true, true), testBoolType("b3", "b3", true, false, true),
         testBoolType("123", "123", true, false, true), testBoolType("123", "aa", true, false, false),
