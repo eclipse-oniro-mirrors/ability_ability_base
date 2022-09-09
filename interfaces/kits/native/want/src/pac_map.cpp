@@ -188,7 +188,7 @@ static void PacmapGetArrayVal(OHOS::AAFwk::IInterface *ao, std::vector<valueType
         return;
     }
     if (IArray::Query(ao) != nullptr) {
-        auto func = [&](AAFwk::IInterface *object) {
+        auto func = [&array](AAFwk::IInterface *object) {
             if (object != nullptr) {
                 IClassName *value = IClassName::Query(object);
                 if (value != nullptr) {
@@ -947,7 +947,7 @@ static void GetArrayData(
         return;
     }
     if (IsArrayfunc(IArray::Query(interface))) {
-        auto func = [&](IInterface *object) { array.push_back(id::Unbox(iid::Query(object))); };
+        auto func = [&array](IInterface *object) { array.push_back(id::Unbox(iid::Query(object))); };
         Array::ForEach(IArray::Query(interface), func);
     }
 }
@@ -1234,12 +1234,14 @@ static std::string RawTypeToString(const RawType value, unsigned int precisionAf
 
     std::string res = out.str();
     auto pos = res.find('.');
-    if (pos == std::string::npos)
+    if (pos == std::string::npos) {
         return res;
+    }
 
     auto splitLen = pos + 1 + precisionAfterPoint;
-    if (res.size() <= splitLen)
+    if (res.size() <= splitLen) {
         return res;
+    }
 
     return res.substr(0, splitLen);
 }
