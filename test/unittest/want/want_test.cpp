@@ -487,7 +487,7 @@ HWTEST_F(WantBaseTest, AaFwk_Want_Parcelable_0500, Function | MediumTest | Level
 
         int flags = WantOut_->GetFlags();
         GTEST_LOG_(INFO) << "WantOut_->GetFlags(): " << flags;
-        EXPECT_EQ(((int)(flags)), 64);
+        EXPECT_EQ(static_cast<int>(flags), 64);
 
         bool hasentity = WantOut_->HasEntity("system.test.entity");
         GTEST_LOG_(INFO) << "WantOut_->HasEntity(system.test.entity)" << hasentity;
