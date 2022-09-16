@@ -644,7 +644,7 @@ int Skills::CountTypes() const
  */
 bool Skills::Match(const Want &want)
 {
-    if (want.GetAction() != std::string() && !MatchAction(want.GetAction())) {
+    if (!MatchAction(want.GetAction())) {
         return false;
     }
 
@@ -697,7 +697,7 @@ std::string Skills::MatchEntities(const std::vector<std::string> &entities)
  */
 bool Skills::MatchAction(const std::string &action)
 {
-    return HasAction(action);
+    return (action.empty() && actions_.empty()) || HasAction(action);
 }
 
 /**
