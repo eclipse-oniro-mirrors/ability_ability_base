@@ -749,7 +749,7 @@ HWTEST_P(SkillsMatchTest, AaFwk_Skills_match_0100, Function | MediumTest | Level
     EXPECT_EQ(result, skills_->Match(want));
 }
 
-INSTANTIATE_TEST_CASE_P(SkillsMatchTestP, SkillsMatchTest,
+INSTANTIATE_TEST_SUITE_P(SkillsMatchTestP, SkillsMatchTest,
     testing::Values(SkillsMatchType("entity.system.entityA", "action.system.actionA", false),
         SkillsMatchType("entity.system.entity1", "action.system.actionA", false),
         SkillsMatchType("entity.system.entityA", "action.system.action2", false),
@@ -893,7 +893,7 @@ HWTEST_P(SkillsParamsTest, AaFwk_Skills_Params_0100, Function | MediumTest | Lev
     EXPECT_EQ(valueStr, String::Unbox(IString::Query(skills_->GetWantParams().GetParam(keyStr))));
 }
 
-INSTANTIATE_TEST_CASE_P(SkillsParamsTestCaseP, SkillsParamsTest,
+INSTANTIATE_TEST_SUITE_P(SkillsParamsTestCaseP, SkillsParamsTest,
     testing::Values(testParamsType("", "asdsdsdasa"), testParamsType(std::string(LARGE_STR_LEN + 1, 's'), "sadsdsdads"),
         testParamsType("#$%^&*(!@\":<>{}", "asdsdsdasa"), testParamsType("3456677", ""),
         testParamsType("1234", std::string(LARGE_STR_LEN + 1, 's')),
