@@ -26,6 +26,7 @@ namespace GlobalConfigurationKey {
     constexpr const char* SYSTEM_LANGUAGE = "ohos.system.language";
     constexpr const char* SYSTEM_COLORMODE = "ohos.system.colorMode";
     constexpr const char* INPUT_POINTER_DEVICE = "input.pointer.device";
+    constexpr const char* DEVICE_TYPE = "const.build.characteristics";
 } // namespace GlobalConfigurationKey
 } // namespace AAFwk
 } // namespace OHOS
