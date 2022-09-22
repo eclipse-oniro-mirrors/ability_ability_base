@@ -125,6 +125,24 @@ Global::Resource::InputDevice ConvertHasPointerDevice(std::string hasPointerDevi
         Global::Resource::InputDevice::INPUTDEVICE_NOT_SET;
 }
 
+Global::Resource::DeviceType ConvertDeviceType(std::string deviceType)
+{
+    static const std::unordered_map<std::string, Global::Resource::DeviceType> deviceTypes = {
+        {"default", Global::Resource::DeviceType::DEVICE_PHONE},
+        {"phone", Global::Resource::DeviceType::DEVICE_PHONE},
+        {"tablet", Global::Resource::DeviceType::DEVICE_TABLET},
+        {"car", Global::Resource::DeviceType::DEVICE_CAR},
+        {"tv", Global::Resource::DeviceType::DEVICE_TV},
+        {"watch", Global::Resource::DeviceType::DEVICE_WEARABLE},
+    };
+
+    if (deviceTypes.find(deviceType) != deviceTypes.end()) {
+        return deviceTypes.at(deviceType);
+    }
+
+    return Global::Resource::DeviceType::DEVICE_PHONE;
+}
+
 std::string GetColorModeStr(int32_t colormode)
 {
     std::string ret("no_color_mode");
