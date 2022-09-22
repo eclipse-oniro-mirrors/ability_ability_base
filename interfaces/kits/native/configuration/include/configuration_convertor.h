@@ -30,6 +30,8 @@ Global::Resource::ScreenDensity ConvertDensity(std::string density);
 
 Global::Resource::InputDevice ConvertHasPointerDevice(std::string hasPointerDevice);
 
+Global::Resource::DeviceType ConvertDeviceType(std::string deviceType);
+
 int32_t ConvertDisplayId(std::string displayId);
 
 std::string GetColorModeStr(int32_t colormode);

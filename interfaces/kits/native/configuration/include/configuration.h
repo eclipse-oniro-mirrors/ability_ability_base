@@ -39,6 +39,7 @@ namespace ConfigurationInner {
         OHOS::AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE,
         OHOS::AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE,
         OHOS::AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE,
+        OHOS::AAFwk::GlobalConfigurationKey::DEVICE_TYPE,
         OHOS::AppExecFwk::ConfigurationInner::APPLICATION_DIRECTION,
         OHOS::AppExecFwk::ConfigurationInner::APPLICATION_DENSITYDPI,
         OHOS::AppExecFwk::ConfigurationInner::APPLICATION_DISPLAYID,
@@ -46,7 +47,7 @@ namespace ConfigurationInner {
 
     constexpr const char* COLOR_MODE_LIGHT = "light";
     constexpr const char* COLOR_MODE_DARK = "dark";
-
+    constexpr const char* DEVICE_TYPE_DEFAULT = "default";
     constexpr const char* DIRECTION_VERTICAL = "vertical";
     constexpr const char* DIRECTION_HORIZONTAL = "horizontal";
 };
