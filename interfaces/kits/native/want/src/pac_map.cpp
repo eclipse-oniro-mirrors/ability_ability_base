@@ -1199,10 +1199,9 @@ std::string PacMap::MapListToString(const PacMapList &mapList) const
 
 bool PacMap::ToJson(const PacMapList &mapList, Json::Value &dataObject) const
 {
-    bool isOK = false;
     for (auto it = mapList.begin(); it != mapList.end(); it++) {
         Json::Value item;
-        isOK = false;
+        bool isOK = false;
         if (IPacMap::Query(it->second.GetRefPtr()) != nullptr) {
             PacMap *pacmap = static_cast<PacMap *>(IPacMap::Query(it->second.GetRefPtr()));
             if (pacmap == nullptr) {
