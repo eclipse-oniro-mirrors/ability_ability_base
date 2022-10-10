@@ -837,6 +837,8 @@ public:
     static const std::string PARAM_RESV_FOR_RESULT;
     static const std::string PARAM_RESV_CALL_TO_FOREGROUND;
 
+    static const std::string PARAM_ABILITY_RECOVERY_RESTART;
+
     // module name string
     static const std::string PARAM_MODULE_NAME;
 
