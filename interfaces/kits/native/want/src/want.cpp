@@ -84,7 +84,7 @@ const std::string Want::PARAM_MODULE_NAME("moduleName");
  * @param None
  * @return None
  */
-Want::Want() : picker_(nullptr)
+Want::Want()
 {}
 
 /**
@@ -102,14 +102,12 @@ Want::~Want()
  */
 Want::Want(const Want &other)
 {
-    picker_ = other.picker_;
     operation_ = other.operation_;
     parameters_ = other.parameters_;
 }
 
 Want &Want::operator=(const Want &other)
 {
-    picker_ = other.picker_;
     operation_ = other.operation_;
     parameters_ = other.parameters_;
     return *this;
@@ -1392,10 +1390,6 @@ std::string Want::ToUri() const
     std::string uriString = WANT_HEADER;
     ToUriStringInner(uriString);
 
-    if (picker_ != nullptr) {
-        uriString.append("PICK;");
-        picker_->ToUriStringInner(uriString);
-    }
     uriString += "end";
 
     return uriString;
@@ -1566,11 +1560,6 @@ bool Want::Marshalling(Parcel &parcel) const
         return false;
     }
 
-    // write picker
-    if (!WritePicker(parcel)) {
-        return false;
-    }
-
     return true;
 }
 
@@ -1624,11 +1613,6 @@ bool Want::ReadFromParcel(Parcel &parcel)
 
     // read package
     operation_.SetBundleName(Str16ToStr8(parcel.ReadString16()));
-
-    // read picker
-    if (!ReadPicker(parcel)) {
-        return false;
-    }
 
     return true;
 }
@@ -1810,10 +1794,6 @@ void Want::DumpInfo(int level) const
 {
     operation_.DumpInfo(level);
     parameters_.DumpInfo(level);
-
-    if (picker_ != nullptr) {
-        picker_->DumpInfo(level + 1);
-    }
 }
 
 nlohmann::json Want::ToJson() const
@@ -2018,7 +1998,7 @@ bool Want::WriteEntities(Parcel &parcel) const
         }
         return true;
     }
-    
+
     std::vector<std::u16string> entityU16;
     for (std::vector<std::string>::size_type i = 0; i < entities.size(); i++) {
         entityU16.push_back(Str8ToStr16(entities[i]));
@@ -2063,24 +2043,6 @@ bool Want::WriteParameters(Parcel &parcel) const
             return false;
         }
         if (!parcel.WriteParcelable(&parameters_)) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-bool Want::WritePicker(Parcel &parcel) const
-{
-    if (picker_ == nullptr) {
-        if (!parcel.WriteInt32(VALUE_NULL)) {
-            return false;
-        }
-    } else {
-        if (!parcel.WriteInt32(VALUE_OBJECT)) {
-            return false;
-        }
-        if (!parcel.WriteParcelable(picker_)) {
             return false;
         }
     }
@@ -2162,26 +2124,6 @@ bool Want::ReadParameters(Parcel &parcel)
         }
     }
 
-    return true;
-}
-
-bool Want::ReadPicker(Parcel &parcel)
-{
-    int empty = VALUE_NULL;
-    if (!parcel.ReadInt32(empty)) {
-        return false;
-    }
-
-    if (empty != VALUE_OBJECT) {
-        return true;
-    }
-    
-    auto picker = parcel.ReadParcelable<Want>();
-    if (picker == nullptr) {
-        return false;
-    }
-
-    picker_ = picker;
     return true;
 }
 }  // namespace AAFwk
