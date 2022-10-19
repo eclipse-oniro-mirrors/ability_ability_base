@@ -845,7 +845,6 @@ public:
 private:
     WantParams parameters_;
     Operation operation_;
-    Want *picker_;
 
     static const std::string OCT_EQUALSTO;
     static const std::string OCT_SEMICOLON;
@@ -876,12 +875,10 @@ private:
     bool WriteEntities(Parcel &parcel) const;
     bool WriteElement(Parcel &parcel) const;
     bool WriteParameters(Parcel &parcel) const;
-    bool WritePicker(Parcel &parcel) const;
     bool ReadUri(Parcel &parcel);
     bool ReadEntities(Parcel &parcel);
     bool ReadElement(Parcel &parcel);
     bool ReadParameters(Parcel &parcel);
-    bool ReadPicker(Parcel &parcel);
 };
 }  // namespace AAFwk
 }  // namespace OHOS
