@@ -37,6 +37,14 @@ namespace AppExecFwk {
             return false;                                                 \
         }                                                                 \
     } while (0)
+
+#define WRITE_PARCEL_AND_RETURN(type, parcel, data)                               \
+    do {                                                                          \
+        if (!(parcel).Write##type(data)) {                                        \
+            ABILITYBASE_LOGE("fail to write %{public}s type into parcel", #type); \
+            return;                                                               \
+        }                                                                         \
+    } while (0)
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif  // OHOS_ABILITY_BASE_PARCEL_MACRO_BASE_H
