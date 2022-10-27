@@ -21,7 +21,6 @@ namespace OHOS {
 namespace AAFwk {
 Operation::Operation() : flags_(0), uri_("")
 {
-    entities_.clear();
 }
 
 Operation::Operation(const Operation &other) : flags_(0), uri_(other.uri_.ToString())
