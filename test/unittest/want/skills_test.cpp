@@ -15,16 +15,12 @@
 
 #include <gtest/gtest.h>
 
-#define private public
-#define protected public
 #include "bool_wrapper.h"
 #include "int_wrapper.h"
 #include "long_wrapper.h"
 #include "refbase.h"
 #include "skills.h"
 #include "string_wrapper.h"
-#undef private
-#undef protected
 
 using namespace testing::ext;
 using namespace OHOS::AAFwk;
@@ -367,20 +363,6 @@ HWTEST_F(SkillsBaseTest, AaFwk_Skills_Action_0100, Function | MediumTest | Level
     base_->RemoveAction(action);
     EXPECT_EQ(0, base_->CountActions());
     EXPECT_EQ(false, base_->HasAction(action));
-}
-
-/**
- * @tc.number: AaFwk_Skills_ActionsIterator_0100
- * @tc.name: ActionsIterator
- * @tc.desc: Test the function of ActionsIterator.
- */
-HWTEST_F(SkillsBaseTest, AaFwk_Skills_ActionsIterator_0100, Function | MediumTest | Level1)
-{
-    base_->actions_.push_back("a");
-    base_->actions_.push_back("b");
-    auto iter = base_->ActionsIterator();
-
-    EXPECT_EQ(*iter, "a");
 }
 
 /**
