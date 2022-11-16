@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "wantfirst_fuzzer.h"
+#include "wantthird_fuzzer.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -39,21 +39,31 @@ uint32_t GetU32Data(const char* ptr)
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
     std::shared_ptr<Want> want = std::make_shared<Want>();
-    unsigned int flags = static_cast<unsigned int>(GetU32Data(data));
-    want->SetFlags(flags);
-    want->RemoveFlags(flags);
-    std::string entity(data, size);
-    want->AddEntity(entity);
-    want->HasEntity(entity);
-    want->RemoveEntity(entity);
-    std::string bundleName(data, size);
-    want->SetBundle(bundleName);
-    std::string deviceId(data, size);
-    want->SetDeviceId(deviceId);
-    std::string moduleName(data, size);
-    want->SetModuleName(moduleName);
-    want->GetDeviceId();
-    want->GetModuleName();
+    want->CountEntities();
+    Parcel wantParcel;
+    Want *wantptr = nullptr;
+    if (wantParcel.WriteBuffer(data, size)) {
+        wantptr = Want::Unmarshalling(wantParcel);
+    }
+    want->GetScheme();
+    AppExecFwk::ElementName elementName;
+    want->MakeMainAbility(elementName);
+    Operation operation;
+    want->SetOperation(operation);
+    want->CloneOperation();
+    std::string key(data, size);
+    want->HasParameter(key);
+    std::string content(data, size);
+    std::string prop(data, size);
+    std::string value(data, size);
+    want->ParseContent(content, prop, value);
+    std::string str(data, size);
+    want->Decode(str);
+    want->Encode(str);
+    int level = static_cast<int>(GetU32Data(data));
+    want->DumpInfo(level);
+    nlohmann::json wantJson;
+    want->ReadFromJson(wantJson);
     return true;
 }
 }
