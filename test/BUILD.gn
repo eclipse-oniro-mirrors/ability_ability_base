@@ -22,7 +22,7 @@ config("base_private_config") {
 
 ohos_unittest("base_test") {
   module_out_path = base_output_path
-  sources = [ "base/base_test.cpp" ]
+  sources = [ "unittest/base/base_test.cpp" ]
 
   configs = [ ":base_private_config" ]
 
@@ -57,7 +57,7 @@ config("module_private_want_param_wrapper_config") {
 
 ohos_unittest("operation_test") {
   module_out_path = want_output_path
-  sources = [ "want/operation_test.cpp" ]
+  sources = [ "unittest/want/operation_test.cpp" ]
 
   configs = [
     ":want_private_config",
@@ -77,7 +77,7 @@ ohos_unittest("operation_test") {
 
 ohos_unittest("patterns_matcher_test") {
   module_out_path = want_output_path
-  sources = [ "want/patterns_matcher_test.cpp" ]
+  sources = [ "unittest/want/patterns_matcher_test.cpp" ]
 
   configs = [
     ":want_private_config",
@@ -99,7 +99,7 @@ ohos_unittest("patterns_matcher_test") {
 
 ohos_unittest("skills_test") {
   module_out_path = want_output_path
-  sources = [ "want/skills_test.cpp" ]
+  sources = [ "unittest/want/skills_test.cpp" ]
 
   configs = [
     ":want_private_config",
@@ -120,7 +120,7 @@ ohos_unittest("skills_test") {
 
 ohos_unittest("want_params_test") {
   module_out_path = want_output_path
-  sources = [ "want/want_params_test.cpp" ]
+  sources = [ "unittest/want/want_params_test.cpp" ]
 
   configs = [
     ":want_private_config",
@@ -143,7 +143,7 @@ ohos_unittest("want_params_test") {
 
 ohos_unittest("want_params_wrapper_test") {
   module_out_path = want_output_path
-  sources = [ "want/want_params_wrapper_test.cpp" ]
+  sources = [ "unittest/want/want_params_wrapper_test.cpp" ]
 
   configs = [ ":module_private_want_param_wrapper_config" ]
 
@@ -162,7 +162,7 @@ ohos_unittest("want_params_wrapper_test") {
 
 ohos_unittest("want_test") {
   module_out_path = want_output_path
-  sources = [ "want/want_test.cpp" ]
+  sources = [ "unittest/want/want_test.cpp" ]
 
   configs = [
     ":want_private_config",
