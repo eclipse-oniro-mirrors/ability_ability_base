@@ -183,7 +183,7 @@ ohos_unittest("want_test") {
 
 ohos_unittest("uri_test") {
   module_out_path = want_output_path
-  sources = [ "unittest/want/uri_test.cpp" ]
+  sources = [ "want/uri_test.cpp" ]
 
   configs = [
     ":want_private_config",
