@@ -1667,9 +1667,10 @@ bool Want::ParseUriInternal(const std::string &content, ElementName &element, Wa
 
 bool Want::ParseContent(const std::string &content, std::string &prop, std::string &value)
 {
+    std::string subString;
     std::size_t pos = content.find("=");
     if (pos != std::string::npos) {
-        std::string subString = content.substr(0, pos);
+        subString = content.substr(0, pos);
         prop = Decode(subString);
         subString = content.substr(pos + 1, content.length() - pos - 1);
         value = Decode(subString);
