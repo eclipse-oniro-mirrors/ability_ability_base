@@ -17,10 +17,10 @@ import("//foundation/ability/ability_base/ability_base.gni")
 module_output_path = "ability_base/want"
 
 ##############################fuzztest##########################################
-ohos_fuzztest("WantFirstFuzzTest") {
+ohos_fuzztest("WantFourthFuzzTest") {
   module_out_path = module_output_path
 
-  fuzz_config_file = "${ability_base_path}/test/fuzztest/wantfirst_fuzzer"
+  fuzz_config_file = "${ability_base_path}/test/fuzztest/wantfourth_fuzzer"
   include_dirs = []
   cflags = [
     "-g",
@@ -28,7 +28,7 @@ ohos_fuzztest("WantFirstFuzzTest") {
     "-Wno-unused-variable",
     "-fno-omit-frame-pointer",
   ]
-  sources = [ "wantfirst_fuzzer.cpp" ]
+  sources = [ "wantfourth_fuzzer.cpp" ]
 
   configs = [ "${ability_base_path}:want_config" ]
 
@@ -51,7 +51,7 @@ group("fuzztest") {
   deps = []
   deps += [
     # deps file
-    ":WantFirstFuzzTest",
+    ":WantFourthFuzzTest",
   ]
 }
 ###############################################################################

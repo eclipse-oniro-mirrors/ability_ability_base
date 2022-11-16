@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "wantfirst_fuzzer.h"
+#include "wantfifth_fuzzer.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -39,21 +39,22 @@ uint32_t GetU32Data(const char* ptr)
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
     std::shared_ptr<Want> want = std::make_shared<Want>();
-    unsigned int flags = static_cast<unsigned int>(GetU32Data(data));
-    want->SetFlags(flags);
-    want->RemoveFlags(flags);
-    std::string entity(data, size);
-    want->AddEntity(entity);
-    want->HasEntity(entity);
-    want->RemoveEntity(entity);
-    std::string bundleName(data, size);
-    want->SetBundle(bundleName);
-    std::string deviceId(data, size);
-    want->SetDeviceId(deviceId);
-    std::string moduleName(data, size);
-    want->SetModuleName(moduleName);
-    want->GetDeviceId();
-    want->GetModuleName();
+    std::string key(data, size);
+    std::vector<zchar> charVector;
+    want->SetParam(key, charVector);
+    want->GetCharArrayParam(key);
+    std::vector<int> intVector;
+    want->SetParam(key, intVector);
+    want->GetIntArrayParam(key);
+    double doubleValue = 0.0;
+    want->SetParam(key, doubleValue);
+    want->GetDoubleParam(key, doubleValue);
+    std::vector<double> doubleVector;
+    want->SetParam(key, doubleVector);
+    want->GetDoubleArrayParam(key);
+    float floatValue = 0.0;
+    want->SetParam(key, floatValue);
+    want->GetFloatParam(key, floatValue);
     return true;
 }
 }

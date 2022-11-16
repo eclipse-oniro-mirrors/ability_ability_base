@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "wantfirst_fuzzer.h"
+#include "wantsecond_fuzzer.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -39,21 +39,19 @@ uint32_t GetU32Data(const char* ptr)
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
     std::shared_ptr<Want> want = std::make_shared<Want>();
-    unsigned int flags = static_cast<unsigned int>(GetU32Data(data));
-    want->SetFlags(flags);
-    want->RemoveFlags(flags);
-    std::string entity(data, size);
-    want->AddEntity(entity);
-    want->HasEntity(entity);
-    want->RemoveEntity(entity);
-    std::string bundleName(data, size);
-    want->SetBundle(bundleName);
-    std::string deviceId(data, size);
-    want->SetDeviceId(deviceId);
-    std::string moduleName(data, size);
-    want->SetModuleName(moduleName);
-    want->GetDeviceId();
-    want->GetModuleName();
+    std::string type(data, size);
+    want->SetType(type);
+    want->FormatType(type);
+    Uri uri(type);
+    want->SetUri(uri);
+    want->SetUriAndType(uri, type);
+    want->FormatUri(uri);
+    want->FormatUri(type);
+    char* charUri;
+    want->WantParseUri(charUri);
+    want->GetLowerCaseScheme(uri);
+    want->FormatUriAndType(uri, type);
+    want->FormatMimeType(type);
     return true;
 }
 }

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "wantfirst_fuzzer.h"
+#include "wantfourth_fuzzer.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -39,21 +39,22 @@ uint32_t GetU32Data(const char* ptr)
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
     std::shared_ptr<Want> want = std::make_shared<Want>();
-    unsigned int flags = static_cast<unsigned int>(GetU32Data(data));
-    want->SetFlags(flags);
-    want->RemoveFlags(flags);
-    std::string entity(data, size);
-    want->AddEntity(entity);
-    want->HasEntity(entity);
-    want->RemoveEntity(entity);
-    std::string bundleName(data, size);
-    want->SetBundle(bundleName);
-    std::string deviceId(data, size);
-    want->SetDeviceId(deviceId);
-    std::string moduleName(data, size);
-    want->SetModuleName(moduleName);
-    want->GetDeviceId();
-    want->GetModuleName();
+    std::string key(data, size);
+    sptr<IRemoteObject> remoteObject;
+    want->SetParam(key, remoteObject);
+    want->GetRemoteObject(key);
+    std::vector<bool> boolValue;
+    want->SetParam(key, boolValue);
+    want->GetBoolArrayParam(key);
+    byte byteValue = '\0';
+    want->SetParam(key, byteValue);
+    want->GetByteParam(key, byteValue);
+    std::vector<byte> byteVector;
+    want->SetParam(key, byteVector);
+    want->GetByteArrayParam(key);
+    zchar charValue = U'\0';
+    want->SetParam(key, charValue);
+    want->GetCharParam(key, charValue);
     return true;
 }
 }
