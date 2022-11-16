@@ -160,33 +160,6 @@ HWTEST_F(WantBaseTest, AaFwk_Want_Bundle_0100, Function | MediumTest | Level1)
 }
 
 /**
- * @tc.number: AaFwk_Want_DeviceId_0100
- * @tc.name: SetDeviceId/GetDeviceId
- * @tc.desc: Validate when normally entering a string
- */
-HWTEST_F(WantBaseTest, AaFwk_Want_DeviceId_0100, Function | MediumTest | Level1)
-{
-    if (want_ != nullptr) {
-        std::string DeviceId = "liuuy";
-        want_->SetDeviceId(DeviceId);
-        EXPECT_STREQ(DeviceId.c_str(), want_->GetDeviceId().c_str());
-    }
-}
-
-/**
- * @tc.number: AaFwk_Want_ModuleName_0100
- * @tc.name: SetModuleName/GetModuleName
- * @tc.desc: Validate when normally entering a string
- */
-HWTEST_F(WantBaseTest, AaFwk_Want_ModuleName_0100, Function | MediumTest | Level1)
-{
-    if (want_ != nullptr) {
-        std::string ModuleName = "liuuy";
-        want_->SetModuleName(ModuleName);
-        EXPECT_STREQ(ModuleName.c_str(), want_->GetModuleName().c_str());
-    }
-}
-/**
  * @tc.number: AaFwk_Want_Parcelable_0100
  * @tc.name: Marshalling/Unmarshalling
  * @tc.desc: marshalling Want, and then check result.
