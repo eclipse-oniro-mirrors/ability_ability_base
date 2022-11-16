@@ -95,7 +95,8 @@
                 }
             ],
             "test": [
-              "//foundation/ability/ability_base/test:unittest"
+              "//foundation/ability/ability_base/test/unittest:unittest",
+              "//foundation/ability/ability_base/test/fuzztest:fuzztest"
             ]
         }
     }
