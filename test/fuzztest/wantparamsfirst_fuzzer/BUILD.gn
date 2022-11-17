@@ -1,0 +1,57 @@
+# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+#####################hydra-fuzz###################
+import("//build/test.gni")
+import("//foundation/ability/ability_base/ability_base.gni")
+module_output_path = "ability_base/want"
+
+##############################fuzztest##########################################
+ohos_fuzztest("WantParamsFirstFuzzTest") {
+  module_out_path = module_output_path
+
+  fuzz_config_file = "${ability_base_path}/test/fuzztest/wantparamsfirst_fuzzer"
+  include_dirs = []
+  cflags = [
+    "-g",
+    "-O0",
+    "-Wno-unused-variable",
+    "-fno-omit-frame-pointer",
+  ]
+  sources = [ "wantparamsfirst_fuzzer.cpp" ]
+
+  configs = [ "${ability_base_path}:want_config" ]
+
+  deps = [
+    "${ability_base_path}:base",
+    "${ability_base_path}:want",
+    "${ability_base_path}:zuri",
+    "//third_party/jsoncpp:jsoncpp",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "ipc:ipc_core",
+  ]
+}
+
+###############################################################################
+group("fuzztest") {
+  testonly = true
+  deps = []
+  deps += [
+    # deps file
+    ":WantParamsFirstFuzzTest",
+  ]
+}
+###############################################################################
