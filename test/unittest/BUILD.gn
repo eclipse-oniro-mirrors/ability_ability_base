@@ -20,6 +20,20 @@ config("base_private_config") {
   visibility = [ ":*" ]
 }
 
+ohos_unittest("base_object_test") {
+  module_out_path = base_output_path
+  sources = [ "base/base_object_test.cpp" ]
+
+  configs = [ ":base_private_config" ]
+
+  deps = [ "//third_party/googletest:gtest_main" ]
+
+  external_deps = [
+    "ability_base:base",
+    "c_utils:utils",
+  ]
+}
+
 ohos_unittest("base_test") {
   module_out_path = base_output_path
   sources = [ "base/base_test.cpp" ]
@@ -207,6 +221,8 @@ ohos_unittest("uri_test") {
 group("unittest") {
   testonly = true
   deps = [
+    ":base_object_test",
+
     #":base_test",
     ":operation_test",
     ":patterns_matcher_test",
