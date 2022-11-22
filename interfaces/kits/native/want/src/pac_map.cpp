@@ -926,7 +926,7 @@ bool PacMap::EqualPacMapData(const PacMapList &leftPacMapList, const PacMapList 
 
             PacMap *rightMap = static_cast<PacMap *>(IPacMap::Query(right->second.GetRefPtr()));
             PacMap *leftMap = static_cast<PacMap *>(IPacMap::Query(leftMapIt->second.GetRefPtr()));
-            if (!EqualPacMapData(leftMap->dataList_, rightMap->dataList_)) {
+            if (rightMap == nullptr || leftMap == nullptr || !EqualPacMapData(leftMap->dataList_, rightMap->dataList_)) {
                 return false;
             }
             continue;
