@@ -352,6 +352,136 @@ HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_GetStringByType_0100, Function | M
 }
 
 /**
+ * @tc.number: AaFwk_WantParams_GetStringByType_0200
+ * @tc.name: GetStringByType
+ * @tc.desc: Test get bool with invalid type in the WantParam.
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_GetStringByType_0200, Function | MediumTest | Level1)
+{
+    const std::string value = "true";
+    sptr<IInterface> boolObj = WantParams::GetInterfaceByType(WantParams::VALUE_TYPE_BOOLEAN, value);
+    std::string stringVal = WantParams::GetStringByType(boolObj, WantParams::VALUE_TYPE_BOOLEAN);
+    EXPECT_EQ(stringVal, "true");
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_GetStringByType_0300
+ * @tc.name: GetStringByType
+ * @tc.desc: Test get string with invalid type in the WantParam.
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_GetStringByType_0300, Function | MediumTest | Level1)
+{
+    const std::string value = "string";
+    sptr<IInterface> stringObj = WantParams::GetInterfaceByType(WantParams::VALUE_TYPE_STRING, value);
+    std::string stringVal = WantParams::GetStringByType(stringObj, WantParams::VALUE_TYPE_STRING);
+    EXPECT_EQ(stringVal, "string");
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_GetStringByType_0400
+ * @tc.name: GetStringByType
+ * @tc.desc: Test get byte with invalid type in the WantParam.
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_GetStringByType_0400, Function | MediumTest | Level1)
+{
+    const std::string value = "129";
+    sptr<IInterface> byteObj = WantParams::GetInterfaceByType(WantParams::VALUE_TYPE_BYTE, value);
+    std::string byteVal = WantParams::GetStringByType(byteObj, WantParams::VALUE_TYPE_BYTE);
+    EXPECT_EQ(byteVal, "129");
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_GetStringByType_0500
+ * @tc.name: GetStringByType
+ * @tc.desc: Test get char with invalid type in the WantParam.
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_GetStringByType_0500, Function | MediumTest | Level1)
+{
+    const std::string value = "I";
+    sptr<IInterface> charObj = WantParams::GetInterfaceByType(WantParams::VALUE_TYPE_CHAR, value);
+    std::string charVal = WantParams::GetStringByType(charObj, WantParams::VALUE_TYPE_CHAR);
+    EXPECT_EQ(charVal, "I");
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_GetStringByType_0600
+ * @tc.name: GetStringByType
+ * @tc.desc: Test get short with invalid type in the WantParam.
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_GetStringByType_0600, Function | MediumTest | Level1)
+{
+    const std::string value = "123";
+    sptr<IInterface> shortObj = WantParams::GetInterfaceByType(WantParams::VALUE_TYPE_SHORT, value);
+    std::string shortVal = WantParams::GetStringByType(shortObj, WantParams::VALUE_TYPE_SHORT);
+    EXPECT_EQ(shortVal, "123");
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_GetStringByType_0700
+ * @tc.name: GetStringByType
+ * @tc.desc: Test get int with invalid type in the WantParam.
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_GetStringByType_0700, Function | MediumTest | Level1)
+{
+    const std::string value = "-1";
+    sptr<IInterface> intObj = WantParams::GetInterfaceByType(WantParams::VALUE_TYPE_INT, value);
+    std::string intVal = WantParams::GetStringByType(intObj, WantParams::VALUE_TYPE_INT);
+    EXPECT_EQ(intVal, "-1");
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_GetStringByType_0800
+ * @tc.name: GetStringByType
+ * @tc.desc: Test get long with invalid type in the WantParam.
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_GetStringByType_0800, Function | MediumTest | Level1)
+{
+    const std::string value = "-1";
+    sptr<IInterface> longObj = WantParams::GetInterfaceByType(WantParams::VALUE_TYPE_LONG, value);
+    std::string longVal = WantParams::GetStringByType(longObj, WantParams::VALUE_TYPE_LONG);
+    EXPECT_EQ(longVal, "-1");
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_GetStringByType_0900
+ * @tc.name: GetStringByType
+ * @tc.desc: Test get float with invalid type in the WantParam.
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_GetStringByType_0900, Function | MediumTest | Level1)
+{
+    const std::string value = "-1.0004";
+    sptr<IInterface> floatObj = WantParams::GetInterfaceByType(WantParams::VALUE_TYPE_FLOAT, value);
+    std::string floatVal = WantParams::GetStringByType(floatObj, WantParams::VALUE_TYPE_FLOAT);
+    EXPECT_EQ(floatVal, "-1.000400");
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_GetStringByType_1000
+ * @tc.name: GetStringByType
+ * @tc.desc: Test get float with invalid type in the WantParam.
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_GetStringByType_1000, Function | MediumTest | Level1)
+{
+    const std::string value = "-1.00000004";
+    sptr<IInterface> doubleObj = WantParams::GetInterfaceByType(WantParams::VALUE_TYPE_DOUBLE, value);
+    std::string doubleVal = WantParams::GetStringByType(doubleObj, WantParams::VALUE_TYPE_DOUBLE);
+    EXPECT_EQ(doubleVal, "-1.000000");
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_GetStringByType_1100
+ * @tc.name: GetStringByType
+ * @tc.desc: Test get float with invalid type in the WantParam.
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_GetStringByType_1100, Function | MediumTest | Level1)
+{
+    const std::string value = "I5{2,3,5,7,11}";
+    sptr<IInterface> arrayObj = WantParams::GetInterfaceByType(WantParams::VALUE_TYPE_ARRAY, value);
+    std::string arrayVal = WantParams::GetStringByType(arrayObj, WantParams::VALUE_TYPE_ARRAY);
+    EXPECT_EQ(arrayVal, "I5{2,3,5,7,11}");
+}
+
+/**
  * @tc.number: AaFwk_WantParams_NewArrayData_0100
  * @tc.name: NewArrayData
  * @tc.desc: Test NewArrayData with invalid sptr<IArray> parameter.
