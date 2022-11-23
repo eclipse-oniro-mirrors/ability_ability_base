@@ -202,6 +202,46 @@ ohos_unittest("uri_test") {
   ]
 }
 
+ohos_unittest("extra_params_test") {
+  module_out_path = want_output_path
+  sources = [ "want/extra_params_test.cpp" ]
+
+  configs = [
+    ":want_private_config",
+    "${ability_base_path}:want_public_config",
+  ]
+
+  deps = [ "//third_party/googletest:gtest_main" ]
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:want",
+    "ability_base:zuri",
+    "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
+  ]
+}
+
+ohos_unittest("array_wrapper_test") {
+  module_out_path = want_output_path
+  sources = [ "want/array_wrapper_test.cpp" ]
+
+  configs = [
+    ":want_private_config",
+    "${ability_base_path}:want_public_config",
+  ]
+
+  deps = [ "//third_party/googletest:gtest_main" ]
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:want",
+    "ability_base:zuri",
+    "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
+  ]
+}
+
 ###############################################################################
 
 group("unittest") {
@@ -215,5 +255,7 @@ group("unittest") {
     ":want_params_test",
     ":want_params_wrapper_test",
     ":want_test",
+    ":extra_params_test",
+    ":array_wrapper_test",
   ]
 }
