@@ -30,9 +30,12 @@ namespace OHOS {
 namespace AAFwk {
 IINTERFACE_IMPL_1(Array, Object, IArray);
 
-Array::Array(long size, const InterfaceID &id) : size_(size), typeId_(id)
+constexpr int32_t MAX_ARRAY_SIZE = 50 * 1024 * 1024;
+
+Array::Array(long size, const InterfaceID &id) : typeId_(id)
 {
-    for (long i = 0; i < size; i++) {
+    size_ = size > MAX_ARRAY_SIZE ? MAX_ARRAY_SIZE : size;
+    for (long i = 0; i < size_; i++) {
         values_.push_back(nullptr);
     }
 }

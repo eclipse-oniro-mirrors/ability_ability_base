@@ -80,7 +80,7 @@ private:
         long size);                                          /* [in] */
 
     std::vector<sptr<IInterface>> values_;
-    const long size_;
+    long size_;
     InterfaceID typeId_;
 
     static sptr<IArray> ParseString(const std::string &values, long size);
