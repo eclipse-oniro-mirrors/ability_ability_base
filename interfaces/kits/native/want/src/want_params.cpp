@@ -1096,6 +1096,11 @@ bool WantParams::ReadFromParcelArrayDouble(Parcel &parcel, sptr<IArray> &ao)
 bool WantParams::ReadFromParcelArrayWantParams(Parcel &parcel, sptr<IArray> &ao)
 {
     int32_t size = parcel.ReadInt32();
+    static constexpr int32_t maxAllowedSize = 1024;
+    if (size < 0 || size > maxAllowedSize) {
+        ABILITYBASE_LOGE("%{public}s invalid size: %{public}d", __func__, size);
+        return false;
+    }
     std::vector<sptr<IInterface>> arrayWantParams;
     for (int32_t i = 0; i < size; ++i) {
         sptr<WantParams> value(Unmarshalling(parcel));
