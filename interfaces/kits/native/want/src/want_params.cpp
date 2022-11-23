@@ -543,6 +543,9 @@ bool WantParams::WriteToParcelFD(Parcel &parcel, const WantParams &value) const
     if (fdIWrap != nullptr) {
         int fd = AAFwk::Integer::Unbox(fdIWrap);
         auto messageParcel = static_cast<MessageParcel*>(&parcel);
+        if (messageParcel == nullptr) {
+            return false;
+        }
         bool ret = messageParcel->WriteFileDescriptor(fd);
         ABILITYBASE_LOGI("%{public}s, WriteFileDescriptor fd:%{public}d, ret:%{public}d.", __func__, fd, ret);
         return ret;
@@ -563,6 +566,9 @@ bool WantParams::WriteToParcelRemoteObject(Parcel &parcel, const WantParams &val
     if (remoteObjectIWrap != nullptr) {
         auto remoteObject = AAFwk::RemoteObjectWrap::UnBox(remoteObjectIWrap);
         auto messageParcel = static_cast<MessageParcel*>(&parcel);
+        if (messageParcel == nullptr) {
+            return false;
+        }
         bool ret = messageParcel->WriteRemoteObject(remoteObject);
         ABILITYBASE_LOGI("%{public}s, WriteRemoteObject ret:%{public}d.", __func__, ret);
         return ret;
@@ -1271,6 +1277,9 @@ bool WantParams::ReadFromParcelFD(Parcel &parcel, const std::string &key)
 {
     ABILITYBASE_LOGI("%{public}s called.", __func__);
     auto messageParcel = static_cast<MessageParcel*>(&parcel);
+    if (messageParcel == nullptr) {
+        return false;
+    }
     auto fd = messageParcel->ReadFileDescriptor();
     ABILITYBASE_LOGI("%{public}s fd:%{public}d.", __func__, fd);
     WantParams wp;
@@ -1285,6 +1294,9 @@ bool WantParams::ReadFromParcelRemoteObject(Parcel &parcel, const std::string &k
 {
     ABILITYBASE_LOGI("%{public}s called.", __func__);
     auto messageParcel = static_cast<MessageParcel*>(&parcel);
+    if (messageParcel == nullptr) {
+        return false;
+    }
     auto remoteObject = messageParcel->ReadRemoteObject();
     WantParams wp;
     wp.SetParam(TYPE_PROPERTY, String::Box(REMOTE_OBJECT));
