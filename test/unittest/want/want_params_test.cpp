@@ -15,14 +15,23 @@
 
 #include <gtest/gtest.h>
 
+#define private public
+#define protected public
 #include "array_wrapper.h"
-#include "string_wrapper.h"
+#include "base_object.h"
 #include "bool_wrapper.h"
+#include "byte_wrapper.h"
+#include "double_wrapper.h"
+#include "float_wrapper.h"
 #include "int_wrapper.h"
 #include "long_wrapper.h"
-
+#include "short_wrapper.h"
+#include "string_wrapper.h"
 #include "want_params.h"
 #include "want_params_wrapper.h"
+#include "zchar_wrapper.h"
+#undef private
+#undef protected
 
 using namespace testing::ext;
 using namespace OHOS::AAFwk;
