@@ -100,16 +100,16 @@ Want::~Want()
  * @param want the source instance of Want.
  * @return None
  */
-Want::Want(const Want &other)
+Want::Want(const Want &want)
 {
-    operation_ = other.operation_;
-    parameters_ = other.parameters_;
+    operation_ = want.operation_;
+    parameters_ = want.parameters_;
 }
 
-Want &Want::operator=(const Want &other)
+Want &Want::operator=(const Want &want)
 {
-    operation_ = other.operation_;
-    parameters_ = other.parameters_;
+    operation_ = want.operation_;
+    parameters_ = want.parameters_;
     return *this;
 }
 
@@ -1669,8 +1669,7 @@ bool Want::ParseContent(const std::string &content, std::string &prop, std::stri
 {
     std::size_t pos = content.find("=");
     if (pos != std::string::npos) {
-        std::string subString;
-        subString = content.substr(0, pos);
+        std::string subString = content.substr(0, pos);
         prop = Decode(subString);
         subString = content.substr(pos + 1, content.length() - pos - 1);
         value = Decode(subString);

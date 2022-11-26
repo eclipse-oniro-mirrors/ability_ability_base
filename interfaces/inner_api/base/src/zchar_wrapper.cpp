@@ -83,7 +83,7 @@ void Char::WriteUTF8Bytes(char *dst, /* [in] */
     zchar c,                         /* [in] */
     int size)                        /* [in] */
 {
-    uint32_t uc = (uint32_t)c;
+    uint32_t uc = static_cast<uint32_t>(c);
     dst += size;
     switch (size) {
         /* note: everything falls through. */
@@ -123,8 +123,10 @@ zchar Char::GetChar(const std::string &str, /* [in] */
     const char *end = p + str.length() + 1;
     while (*p && p < end) {
         zchar unicode = GetCharInternal((unsigned char *)p, bsize);
-        if (bsize == 0 || p + bsize >= end)
+        if (bsize == 0 || p + bsize >= end) {
             break;
+        }
+        
         if (index == 0) {
             return unicode;
         }
@@ -153,7 +155,7 @@ zchar Char::GetCharInternal(const unsigned char *cur, /* [in] */
     }
     ignoreMask |= mask;
     result &= ~(ignoreMask << (BYTE_SHIFT * (num2Read - 1)));
-    size = (int)num2Read;
+    size = static_cast<int>(num2Read);
     return result;
 }
 }  // namespace AAFwk
