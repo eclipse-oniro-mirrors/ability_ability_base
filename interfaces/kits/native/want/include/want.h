@@ -113,7 +113,7 @@ public:
      * @return None
      */
     Want(const Want &want);
-    Want &operator=(const Want &);
+    Want &operator=(const Want &want);
 
     /**
      * @description: Sets a flag in a Want.
@@ -140,7 +140,7 @@ public:
      * @param flags Indicates the flag to remove.
      * @return Removes the description of a flag from a Want.
      */
-    void RemoveFlags(unsigned int flag);
+    void RemoveFlags(unsigned int flags);
 
     /**
      * @description: Sets the bundleName and abilityName attributes for this Want object.
