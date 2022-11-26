@@ -54,6 +54,7 @@ using String = OHOS::AAFwk::String;
 namespace OHOS {
 namespace AppExecFwk {
 namespace {
+const int MAX_ARRAY_ALLOW_SIZE = 1024;
 const int FLOAT_PRECISION = 7;
 const int DOUBLE_PRECISION = 17;
 const std::regex NUMBER_REGEX("^[-+]?([0-9]+)([.]([0-9]+))?$");
@@ -1577,7 +1578,7 @@ bool PacMap::ParseJsonItemArrayShort(PacMapList &mapList, const std::string &key
         return true;
     }
 
-    if (arrayValue.size() < 0 || arrayValue.size() > INT_MAX) {
+    if (arrayValue.size() < 0 || arrayValue.size() > MAX_ARRAY_ALLOW_SIZE) {
         return false;
     }
 
@@ -1596,7 +1597,7 @@ bool PacMap::ParseJsonItemArrayInteger(PacMapList &mapList, const std::string &k
         return true;
     }
 
-    if (arrayValue.size() < 0 || arrayValue.size() > INT_MAX) {
+    if (arrayValue.size() < 0 || arrayValue.size() > MAX_ARRAY_ALLOW_SIZE) {
         return false;
     }
 
@@ -1625,7 +1626,7 @@ bool PacMap::ParseJsonItemArrayLong(PacMapList &mapList, const std::string &key,
         return true;
     }
 
-    if (arrayValue.size() < 0 || arrayValue.size() > INT_MAX) {
+    if (arrayValue.size() < 0 || arrayValue.size() > MAX_ARRAY_ALLOW_SIZE) {
         return false;
     }
 
@@ -1648,7 +1649,7 @@ bool PacMap::ParseJsonItemArrayChar(PacMapList &mapList, const std::string &key,
         return true;
     }
 
-    if (arrayValue.size() < 0 || arrayValue.size() > INT_MAX) {
+    if (arrayValue.size() < 0 || arrayValue.size() > MAX_ARRAY_ALLOW_SIZE) {
         return false;
     }
 
@@ -1667,7 +1668,7 @@ bool PacMap::ParseJsonItemArrayByte(PacMapList &mapList, const std::string &key,
         return true;
     }
 
-    if (arrayValue.size() < 0 || arrayValue.size() > INT_MAX) {
+    if (arrayValue.size() < 0 || arrayValue.size() > MAX_ARRAY_ALLOW_SIZE) {
         return false;
     }
 
@@ -1686,7 +1687,7 @@ bool PacMap::ParseJsonItemArrayBoolean(PacMapList &mapList, const std::string &k
         return true;
     }
 
-    if (arrayValue.size() < 0 || arrayValue.size() > INT_MAX) {
+    if (arrayValue.size() < 0 || arrayValue.size() > MAX_ARRAY_ALLOW_SIZE) {
         return false;
     }
 
@@ -1705,7 +1706,7 @@ bool PacMap::ParseJsonItemArrayFloat(PacMapList &mapList, const std::string &key
         return true;
     }
 
-    if (arrayValue.size() < 0 || arrayValue.size() > INT_MAX) {
+    if (arrayValue.size() < 0 || arrayValue.size() > MAX_ARRAY_ALLOW_SIZE) {
         return false;
     }
 
@@ -1724,7 +1725,7 @@ bool PacMap::ParseJsonItemArrayDouble(PacMapList &mapList, const std::string &ke
         return true;
     }
 
-    if (arrayValue.size() < 0 || arrayValue.size() > INT_MAX) {
+    if (arrayValue.size() < 0 || arrayValue.size() > MAX_ARRAY_ALLOW_SIZE) {
         return false;
     }
 
@@ -1743,7 +1744,7 @@ bool PacMap::ParseJsonItemArrayString(PacMapList &mapList, const std::string &ke
         return true;
     }
 
-    if (arrayValue.size() < 0 || arrayValue.size() > INT_MAX) {
+    if (arrayValue.size() < 0 || arrayValue.size() > MAX_ARRAY_ALLOW_SIZE) {
         return false;
     }
 
