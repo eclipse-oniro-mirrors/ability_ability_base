@@ -58,7 +58,7 @@ public:
 
     Configuration(const Configuration &other);
 
-    Configuration& operator= (const Configuration &other);
+    Configuration& operator=(const Configuration &other);
 
     ~Configuration();
 
