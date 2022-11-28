@@ -22,7 +22,13 @@
 #include "float_wrapper.h"
 #include "long_wrapper.h"
 #include "array_wrapper.h"
+
+#define private public
+#define protected public
+#include "operation.h"
 #include "want.h"
+#undef private
+#undef protected
 
 using namespace testing::ext;
 using namespace OHOS::AAFwk;
@@ -4004,6 +4010,25 @@ HWTEST_F(WantBaseTest, array_test_005, TestSize.Level1)
     sptr<IArray> arrayObj3 = Array::Parse("I5{2,3,5,7,11}");
     EXPECT_FALSE(Object::Equals(*(arrayObj1.GetRefPtr()), *(arrayObj2.GetRefPtr())));
     EXPECT_TRUE(Object::Equals(*(arrayObj1.GetRefPtr()), *(arrayObj3.GetRefPtr())));
+}
+
+/**
+ * @tc.number: DumpInfo_test_001
+ * @tc.name: DumpInfo
+ * @tc.desc: Test the want function DumpInfo.
+ */
+HWTEST_F(WantBaseTest, DumpInfo_test_001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_Want_DumpInfo_0100 start";
+
+    Want want;
+    int level = 1;
+    want.operation_.entities_.push_back("a");
+    want.operation_.entities_.push_back("b");
+    want.DumpInfo(level);
+    EXPECT_EQ(true, want.operation_.GetEntities().size() == 2);
+
+    GTEST_LOG_(INFO) << "AaFwk_Want_DumpInfo_0100 end";
 }
 }  // namespace AAFwk
 }  // namespace OHOS
