@@ -31,7 +31,7 @@ Configuration::Configuration(const Configuration &other) : defaultDisplayId_(oth
     configParameter_ = other.configParameter_;
 }
 
-Configuration& Configuration::operator= (const Configuration &other)
+Configuration& Configuration::operator=(const Configuration &other)
 {
     if (this == &other) {
         return *this;

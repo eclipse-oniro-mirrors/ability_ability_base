@@ -100,16 +100,16 @@ Want::~Want()
  * @param want the source instance of Want.
  * @return None
  */
-Want::Want(const Want &other)
+Want::Want(const Want &want)
 {
-    operation_ = other.operation_;
-    parameters_ = other.parameters_;
+    operation_ = want.operation_;
+    parameters_ = want.parameters_;
 }
 
-Want &Want::operator=(const Want &other)
+Want &Want::operator=(const Want &want)
 {
-    operation_ = other.operation_;
-    parameters_ = other.parameters_;
+    operation_ = want.operation_;
+    parameters_ = want.parameters_;
     return *this;
 }
 
