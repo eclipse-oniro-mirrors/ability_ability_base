@@ -38,7 +38,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
     long longSize = 0;
     if (size >= 8) {
-        longSize = (long)(data);
+        longSize = (long)(size);
     }
     InterfaceID id;
     std::shared_ptr<Array> array = std::make_shared<Array>(longSize, id);
@@ -49,7 +49,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     array->Get(index, valueptr);
     array->GetLength(longSize);
     array->GetType(id);
-    array->ToString();
     return true;
 }
 }
