@@ -39,9 +39,6 @@ uint32_t GetU32Data(const char* ptr)
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
     long longSize = 0;
-    if (size >= 8) {
-        longSize = (long)(data);
-    }
     InterfaceID id;
     std::shared_ptr<Array> array = std::make_shared<Array>(longSize, id);
     std::string values(data, size);
