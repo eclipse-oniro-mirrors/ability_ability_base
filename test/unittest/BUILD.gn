@@ -340,6 +340,86 @@ ohos_unittest("array_wrapper_test") {
   ]
 }
 
+ohos_unittest("zchar_wrapper_test") {
+  module_out_path = base_output_path
+  sources = [ "base/zchar_wrapper_test.cpp" ]
+
+  configs = [
+    ":want_private_config",
+    "${ability_base_path}:want_public_config",
+  ]
+
+  deps = [ "//third_party/googletest:gtest_main" ]
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:want",
+    "ability_base:zuri",
+    "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
+  ]
+}
+
+ohos_unittest("short_wrapper_test") {
+  module_out_path = base_output_path
+  sources = [ "base/short_wrapper_test.cpp" ]
+
+  configs = [
+    ":want_private_config",
+    "${ability_base_path}:want_public_config",
+  ]
+
+  deps = [ "//third_party/googletest:gtest_main" ]
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:want",
+    "ability_base:zuri",
+    "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
+  ]
+}
+
+ohos_unittest("string_wrapper_test") {
+  module_out_path = base_output_path
+  sources = [ "base/string_wrapper_test.cpp" ]
+
+  configs = [
+    ":want_private_config",
+    "${ability_base_path}:want_public_config",
+  ]
+
+  deps = [ "//third_party/googletest:gtest_main" ]
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:want",
+    "ability_base:zuri",
+    "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
+  ]
+}
+
+ohos_unittest("user_object_wrapper_test") {
+  module_out_path = base_output_path
+  sources = [ "base/user_object_wrapper_test.cpp" ]
+
+  configs = [
+    ":want_private_config",
+    "${ability_base_path}:want_public_config",
+  ]
+
+  deps = [ "//third_party/googletest:gtest_main" ]
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:want",
+    "ability_base:zuri",
+    "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
+  ]
+}
+
 ###############################################################################
 
 group("unittest") {
@@ -357,10 +437,14 @@ group("unittest") {
     ":long_wrapper_test",
     ":operation_test",
     ":patterns_matcher_test",
+    ":short_wrapper_test",
     ":skills_test",
+    ":string_wrapper_test",
     ":uri_test",
+    ":user_object_wrapper_test",
     ":want_params_test",
     ":want_params_wrapper_test",
     ":want_test",
+    ":zchar_wrapper_test",
   ]
 }
