@@ -224,5 +224,79 @@ void Extractor::SetRuntimeFlag(bool isRuntime)
 {
     zipFile_.SetIsRuntime(isRuntime);
 }
+
+std::unique_ptr<FileMapper> Extractor::GetData(const std::string &fileName)
+{
+    int32_t fd = 0;
+    ZipPos offset = 0;
+    size_t len = 0;
+    bool compress = false;
+    if(!zipFile_.GetEntryInfoByName(fileName, compress, fd, offset, len)) {
+        ABILITYBASE_LOGE("Get entry info by name failed. fileName: %{public}s", fileName.c_str());
+        return nullptr;
+    }
+
+    std::unique_ptr<FileMapper> fileMapper = std::make_unique<FileMapper>();
+    if(!fileMapper->CreateFileMapper(fileName, isCompressed, fd, static_cast<uint32_t>(offset), len)) {
+        ABILITYBASE_LOGE("Create file mapper failed. fileName: %{public}s", fileName.c_str());
+        return nullptr;
+    }
+    return fileMapper;
+}
+
+bool Extractor::UnzipData(std::unique_ptr<FileMapper> fileMapper, std::unique_ptr<uint8_t[]> dataPtr, size_t &len)
+{
+    if (!initial_) {
+        ABILITYBASE_LOGE("extractor is not initial");
+        return false;
+    }
+
+    if (!fileMapper || !dataPtr) {
+        ABILITYBASE_LOGE("Input fileMapper or dataPtr is nullptr.");
+        return false;
+    }
+
+    if (!zipFile_.ExtractFileFromMMap(fileMapper->GetFileName(), fileMapper->GetDataPtr(), dataPtr, len)) {
+        ABILITYBASE_LOGE("extract file from MMap failed.");
+        return false;
+    }
+    return true;
+}
+
+std::map<std::string, std::shared_ptr<Extractor>> ExtractorUtil::extractorMap_;
+std::shared_ptr<Extractor> ExtractorUtil::GetExtractor(const std::string &hapPath)
+{
+    if (hapPath.empty()) {
+        ABILITYBASE_LOGE("Input hapPath is empty.");
+        return nullptr;
+    }
+
+    auto mapIter = extractorMap_.find(hapPath);
+    if (mapIter != extractorMap_.end()) {
+        ABILITYBASE_LOGD("Extractor exists, hapPath: %{public}s.", hapPath.c_str());
+        return mapIter->second;
+    }
+
+    ABILITYBASE_LOGD("Extractor doesn't exist, make extractor and return, hapPath: %{public}s.", hapPath.c_str());
+    std::shared_ptr<Extractor> extractor = Extractor::Create(hapPath);
+    return extractor;
+}
+
+bool ExtractorUtil::AddExtractor(const std::string &hapPath, std::shared_ptr<Extractor> extractor)
+{
+    if (hapPath.empty()) {
+        ABILITYBASE_LOGE("Input hapPath is empty.");
+        return false;
+    }
+
+    if (extractorMap_.find(hapPath) != extractorMap_.end()) {
+        ABILITYBASE_LOGD("Extractor exists, update. hapPath: %{public}s.", hapPath.c_str());
+    } else {
+        ABILITYBASE_LOGD("Extractor doesn't exist, add. hapPath: %{public}s.", hapPath.c_str());
+    }
+
+    extractorMap_[hapPath] = extractor;
+    return true;
+}
 }  // namespace AbilityBase
 }  // namespace OHOS

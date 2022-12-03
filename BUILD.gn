@@ -220,6 +220,7 @@ config("ability_extractor_config") {
 ohos_shared_library("extractortool") {
   sources = [
     "interfaces/kits/native/extractortool/src/extractor.cpp",
+    "interfaces/kits/native/extractortool/src/file_mapper.cpp",
     "interfaces/kits/native/extractortool/src/zip_file.cpp",
   ]
 

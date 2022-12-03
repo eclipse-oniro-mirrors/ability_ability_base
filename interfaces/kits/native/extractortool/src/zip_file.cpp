@@ -599,5 +599,137 @@ void ZipFile::SetIsRuntime(const bool isRuntime)
 {
     isRuntime_ = isRuntime;
 }
+
+bool ZipFile::GetEntryInfoByName(const std::string &file, bool &compress,
+    int32_t &fd, ZipPos &offset, uint32_t &length) const
+{
+    if (!GetDataOffsetRelative(file, offset, length)) {
+        ABILITYBASE_LOGE("Get entry info by name failed.");
+        return false;
+    }
+
+    ZipEntry zipEntry;
+    if (!GetEntry(file, zipEntry)) {
+        ABILITYBASE_LOGE("extract file: not find file");
+        return false;
+    }
+    compress = zipEntry.compressionMethod;
+
+    if (!file_) {
+        ABILITYBASE_LOGE("file[%{public}s] is not opened.", file.c_str());
+        return false;
+    }
+
+    fd = fileno(file_);
+    return true;
+}
+
+bool ZipFile::ExtractFileFromMMap(const std::string &file, void *mmapDataPtr,
+    std::unique_ptr<uint8_t[]> dataPtr, size_t &len) const
+{
+    ZipEntry zipEntry;
+    if (!GetEntry(file, zipEntry)) {
+        ABILITYBASE_LOGE("extract file: not find file");
+        return false;
+    }
+
+    if (!zipEntry.compressionMethod) {
+        ABILITYBASE_LOGE("file[%{public}s] is not extracted.", file.c_str());
+        return false;
+    }
+
+    uint16_t extraSize = 0;
+    if (!CheckCoherencyLocalHeader(zipEntry, extraSize)) {
+        ABILITYBASE_LOGE("check coherency local header failed");
+        return false;
+    }
+
+    return UnzipWithInflatedFromMMap(zipEntry, extraSize, mmapDataPtr, dataPtr, len);
+}
+
+bool ZipFile::UnzipWithInflatedFromMMap(const ZipEntry &zipEntry, const uint16_t extraSize,
+    void *mmapDataPtr, std::unique_ptr<uint8_t[]> dataPtr, size_t &len) const
+{
+    z_stream zstream;
+    if (!InitZStream(zstream)) {
+        ABILITYBASE_LOGE("Init zstream failed.");
+        return false;
+    }
+
+    BytePtr bufIn = zstream.next_in;
+    BytePtr bufOut = zstream.next_out;
+
+    bool ret = true;
+    int32_t zlibErr = Z_OK;
+    uint32_t remainCompressedSize = zipEntry.compressedSize;
+    size_t inflateLen = 0;
+    uint8_t errorTimes = 0;
+    uint8_t *dstDataPtr = static_cast<uint8_t *>(dataPtr);
+    len = 0;
+
+    while ((remainCompressedSize > 0) || (zstream.avail_in > 0)) {
+        if (!ReadZStreamFromMMap(bufIn, mmapDataPtr, zstream, remainCompressedSize)) {
+            ret = false;
+            break;
+        }
+
+        zlibErr = inflate(&zstream, Z_SYNC_FLUSH);
+        if ((zlibErr >= Z_OK) && (zstream.msg != nullptr)) {
+            ABILITYBASE_LOGE("unzip inflated inflate, error: %{public}d, err msg: %{public}s", zlibErr, zstream.msg);
+            ret = false;
+            break;
+        }
+
+        inflateLen = UNZIP_BUF_OUT_LEN - zstream.avail_out;
+        len += inflateLen;
+        if (inflateLen > 0) {
+            memcpy_s(dstDataPtr, inflateLen, bufOut, inflateLen);
+            dstDataPtr += inflateLen;
+            zstream.next_out = bufOut;
+            zstream.avail_out = UNZIP_BUF_OUT_LEN;
+            errorTimes = 0;
+        } else {
+            errorTimes++;
+        }
+        if (errorTimes >= INFLATE_ERROR_TIMES) {
+            ABILITYBASE_LOGE("unzip inflated data is abnormal!");
+            ret = false;
+            break;
+        }
+    }
+
+    // free all dynamically allocated data structures except the next_in and next_out for this stream.
+    zlibErr = inflateEnd(&zstream);
+    if (zlibErr != Z_OK) {
+        ABILITYBASE_LOGE("unzip inflateEnd error, error: %{public}d", zlibErr);
+        ret = false;
+    }
+
+    delete[] bufOut;
+    delete[] bufIn;
+    return ret;
+}
+
+bool ZipFile::ReadZStreamFromMMap(const BytePtr &buffer, void *dataPtr,
+    z_stream &zstream, uint32_t &remainCompressedSize) const
+{
+    if (!dataPtr) {
+        ABILITYBASE_LOGE("Input dataPtr is nullptr.");
+        return false;
+    }
+
+    if (zstream.avail_in == 0) {
+        size_t remainBytes = (remainCompressedSize > UNZIP_BUF_IN_LEN) ? UNZIP_BUF_IN_LEN : remainCompressedSize;
+        size_t readBytes = sizeof(Byte) * remainBytes;
+        if (memcpy_s(dataPtr, readBytes, buffer, readBytes) != EOK) {
+            ABILITYBASE_LOGE("Mem copy failed.");
+            return false;
+        }
+        remainCompressedSize -= remainBytes;
+        zstream.avail_in = remainBytes;
+        zstream.next_in = buffer;
+    }
+    return true;
+}
 }  // namespace AbilityBase
 }  // namespace OHOS

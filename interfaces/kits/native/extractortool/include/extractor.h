@@ -18,6 +18,7 @@
 
 #include <string>
 
+#include "file_mapper.h"
 #include "zip_file.h"
 
 namespace OHOS {
@@ -73,11 +74,25 @@ public:
     bool IsSameHap(const std::string& hapPath) const;
     void SetRuntimeFlag(bool isRuntime);
 
+    std::unique_ptr<FileMapper> GetData(const std::string &fileName);
+    bool UnzipData(std::unique_ptr<FileMapper> fileMapper, std::unique_ptr<uint8_t[]> dataPtr, size_t &len);
+
 private:
     const std::string sourceFile_;
     ZipFile zipFile_;
     bool initial_ = false;
     std::string hapPath_;
+};
+
+class ExtractorUtil {
+public:
+    static std::shared_ptr<Extractor> GetExtractor(const std::string &hapPath);
+
+private:
+    static bool AddExtractor(const std::string &hapPath, std::shared_ptr<Extractor> extractor);
+
+private:
+    static std::map<std::string, std::shared_ptr<Extractor>> extractorMap_;
 };
 }  // namespace AbilityBase
 }  // namespace OHOS
