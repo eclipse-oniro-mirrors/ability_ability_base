@@ -4030,5 +4030,40 @@ HWTEST_F(WantBaseTest, DumpInfo_test_001, TestSize.Level1)
 
     GTEST_LOG_(INFO) << "AaFwk_Want_DumpInfo_0100 end";
 }
+
+/**
+ * @tc.number: SetElementModuleName_test_001
+ * @tc.name: SetElementModuleName
+ * @tc.desc: Test the want function SetElementModuleName.
+ * @tc.require: issueI648W6
+ */
+HWTEST_F(WantBaseTest, SetElementModuleName_test_001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "SetElementModuleName_test_001 start";
+
+    OHOS::AppExecFwk::ElementName element;
+    const char *moduleName = "12345";
+    element.SetModuleName(moduleName);
+
+    GTEST_LOG_(INFO) << "SetElementModuleName_test_001 end";
+}
+
+/**
+ * @tc.number: ParseURI_test_001
+ * @tc.name: ParseURI
+ * @tc.desc: Test the want function ParseURI.
+ * @tc.require: issueI648W6
+ */
+HWTEST_F(WantBaseTest, ParseURI_test_001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "ParseURI_test_001 start";
+
+    OHOS::AppExecFwk::ElementName element;
+    std::string uri = "#Intent;action;end";
+    bool result = element.ParseURI(uri);
+    EXPECT_EQ(result, false);
+
+    GTEST_LOG_(INFO) << "ParseURI_test_001 end";
+}
 }  // namespace AAFwk
 }  // namespace OHOS
