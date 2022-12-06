@@ -1027,5 +1027,170 @@ HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_WriteArrayToParcelDouble_0100, Fun
     bool result = wp.WriteArrayToParcelDouble(parcel, nullptr);
     EXPECT_FALSE(result);
 }
+
+class UnsupportedDataTest : public testing::Test {
+public:
+    UnsupportedDataTest()
+    {}
+    ~UnsupportedDataTest()
+    {
+    }
+    static void SetUpTestCase(void);
+    static void TearDownTestCase(void);
+    void SetUp();
+    void TearDown();
+
+    std::shared_ptr<UnsupportedData> unsupportedData_ = nullptr;
+};
+
+void UnsupportedDataTest::SetUpTestCase(void)
+{}
+
+void UnsupportedDataTest::TearDownTestCase(void)
+{}
+
+void UnsupportedDataTest::SetUp(void)
+{
+    unsupportedData_ = std::make_shared<UnsupportedData>();
+}
+
+void UnsupportedDataTest::TearDown(void)
+{
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_GetStringParam_1000
+ * @tc.name: GetStringParam
+ * @tc.desc: Test GetStringParam.
+ * @tc.require: issueI648W6
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_GetStringParam_1000, Function | MediumTest | Level1)
+{
+    WantParams wantParams;
+    std::string key = "";
+    std::string result = wantParams.GetStringParam(key);
+    EXPECT_EQ(result, "");
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_WriteToParcelFD_1000
+ * @tc.name: WriteToParcelFD
+ * @tc.desc: Test WriteToParcelFD.
+ * @tc.require: issueI648W6
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_WriteToParcelFD_1000, Function | MediumTest | Level1)
+{
+    WantParams wantParams;
+    Parcel parcel;
+    WantParams value;
+    bool result = wantParams.WriteToParcelFD(parcel, value);
+    EXPECT_EQ(result, false);
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_WriteToParcelRemoteObject_1000
+ * @tc.name: WriteToParcelRemoteObject
+ * @tc.desc: Test WriteToParcelRemoteObject.
+ * @tc.require: issueI648W6
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_WriteToParcelRemoteObject_1000, Function | MediumTest | Level1)
+{
+    WantParams wantParams;
+    Parcel parcel;
+    WantParams value;
+    bool result = wantParams.WriteToParcelRemoteObject(parcel, value);
+    EXPECT_EQ(result, false);
+
+    std::string keyStr = "vlan";
+    std::string valueStr = "vlan";
+    wantParamsIn_->SetParam(keyStr, String::Box(valueStr));
+    bool result1 = wantParams.WriteToParcelRemoteObject(parcel, value);
+    EXPECT_EQ(result1, false);
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_WriteArrayToParcelWantParams_1000
+ * @tc.name: WriteArrayToParcelWantParams
+ * @tc.desc: Test WriteArrayToParcelWantParams.
+ * @tc.require: issueI648W6
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_WriteArrayToParcelWantParams_1000, Function | MediumTest | Level1)
+{
+    WantParams wantParams;
+    Parcel parcel;
+    int depth = 1;
+    bool result = wantParams.WriteArrayToParcelWantParams(parcel, nullptr, depth);
+    EXPECT_EQ(result, false);
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_ReadArrayToParcel_1000
+ * @tc.name: ReadArrayToParcel
+ * @tc.desc: Test ReadArrayToParcel.
+ * @tc.require: issueI648W6
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_ReadArrayToParcel_1000, Function | MediumTest | Level1)
+{
+    WantParams wantParams;
+    Parcel parcel;
+    int type = 1;
+    sptr<IArray> destAO = nullptr;
+    bool result = wantParams.ReadArrayToParcel(parcel, type, destAO);
+    EXPECT_EQ(result, true);
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_ReadFromParcelFD_1000
+ * @tc.name: ReadFromParcelFD
+ * @tc.desc: Test ReadFromParcelFD.
+ * @tc.require: issueI648W6
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_ReadFromParcelFD_1000, Function | MediumTest | Level1)
+{
+    WantParams wantParams;
+    Parcel parcel;
+    std::string key = "this is key";
+    bool result = wantParams.ReadFromParcelFD(parcel, key);
+    EXPECT_EQ(result, true);
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_ReadFromParcelRemoteObject_1000
+ * @tc.name: ReadFromParcelRemoteObject
+ * @tc.desc: Test ReadFromParcelRemoteObject.
+ * @tc.require: issueI648W6
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_ReadFromParcelRemoteObject_1000, Function | MediumTest | Level1)
+{
+    WantParams wantParams;
+    Parcel parcel;
+    std::string key = "this is key";
+    bool result = wantParams.ReadFromParcelRemoteObject(parcel, key);
+    EXPECT_EQ(result, true);
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_ReadUnsupportedData_1000
+ * @tc.name: ReadUnsupportedData
+ * @tc.desc: Test ReadUnsupportedData.
+ * @tc.require: issueI648W6
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_ReadUnsupportedData_1000, Function | MediumTest | Level1)
+{
+    WantParams wantParams;
+    Parcel parcel;
+    std::string key = "this is key";
+    int type = 1;
+    bool result = wantParams.ReadUnsupportedData(parcel, key, type);
+    EXPECT_EQ(result, false);
+
+    parcel.WriteInt32(-1);
+    bool result1 = wantParams.ReadUnsupportedData(parcel, key, type);
+    EXPECT_EQ(result1, false);
+
+    int type1 = 50;
+    bool result2 = wantParams.ReadFromParcelParam(parcel, key, type1);
+    EXPECT_EQ(result2, false);
+}
 }
 }
