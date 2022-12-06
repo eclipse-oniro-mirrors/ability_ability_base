@@ -22,6 +22,10 @@
 using namespace OHOS;
 using namespace testing::ext;
 namespace OHOS {
+    namespace {
+        const string EMPTY = "";
+        const int PORT_NONE = -1;
+    }
 class UriTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
@@ -386,4 +390,161 @@ HWTEST_F(UriTest, Uri_CompareTo_0100, Function | MediumTest | Level1)
     GTEST_LOG_(INFO) << "Uri_CompareTo_0100 end";
 }
 
+/**
+ * @tc.number: Uri_GetScheme_0100
+ * @tc.name: GetScheme
+ * @tc.desc: Verify the function when the uriString_ is not empty.
+ * @tc.require: issueI6415N
+ */
+HWTEST_F(UriTest, Uri_GetScheme_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "Uri_GetScheme_0100 start";
+    string uriString = "this is uriString";
+    uri_ = std::make_shared<Uri>(uriString);
+    string result = uri_->GetScheme();
+    string result1 = uri_->ParseScheme();
+    EXPECT_EQ(result, result1);
+    GTEST_LOG_(INFO) << "Uri_GetScheme_0100 end";
+}
+
+/**
+ * @tc.number: Uri_GetSchemeSpecificPart_0300
+ * @tc.name: GetSchemeSpecificPart
+ * @tc.desc: Verify the function when the uriString_ is empty.
+ * @tc.require: issueI6415N
+ */
+HWTEST_F(UriTest, Uri_GetSchemeSpecificPart_0300, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "Uri_GetSchemeSpecificPart_0300 start";
+    auto result = uri_->GetSchemeSpecificPart();
+    auto result1 = uri_->GetAuthority();
+    auto result2 = uri_->GetUserInfo();
+    auto result5 = uri_->GetHost();
+    auto result6 = uri_->ParseHost();
+    auto result7 = uri_->GetPort();
+    auto result8 = uri_->GetQuery();
+    auto result9 = uri_->GetPath();
+    auto result10 = uri_->GetFragment();
+    auto result12 = uri_->IsOpaque();
+    auto result13 = uri_->IsAbsolute();
+    EXPECT_EQ(result, " ");
+    EXPECT_EQ(result1, EMPTY);
+    EXPECT_EQ(result2, EMPTY);
+    EXPECT_EQ(result5, EMPTY);
+    EXPECT_EQ(result6, EMPTY);
+    EXPECT_EQ(result7, PORT_NONE);
+    EXPECT_EQ(result8, EMPTY);
+    EXPECT_EQ(result9, " ");
+    EXPECT_EQ(result10, EMPTY);
+    EXPECT_EQ(result12, false);
+    EXPECT_EQ(result13, false);
+    GTEST_LOG_(INFO) << "Uri_GetSchemeSpecificPart_0300 end";
+}
+
+/**
+ * @tc.number: Uri_IsHierarchical_0300
+ * @tc.name: IsHierarchical
+ * @tc.desc: Verify the function when the uriString_ is empty.
+ * @tc.require: issueI6415N
+ */
+HWTEST_F(UriTest, Uri_IsHierarchical_0300, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "Uri_IsHierarchical_0300 start";
+    uri_->uriString_ = "";
+    auto result1 = uri_->IsHierarchical();
+    auto result2 = uri_->IsRelative();
+    EXPECT_EQ(result1, false);
+    EXPECT_EQ(result2, false);
+    GTEST_LOG_(INFO) << "Uri_IsHierarchical_0300 end";
+}
+
+/**
+ * @tc.number: Uri_ParseUserInfo_0100
+ * @tc.name: ParseUserInfo
+ * @tc.desc: Verify the function when the authority is not empty.
+ * @tc.require: issueI6415N
+ */
+HWTEST_F(UriTest, Uri_ParseUserInfo_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "Uri_ParseUserInfo_0100 start";
+    string uriString = "this is uriString";
+    uri_ = std::make_shared<Uri>(uriString);
+    auto result = uri_->GetAuthority();
+    auto result1 = uri_->ParseUserInfo();
+    auto result2 = uri_->ParseAuthority();
+    auto result3 = uri_->ParsePort();
+    EXPECT_EQ(result, result2);
+    EXPECT_EQ(result3, PORT_NONE);
+    GTEST_LOG_(INFO) << "Uri_ParseUserInfo_0100 end";
+}
+
+/**
+ * @tc.number: Uri_ParseQuery_0100
+ * @tc.name: ParseQuery
+ * @tc.desc: Verify the function when the fsi < qsi.
+ * @tc.require: issueI6415N
+ */
+HWTEST_F(UriTest, Uri_ParseQuery_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "Uri_ParseQuery_0100 start";
+    string uriString = "this is uriString";
+    uri_ = std::make_shared<Uri>(uriString);
+    uri_->cachedSsi_ = 1;
+    uri_->cachedFsi_ = 2;
+    auto result = uri_->ParseQuery();
+    EXPECT_EQ(result, EMPTY);
+    GTEST_LOG_(INFO) << "Uri_ParseQuery_0100 end";
+}
+
+/**
+ * @tc.number: Uri_ParseQuery_0200
+ * @tc.name: ParseQuery
+ * @tc.desc: Verify the function when the fsi > qsi.
+ * @tc.require: issueI6415N
+ */
+HWTEST_F(UriTest, Uri_ParseQuery_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "Uri_ParseQuery_0200 start";
+    string uriString = "this is uriString";
+    uri_ = std::make_shared<Uri>(uriString);
+    uri_->cachedSsi_ = 3;
+    uri_->cachedFsi_ = 2;
+    auto result = uri_->ParseQuery();
+    EXPECT_EQ(result, EMPTY);
+    GTEST_LOG_(INFO) << "Uri_ParseQuery_0200 end";
+}
+
+/**
+ * @tc.number: Uri_ParsePath_0100
+ * @tc.name: ParsePath
+ * @tc.desc: Verify the function when the fsi = uriString.length.
+ * @tc.require: issueI6415N
+ */
+HWTEST_F(UriTest, Uri_ParsePath_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "Uri_ParsePath_0100 start";
+    string uriString = "uriString";
+    uri_ = std::make_shared<Uri>(uriString);
+    uri_->cachedSsi_ = 8;
+    auto result = uri_->ParsePath();
+    EXPECT_EQ(result, EMPTY);
+    GTEST_LOG_(INFO) << "Uri_ParsePath_0100 end";
+}
+
+/**
+ * @tc.number: Uri_ParsePath_0200
+ * @tc.name: ParsePath
+ * @tc.desc: Verify the function.
+ * @tc.require: issueI6415N
+ */
+HWTEST_F(UriTest, Uri_ParsePath_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "Uri_ParsePath_0200 start";
+    string uriString = "uriString";
+    uri_ = std::make_shared<Uri>(uriString);
+    uri_->cachedSsi_ = 2;
+    auto result = uri_->ParsePath();
+    EXPECT_EQ(result, EMPTY);
+    GTEST_LOG_(INFO) << "Uri_ParsePath_0200 end";
+}
 }
