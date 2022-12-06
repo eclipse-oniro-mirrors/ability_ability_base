@@ -92,6 +92,25 @@
                     ]
                   },
                   "name": "//foundation/ability/ability_base:zuri"
+                },
+                {
+                  "header": {
+                    "header_base": "//foundation/ability/ability_base/interfaces/kits/native/extractortool/include",
+                    "header_files": [
+                      "extractor.h",
+                      "zip_file.h"
+                    ]
+                  },
+                  "name": "//foundation/ability/ability_base:extractortool"
+                },
+                {
+                  "header": {
+                    "header_base": "//foundation/ability/ability_base/interfaces/kits/native/extractortool/include",
+                    "header_files": [
+                      "file_path_utils.h"
+                    ]
+                  },
+                  "name": "//foundation/ability/ability_base:string_utils"
                 }
             ],
             "test": [

@@ -181,10 +181,76 @@ ohos_shared_library("want") {
   part_name = "ability_base"
 }
 
+################################### string_utils ########################################
+config("string_utils_config") {
+  include_dirs = [ "${ability_base_kits_native_path}/extractortool/include" ]
+}
+
+ohos_shared_library("string_utils") {
+  if (is_mingw) {
+    defines = [ "WINDOWS_PLATFORM" ]
+  } else {
+    defines = [ "MAC_PLATFORM" ]
+  }
+
+  sources = [ "interfaces/kits/native/extractortool/src/file_path_utils.cpp" ]
+
+  cflags = []
+  if (target_cpu == "arm") {
+    cflags += [ "-DBINDER_IPC_32BIT" ]
+  }
+
+  public_configs = [ ":string_utils_config" ]
+
+  subsystem_name = "ability"
+  part_name = "ability_base"
+}
+
+################################### extractortool ########################################
+config("ability_extractor_config") {
+  include_dirs = [
+    "interfaces/kits/native/extractortool/include",
+    "${ability_base_innerapi_path}/log/include",
+    "//third_party/json/include",
+    "//third_party/zlib/contrib/minizip",
+    "//third_party/zlib",
+  ]
+}
+
+ohos_shared_library("extractortool") {
+  sources = [
+    "interfaces/kits/native/extractortool/src/extractor.cpp",
+    "interfaces/kits/native/extractortool/src/file_mapper.cpp",
+    "interfaces/kits/native/extractortool/src/zip_file.cpp",
+  ]
+
+  cflags = []
+  if (target_cpu == "arm") {
+    cflags += [ "-DBINDER_IPC_32BIT" ]
+  }
+
+  deps = [
+    ":string_utils",
+    "//third_party/zlib:shared_libz",
+  ]
+
+  public_configs = [ ":ability_extractor_config" ]
+
+  external_deps = [
+    "c_utils:utils",
+    "hiviewdfx_hilog_native:libhilog",
+  ]
+
+  subsystem_name = "ability"
+  part_name = "ability_base"
+}
+
 group("base_innerkits_target") {
   deps = [
     ":base",
     ":configuration",
+    ":extractortool",
+    ":string_utils",
     ":want",
   ]
 }

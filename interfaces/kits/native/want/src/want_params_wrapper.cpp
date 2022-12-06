@@ -116,7 +116,7 @@ sptr<IWantParams> WantParamWrapper::Parse(const std::string &str)
     if (ValidateStr(str)) {
         for (size_t strnum = 0; strnum < str.size(); strnum++) {
             if (str[strnum] == '{' && key != "" && typeId == WantParams::VALUE_TYPE_WANTPARAMS) {
-                unsigned int num;
+                size_t num;
                 int count = 0;
                 for (num = strnum; num < str.size(); num++) {
                     if (str[num] == '{') {
@@ -169,7 +169,7 @@ WantParams WantParamWrapper::ParseWantParams(const std::string &str)
     }
     for (size_t strnum = 0; strnum < str.size(); strnum++) {
         if (str[strnum] == '{' && key != "" && typeId == WantParams::VALUE_TYPE_WANTPARAMS) {
-            unsigned int num;
+            size_t num;
             int count = 0;
             for (num = strnum; num < str.size(); num++) {
                 if (str[num] == '{') {
