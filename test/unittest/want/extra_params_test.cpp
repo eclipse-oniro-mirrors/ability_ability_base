@@ -109,5 +109,27 @@ HWTEST_F(ExtraParamsBaseTest, AppExecFwk_ExtraParams_Marshallin_0100, Function |
     bool result = extraParams.Marshalling(parcel);
     EXPECT_EQ(result, true);
 }
+
+/**
+ * @tc.number: AppExecFwk_ExtraParams_Unmarshalling_0100
+ * @tc.name: Unmarshalling
+ * @tc.desc: Test Unmarshalling.
+ * @tc.require: issueI653GZ
+ */
+HWTEST_F(ExtraParamsBaseTest, AppExecFwk_ExtraParams_Unmarshalling_0100, Function | MediumTest | Level1)
+{
+    ExtraParams other;
+    ExtraParams oextraParams(other);
+    oextraParams.GetTargetBundleName();
+    std::vector<string> devType;
+    string targetBundleName = "TargetBundleName";
+    string description = "Description";
+    string jsonParams;
+    ExtraParams extraParams(devType, targetBundleName, description, jsonParams);
+    Parcel parcel;
+    extraParams.Unmarshalling(parcel);
+    string result = extraParams.GetTargetBundleName();
+    EXPECT_EQ(result, targetBundleName);
+}
 }
 }
