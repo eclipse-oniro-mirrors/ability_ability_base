@@ -34,6 +34,7 @@ namespace OHOS {
 namespace AAFwk {
 static const int LARGE_STR_LEN = 65534;
 static const int SET_COUNT = 20;
+static const int DISMATCH_DATA = -102;
 class SkillsBaseTest : public testing::Test {
 public:
     SkillsBaseTest()
@@ -964,6 +965,77 @@ HWTEST_F(SkillsBaseTest, AaFwk_Skills_addremoveType_0100, Function | MediumTest 
     base_->RemoveType(patternStr3, MatchType::GLOBAL);
 
     EXPECT_EQ(0, base_->CountEntities());
+}
+
+/**
+ * @tc.number: AaFwk_Skills_MatchData_0100
+ * @tc.name: MatchData
+ * @tc.desc: Test MatchData.
+ * @tc.require: issueI648W6
+ */
+HWTEST_F(SkillsBaseTest, AaFwk_Skills_MatchData_0100, Function | MediumTest | Level1)
+{
+    std::string type = "this is type";
+    std::string scheme = "this is scheme";
+    std::string value = "this is value";
+    OHOS::Uri data(value);
+    int result = base_->MatchData(type, scheme, data);
+    EXPECT_EQ(result, DISMATCH_DATA);
+}
+
+/**
+ * @tc.number: AaFwk_Skills_FindMimeType_0100
+ * @tc.name: FindMimeType
+ * @tc.desc: Test FindMimeType.
+ * @tc.require: issueI653GZ
+ */
+HWTEST_F(SkillsBaseTest, AaFwk_Skills_FindMimeType_0100, Function | MediumTest | Level1)
+{
+    std::string type = "";
+    bool result = base_->FindMimeType(type);
+    EXPECT_EQ(result, false);
+
+    std::string type1 = "this is type";
+    bool result1 = base_->FindMimeType(type1);
+    EXPECT_EQ(result1, false);
+}
+
+/**
+ * @tc.number: AaFwk_Skills_RegionMatches_0100
+ * @tc.name: RegionMatches
+ * @tc.desc: Test RegionMatches.
+ * @tc.require: issueI653GZ
+ */
+HWTEST_F(SkillsBaseTest, AaFwk_Skills_RegionMatches_0100, Function | MediumTest | Level1)
+{
+    std::string type = "this is type";
+    int toffset = -1;
+    std::string other = "this is other";
+    int ooffset = -2;
+    int len = 1;
+    bool result = base_->RegionMatches(type, toffset, other, ooffset, len);
+    EXPECT_EQ(result, false);
+}
+
+/**
+ * @tc.number: AaFwk_Skills_RegionMatches_0200
+ * @tc.name: RegionMatches
+ * @tc.desc: Test RegionMatches.
+ * @tc.require: issueI653GZ
+ */
+HWTEST_F(SkillsBaseTest, AaFwk_Skills_RegionMatches_0200, Function | MediumTest | Level1)
+{
+    std::string type = "this is type";
+    int toffset = 1;
+    std::string other = "this is other";
+    int ooffset = 2;
+    int len = 2;
+    bool result = base_->RegionMatches(type, toffset, other, ooffset, len);
+    EXPECT_EQ(result, false);
+
+    int len1 = 0;
+    bool result1 = base_->RegionMatches(type, toffset, other, ooffset, len1);
+    EXPECT_EQ(result1, true);
 }
 
 using testParamsType = std::tuple<std::string, std::string>;
