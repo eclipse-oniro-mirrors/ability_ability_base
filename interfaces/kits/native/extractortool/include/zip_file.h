@@ -208,6 +208,20 @@ public:
     bool ExtractFile(const std::string &file, std::ostream &dest) const;
     void SetIsRuntime(const bool isRuntime);
 
+    /**
+     * @brief Get entry info including fd, offset and length for file.
+     * @param file Indicates the entry name.
+     * @param fd Indicates the file descriptor.
+     * @param offset Indicates the obtained offset.
+     * @param length Indicates the length.
+     * @return Returns true if this function is successfully called; returns false otherwise.
+     */
+    bool GetEntryInfoByName(const std::string &file, bool &compress,
+        int32_t &fd, ZipPos &offset, uint32_t &length) const;
+
+    bool ExtractFileFromMMap(const std::string &file, void *mmapDataPtr,
+        std::unique_ptr<uint8_t[]> &dataPtr, size_t &len) const;
+
 private:
     /**
      * @brief Check the EndDir object.
@@ -290,6 +304,12 @@ private:
      * @return Returns true if successfully read; returns false otherwise.
      */
     bool ReadZStream(const BytePtr &buffer, z_stream &zstream, uint32_t &remainCompressedSize) const;
+
+    bool UnzipWithInflatedFromMMap(const ZipEntry &zipEntry, const uint16_t extraSize,
+        void *mmapDataPtr, std::unique_ptr<uint8_t[]> &dataPtr, size_t &len) const;
+
+    bool ReadZStreamFromMMap(const BytePtr &buffer, void* &dataPtr,
+        z_stream &zstream, uint32_t &remainCompressedSize) const;
 
 private:
     std::string pathName_;

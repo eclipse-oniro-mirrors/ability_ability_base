@@ -19,10 +19,10 @@
 #include <memory>
 #include <regex>
 #include <sstream>
-
 #include "ability_base_log_wrapper.h"
 #include "constants.h"
 #include "file_path_utils.h"
+#include "securec.h"
 #include "string_ex.h"
 
 namespace OHOS {
@@ -41,7 +41,6 @@ bool Extractor::Init()
         ABILITYBASE_LOGE("open zip file failed");
         return false;
     }
-    ZipEntry zipEntry;
     initial_ = true;
     return true;
 }
@@ -223,6 +222,125 @@ bool Extractor::IsSameHap(const std::string& hapPath) const
 void Extractor::SetRuntimeFlag(bool isRuntime)
 {
     zipFile_.SetIsRuntime(isRuntime);
+}
+
+std::unique_ptr<FileMapper> Extractor::GetData(const std::string &fileName)
+{
+    int32_t fd = 0;
+    ZipPos offset = 0;
+    size_t len = 0;
+    bool compress = false;
+    if(!zipFile_.GetEntryInfoByName(fileName, compress, fd, offset, len)) {
+        ABILITYBASE_LOGE("Get entry info by name failed. fileName: %{public}s", fileName.c_str());
+        return nullptr;
+    }
+
+    std::unique_ptr<FileMapper> fileMapper = std::make_unique<FileMapper>();
+    if(!fileMapper->CreateFileMapper(fileName, compress, fd, static_cast<uint32_t>(offset), len)) {
+        ABILITYBASE_LOGE("Create file mapper failed. fileName: %{public}s", fileName.c_str());
+        return nullptr;
+    }
+    return fileMapper;
+}
+
+bool Extractor::UnzipData(std::unique_ptr<FileMapper> fileMapper, std::unique_ptr<uint8_t[]> &dataPtr, size_t &len)
+{
+    if (!initial_) {
+        ABILITYBASE_LOGE("extractor is not initial");
+        return false;
+    }
+
+    if (!fileMapper) {
+        ABILITYBASE_LOGE("Input fileMapper is nullptr.");
+        return false;
+    }
+
+    if (!zipFile_.ExtractFileFromMMap(fileMapper->GetFileName(), fileMapper->GetDataPtr(), dataPtr, len)) {
+        ABILITYBASE_LOGE("extract file from MMap failed.");
+        return false;
+    }
+    return true;
+}
+
+bool Extractor::GetUncompressedData(std::unique_ptr<FileMapper> fileMapper,
+    std::unique_ptr<uint8_t[]> &dataPtr, size_t &len)
+{
+    if (!initial_) {
+        ABILITYBASE_LOGE("extractor is not initial");
+        return false;
+    }
+
+    if (!fileMapper) {
+        ABILITYBASE_LOGE("Input fileMapper is nullptr.");
+        return false;
+    }
+
+    void *dataSrc = fileMapper->GetDataPtr();
+    len = fileMapper->GetDataLen();
+    if (!dataSrc || len == 0) {
+        ABILITYBASE_LOGE("dataSrc is nullptr or len is 0.");
+        return false;
+    }
+
+    dataPtr = std::make_unique<uint8_t[]>(len);
+    if (!dataPtr) {
+        ABILITYBASE_LOGE("Make unique ptr failed.");
+        return false;
+    }
+
+    uint8_t *dataDst = static_cast<uint8_t*>(dataPtr.get());
+    if (memcpy_s(dataDst, len, dataSrc, len) != EOK) {
+        ABILITYBASE_LOGE("memory copy failed.");
+        return false;
+    }
+    return true;
+}
+
+bool Extractor::IsStageModel() const
+{
+    std::string fileName = "config.json";
+    return !zipFile_.HasEntry(fileName);
+}
+
+std::mutex ExtractorUtil::mapMutex_;
+std::map<std::string, std::shared_ptr<Extractor>> ExtractorUtil::extractorMap_;
+std::shared_ptr<Extractor> ExtractorUtil::GetExtractor(const std::string &hapPath)
+{
+    if (hapPath.empty()) {
+        ABILITYBASE_LOGE("Input hapPath is empty.");
+        return nullptr;
+    }
+
+    {
+        std::lock_guard<std::mutex> mapMutex(mapMutex_);
+        auto mapIter = extractorMap_.find(hapPath);
+        if (mapIter != extractorMap_.end()) {
+            ABILITYBASE_LOGD("Extractor exists, hapPath: %{public}s.", hapPath.c_str());
+            return mapIter->second;
+        }
+    }
+
+    ABILITYBASE_LOGD("Extractor doesn't exist, make extractor and return, hapPath: %{public}s.", hapPath.c_str());
+    std::shared_ptr<Extractor> extractor = Extractor::Create(hapPath);
+    return extractor;
+}
+
+bool ExtractorUtil::AddExtractor(const std::string &hapPath, std::shared_ptr<Extractor> extractor)
+{
+    if (hapPath.empty()) {
+        ABILITYBASE_LOGE("Input hapPath is empty.");
+        return false;
+    }
+
+    std::lock_guard<std::mutex> mapMutex(mapMutex_);
+    if (extractorMap_.find(hapPath) != extractorMap_.end()) {
+        ABILITYBASE_LOGD("Extractor exists, update. hapPath: %{public}s.", hapPath.c_str());
+    } else {
+        ABILITYBASE_LOGD("Extractor doesn't exist, add. hapPath: %{public}s.", hapPath.c_str());
+    }
+    extractorMap_[hapPath] = extractor;
+
+    return true;
 }
 }  // namespace AbilityBase
 }  // namespace OHOS
