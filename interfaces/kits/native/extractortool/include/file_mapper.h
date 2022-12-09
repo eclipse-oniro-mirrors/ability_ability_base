@@ -45,6 +45,7 @@ public:
 private:
     static const int32_t MMAP_PORT = PROT_READ;
     static const int32_t MMAP_FLAG = MAP_SHARED;
+    static int32_t pageSize_;
 
     std::string fileName_;
     bool isCompressed = false;

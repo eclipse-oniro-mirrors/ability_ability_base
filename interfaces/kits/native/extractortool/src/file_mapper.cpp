@@ -18,8 +18,13 @@
 
 namespace OHOS {
 namespace AbilityBase {
+int32_t FileMapper::pageSize_ = 0;
 FileMapper::FileMapper()
-{}
+{
+    if (pageSize_ <= 0) {
+        pageSize_ = sysconf(_SC_PAGESIZE);
+    }
+}
 
 FileMapper::~FileMapper()
 {
@@ -30,18 +35,17 @@ FileMapper::~FileMapper()
 
 bool FileMapper::CreateFileMapper(const std::string &fileName, bool compress, int32_t fd, int32_t offset, size_t len)
 {
+    if (pageSize_ <= 0) {
+        ABILITYBASE_LOGE("CreateFileMapper. pageSize[%{public}d]", pageSize_);
+        return false;
+    }
+
     fileName_ = fileName;
     fd_ = fd;
     offset_ = offset;
     dataLen_ = len;
     isCompressed = compress;
-
-    int32_t pageSize = sysconf(_SC_PAGESIZE);
-    if (pageSize <= 0) {
-        ABILITYBASE_LOGE("CreateFileMapper. pageSize[%{public}d]", pageSize);
-        return false;
-    }
-    int32_t adjust = offset % pageSize;
+    int32_t adjust = offset % pageSize_;
     int32_t adjOffset = offset - adjust;
     baseLen_ = dataLen_ + adjust;
     basePtr_ = mmap(nullptr, baseLen_, MMAP_PORT, MMAP_FLAG, fd, adjOffset);

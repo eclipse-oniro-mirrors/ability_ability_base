@@ -75,11 +75,13 @@ public:
     bool IsSameHap(const std::string& hapPath) const;
     void SetRuntimeFlag(bool isRuntime);
 
-    std::unique_ptr<FileMapper> GetData(const std::string &fileName);
-    bool UnzipData(std::unique_ptr<FileMapper> fileMapper, std::unique_ptr<uint8_t[]> &dataPtr, size_t &len);
+    std::unique_ptr<FileMapper> GetData(const std::string &fileName) const;
+    bool UnzipData(std::unique_ptr<FileMapper> fileMapper, std::unique_ptr<uint8_t[]> &dataPtr, size_t &len) const;
     bool GetUncompressedData(std::unique_ptr<FileMapper> fileMapper,
-        std::unique_ptr<uint8_t[]> &dataPtr, size_t &len);
+        std::unique_ptr<uint8_t[]> &dataPtr, size_t &len) const;
     bool IsStageModel() const;
+
+    bool ExtractToBufByName(const std::string &fileName, std::unique_ptr<uint8_t[]> &dataPtr, size_t &len) const;
 
 private:
     const std::string sourceFile_;
@@ -91,8 +93,6 @@ private:
 class ExtractorUtil {
 public:
     static std::shared_ptr<Extractor> GetExtractor(const std::string &hapPath);
-
-private:
     static bool AddExtractor(const std::string &hapPath, std::shared_ptr<Extractor> extractor);
 
 private:
