@@ -228,7 +228,7 @@ std::unique_ptr<FileMapper> Extractor::GetData(const std::string &fileName)
 {
     int32_t fd = 0;
     ZipPos offset = 0;
-    size_t len = 0;
+    uint32_t len = 0;
     bool compress = false;
     if(!zipFile_.GetEntryInfoByName(fileName, compress, fd, offset, len)) {
         ABILITYBASE_LOGE("Get entry info by name failed. fileName: %{public}s", fileName.c_str());
@@ -236,7 +236,8 @@ std::unique_ptr<FileMapper> Extractor::GetData(const std::string &fileName)
     }
 
     std::unique_ptr<FileMapper> fileMapper = std::make_unique<FileMapper>();
-    if(!fileMapper->CreateFileMapper(fileName, compress, fd, static_cast<uint32_t>(offset), len)) {
+    if (!fileMapper->CreateFileMapper(fileName, compress, fd,
+        static_cast<uint32_t>(offset), static_cast<size_t>(len))) {
         ABILITYBASE_LOGE("Create file mapper failed. fileName: %{public}s", fileName.c_str());
         return nullptr;
     }
