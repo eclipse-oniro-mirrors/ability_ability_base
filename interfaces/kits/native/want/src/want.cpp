@@ -75,6 +75,7 @@ const std::string Want::PARAM_RESV_CALLER_UID("ohos.aafwk.param.callerUid");
 const std::string Want::PARAM_RESV_CALLER_PID("ohos.aafwk.param.callerPid");
 const std::string Want::PARAM_RESV_FOR_RESULT("ohos.aafwk.param.startAbilityForResult");
 const std::string Want::PARAM_RESV_CALL_TO_FOREGROUND("ohos.aafwk.param.callAbilityToForeground");
+const std::string Want::PARAM_RESV_START_RECENT("ohos.aafwk.param.startRecent");
 
 const std::string Want::PARAM_ABILITY_RECOVERY_RESTART("ohos.aafwk.param.AbilityRecoveryRestart");
 const std::string Want::PARAM_MODULE_NAME("moduleName");
