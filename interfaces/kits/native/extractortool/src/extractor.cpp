@@ -224,7 +224,7 @@ void Extractor::SetRuntimeFlag(bool isRuntime)
     zipFile_.SetIsRuntime(isRuntime);
 }
 
-std::unique_ptr<FileMapper> Extractor::GetData(const std::string &fileName)
+std::unique_ptr<FileMapper> Extractor::GetData(const std::string &fileName) const
 {
     int32_t fd = 0;
     ZipPos offset = 0;
@@ -244,7 +244,8 @@ std::unique_ptr<FileMapper> Extractor::GetData(const std::string &fileName)
     return fileMapper;
 }
 
-bool Extractor::UnzipData(std::unique_ptr<FileMapper> fileMapper, std::unique_ptr<uint8_t[]> &dataPtr, size_t &len)
+bool Extractor::UnzipData(std::unique_ptr<FileMapper> fileMapper,
+    std::unique_ptr<uint8_t[]> &dataPtr, size_t &len) const
 {
     if (!initial_) {
         ABILITYBASE_LOGE("extractor is not initial");
@@ -264,7 +265,7 @@ bool Extractor::UnzipData(std::unique_ptr<FileMapper> fileMapper, std::unique_pt
 }
 
 bool Extractor::GetUncompressedData(std::unique_ptr<FileMapper> fileMapper,
-    std::unique_ptr<uint8_t[]> &dataPtr, size_t &len)
+    std::unique_ptr<uint8_t[]> &dataPtr, size_t &len) const
 {
     if (!initial_) {
         ABILITYBASE_LOGE("extractor is not initial");
@@ -303,6 +304,21 @@ bool Extractor::IsStageModel() const
     return !zipFile_.HasEntry(fileName);
 }
 
+bool Extractor::ExtractToBufByName(const std::string &fileName, std::unique_ptr<uint8_t[]> &dataPtr, size_t &len) const
+{
+    std::unique_ptr<FileMapper> fileMapper = GetData(fileName);
+    if (!fileMapper) {
+        ABILITYBASE_LOGE("Get file mapper by fileName[%{public}s] failed.", fileName.c_str());
+        return false;
+    }
+
+    if (fileMapper->IsCompressed()) {
+        return UnzipData(std::move(fileMapper), dataPtr, len);
+    }
+
+    return GetUncompressedData(std::move(fileMapper), dataPtr, len);
+}
+
 std::mutex ExtractorUtil::mapMutex_;
 std::map<std::string, std::shared_ptr<Extractor>> ExtractorUtil::extractorMap_;
 std::shared_ptr<Extractor> ExtractorUtil::GetExtractor(const std::string &hapPath)
@@ -321,7 +337,6 @@ std::shared_ptr<Extractor> ExtractorUtil::GetExtractor(const std::string &hapPat
         }
     }
 
-    ABILITYBASE_LOGD("Extractor doesn't exist, make extractor and return, hapPath: %{public}s.", hapPath.c_str());
     std::shared_ptr<Extractor> extractor = Extractor::Create(hapPath);
     return extractor;
 }
