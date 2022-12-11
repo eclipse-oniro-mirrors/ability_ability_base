@@ -76,6 +76,9 @@ const std::string Want::PARAM_RESV_CALLER_PID("ohos.aafwk.param.callerPid");
 const std::string Want::PARAM_RESV_FOR_RESULT("ohos.aafwk.param.startAbilityForResult");
 const std::string Want::PARAM_RESV_CALL_TO_FOREGROUND("ohos.aafwk.param.callAbilityToForeground");
 const std::string Want::PARAM_RESV_START_RECENT("ohos.aafwk.param.startRecent");
+const std::string Want::PARAM_RESV_REQUEST_PROC_CODE("ohos.aafwk.param.requestProcCode");
+const std::string Want::PARAM_RESV_REQUEST_TOKEN_CODE("ohos.aafwk.param.requestTokenCode");
+const std::string Want::PARAM_RESV_ABILITY_INFO_CALLBACK("ohos.aafwk.param.abilityInfoCallback");
 
 const std::string Want::PARAM_ABILITY_RECOVERY_RESTART("ohos.aafwk.param.AbilityRecoveryRestart");
 const std::string Want::PARAM_MODULE_NAME("moduleName");
