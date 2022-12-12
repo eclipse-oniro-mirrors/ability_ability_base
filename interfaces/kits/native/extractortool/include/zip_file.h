@@ -145,6 +145,8 @@ struct ZipEntry {
     uint32_t localHeaderOffset = 0;
     uint32_t crc = 0;
     uint16_t flags = 0;
+    uint16_t modifiedTime = 0;
+    uint16_t modifiedDate = 0;
     std::string fileName;
 };
 
@@ -234,6 +236,11 @@ private:
      * @return Returns true if  successfully Parsed; returns false otherwise.
      */
     bool ParseEndDirectory();
+    /**
+     * @brief Parse one entry.
+     * @return Returns true if successfully parsed; returns false otherwise.
+     */
+    bool ParseOneEntry(uint8_t* &entryPtr);
     /**
      * @brief Parse all Entries.
      * @return Returns true if successfully parsed; returns false otherwise.

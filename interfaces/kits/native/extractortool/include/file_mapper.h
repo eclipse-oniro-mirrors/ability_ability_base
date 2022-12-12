@@ -38,12 +38,10 @@ public:
 
     std::string GetFileName();
 
-    int32_t GetFd();
-
     int32_t GetOffset();
 
 private:
-    static const int32_t MMAP_PORT = PROT_READ;
+    static const int32_t MMAP_PROT = PROT_READ;
     static const int32_t MMAP_FLAG = MAP_SHARED;
     static int32_t pageSize_;
 
@@ -54,7 +52,6 @@ private:
     size_t dataLen_ = 0;
     void* basePtr_ = nullptr;
     size_t baseLen_ = 0;
-    int32_t fd_ = 0;
     int32_t offset_ = 0;
 };
 }  // namespace AbilityBase

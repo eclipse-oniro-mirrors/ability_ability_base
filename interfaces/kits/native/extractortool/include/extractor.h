@@ -24,6 +24,14 @@
 
 namespace OHOS {
 namespace AbilityBase {
+struct FileInfo {
+    std::string fileName;
+    uint32_t offset = 0;
+    uint32_t length = 0;
+    uint16_t lastModTime = 0;
+    uint16_t lastModDate = 0;
+};
+
 class Extractor {
 public:
     explicit Extractor(const std::string &source);
@@ -82,6 +90,8 @@ public:
     bool IsStageModel() const;
 
     bool ExtractToBufByName(const std::string &fileName, std::unique_ptr<uint8_t[]> &dataPtr, size_t &len) const;
+
+    bool GetFileInfo(const std::string &fileName, FileInfo &fileInfo) const;
 
 private:
     const std::string sourceFile_;
