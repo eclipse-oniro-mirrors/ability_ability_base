@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+#include <cerrno>
+
 #include "file_mapper.h"
 #include "ability_base_log_wrapper.h"
 
