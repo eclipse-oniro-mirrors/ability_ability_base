@@ -102,7 +102,8 @@ private:
 
 class ExtractorUtil {
 public:
-    static std::shared_ptr<Extractor> GetExtractor(const std::string &hapPath);
+    static std::string GetLoadFilePath(const std::string &hapPath);
+    static std::shared_ptr<Extractor> GetExtractor(const std::string &hapPath, bool &newCreate);
     static bool AddExtractor(const std::string &hapPath, std::shared_ptr<Extractor> extractor);
 
 private:

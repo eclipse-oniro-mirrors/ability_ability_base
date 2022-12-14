@@ -52,15 +52,9 @@ std::shared_ptr<Extractor> Extractor::Create(const std::string& hapPath)
         return nullptr;
     }
 
-    std::string loadPath;
-    if (StringStartWith(hapPath, Constants::ABS_CODE_PATH, std::string(Constants::ABS_CODE_PATH).length())) {
-        loadPath = GetLoadPath(hapPath);
-    } else {
-        loadPath = hapPath;
-    }
-    std::shared_ptr<Extractor> extractor = std::make_shared<Extractor>(loadPath);
+    std::shared_ptr<Extractor> extractor = std::make_shared<Extractor>(hapPath);
     if (!extractor->Init()) {
-        ABILITYBASE_LOGE("Extractor create failed for %{public}s", loadPath.c_str());
+        ABILITYBASE_LOGE("Extractor create failed for %{private}s", hapPath.c_str());
         return nullptr;
     }
 
@@ -230,13 +224,15 @@ std::unique_ptr<FileMapper> Extractor::GetData(const std::string &fileName) cons
     ZipPos offset = 0;
     uint32_t len = 0;
     bool compress = false;
-    if(!zipFile_.GetEntryInfoByName(fileName, compress, fd, offset, len)) {
+
+    std::string relativePath = GetRelativePath(fileName);
+    if(!zipFile_.GetEntryInfoByName(relativePath, compress, fd, offset, len)) {
         ABILITYBASE_LOGE("Get entry info by name failed. fileName: %{public}s", fileName.c_str());
         return nullptr;
     }
 
     std::unique_ptr<FileMapper> fileMapper = std::make_unique<FileMapper>();
-    if (!fileMapper->CreateFileMapper(fileName, compress, fd,
+    if (!fileMapper->CreateFileMapper(relativePath, compress, fd,
         static_cast<int32_t>(offset), static_cast<size_t>(len))) {
         ABILITYBASE_LOGE("Create file mapper failed. fileName: %{public}s", fileName.c_str());
         return nullptr;
@@ -321,15 +317,16 @@ bool Extractor::ExtractToBufByName(const std::string &fileName, std::unique_ptr<
 
 bool Extractor::GetFileInfo(const std::string &fileName, FileInfo &fileInfo) const
 {
+    std::string relativePath = GetRelativePath(fileName);
     ZipEntry zipEntry;
-    if(!zipFile_.GetEntry(fileName, zipEntry)) {
+    if(!zipFile_.GetEntry(relativePath, zipEntry)) {
         ABILITYBASE_LOGE("Get zip entry failed.");
         return false;
     }
 
     ZipPos offset = 0;
     uint32_t length = 0;
-    if (!zipFile_.GetDataOffsetRelative(fileName, offset, length)) {
+    if (!zipFile_.GetDataOffsetRelative(relativePath, offset, length)) {
         ABILITYBASE_LOGE("Get data offset relative failed.");
         return false;
     }
@@ -344,8 +341,20 @@ bool Extractor::GetFileInfo(const std::string &fileName, FileInfo &fileInfo) con
 
 std::mutex ExtractorUtil::mapMutex_;
 std::map<std::string, std::shared_ptr<Extractor>> ExtractorUtil::extractorMap_;
-std::shared_ptr<Extractor> ExtractorUtil::GetExtractor(const std::string &hapPath)
+std::string ExtractorUtil::GetLoadFilePath(const std::string &hapPath)
 {
+    std::string loadPath;
+    if (StringStartWith(hapPath, Constants::ABS_CODE_PATH, std::string(Constants::ABS_CODE_PATH).length())) {
+        loadPath = GetLoadPath(hapPath);
+    } else {
+        loadPath = hapPath;
+    }
+    return loadPath;
+}
+
+std::shared_ptr<Extractor> ExtractorUtil::GetExtractor(const std::string &hapPath, bool &newCreate)
+{
+    newCreate = false;
     if (hapPath.empty()) {
         ABILITYBASE_LOGE("Input hapPath is empty.");
         return nullptr;
@@ -361,6 +370,7 @@ std::shared_ptr<Extractor> ExtractorUtil::GetExtractor(const std::string &hapPat
     }
 
     std::shared_ptr<Extractor> extractor = Extractor::Create(hapPath);
+    newCreate = true;
     return extractor;
 }
 
