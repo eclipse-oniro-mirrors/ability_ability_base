@@ -237,7 +237,7 @@ std::unique_ptr<FileMapper> Extractor::GetData(const std::string &fileName) cons
 
     std::unique_ptr<FileMapper> fileMapper = std::make_unique<FileMapper>();
     if (!fileMapper->CreateFileMapper(fileName, compress, fd,
-        static_cast<uint32_t>(offset), static_cast<size_t>(len))) {
+        static_cast<int32_t>(offset), static_cast<size_t>(len))) {
         ABILITYBASE_LOGE("Create file mapper failed. fileName: %{public}s", fileName.c_str());
         return nullptr;
     }
@@ -317,6 +317,29 @@ bool Extractor::ExtractToBufByName(const std::string &fileName, std::unique_ptr<
     }
 
     return GetUncompressedData(std::move(fileMapper), dataPtr, len);
+}
+
+bool Extractor::GetFileInfo(const std::string &fileName, FileInfo &fileInfo) const
+{
+    ZipEntry zipEntry;
+    if(!zipFile_.GetEntry(fileName, zipEntry)) {
+        ABILITYBASE_LOGE("Get zip entry failed.");
+        return false;
+    }
+
+    ZipPos offset = 0;
+    uint32_t length = 0;
+    if (!zipFile_.GetDataOffsetRelative(fileName, offset, length)) {
+        ABILITYBASE_LOGE("Get data offset relative failed.");
+        return false;
+    }
+
+    fileInfo.fileName = fileName;
+    fileInfo.offset = static_cast<uint32_t>(offset);
+    fileInfo.length = static_cast<uint32_t>(length);
+    fileInfo.lastModTime = zipEntry.modifiedTime;
+    fileInfo.lastModDate = zipEntry.modifiedDate;
+    return true;
 }
 
 std::mutex ExtractorUtil::mapMutex_;

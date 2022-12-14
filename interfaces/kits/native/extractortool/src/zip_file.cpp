@@ -20,6 +20,7 @@
 #include <ostream>
 
 #include "ability_base_log_wrapper.h"
+#include "file_mapper.h"
 #include "file_path_utils.h"
 #include "securec.h"
 #include "zlib.h"
@@ -50,6 +51,8 @@ ZipEntry::ZipEntry(const CentralDirEntry &centralEntry)
     localHeaderOffset = centralEntry.localHeaderOffset;
     crc = centralEntry.crc;
     flags = centralEntry.flags;
+    modifiedTime = centralEntry.modifiedTime;
+    modifiedDate = centralEntry.modifiedDate;
 }
 
 ZipFile::ZipFile(const std::string &pathName) : pathName_(pathName)
@@ -106,60 +109,63 @@ bool ZipFile::ParseEndDirectory()
     return CheckEndDir(endDir_);
 }
 
+bool ZipFile::ParseOneEntry(uint8_t* &entryPtr)
+{
+    CentralDirEntry directoryEntry;
+    if (memcpy_s(&directoryEntry, sizeof(CentralDirEntry), entryPtr, sizeof(CentralDirEntry)) != EOK) {
+        ABILITYBASE_LOGE("Mem copy directory entry failed.");
+        return false;
+    }
+
+    if (directoryEntry.signature != CENTRAL_SIGNATURE) {
+        ABILITYBASE_LOGE("parse entry, check signature failed");
+        return false;
+    }
+
+    entryPtr += sizeof(CentralDirEntry);
+
+    size_t fileLength = 0;
+    std::string fileName;
+    fileName.reserve(MAX_FILE_NAME);
+    fileName.resize(MAX_FILE_NAME - 1);
+    fileLength = (directoryEntry.nameSize >= MAX_FILE_NAME) ? (MAX_FILE_NAME - 1) : directoryEntry.nameSize;
+    if (memcpy_s(&(fileName[0]), fileLength, entryPtr, fileLength) != EOK) {
+        ABILITYBASE_LOGE("Mem copy file name failed.");
+        return false;
+    }
+    fileName.resize(fileLength);
+
+    if (isRuntime_ && !StringEndWith(fileName, EXT_NAME_ABC, sizeof(EXT_NAME_ABC) - 1)) {
+        entryPtr += directoryEntry.nameSize + directoryEntry.extraSize + directoryEntry.commentSize;
+        return true;
+    }
+
+    ZipEntry currentEntry(directoryEntry);
+    currentEntry.fileName = fileName;
+    entriesMap_[fileName] = currentEntry;
+    entryPtr += directoryEntry.nameSize + directoryEntry.extraSize + directoryEntry.commentSize;
+    return true;
+}
+
 bool ZipFile::ParseAllEntries()
 {
-    bool ret = true;
-    ZipPos currentPos = centralDirPos_;
-    CentralDirEntry directoryEntry = {0};
-    size_t fileLength = 0;
-
-    for (uint16_t i = 0; i < endDir_.totalEntries; i++) {
-        std::string fileName;
-        fileName.reserve(MAX_FILE_NAME);
-        fileName.resize(MAX_FILE_NAME - 1);
-
-        if (fseek(file_, currentPos, SEEK_SET) != 0) {
-            ABILITYBASE_LOGE("parse entry(%{public}d) seek zipEntry failed, error: %{public}d", i, errno);
-            ret = false;
-            break;
-        }
-
-        if (fread(&directoryEntry, sizeof(CentralDirEntry), FILE_READ_COUNT, file_) != FILE_READ_COUNT) {
-            ABILITYBASE_LOGE("parse entry(%{public}d) read ZipEntry failed, error: %{public}d", i, errno);
-            ret = false;
-            break;
-        }
-
-        if (directoryEntry.signature != CENTRAL_SIGNATURE) {
-            ABILITYBASE_LOGE("parse entry(%{public}d) check signature(0x%08x) at pos(0x%08llx) failed",
-                i,
-                directoryEntry.signature,
-                currentPos);
-            ret = false;
-            break;
-        }
-
-        fileLength = (directoryEntry.nameSize >= MAX_FILE_NAME) ? (MAX_FILE_NAME - 1) : directoryEntry.nameSize;
-        if (fread(&(fileName[0]), fileLength, FILE_READ_COUNT, file_) != FILE_READ_COUNT) {
-            ABILITYBASE_LOGE("parse entry(%{public}d) read file name failed, error: %{public}d", i, errno);
-            ret = false;
-            break;
-        }
-        fileName.resize(fileLength);
-
-        if (isRuntime_ && !StringEndWith(fileName, EXT_NAME_ABC, sizeof(EXT_NAME_ABC) - 1)) {
-            currentPos += sizeof(directoryEntry);
-            currentPos += directoryEntry.nameSize + directoryEntry.extraSize + directoryEntry.commentSize;
-            continue;
-        }
-
-        ZipEntry currentEntry(directoryEntry);
-        currentEntry.fileName = fileName;
-        entriesMap_[fileName] = currentEntry;
-
-        currentPos += sizeof(directoryEntry);
-        currentPos += directoryEntry.nameSize + directoryEntry.extraSize + directoryEntry.commentSize;
+    FileMapper fileMapper;
+    if (!fileMapper.CreateFileMapper("", false, fileno(file_), static_cast<int32_t>(centralDirPos_),
+        static_cast<size_t>(endDir_.sizeOfCentralDir))) {
+        ABILITYBASE_LOGE("Create file mapper failed.");
+        return false;
     }
+
+    bool ret = true;
+    uint8_t *entryPtr = static_cast<uint8_t *>(fileMapper.GetDataPtr());
+    for (uint16_t i = 0; i < endDir_.totalEntries; i++) {
+        if (!ParseOneEntry(entryPtr)) {
+            ABILITYBASE_LOGE("Parse entry[%{public}d] failed.", i);
+            ret = false;
+            break;
+        }
+    }
+
     return ret;
 }
 

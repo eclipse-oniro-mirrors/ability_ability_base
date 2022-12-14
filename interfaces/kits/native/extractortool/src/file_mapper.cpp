@@ -41,15 +41,15 @@ bool FileMapper::CreateFileMapper(const std::string &fileName, bool compress, in
     }
 
     fileName_ = fileName;
-    fd_ = fd;
     offset_ = offset;
     dataLen_ = len;
     isCompressed = compress;
     int32_t adjust = offset % pageSize_;
     int32_t adjOffset = offset - adjust;
     baseLen_ = dataLen_ + adjust;
-    basePtr_ = mmap(nullptr, baseLen_, MMAP_PORT, MMAP_FLAG, fd, adjOffset);
+    basePtr_ = mmap(nullptr, baseLen_, MMAP_PROT, MMAP_FLAG, fd, adjOffset);
     if (basePtr_ == MAP_FAILED) {
+        ABILITYBASE_LOGE("CreateFileMapper, mmap failed, errno[%{public}d].", errno);
         return false;
     }
     dataPtr_ = reinterpret_cast<uint8_t *>(basePtr_) + adjust;
@@ -74,11 +74,6 @@ size_t FileMapper::GetDataLen()
 std::string FileMapper::GetFileName()
 {
     return fileName_;
-}
-
-int32_t FileMapper::GetFd()
-{
-    return fd_;
 }
 
 int32_t FileMapper::GetOffset()
