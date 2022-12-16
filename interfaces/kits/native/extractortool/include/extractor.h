@@ -36,7 +36,6 @@ class Extractor {
 public:
     explicit Extractor(const std::string &source);
     virtual ~Extractor();
-    static std::shared_ptr<Extractor> Create(const std::string& hapPath);
 
     /**
      * @brief Open compressed file.

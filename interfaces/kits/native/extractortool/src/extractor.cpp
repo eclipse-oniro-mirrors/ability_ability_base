@@ -45,22 +45,6 @@ bool Extractor::Init()
     return true;
 }
 
-std::shared_ptr<Extractor> Extractor::Create(const std::string& hapPath)
-{
-    if (hapPath.empty()) {
-        ABILITYBASE_LOGE("source is nullptr");
-        return nullptr;
-    }
-
-    std::shared_ptr<Extractor> extractor = std::make_shared<Extractor>(hapPath);
-    if (!extractor->Init()) {
-        ABILITYBASE_LOGE("Extractor create failed for %{private}s", hapPath.c_str());
-        return nullptr;
-    }
-
-    return extractor;
-}
-
 bool Extractor::GetFileBuffer(const std::string& srcPath, std::ostringstream& dest)
 {
     if (!initial_) {
@@ -364,12 +348,16 @@ std::shared_ptr<Extractor> ExtractorUtil::GetExtractor(const std::string &hapPat
         std::lock_guard<std::mutex> mapMutex(mapMutex_);
         auto mapIter = extractorMap_.find(hapPath);
         if (mapIter != extractorMap_.end()) {
-            ABILITYBASE_LOGD("Extractor exists, hapPath: %{public}s.", hapPath.c_str());
+            ABILITYBASE_LOGD("Extractor exists, hapPath: %{private}s.", hapPath.c_str());
             return mapIter->second;
         }
     }
 
-    std::shared_ptr<Extractor> extractor = Extractor::Create(hapPath);
+    std::shared_ptr<Extractor> extractor = std::make_shared<Extractor>(hapPath);
+    if (!extractor->Init()) {
+        ABILITYBASE_LOGE("Extractor create failed for %{private}s", hapPath.c_str());
+        return nullptr;
+    }
     newCreate = true;
     return extractor;
 }
