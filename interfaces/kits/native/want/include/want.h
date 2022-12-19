@@ -836,6 +836,9 @@ public:
     static const std::string PARAM_RESV_CALLER_PID;
     static const std::string PARAM_RESV_FOR_RESULT;
     static const std::string PARAM_RESV_CALL_TO_FOREGROUND;
+    static const std::string PARAM_RESV_REQUEST_PROC_CODE;
+    static const std::string PARAM_RESV_REQUEST_TOKEN_CODE;
+    static const std::string PARAM_RESV_ABILITY_INFO_CALLBACK;
 
     static const std::string PARAM_ABILITY_RECOVERY_RESTART;
 
