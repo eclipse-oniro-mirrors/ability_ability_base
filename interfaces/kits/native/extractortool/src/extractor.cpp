@@ -84,7 +84,6 @@ bool Extractor::GetFileList(const std::string& srcPath, std::vector<std::string>
         return false;
     }
 
-    std::regex replacePattern(srcPath);
     for (auto value : fileList) {
         if (StringStartWith(value, srcPath.c_str(), srcPath.length())) {
             assetList.emplace_back(value);
@@ -320,6 +319,37 @@ bool Extractor::GetFileInfo(const std::string &fileName, FileInfo &fileInfo) con
     fileInfo.length = static_cast<uint32_t>(length);
     fileInfo.lastModTime = zipEntry.modifiedTime;
     fileInfo.lastModDate = zipEntry.modifiedDate;
+    return true;
+}
+
+bool Extractor::GetFileList(const std::string &srcPath, std::set<std::string> &fileSet)
+{
+    if (!initial_) {
+        ABILITYBASE_LOGE("extractor is not initial");
+        return false;
+    }
+
+    if (srcPath.empty()) {
+        ABILITYBASE_LOGE("GetFileList::srcPath is nullptr");
+        return false;
+    }
+
+    std::vector<std::string> fileList;
+    if (!GetZipFileNames(fileList)) {
+        ABILITYBASE_LOGE("GetFileList::Get file list failed");
+        return false;
+    }
+
+    for (auto value : fileList) {
+        if (StringStartWith(value, srcPath.c_str(), srcPath.length())) {
+            if (value.length() == srcPath.length() || value[srcPath.length()] != '/') {
+                continue;
+            }
+            auto separatorPos = value.find('/', srcPath.length() + 1);
+            fileSet.insert(value.substr(srcPath.length() + 1, separatorPos - srcPath.length() - 1));
+        }
+    }
+
     return true;
 }
 

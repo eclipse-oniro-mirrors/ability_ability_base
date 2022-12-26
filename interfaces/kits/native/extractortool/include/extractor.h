@@ -17,6 +17,7 @@
 #define OHOS_ABILITY_BASE_EXTRACTOR_H
 
 #include <mutex>
+#include <set>
 #include <string>
 
 #include "file_mapper.h"
@@ -91,6 +92,8 @@ public:
     bool ExtractToBufByName(const std::string &fileName, std::unique_ptr<uint8_t[]> &dataPtr, size_t &len) const;
 
     bool GetFileInfo(const std::string &fileName, FileInfo &fileInfo) const;
+
+    bool GetFileList(const std::string &srcPath, std::set<std::string> &fileSet);
 
 private:
     const std::string sourceFile_;
