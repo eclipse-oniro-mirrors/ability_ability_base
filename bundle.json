@@ -111,6 +111,15 @@
                     ]
                   },
                   "name": "//foundation/ability/ability_base:string_utils"
+                },
+                {
+                  "header": {
+                    "header_base": "//foundation/ability/ability_base/interfaces/kits/native/extractortool/include",
+                    "header_files": [
+                      "extract_resource_manager.h"
+                    ]
+                  },
+                  "name": "//foundation/ability/ability_base:extractresourcemanager"
                 }
             ],
             "test": [

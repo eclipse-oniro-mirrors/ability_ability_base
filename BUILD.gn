@@ -245,11 +245,35 @@ ohos_shared_library("extractortool") {
   part_name = "ability_base"
 }
 
+################################### extractresourcemanager ########################################
+config("ability_extract_resource_manager_config") {
+  include_dirs = [ "interfaces/kits/native/extractortool/include" ]
+}
+
+ohos_shared_library("extractresourcemanager") {
+  sources = [
+    "interfaces/kits/native/extractortool/src/extract_resource_manager.cpp",
+  ]
+
+  cflags = []
+  if (target_cpu == "arm") {
+    cflags += [ "-DBINDER_IPC_32BIT" ]
+  }
+
+  external_deps = [ "resource_management:global_resmgr" ]
+
+  public_configs = [ ":ability_extract_resource_manager_config" ]
+
+  subsystem_name = "ability"
+  part_name = "ability_base"
+}
+
 group("base_innerkits_target") {
   deps = [
     ":base",
     ":configuration",
     ":extractortool",
+    ":extractresourcemanager",
     ":string_utils",
     ":want",
   ]
