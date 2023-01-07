@@ -399,6 +399,11 @@ bool ExtractorUtil::AddExtractor(const std::string &hapPath, std::shared_ptr<Ext
         return false;
     }
 
+    if (!extractor) {
+        ABILITYBASE_LOGE("Input extractor is nullptr.");
+        return false;
+    }
+
     std::lock_guard<std::mutex> mapMutex(mapMutex_);
     if (extractorMap_.find(hapPath) != extractorMap_.end()) {
         ABILITYBASE_LOGD("Extractor exists, update. hapPath: %{public}s.", hapPath.c_str());
