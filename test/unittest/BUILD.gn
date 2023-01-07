@@ -139,19 +139,10 @@ want_output_path = "ability_base/want_test"
 
 ######################################################################
 config("want_private_config") {
-  visibility = [ ":*" ]
-  include_dirs = [
-    "${ability_base_innerapi_path}/uri/include",
-    "${ability_base_innerapi_path}/want/include",
-  ]
-
   defines = [ "ABILITYBASE_LOG_TAG = \"WantUnitTest\"" ]
 }
 
 config("module_private_want_param_wrapper_config") {
-  visibility = [ ":*" ]
-  include_dirs = [ "${ability_base_innerapi_path}/want/include" ]
-
   defines = [ "ABILITYBASE_LOG_TAG = \"WantUnitTest\"" ]
 }
 
