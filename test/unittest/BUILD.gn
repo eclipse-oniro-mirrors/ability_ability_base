@@ -14,8 +14,10 @@
 import("//build/test.gni")
 import("//foundation/ability/ability_base/ability_base.gni")
 
+######################################################################
 base_output_path = "aafwk/base_test"
 
+######################################################################
 config("base_private_config") {
   visibility = [ ":*" ]
 }
@@ -135,7 +137,7 @@ ohos_unittest("long_wrapper_test") {
 ######################################################################
 want_output_path = "ability_base/want_test"
 
-###############################################################################
+######################################################################
 config("want_private_config") {
   visibility = [ ":*" ]
   include_dirs = [
@@ -420,7 +422,41 @@ ohos_unittest("user_object_wrapper_test") {
   ]
 }
 
-###############################################################################
+######################################################################
+extractor_output_path = "ability_base/extractor_test"
+
+######################################################################
+config("extractor_private_config") {
+  visibility = [ ":*" ]
+  include_dirs = [
+    "{ability_base_path}/interfaces/kits/native/extractor/include",
+    "//third_party/zlib/contrib/minizip",
+    "//third_party/zlib",
+  ]
+
+  defines = [ "ABILITYBASE_LOG_TAG = \"ExtractorTest\"" ]
+}
+
+ohos_unittest("extractor_test") {
+  module_out_path = extractor_output_path
+  sources = [ "extractor/extractor_test.cpp" ]
+
+  configs = [ ":extractor_private_config" ]
+
+  deps = [
+    "//third_party/googletest:gtest_main",
+    "//third_party/zlib:shared_libz",
+  ]
+
+  external_deps = [
+    "ability_base:extractortool",
+    "ability_base:string_utils",
+    "c_utils:utils",
+    "hiviewdfx_hilog_native:libhilog",
+  ]
+}
+
+######################################################################
 
 group("unittest") {
   testonly = true
@@ -432,6 +468,7 @@ group("unittest") {
     ":byte_wrapper_test",
     ":double_wrapper_test",
     ":extra_params_test",
+    ":extractor_test",
     ":float_wrapper_test",
     ":int_wrapper_test",
     ":long_wrapper_test",
