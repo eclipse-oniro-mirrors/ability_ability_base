@@ -111,6 +111,11 @@ bool ZipFile::ParseEndDirectory()
 
 bool ZipFile::ParseOneEntry(uint8_t* &entryPtr)
 {
+    if (entryPtr == nullptr) {
+        ABILITYBASE_LOGE("Input entryPtr is nullptr.");
+        return false;
+    }
+
     CentralDirEntry directoryEntry;
     if (memcpy_s(&directoryEntry, sizeof(CentralDirEntry), entryPtr, sizeof(CentralDirEntry)) != EOK) {
         ABILITYBASE_LOGE("Mem copy directory entry failed.");

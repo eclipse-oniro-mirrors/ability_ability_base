@@ -29,7 +29,7 @@ public:
     
     static ExtractResourceManager& GetExtractResourceManager();
 
-    void AddGlobalObject(std::shared_ptr<Global::Resource::ResourceManager> resourceManager);
+    void SetGlobalObject(const std::shared_ptr<Global::Resource::ResourceManager> &resourceManager);
 
     std::shared_ptr<Global::Resource::ResourceManager> GetGlobalObject();
 

@@ -29,11 +29,11 @@ ExtractResourceManager::~ExtractResourceManager()
 
 ExtractResourceManager& ExtractResourceManager::GetExtractResourceManager()
 {
-    static ExtractResourceManager resoureManager;
-    return resoureManager;
+    static ExtractResourceManager extractResourceManager;
+    return extractResourceManager;
 }
 
-void ExtractResourceManager::AddGlobalObject(std::shared_ptr<Global::Resource::ResourceManager> resourceManager)
+void ExtractResourceManager::SetGlobalObject(const std::shared_ptr<Global::Resource::ResourceManager> &resourceManager)
 {
     resourceManager_ = resourceManager;
 }
