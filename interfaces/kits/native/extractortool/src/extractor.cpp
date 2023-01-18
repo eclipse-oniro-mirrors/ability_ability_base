@@ -340,13 +340,18 @@ bool Extractor::GetFileList(const std::string &srcPath, std::set<std::string> &f
         return false;
     }
 
+    std::string pureSrcPath = srcPath;
+    if (srcPath[srcPath.length() - 1] == '/') {
+        pureSrcPath.assign(srcPath.begin(), srcPath.end() - 1);
+    }
+
     for (auto value : fileList) {
-        if (StringStartWith(value, srcPath.c_str(), srcPath.length())) {
-            if (value.length() == srcPath.length() || value[srcPath.length()] != '/') {
+        if (StringStartWith(value, pureSrcPath.c_str(), pureSrcPath.length())) {
+            if (value.length() == pureSrcPath.length() || value[pureSrcPath.length()] != '/') {
                 continue;
             }
-            auto separatorPos = value.find('/', srcPath.length() + 1);
-            fileSet.insert(value.substr(srcPath.length() + 1, separatorPos - srcPath.length() - 1));
+            auto separatorPos = value.find('/', pureSrcPath.length() + 1);
+            fileSet.insert(value.substr(pureSrcPath.length() + 1, separatorPos - pureSrcPath.length() - 1));
         }
     }
 
