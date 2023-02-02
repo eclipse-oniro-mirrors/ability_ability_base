@@ -209,7 +209,7 @@ std::unique_ptr<FileMapper> Extractor::GetData(const std::string &fileName) cons
     bool compress = false;
 
     std::string relativePath = GetRelativePath(fileName);
-    if(!zipFile_.GetEntryInfoByName(relativePath, compress, fd, offset, len)) {
+    if (!zipFile_.GetEntryInfoByName(relativePath, compress, fd, offset, len)) {
         ABILITYBASE_LOGE("Get entry info by name failed. fileName: %{public}s", fileName.c_str());
         return nullptr;
     }
@@ -302,7 +302,7 @@ bool Extractor::GetFileInfo(const std::string &fileName, FileInfo &fileInfo) con
 {
     std::string relativePath = GetRelativePath(fileName);
     ZipEntry zipEntry;
-    if(!zipFile_.GetEntry(relativePath, zipEntry)) {
+    if (!zipFile_.GetEntry(relativePath, zipEntry)) {
         ABILITYBASE_LOGE("Get zip entry failed.");
         return false;
     }
