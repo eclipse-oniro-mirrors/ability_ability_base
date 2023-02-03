@@ -40,17 +40,21 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
     std::shared_ptr<Want> want = std::make_shared<Want>();
     want->CountEntities();
-    Parcel wantParcel;
     Want *wantptr = nullptr;
-    if (wantParcel.WriteBuffer(data, size)) {
-        wantptr = Want::Unmarshalling(wantParcel);
-    }
     want->GetScheme();
     AppExecFwk::ElementName elementName;
-    want->MakeMainAbility(elementName);
+    wantptr = want->MakeMainAbility(elementName);
+    if (wantptr) {
+        delete wantptr;
+        wantptr = nullptr;
+    }
     Operation operation;
     want->SetOperation(operation);
-    want->CloneOperation();
+    wantptr = want->CloneOperation();
+    if (wantptr) {
+        delete wantptr;
+        wantptr = nullptr;
+    }
     std::string key(data, size);
     want->HasParameter(key);
     std::string content(data, size);
