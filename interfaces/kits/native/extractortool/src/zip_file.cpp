@@ -191,7 +191,7 @@ bool ZipFile::Open()
     realPath.reserve(PATH_MAX);
     realPath.resize(PATH_MAX - 1);
     if (realpath(pathName_.c_str(), &(realPath[0])) == nullptr) {
-        ABILITYBASE_LOGE("transform real path error: %{public}d", errno);
+        ABILITYBASE_LOGE("transform real path error: %{public}d, pathName: %{public}s", errno, pathName_.c_str());
         return false;
     }
 
