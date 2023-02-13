@@ -83,6 +83,8 @@ const std::string Want::PARAM_RESV_START_RECENT("ohos.aafwk.param.startRecent");
 const std::string Want::PARAM_ABILITY_RECOVERY_RESTART("ohos.aafwk.param.AbilityRecoveryRestart");
 const std::string Want::PARAM_MODULE_NAME("moduleName");
 
+const std::string Want::PARAM_BACK_TO_OTHER_MISSION_STACK("ability.params.backToOtherMissionStack");
+
 /**
  * @description:Default construcotr of Want class, which is used to initialzie flags and URI.
  * @param None
