@@ -279,7 +279,7 @@ bool ZipFile::IsDirExist(const std::string &dir) const
             return true;
         }
     }
-    ABILITYBASE_LOGW("target dir not found, dir : %{private}s", dir.c_str());
+    ABILITYBASE_LOGD("target dir not found, dir : %{private}s", dir.c_str());
     return false;
 }
 
