@@ -419,5 +419,20 @@ bool ExtractorUtil::AddExtractor(const std::string &hapPath, std::shared_ptr<Ext
 
     return true;
 }
+
+void ExtractorUtil::DeleteExtractor(const std::string &hapPath)
+{
+    if (hapPath.empty()) {
+        ABILITYBASE_LOGE("DeleteExtractor hapPath is empty.");
+        return;
+    }
+
+    std::lock_guard<std::mutex> mapMutex(mapMutex_);
+    auto mapIter = extractorMap_.find(hapPath);
+    if (mapIter != extractorMap_.end()) {
+        ABILITYBASE_LOGI("DeleteExtractor, hapPath: %{public}s.", hapPath.c_str());
+        extractorMap_.erase(mapIter);
+    }
+}
 }  // namespace AbilityBase
 }  // namespace OHOS
