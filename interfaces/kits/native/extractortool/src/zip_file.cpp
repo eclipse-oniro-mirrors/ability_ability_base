@@ -28,7 +28,7 @@
 namespace OHOS {
 namespace AbilityBase {
 namespace {
-constexpr uint32_t MAX_FILE_NAME = 256;
+constexpr uint32_t MAX_FILE_NAME = 4096;
 constexpr uint32_t UNZIP_BUFFER_SIZE = 1024;
 constexpr uint32_t UNZIP_BUF_IN_LEN = 160 * UNZIP_BUFFER_SIZE;   // in  buffer length: 160KB
 constexpr uint32_t UNZIP_BUF_OUT_LEN = 320 * UNZIP_BUFFER_SIZE;  // out buffer length: 320KB
