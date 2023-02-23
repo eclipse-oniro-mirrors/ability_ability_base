@@ -246,6 +246,9 @@ bool Extractor::UnzipData(std::unique_ptr<FileMapper> fileMapper,
 bool Extractor::GetUncompressedData(std::unique_ptr<FileMapper> fileMapper,
     std::unique_ptr<uint8_t[]> &dataPtr, size_t &len) const
 {
+    struct sigaction oldAct;
+    ZipFile::HandleSignal(oldAct);
+
     if (!initial_) {
         ABILITYBASE_LOGE("extractor is not initial");
         return false;
@@ -274,6 +277,7 @@ bool Extractor::GetUncompressedData(std::unique_ptr<FileMapper> fileMapper,
         ABILITYBASE_LOGE("memory copy failed.");
         return false;
     }
+    ZipFile::RecoverSignalHandler(oldAct);
     return true;
 }
 

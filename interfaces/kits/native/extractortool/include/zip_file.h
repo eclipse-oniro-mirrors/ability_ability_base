@@ -19,6 +19,7 @@
 #include <cstdint>
 #include <map>
 #include <string>
+#include <signal.h>
 
 #include "unzip.h"
 
@@ -223,6 +224,10 @@ public:
 
     bool ExtractFileFromMMap(const std::string &file, void *mmapDataPtr,
         std::unique_ptr<uint8_t[]> &dataPtr, size_t &len) const;
+
+    static void HandleSignal(struct sigaction &oldAct);
+
+    static void RecoverSignalHandler(const struct sigaction &oldAct);
 
 private:
     /**
