@@ -162,6 +162,9 @@ bool ZipFile::ParseAllEntries()
         return false;
     }
 
+    struct sigaction oldAct;
+    HandleSignal(oldAct);
+
     bool ret = true;
     uint8_t *entryPtr = static_cast<uint8_t *>(fileMapper.GetDataPtr());
     for (uint16_t i = 0; i < endDir_.totalEntries; i++) {
@@ -172,6 +175,7 @@ bool ZipFile::ParseAllEntries()
         }
     }
 
+    RecoverSignalHandler(oldAct);
     return ret;
 }
 
@@ -639,6 +643,8 @@ bool ZipFile::GetEntryInfoByName(const std::string &file, bool &compress,
 bool ZipFile::ExtractFileFromMMap(const std::string &file, void *mmapDataPtr,
     std::unique_ptr<uint8_t[]> &dataPtr, size_t &len) const
 {
+    struct sigaction oldAct;
+    HandleSignal(oldAct);
     ZipEntry zipEntry;
     if (!GetEntry(file, zipEntry)) {
         ABILITYBASE_LOGE("extract file: not find file");
@@ -656,7 +662,9 @@ bool ZipFile::ExtractFileFromMMap(const std::string &file, void *mmapDataPtr,
         return false;
     }
 
-    return UnzipWithInflatedFromMMap(zipEntry, extraSize, mmapDataPtr, dataPtr, len);
+    bool ret = UnzipWithInflatedFromMMap(zipEntry, extraSize, mmapDataPtr, dataPtr, len);
+    RecoverSignalHandler(oldAct);
+    return ret;
 }
 
 bool ZipFile::UnzipWithInflatedFromMMap(const ZipEntry &zipEntry, const uint16_t extraSize,
@@ -756,6 +764,23 @@ bool ZipFile::ReadZStreamFromMMap(const BytePtr &buffer, void* &dataPtr,
     }
     dataPtr = srcDataPtr;
     return true;
+}
+
+void ZipFile::HandleSignal(struct sigaction &oldAct)
+{
+    auto SignalAction = [] (int sig) {
+        ABILITYBASE_LOGE("Signal Action, sig: %{public}d.", sig);
+    };
+
+    struct sigaction act;
+    act.sa_flags = SA_RESETHAND;
+    act.sa_handler = SignalAction;
+    sigaction(SIGBUS, &act, &oldAct);
+}
+
+void ZipFile::RecoverSignalHandler(const struct sigaction &oldAct)
+{
+    sigaction(SIGBUS, &oldAct, nullptr);
 }
 }  // namespace AbilityBase
 }  // namespace OHOS
