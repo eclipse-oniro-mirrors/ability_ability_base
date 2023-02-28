@@ -120,6 +120,15 @@
                     ]
                   },
                   "name": "//foundation/ability/ability_base:extractresourcemanager"
+                },
+                {
+                  "header": {
+                    "header_base": "//foundation/ability/ability_base/interfaces/kits/native/session_info/include",
+                    "header_files": [
+                      "session_info.h"
+                    ]
+                  },
+                  "name": "//foundation/ability/ability_base:session_info"
                 }
             ],
             "test": [
