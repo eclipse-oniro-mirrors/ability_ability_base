@@ -128,6 +128,7 @@ config("want_config") {
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
+  cflags += [ "-Werror,-Wfloat-equal" ]
   defines = [ "ABILITYBASE_LOG_TAG = \"Want\"" ]
 }
 
@@ -164,7 +165,6 @@ ohos_shared_library("want") {
   ]
 
   deps = [ "//third_party/jsoncpp:jsoncpp" ]
-
   all_dependent_configs = [ ":want_all_dependent_config" ]
 
   external_deps = [
@@ -177,6 +177,34 @@ ohos_shared_library("want") {
 
   configs = [ ":want_config" ]
   public_configs = [ ":want_public_config" ]
+  subsystem_name = "ability"
+  part_name = "ability_base"
+}
+
+################################### session_info ########################################
+config("session_info_all_dependent_config") {
+  include_dirs = [
+    "${ability_base_kits_native_path}/session_info/include",
+    "${ability_base_innerapi_path}/log/include",
+  ]
+}
+
+ohos_shared_library("session_info") {
+  sources = [ "interfaces/kits/native/session_info/src/session_info.cpp" ]
+
+  all_dependent_configs = [ ":session_info_all_dependent_config" ]
+
+  external_deps = [
+    "c_utils:utils",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+  ]
+
+  public_deps = [
+    "${graphic_rosen_path}/modules/render_service_client:librender_service_client",
+    "${window_manager_scene_path}/session:scene_session",
+  ]
+
   subsystem_name = "ability"
   part_name = "ability_base"
 }
