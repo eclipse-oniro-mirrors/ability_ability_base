@@ -61,7 +61,6 @@ bool SessionInfo::Marshalling(Parcel& parcel) const
     }
 
     if (surfaceNode) {
-        ABILITYBASE_LOGD("SurfaceNode is not null: %{public}p", surfaceNode.get());
         if (!parcel.WriteBool(true) || !surfaceNode->Marshalling(parcel)) {
             return false;
         }
@@ -85,7 +84,6 @@ SessionInfo* SessionInfo::Unmarshalling(Parcel& parcel)
     if (parcel.ReadBool()) {
         sptr<IRemoteObject> remoteObject = (static_cast<MessageParcel*>(&parcel))->ReadRemoteObject();
         info->sessionToken = iface_cast<Rosen::ISession>(remoteObject);
-        ABILITYBASE_LOGD("Read session token after %{public}p", info->sessionToken.GetRefPtr());
     } else {
         ABILITYBASE_LOGE("Read session token failed.");
     }
@@ -93,21 +91,18 @@ SessionInfo* SessionInfo::Unmarshalling(Parcel& parcel)
     if (parcel.ReadBool()) {
         sptr<IRemoteObject> remoteObject = (static_cast<MessageParcel*>(&parcel))->ReadRemoteObject();
         info->callerSession = iface_cast<Rosen::ISession>(remoteObject);
-        ABILITYBASE_LOGD("Read caller session after %{public}p", info->callerSession.GetRefPtr());
     } else {
         ABILITYBASE_LOGE("Read caller session failed.");
     }
 
     if (parcel.ReadBool()) {
         info->callerToken = (static_cast<MessageParcel*>(&parcel))->ReadRemoteObject();
-        ABILITYBASE_LOGD("Read session token after %{public}p", info->callerToken.GetRefPtr());
     } else {
         ABILITYBASE_LOGE("Read session token failed.");
     }
 
     if (parcel.ReadBool()) {
         info->surfaceNode = Rosen::RSSurfaceNode::Unmarshalling(parcel);
-        ABILITYBASE_LOGD("Read surface %{public}p", info->surfaceNode.get());
     }
 
     info->persistentId = parcel.ReadUint64();
