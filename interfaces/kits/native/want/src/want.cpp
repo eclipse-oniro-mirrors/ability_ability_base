@@ -56,7 +56,7 @@ const std::string Want::ENTITY_MUSIC("entity.app.music");
 const std::string Want::ENTITY_EMAIL("entity.app.email");
 const std::string Want::ENTITY_CONTACTS("entity.app.contacts");
 const std::string Want::ENTITY_MAPS("entity.app.maps");
-const std::string Want::ENTITY_BROWSER("entity.app.browser");
+const std::string Want::ENTITY_BROWSER("entity.system.browsable");
 const std::string Want::ENTITY_CALENDAR("entity.app.calendar");
 const std::string Want::ENTITY_MESSAGING("entity.app.messaging");
 const std::string Want::ENTITY_FILES("entity.app.files");
