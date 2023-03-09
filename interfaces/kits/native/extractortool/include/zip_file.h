@@ -18,6 +18,7 @@
 
 #include <cstdint>
 #include <map>
+#include <mutex>
 #include <string>
 #include <signal.h>
 
@@ -336,6 +337,8 @@ private:
     ZipPos fileLength_ = 0;
     bool isOpen_ = false;
     bool isRuntime_ = false;
+
+    mutable std::recursive_mutex mutex_;
 };
 }  // namespace AbilityBase
 }  // namespace OHOS

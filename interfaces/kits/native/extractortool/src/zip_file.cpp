@@ -65,12 +65,14 @@ ZipFile::~ZipFile()
 
 void ZipFile::SetContentLocation(const ZipPos start, const size_t length)
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     fileStartPos_ = start;
     fileLength_ = length;
 }
 
 bool ZipFile::CheckEndDir(const EndDir &endDir) const
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     size_t lenEndDir = sizeof(EndDir);
     if ((endDir.numDisk != 0) || (endDir.signature != EOCD_SIGNATURE) || (endDir.startDiskOfCentralDir != 0) ||
         (endDir.offset >= fileLength_) || (endDir.totalEntriesInThisDisk != endDir.totalEntries) ||
@@ -85,6 +87,7 @@ bool ZipFile::CheckEndDir(const EndDir &endDir) const
 
 bool ZipFile::ParseEndDirectory()
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     size_t endDirLen = sizeof(EndDir);
     size_t endFilePos = fileStartPos_ + fileLength_;
 
@@ -111,6 +114,7 @@ bool ZipFile::ParseEndDirectory()
 
 bool ZipFile::ParseOneEntry(uint8_t* &entryPtr)
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (entryPtr == nullptr) {
         ABILITYBASE_LOGE("Input entryPtr is nullptr.");
         return false;
@@ -154,6 +158,7 @@ bool ZipFile::ParseOneEntry(uint8_t* &entryPtr)
 
 bool ZipFile::ParseAllEntries()
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     FileMapper fileMapper;
     if (!fileMapper.CreateFileMapper("", false, fileno(file_), static_cast<int32_t>(centralDirPos_),
         static_cast<size_t>(endDir_.sizeOfCentralDir))) {
@@ -180,6 +185,7 @@ bool ZipFile::ParseAllEntries()
 
 bool ZipFile::Open()
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (isOpen_) {
         ABILITYBASE_LOGE("has already opened");
         return true;
@@ -239,6 +245,7 @@ bool ZipFile::Open()
 
 void ZipFile::Close()
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (!isOpen_ || file_ == nullptr) {
         ABILITYBASE_LOGW("file is not opened");
         return;
@@ -257,11 +264,13 @@ void ZipFile::Close()
 // Get all file zipEntry in this file
 const ZipEntryMap &ZipFile::GetAllEntries() const
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     return entriesMap_;
 }
 
 bool ZipFile::HasEntry(const std::string &entryName) const
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     return entriesMap_.find(entryName) != entriesMap_.end();
 }
 
@@ -288,6 +297,7 @@ bool ZipFile::IsDirExist(const std::string &dir) const
 
 bool ZipFile::GetEntry(const std::string &entryName, ZipEntry &resultEntry) const
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto iter = entriesMap_.find(entryName);
     if (iter != entriesMap_.end()) {
         resultEntry = iter->second;
@@ -304,6 +314,7 @@ size_t ZipFile::GetLocalHeaderSize(const uint16_t nameSize, const uint16_t extra
 
 bool ZipFile::CheckDataDesc(const ZipEntry &zipEntry, const LocalHeader &localHeader) const
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     uint32_t crcLocal = 0;
     uint32_t compressedLocal = 0;
     uint32_t uncompressedLocal = 0;
@@ -348,6 +359,7 @@ bool ZipFile::CheckDataDesc(const ZipEntry &zipEntry, const LocalHeader &localHe
 
 bool ZipFile::CheckCoherencyLocalHeader(const ZipEntry &zipEntry, uint16_t &extraSize) const
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     LocalHeader localHeader = {0};
 
     if (zipEntry.localHeaderOffset >= fileLength_) {
@@ -406,6 +418,7 @@ bool ZipFile::CheckCoherencyLocalHeader(const ZipEntry &zipEntry, uint16_t &extr
 
 bool ZipFile::SeekToEntryStart(const ZipEntry &zipEntry, const uint16_t extraSize) const
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     ZipPos startOffset = zipEntry.localHeaderOffset;
     // get data offset, add signature+localheader+namesize+extrasize
     startOffset += GetLocalHeaderSize(zipEntry.fileName.length(), extraSize);
@@ -427,6 +440,7 @@ bool ZipFile::SeekToEntryStart(const ZipEntry &zipEntry, const uint16_t extraSiz
 
 bool ZipFile::UnzipWithStore(const ZipEntry &zipEntry, const uint16_t extraSize, std::ostream &dest) const
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (!SeekToEntryStart(zipEntry, extraSize)) {
         ABILITYBASE_LOGE("seek to entry start failed");
         return false;
@@ -484,6 +498,7 @@ bool ZipFile::InitZStream(z_stream &zstream) const
 
 bool ZipFile::ReadZStream(const BytePtr &buffer, z_stream &zstream, uint32_t &remainCompressedSize) const
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (zstream.avail_in == 0) {
         size_t readBytes;
         size_t remainBytes = (remainCompressedSize > UNZIP_BUF_IN_LEN) ? UNZIP_BUF_IN_LEN : remainCompressedSize;
@@ -558,6 +573,7 @@ bool ZipFile::UnzipWithInflated(const ZipEntry &zipEntry, const uint16_t extraSi
 
 ZipPos ZipFile::GetEntryDataOffset(const ZipEntry &zipEntry, const uint16_t extraSize) const
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     // get entry data offset relative file
     ZipPos offset = zipEntry.localHeaderOffset;
 
@@ -612,12 +628,14 @@ bool ZipFile::ExtractFile(const std::string &file, std::ostream &dest) const
 
 void ZipFile::SetIsRuntime(const bool isRuntime)
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     isRuntime_ = isRuntime;
 }
 
 bool ZipFile::GetEntryInfoByName(const std::string &file, bool &compress,
     int32_t &fd, ZipPos &offset, uint32_t &length) const
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (!GetDataOffsetRelative(file, offset, length)) {
         ABILITYBASE_LOGE("Get entry info by name failed.");
         return false;
