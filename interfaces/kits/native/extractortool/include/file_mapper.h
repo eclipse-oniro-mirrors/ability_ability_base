@@ -28,7 +28,8 @@ public:
 
     ~FileMapper();
 
-    bool CreateFileMapper(const std::string &fileName, bool compress, int32_t fd, int32_t offset, size_t len);
+    bool CreateFileMapper(const std::string &fileName, bool compress,
+        int32_t fd, int32_t offset, size_t len, void *start = nullptr);
 
     bool IsCompressed();
 

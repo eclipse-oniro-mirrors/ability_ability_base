@@ -35,7 +35,8 @@ FileMapper::~FileMapper()
     }
 }
 
-bool FileMapper::CreateFileMapper(const std::string &fileName, bool compress, int32_t fd, int32_t offset, size_t len)
+bool FileMapper::CreateFileMapper(const std::string &fileName, bool compress,
+    int32_t fd, int32_t offset, size_t len, void *start)
 {
     if (pageSize_ <= 0) {
         ABILITYBASE_LOGE("CreateFileMapper. pageSize[%{public}d]", pageSize_);
@@ -49,7 +50,7 @@ bool FileMapper::CreateFileMapper(const std::string &fileName, bool compress, in
     int32_t adjust = offset % pageSize_;
     int32_t adjOffset = offset - adjust;
     baseLen_ = dataLen_ + adjust;
-    basePtr_ = mmap(nullptr, baseLen_, MMAP_PROT, MMAP_FLAG, fd, adjOffset);
+    basePtr_ = mmap(start, baseLen_, MMAP_PROT, MMAP_FLAG, fd, adjOffset);
     if (basePtr_ == MAP_FAILED) {
         ABILITYBASE_LOGE("CreateFileMapper, mmap failed, errno[%{public}d].", errno);
         return false;

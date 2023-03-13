@@ -19,6 +19,7 @@
 #include <memory>
 #include <regex>
 #include <sstream>
+#include<unistd.h>
 #include "ability_base_log_wrapper.h"
 #include "constants.h"
 #include "file_path_utils.h"
@@ -201,7 +202,7 @@ void Extractor::SetRuntimeFlag(bool isRuntime)
     zipFile_.SetIsRuntime(isRuntime);
 }
 
-std::unique_ptr<FileMapper> Extractor::GetData(const std::string &fileName) const
+std::unique_ptr<FileMapper> Extractor::GetData(const std::string &fileName, void *start) const
 {
     int32_t fd = 0;
     ZipPos offset = 0;
@@ -209,14 +210,14 @@ std::unique_ptr<FileMapper> Extractor::GetData(const std::string &fileName) cons
     bool compress = false;
 
     std::string relativePath = GetRelativePath(fileName);
-    if(!zipFile_.GetEntryInfoByName(relativePath, compress, fd, offset, len)) {
+    if (!zipFile_.GetEntryInfoByName(relativePath, compress, fd, offset, len)) {
         ABILITYBASE_LOGE("Get entry info by name failed. fileName: %{public}s", fileName.c_str());
         return nullptr;
     }
 
     std::unique_ptr<FileMapper> fileMapper = std::make_unique<FileMapper>();
     if (!fileMapper->CreateFileMapper(relativePath, compress, fd,
-        static_cast<int32_t>(offset), static_cast<size_t>(len))) {
+        static_cast<int32_t>(offset), static_cast<size_t>(len), start)) {
         ABILITYBASE_LOGE("Create file mapper failed. fileName: %{public}s", fileName.c_str());
         return nullptr;
     }
@@ -287,9 +288,10 @@ bool Extractor::IsStageModel() const
     return !zipFile_.HasEntry(fileName);
 }
 
-bool Extractor::ExtractToBufByName(const std::string &fileName, std::unique_ptr<uint8_t[]> &dataPtr, size_t &len) const
+bool Extractor::ExtractToBufByName(const std::string &fileName, std::unique_ptr<uint8_t[]> &dataPtr,
+    size_t &len, void *start) const
 {
-    std::unique_ptr<FileMapper> fileMapper = GetData(fileName);
+    std::unique_ptr<FileMapper> fileMapper = GetData(fileName, start);
     if (!fileMapper) {
         ABILITYBASE_LOGE("Get file mapper by fileName[%{public}s] failed.", fileName.c_str());
         return false;
@@ -306,7 +308,7 @@ bool Extractor::GetFileInfo(const std::string &fileName, FileInfo &fileInfo) con
 {
     std::string relativePath = GetRelativePath(fileName);
     ZipEntry zipEntry;
-    if(!zipFile_.GetEntry(relativePath, zipEntry)) {
+    if (!zipFile_.GetEntry(relativePath, zipEntry)) {
         ABILITYBASE_LOGE("Get zip entry failed.");
         return false;
     }
@@ -357,6 +359,43 @@ bool Extractor::GetFileList(const std::string &srcPath, std::set<std::string> &f
             auto separatorPos = value.find('/', pureSrcPath.length() + 1);
             fileSet.insert(value.substr(pureSrcPath.length() + 1, separatorPos - pureSrcPath.length() - 1));
         }
+    }
+
+    return true;
+}
+
+bool Extractor::ReadSafeRegionAddr(uint64_t &startAddr, uint64_t &endAddr)
+{
+    const std::string XPM_PROC_PREFIX = "/proc";
+    const std::string XPM_PROC_SUFFIX = "/xpm_region";
+    const uint32_t XPM_PROC_LENGTH = 50;
+
+    pid_t pid = getpid();
+    std::string proPath = XPM_PROC_PREFIX + std::to_string(pid) + XPM_PROC_SUFFIX;
+    if (proPath.length() > XPM_PROC_LENGTH) {
+        ABILITYBASE_LOGE("proPath[%{public}s] is out of range.", proPath.c_str());
+        return false;
+    }
+
+    FILE *file = fopen(proPath.c_str(), "r");
+    if (file == nullptr) {
+        ABILITYBASE_LOGE("open proPath[%{public}s] failed.", proPath.c_str());
+        return false;
+    }
+
+    char xpmValidRegion[XPM_PROC_LENGTH + 1] = {0};
+    int i = 0;
+    while (i <= XPM_PROC_LENGTH) {
+        if (feof(file)) {
+            break;
+        }
+        xpmValidRegion[i] = fgetc(file);
+        i++;
+    }
+
+    if (sscanf_s(xpmValidRegion, "%lx-%lx", &startAddr, &endAddr) <= 0) {
+        ABILITYBASE_LOGE("xpmValidRegion[%{public}s] invalid.", xpmValidRegion);
+        return false;
     }
 
     return true;
