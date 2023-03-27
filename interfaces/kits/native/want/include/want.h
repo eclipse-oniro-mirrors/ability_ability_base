@@ -851,9 +851,8 @@ public:
     static const std::string PARAM_RESV_REQUEST_TOKEN_CODE;
     static const std::string PARAM_RESV_ABILITY_INFO_CALLBACK;
     static const std::string PARAM_RESV_START_TIME;
-
+    static const std::string PARAM_ABILITY_ACQUIRE_SHARE_DATA;
     static const std::string PARAM_ABILITY_RECOVERY_RESTART;
-
     // module name string
     static const std::string PARAM_MODULE_NAME;
 
