@@ -82,7 +82,7 @@ const std::string Want::PARAM_RESV_REQUEST_PROC_CODE("ohos.aafwk.param.requestPr
 const std::string Want::PARAM_RESV_REQUEST_TOKEN_CODE("ohos.aafwk.param.requestTokenCode");
 const std::string Want::PARAM_RESV_ABILITY_INFO_CALLBACK("ohos.aafwk.param.abilityInfoCallback");
 
-const std::string Want::PARAM_ABILITY_RECOVERY_RESTART("ohos.aafwk.param.AbilityRecoveryRestart");
+const std::string Want::PARAM_ABILITY_RECOVERY_RESTART("ability.params.AbilityRecoveryRestart");
 const std::string Want::PARAM_MODULE_NAME("moduleName");
 
 const std::string Want::PARAM_BACK_TO_OTHER_MISSION_STACK("ability.params.backToOtherMissionStack");
