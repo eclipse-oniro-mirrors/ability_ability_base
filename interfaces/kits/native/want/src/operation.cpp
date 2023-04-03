@@ -32,7 +32,6 @@ Operation::Operation(const Operation &other) : flags_(0), uri_(other.uri_.ToStri
     bundleName_ = other.bundleName_;
     abilityName_ = other.abilityName_;
     moduleName_ = other.moduleName_;
-    entities_.clear();
 }
 
 Operation::~Operation()
