@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -4041,9 +4041,10 @@ HWTEST_F(WantBaseTest, SetElementModuleName_test_001, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "SetElementModuleName_test_001 start";
 
-    OHOS::AppExecFwk::ElementName element;
+    std::shared_ptr<OHOS::AppExecFwk::ElementName> element = std::make_shared<OHOS::AppExecFwk::ElementName>();
+    ASSERT_NE(nullptr, element);
     const char *moduleName = "12345";
-    element.SetModuleName(moduleName);
+    element->SetModuleName(moduleName);
 
     GTEST_LOG_(INFO) << "SetElementModuleName_test_001 end";
 }
