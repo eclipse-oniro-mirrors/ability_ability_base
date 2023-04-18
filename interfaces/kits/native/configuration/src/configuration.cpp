@@ -22,6 +22,9 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+namespace {
+constexpr int CYCLE_LIMIT = 1000;
+}
 using json = nlohmann::json;
 Configuration::Configuration()
 {}
@@ -218,7 +221,7 @@ bool Configuration::ReadFromParcel(Parcel &parcel)
     }
     size_t keySize = keys.size();
     size_t valueSize = values.size();
-    if (keySize != valueSize || configSize != (int32_t)valueSize) {
+    if (keySize != valueSize || configSize != (int32_t)valueSize || configSize > CYCLE_LIMIT) {
         ABILITYBASE_LOGE("ReadFromParcel failed, invalid size.");
         return false;
     }
