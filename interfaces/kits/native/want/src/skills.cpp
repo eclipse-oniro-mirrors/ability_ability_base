@@ -18,7 +18,10 @@ using namespace OHOS;
 using namespace OHOS::AppExecFwk;
 namespace OHOS {
 namespace AAFwk {
+namespace {
 const size_t LENGTH_FOR_FINDMINETYPE = 3;
+constexpr int CYCLE_LIMIT = 1000;
+}
 /**
  * @brief Default constructor used to create a Skills instance.
  */
@@ -982,6 +985,9 @@ bool Skills::ReadFromParcel(Parcel &parcel)
 
     if (empty == VALUE_OBJECT) {
         READ_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, size);
+        if (size > CYCLE_LIMIT) {
+            return false;
+        }
         for (int i = 0; i < size; i++) {
             pm = parcel.ReadParcelable<PatternsMatcher>();
             if (pm == nullptr) {
@@ -1002,6 +1008,9 @@ bool Skills::ReadFromParcel(Parcel &parcel)
 
     if (empty == VALUE_OBJECT) {
         READ_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, size);
+        if (size > CYCLE_LIMIT) {
+            return false;
+        }
         for (int i = 0; i < size; i++) {
             pm = parcel.ReadParcelable<PatternsMatcher>();
             if (pm == nullptr) {
@@ -1022,6 +1031,9 @@ bool Skills::ReadFromParcel(Parcel &parcel)
 
     if (empty == VALUE_OBJECT) {
         READ_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, size);
+        if (size > CYCLE_LIMIT) {
+            return false;
+        }
         for (int i = 0; i < size; i++) {
             pm = parcel.ReadParcelable<PatternsMatcher>();
             if (pm == nullptr) {
