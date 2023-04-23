@@ -27,7 +27,7 @@ foundation/ability/ability_base
 ```
 
 ## 使用说明
-功能模块开发指导可参考[**开发指南**](https://gitee.com/openharmony/docs/blob/master/zh-cn/application-dev/ability/Readme-CN.md)
+功能模块开发指导可参考[**开发指南**](https://gitee.com/openharmony/docs/blob/master/zh-cn/application-dev/application-models/Readme-CN.md)
 
 
 ## 相关仓
