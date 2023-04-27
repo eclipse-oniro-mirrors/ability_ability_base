@@ -38,7 +38,7 @@ private:
 
     ~ExtractResourceManager();
 
-    std::shared_ptr<Global::Resource::ResourceManager> resourceManager_;   
+    std::shared_ptr<Global::Resource::ResourceManager> resourceManager_;
 };
 }  // namespace AbilityBase
 }  // namespace OHOS

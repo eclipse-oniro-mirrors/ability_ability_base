@@ -28,7 +28,7 @@
 namespace OHOS {
 namespace AbilityBase {
 namespace {
-constexpr uint32_t MAX_FILE_NAME = 256;
+constexpr uint32_t MAX_FILE_NAME = 4096;
 constexpr uint32_t UNZIP_BUFFER_SIZE = 1024;
 constexpr uint32_t UNZIP_BUF_IN_LEN = 160 * UNZIP_BUFFER_SIZE;   // in  buffer length: 160KB
 constexpr uint32_t UNZIP_BUF_OUT_LEN = 320 * UNZIP_BUFFER_SIZE;  // out buffer length: 320KB
@@ -92,7 +92,8 @@ bool ZipFile::ParseEndDirectory()
     size_t endFilePos = fileStartPos_ + fileLength_;
 
     if (fileLength_ <= endDirLen) {
-        ABILITYBASE_LOGE("parse EOCD file length(%{public}llu) <= end dir length(%{public}llu)", fileStartPos_, fileLength_);
+        ABILITYBASE_LOGE("parse EOCD file length(%{public}llu) <= end dir length(%{public}llu)",
+            fileStartPos_, fileLength_);
         return false;
     }
 
@@ -291,7 +292,7 @@ bool ZipFile::IsDirExist(const std::string &dir) const
             return true;
         }
     }
-    ABILITYBASE_LOGW("target dir not found, dir : %{private}s", dir.c_str());
+    ABILITYBASE_LOGD("target dir not found, dir : %{private}s", dir.c_str());
     return false;
 }
 
@@ -726,7 +727,7 @@ bool ZipFile::UnzipWithInflatedFromMMap(const ZipEntry &zipEntry, const uint16_t
 
         inflateLen = UNZIP_BUF_OUT_LEN - zstream.avail_out;
         if (inflateLen > 0) {
-	    if (memcpy_s(dstDataPtr, inflateLen, bufOut, inflateLen) != EOK) {
+	        if (memcpy_s(dstDataPtr, inflateLen, bufOut, inflateLen) != EOK) {
                 ret = false;
                 ABILITYBASE_LOGE("Mem copy failed!");
                 break;

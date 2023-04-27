@@ -92,6 +92,19 @@ public:
      * Install the specifiedi ability with background mode if it's not installed.
      */
     static constexpr unsigned int FLAG_INSTALL_WITH_BACKGROUND_MODE = 0x80000000;
+    /**
+     * Indicates the operation of clearing other missions.
+     */
+    static constexpr unsigned int FLAG_ABILITY_CLEAR_MISSION = 0x00008000;
+    /**
+     * Indicates the operation of creating a task on the historical mission stack.
+     */
+    static constexpr unsigned int FLAG_ABILITY_NEW_MISSION = 0x10000000;
+    /**
+     * Indicates that the existing instance of the ability to start will be reused if it is already at the top of
+     * the mission stack. Otherwise, a new ability instance will be created.
+     */
+    static constexpr unsigned int FLAG_ABILITY_MISSION_TOP = 0x20000000;
 
     /**
      * @description:  Default construcotr of Want class, which is used to initialzie flags and URI.
@@ -821,10 +834,6 @@ public:
     static const std::string ENTITY_FILES;
     static const std::string ENTITY_GALLERY;
 
-    // flag definition
-    static unsigned int FLAG_ABILITY_NEW_MISSION;
-    static unsigned int FLAG_ABILITY_CLEAR_MISSION;
-
     static constexpr int HEX_STRING_BUF_LEN = 36;
     static constexpr int HEX_STRING_LEN = 10;
 
@@ -832,6 +841,7 @@ public:
     static const std::string PARAM_RESV_WINDOW_MODE;
     static const std::string PARAM_RESV_DISPLAY_ID;
     static const std::string PARAM_RESV_CALLER_TOKEN;
+    static const std::string PARAM_RESV_CALLER_BUNDLE_NAME;
     static const std::string PARAM_RESV_CALLER_UID;
     static const std::string PARAM_RESV_CALLER_PID;
     static const std::string PARAM_RESV_FOR_RESULT;
@@ -840,11 +850,14 @@ public:
     static const std::string PARAM_RESV_REQUEST_PROC_CODE;
     static const std::string PARAM_RESV_REQUEST_TOKEN_CODE;
     static const std::string PARAM_RESV_ABILITY_INFO_CALLBACK;
-
+    static const std::string PARAM_RESV_START_TIME;
+    static const std::string PARAM_ABILITY_ACQUIRE_SHARE_DATA;
     static const std::string PARAM_ABILITY_RECOVERY_RESTART;
-
     // module name string
     static const std::string PARAM_MODULE_NAME;
+
+    // parameter key
+    static const std::string PARAM_BACK_TO_OTHER_MISSION_STACK;
 
 private:
     WantParams parameters_;

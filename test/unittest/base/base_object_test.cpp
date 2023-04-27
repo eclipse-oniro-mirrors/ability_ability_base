@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -145,8 +145,9 @@ HWTEST_F(AAFwkBaseObjectTest, BaseObject_test_006, TestSize.Level1)
  */
 HWTEST_F(AAFwkBaseObjectTest, BaseObject_test_007, TestSize.Level1)
 {
-    Object object;
-    object.ToString();
+    std::shared_ptr<Object> object = std::make_shared<Object>();
+    ASSERT_NE(nullptr, object);
+    object->ToString();
 }
 
 /**

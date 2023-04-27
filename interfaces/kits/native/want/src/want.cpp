@@ -56,7 +56,7 @@ const std::string Want::ENTITY_MUSIC("entity.app.music");
 const std::string Want::ENTITY_EMAIL("entity.app.email");
 const std::string Want::ENTITY_CONTACTS("entity.app.contacts");
 const std::string Want::ENTITY_MAPS("entity.app.maps");
-const std::string Want::ENTITY_BROWSER("entity.app.browser");
+const std::string Want::ENTITY_BROWSER("entity.system.browsable");
 const std::string Want::ENTITY_CALENDAR("entity.app.calendar");
 const std::string Want::ENTITY_MESSAGING("entity.app.messaging");
 const std::string Want::ENTITY_FILES("entity.app.files");
@@ -71,17 +71,21 @@ const std::string Want::WANT_END(";end");
 const std::string Want::PARAM_RESV_WINDOW_MODE("ohos.aafwk.param.windowMode");
 const std::string Want::PARAM_RESV_DISPLAY_ID("ohos.aafwk.param.displayId");
 const std::string Want::PARAM_RESV_CALLER_TOKEN("ohos.aafwk.param.callerToken");
+const std::string Want::PARAM_RESV_CALLER_BUNDLE_NAME("ohos.aafwk.param.callerBundleName");
 const std::string Want::PARAM_RESV_CALLER_UID("ohos.aafwk.param.callerUid");
 const std::string Want::PARAM_RESV_CALLER_PID("ohos.aafwk.param.callerPid");
 const std::string Want::PARAM_RESV_FOR_RESULT("ohos.aafwk.param.startAbilityForResult");
 const std::string Want::PARAM_RESV_CALL_TO_FOREGROUND("ohos.aafwk.param.callAbilityToForeground");
 const std::string Want::PARAM_RESV_START_RECENT("ohos.aafwk.param.startRecent");
+const std::string Want::PARAM_RESV_START_TIME("ohos.aafwk.param.startTime");
 const std::string Want::PARAM_RESV_REQUEST_PROC_CODE("ohos.aafwk.param.requestProcCode");
 const std::string Want::PARAM_RESV_REQUEST_TOKEN_CODE("ohos.aafwk.param.requestTokenCode");
 const std::string Want::PARAM_RESV_ABILITY_INFO_CALLBACK("ohos.aafwk.param.abilityInfoCallback");
-
-const std::string Want::PARAM_ABILITY_RECOVERY_RESTART("ohos.aafwk.param.AbilityRecoveryRestart");
+const std::string Want::PARAM_ABILITY_ACQUIRE_SHARE_DATA("ohos.aafwk.param.AbilityAcquireShareData");
+const std::string Want::PARAM_ABILITY_RECOVERY_RESTART("ohos.ability.params.abilityRecoveryRestart");
 const std::string Want::PARAM_MODULE_NAME("moduleName");
+
+const std::string Want::PARAM_BACK_TO_OTHER_MISSION_STACK("ability.params.backToOtherMissionStack");
 
 /**
  * @description:Default construcotr of Want class, which is used to initialzie flags and URI.
