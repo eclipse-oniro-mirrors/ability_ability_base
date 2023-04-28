@@ -143,7 +143,6 @@ config("want_public_config") {
     "${ability_base_innerapi_path}/log/include",
     "//third_party/jsoncpp/include",
     "//third_party/json/include",
-    "//commonlibrary/c_utils/base/include",
   ]
 }
 
