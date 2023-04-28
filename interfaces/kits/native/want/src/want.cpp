@@ -1234,6 +1234,17 @@ bool Want::OperationEquals(const Want &want)
     return (operation_ == want.operation_);
 }
 
+bool Want::IsEquals(const Want &want)
+{
+    if (!OperationEquals(want)) {
+        return false;
+    }
+    if (!(parameters_ == want.GetParams())) {
+        return false;
+    }
+    return true;
+}
+
 /**
  * @description: Creates a Want object that contains only the operation component of this Want.
  * @return Returns the created Want object.
