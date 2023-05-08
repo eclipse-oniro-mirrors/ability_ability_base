@@ -1099,7 +1099,7 @@ bool WantParams::ReadFromParcelArrayDouble(Parcel &parcel, sptr<IArray> &ao)
     return SetArray<double, Double>(g_IID_IDouble, value, ao);
 }
 
-bool WantParams::ReadFromParcelArrayWantParams(Parcel &parcel, sptr<IArray> &ao)
+bool WantParams::ReadFromParcelArrayWantParams(Parcel &parcel, sptr<IArray> &ao, int depth)
 {
     int32_t size = parcel.ReadInt32();
     static constexpr int32_t maxAllowedSize = 1024;
@@ -1109,7 +1109,7 @@ bool WantParams::ReadFromParcelArrayWantParams(Parcel &parcel, sptr<IArray> &ao)
     }
     std::vector<sptr<IInterface>> arrayWantParams;
     for (int32_t i = 0; i < size; ++i) {
-        sptr<WantParams> value(Unmarshalling(parcel));
+        sptr<WantParams> value(Unmarshalling(parcel, depth + 1));
         if (value != nullptr) {
             sptr<IInterface> interface = WantParamWrapper::Box(*value);
             if (interface != nullptr) {
@@ -1128,7 +1128,7 @@ bool WantParams::ReadFromParcelArrayWantParams(Parcel &parcel, sptr<IArray> &ao)
     return false;
 }
 
-bool WantParams::ReadArrayToParcel(Parcel &parcel, int type, sptr<IArray> &ao)
+bool WantParams::ReadArrayToParcel(Parcel &parcel, int type, sptr<IArray> &ao, int depth)
 {
     switch (type) {
         case VALUE_TYPE_STRINGARRAY:
@@ -1151,7 +1151,7 @@ bool WantParams::ReadArrayToParcel(Parcel &parcel, int type, sptr<IArray> &ao)
         case VALUE_TYPE_DOUBLEARRAY:
             return ReadFromParcelArrayDouble(parcel, ao);
         case VALUE_TYPE_WANTPARAMSARRAY:
-            return ReadFromParcelArrayWantParams(parcel, ao);
+            return ReadFromParcelArrayWantParams(parcel, ao, depth);
         default:
             break;
     }
@@ -1257,8 +1257,9 @@ bool WantParams::ReadFromParcelInt(Parcel &parcel, const std::string &key)
     }
 }
 
-bool WantParams::ReadFromParcelWantParamWrapper(Parcel &parcel, const std::string &key, int type)
+bool WantParams::ReadFromParcelWantParamWrapper(Parcel &parcel, const std::string &key, int type, int depth)
 {
+    
     if (type == VALUE_TYPE_FD) {
         return ReadFromParcelFD(parcel, key);
     }
@@ -1267,7 +1268,7 @@ bool WantParams::ReadFromParcelWantParamWrapper(Parcel &parcel, const std::strin
         return ReadFromParcelRemoteObject(parcel, key);
     }
 
-    sptr<WantParams> value(Unmarshalling(parcel));
+    sptr<WantParams> value(Unmarshalling(parcel, depth + 1));
     if (value != nullptr) {
         sptr<IInterface> intf = WantParamWrapper::Box(*value);
         if (intf) {
@@ -1405,8 +1406,11 @@ bool WantParams::ReadUnsupportedData(Parcel &parcel, const std::string &key, int
     return true;
 }
 
-bool WantParams::ReadFromParcelParam(Parcel &parcel, const std::string &key, int type)
+bool WantParams::ReadFromParcelParam(Parcel &parcel, const std::string &key, int type, int depth)
 {
+    if (depth >= MAX_RECURSION_DEPTH) {
+        return false;
+    }
     switch (type) {
         case VALUE_TYPE_CHARSEQUENCE:
         case VALUE_TYPE_STRING:
@@ -1430,7 +1434,7 @@ bool WantParams::ReadFromParcelParam(Parcel &parcel, const std::string &key, int
         case VALUE_TYPE_WANTPARAMS:
         case VALUE_TYPE_FD:
         case VALUE_TYPE_REMOTE_OBJECT:
-            return ReadFromParcelWantParamWrapper(parcel, key, type);
+            return ReadFromParcelWantParamWrapper(parcel, key, type, depth);
         case VALUE_TYPE_NULL:
             break;
         case VALUE_TYPE_PARCELABLE:
@@ -1444,7 +1448,7 @@ bool WantParams::ReadFromParcelParam(Parcel &parcel, const std::string &key, int
         default: {
             // handle array
             sptr<IArray> ao = nullptr;
-            if (!ReadArrayToParcel(parcel, type, ao)) {
+            if (!ReadArrayToParcel(parcel, type, ao, depth)) {
                 return false;
             }
             sptr<IInterface> intf = ao;
@@ -1457,7 +1461,7 @@ bool WantParams::ReadFromParcelParam(Parcel &parcel, const std::string &key, int
     return true;
 }
 
-bool WantParams::ReadFromParcel(Parcel &parcel)
+bool WantParams::ReadFromParcel(Parcel &parcel, int depth)
 {
     int32_t size;
     if (!parcel.ReadInt32(size)) {
@@ -1471,7 +1475,7 @@ bool WantParams::ReadFromParcel(Parcel &parcel)
             ABILITYBASE_LOGI("%{public}s read type fail.", __func__);
             return false;
         }
-        if (!ReadFromParcelParam(parcel, Str16ToStr8(key), type)) {
+        if (!ReadFromParcelParam(parcel, Str16ToStr8(key), type, depth)) {
             ABILITYBASE_LOGI("%{public}s get i=%{public}d fail.", __func__, i);
             return false;
         }
@@ -1484,10 +1488,10 @@ bool WantParams::ReadFromParcel(Parcel &parcel)
  * @param Key-value pairs in the WantParams are unmarshalled separately.
  * @return If any key-value pair fails to be unmarshalled, false is returned.
  */
-WantParams *WantParams::Unmarshalling(Parcel &parcel)
+WantParams *WantParams::Unmarshalling(Parcel &parcel, int depth)
 {
     WantParams *wantParams = new (std::nothrow) WantParams();
-    if (!wantParams->ReadFromParcel(parcel)) {
+    if (!wantParams->ReadFromParcel(parcel, depth)) {
         delete wantParams;
         wantParams = nullptr;
     }
