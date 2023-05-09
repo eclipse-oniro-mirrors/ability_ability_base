@@ -57,7 +57,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     wantParams->ReadFromParcelArrayShort(parcel, array);
     std::string key(data ,size);
     int type = static_cast<int>(GetU32Data(data));
-    wantParams->ReadFromParcelWantParamWrapper(parcel, key, type);
+    wantParams->ReadFromParcelWantParamWrapper(parcel, key, type, 1);
     wantParams->ReadFromParcelFD(parcel, key);
     wantParams->ReadFromParcelRemoteObject(parcel, key);
     wantParams->ReadFromParcelFloat(parcel, key);

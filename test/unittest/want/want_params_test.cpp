@@ -1135,7 +1135,7 @@ HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_ReadArrayToParcel_1000, Function |
     Parcel parcel;
     int type = 1;
     sptr<IArray> destAO = nullptr;
-    bool result = wantParams.ReadArrayToParcel(parcel, type, destAO);
+    bool result = wantParams.ReadArrayToParcel(parcel, type, destAO, 1);
     EXPECT_EQ(result, true);
 }
 
@@ -1189,7 +1189,7 @@ HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_ReadUnsupportedData_1000, Function
     EXPECT_EQ(result1, false);
 
     int type1 = 50;
-    bool result2 = wantParams.ReadFromParcelParam(parcel, key, type1);
+    bool result2 = wantParams.ReadFromParcelParam(parcel, key, type1, 1);
     EXPECT_EQ(result2, false);
 }
 }

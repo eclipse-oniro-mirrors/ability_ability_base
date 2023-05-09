@@ -90,7 +90,7 @@ public:
 
     virtual bool Marshalling(Parcel &parcel) const;
 
-    static WantParams *Unmarshalling(Parcel &parcel);
+    static WantParams *Unmarshalling(Parcel &parcel, int depth = 1);
 
     void DumpInfo(int level) const;
 
@@ -131,9 +131,9 @@ private:
     };
 
     bool WriteArrayToParcel(Parcel &parcel, IArray *ao, int depth) const;
-    bool ReadArrayToParcel(Parcel &parcel, int type, sptr<IArray> &ao);
-    bool ReadFromParcel(Parcel &parcel);
-    bool ReadFromParcelParam(Parcel &parcel, const std::string &key, int type);
+    bool ReadArrayToParcel(Parcel &parcel, int type, sptr<IArray> &ao, int depth);
+    bool ReadFromParcel(Parcel &parcel, int depth = 1);
+    bool ReadFromParcelParam(Parcel &parcel, const std::string &key, int type, int depth);
     bool ReadFromParcelString(Parcel &parcel, const std::string &key);
     bool ReadFromParcelBool(Parcel &parcel, const std::string &key);
     bool ReadFromParcelInt8(Parcel &parcel, const std::string &key);
@@ -154,8 +154,8 @@ private:
     bool ReadFromParcelArrayLong(Parcel &parcel, sptr<IArray> &ao);
     bool ReadFromParcelArrayFloat(Parcel &parcel, sptr<IArray> &ao);
     bool ReadFromParcelArrayDouble(Parcel &parcel, sptr<IArray> &ao);
-    bool ReadFromParcelArrayWantParams(Parcel &parcel, sptr<IArray> &ao);
-    bool ReadFromParcelWantParamWrapper(Parcel &parcel, const std::string &key, int type);
+    bool ReadFromParcelArrayWantParams(Parcel &parcel, sptr<IArray> &ao, int depth);
+    bool ReadFromParcelWantParamWrapper(Parcel &parcel, const std::string &key, int type, int depth);
     bool ReadFromParcelFD(Parcel &parcel, const std::string &key);
     bool ReadFromParcelRemoteObject(Parcel &parcel, const std::string &key);
 
