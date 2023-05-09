@@ -17,11 +17,11 @@
 #define OHOS_ABILITY_SESSION_INFO_H
 
 #include <typeinfo>
+#include <unistd.h>
 
 #include "iremote_object.h"
 #include "parcel.h"
 #include "session/host/include/zidl/session_interface.h"
-#include "ui/rs_surface_node.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -30,13 +30,12 @@ class SessionInfo : public Parcelable {
 public:
     SessionInfo() {};
     virtual ~SessionInfo() {};
-    virtual bool Marshalling(Parcel& parcel) const override;
+    bool Marshalling(Parcel& parcel) const override;
     static SessionInfo* Unmarshalling(Parcel& parcel);
 
     sptr<Rosen::ISession> sessionToken = nullptr;
     sptr<Rosen::ISession> callerSession = nullptr;
     sptr<IRemoteObject> callerToken = nullptr;
-    std::shared_ptr<Rosen::RSSurfaceNode> surfaceNode = nullptr;
     uint64_t persistentId = 0;
 };
 } // namespace AAFwk
