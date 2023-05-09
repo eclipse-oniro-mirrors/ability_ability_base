@@ -86,7 +86,7 @@ public:
     std::unique_ptr<FileMapper> GetData(const std::string &fileName, bool safeRegion = false) const;
     bool UnzipData(std::unique_ptr<FileMapper> fileMapper, std::unique_ptr<uint8_t[]> &dataPtr, size_t &len) const;
     bool GetUncompressedData(std::unique_ptr<FileMapper> fileMapper,
-        std::unique_ptr<uint8_t[]> &dataPtr, size_t &len) const;
+        std::unique_ptr<uint8_t[]> &dataPtr, size_t &len, bool safeRegion = false) const;
     bool IsStageModel() const;
 
     bool ExtractToBufByName(const std::string &fileName, std::unique_ptr<uint8_t[]> &dataPtr,

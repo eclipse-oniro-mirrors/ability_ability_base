@@ -244,7 +244,7 @@ bool Extractor::UnzipData(std::unique_ptr<FileMapper> fileMapper,
 }
 
 bool Extractor::GetUncompressedData(std::unique_ptr<FileMapper> fileMapper,
-    std::unique_ptr<uint8_t[]> &dataPtr, size_t &len) const
+    std::unique_ptr<uint8_t[]> &dataPtr, size_t &len, bool safeRegion) const
 {
     struct sigaction oldAct;
     ZipFile::HandleSignal(oldAct);
@@ -266,8 +266,23 @@ bool Extractor::GetUncompressedData(std::unique_ptr<FileMapper> fileMapper,
         return false;
     }
 
-    std::unique_ptr<uint8_t[]> dataDst(static_cast<uint8_t *>(dataSrc));
-    dataPtr = std::move(dataDst);
+    if (safeRegion) {
+        std::unique_ptr<uint8_t[]> dataDst(static_cast<uint8_t *>(dataSrc));
+        dataPtr = std::move(dataDst);
+        fileMapper.release();
+    } else {
+        dataPtr = std::make_unique<uint8_t[]>(len);
+        if (!dataPtr) {
+            ABILITYBASE_LOGE("Make unique ptr failed.");
+            return false;
+        }
+
+        uint8_t *dataDst = static_cast<uint8_t*>(dataPtr.get());
+        if (memcpy_s(dataDst, len, dataSrc, len) != EOK) {
+            ABILITYBASE_LOGE("memory copy failed.");
+            return false;
+        }
+    }
     ZipFile::RecoverSignalHandler(oldAct);
     return true;
 }
@@ -291,7 +306,7 @@ bool Extractor::ExtractToBufByName(const std::string &fileName, std::unique_ptr<
         return UnzipData(std::move(fileMapper), dataPtr, len);
     }
 
-    return GetUncompressedData(std::move(fileMapper), dataPtr, len);
+    return GetUncompressedData(std::move(fileMapper), dataPtr, len, safeRegion);
 }
 
 bool Extractor::GetFileInfo(const std::string &fileName, FileInfo &fileInfo) const
