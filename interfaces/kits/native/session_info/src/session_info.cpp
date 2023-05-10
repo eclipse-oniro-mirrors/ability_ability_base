@@ -72,21 +72,15 @@ SessionInfo* SessionInfo::Unmarshalling(Parcel& parcel)
     if (parcel.ReadBool()) {
         sptr<IRemoteObject> remoteObject = (static_cast<MessageParcel*>(&parcel))->ReadRemoteObject();
         info->sessionToken = iface_cast<Rosen::ISession>(remoteObject);
-    } else {
-        ABILITYBASE_LOGE("Read session token failed.");
     }
 
     if (parcel.ReadBool()) {
         sptr<IRemoteObject> remoteObject = (static_cast<MessageParcel*>(&parcel))->ReadRemoteObject();
         info->callerSession = iface_cast<Rosen::ISession>(remoteObject);
-    } else {
-        ABILITYBASE_LOGE("Read caller session failed.");
     }
 
     if (parcel.ReadBool()) {
         info->callerToken = (static_cast<MessageParcel*>(&parcel))->ReadRemoteObject();
-    } else {
-        ABILITYBASE_LOGE("Read session token failed.");
     }
 
     info->persistentId = parcel.ReadUint64();
