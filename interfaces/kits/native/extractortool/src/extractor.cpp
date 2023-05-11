@@ -333,7 +333,7 @@ bool Extractor::GetFileInfo(const std::string &fileName, FileInfo &fileInfo) con
     return true;
 }
 
-bool IsFilePathExist(const std::string rawfilePath, std::vector<std::string> &pathList)
+bool IsFilePathExist(const std::string rawfilePath, const std::vector<std::string> &pathList)
 {
     for (auto path : pathList) {
         if (path.find(rawfilePath) != std::string::npos) {

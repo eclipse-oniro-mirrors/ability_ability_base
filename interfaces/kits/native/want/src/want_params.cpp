@@ -369,8 +369,8 @@ bool WantParams::CompareInterface(const sptr<IInterface> iIt1, const sptr<IInter
             flag = static_cast<Array *>(IArray::Query(iIt1))->Equals(*(static_cast<Array *>(IArray::Query(iIt2))));
             break;
         case VALUE_TYPE_WANTPARAMS:
-            flag = static_cast<WantParamWrapper *>(IWantParams::Query(iIt1))
-                       ->Equals(*(static_cast<WantParamWrapper *>(IWantParams::Query(iIt2))));
+            flag = static_cast<WantParamWrapper *>(IWantParams::Query(iIt1))->
+                Equals(*(static_cast<WantParamWrapper *>(IWantParams::Query(iIt2))));
             break;
         default:
             break;
@@ -1264,7 +1264,6 @@ bool WantParams::ReadFromParcelInt(Parcel &parcel, const std::string &key)
 
 bool WantParams::ReadFromParcelWantParamWrapper(Parcel &parcel, const std::string &key, int type, int depth)
 {
-    
     if (type == VALUE_TYPE_FD) {
         return ReadFromParcelFD(parcel, key);
     }
