@@ -28,7 +28,8 @@ public:
 
     ~FileMapper();
 
-    bool CreateFileMapper(const std::string &fileName, bool compress, int32_t fd, int32_t offset, size_t len);
+    bool CreateFileMapper(const std::string &fileName, bool compress,
+        int32_t fd, int32_t offset, size_t len, bool safeRegion = false);
 
     bool IsCompressed();
 
@@ -43,6 +44,7 @@ public:
 private:
     static const int32_t MMAP_PROT = PROT_READ;
     static const int32_t MMAP_FLAG = MAP_SHARED;
+    static const int32_t MAP_XPM = 0x40;
     static int32_t pageSize_;
 
     std::string fileName_;
