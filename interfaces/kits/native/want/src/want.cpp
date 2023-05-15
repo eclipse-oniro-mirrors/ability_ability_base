@@ -1855,26 +1855,50 @@ bool Want::ReadFromJson(nlohmann::json &wantJson)
         ABILITYBASE_LOGE("Incomplete wantJson");
         return false;
     }
+    
+    if (!wantJson["deviceId"].is_string()) {
+        ABILITYBASE_LOGE("ReadFromJson: deviceId is not a string.");
+        return false;
+    }
+    if (!wantJson["bundleName"].is_string()) {
+        ABILITYBASE_LOGE("ReadFromJson: bundleName is not a string.");
+        return false;
+    }
+    if (!wantJson["abilityName"].is_string()) {
+        ABILITYBASE_LOGE("ReadFromJson: abilityName is not a string.");
+        return false;
+    }
+    SetElementName(wantJson["deviceId"], wantJson["bundleName"], wantJson["abilityName"]);
+    
+    if (!wantJson["uri"].is_string()) {
+        ABILITYBASE_LOGE("ReadFromJson: uri is not a string.");
+        return false;
+    }
+    SetUri(wantJson["uri"]);
+    
+    if (!wantJson["type"].is_string()) {
+        ABILITYBASE_LOGE("ReadFromJson: type is not a string.");
+        return false;
+    }
+    SetType(wantJson["type"]);
+    
+    if (!wantJson["flags"].is_number_unsigned()) {
+        ABILITYBASE_LOGE("ReadFromJson: flags is not a number.");
+        return false;
+    }
+    SetFlags(wantJson["flags"]);
 
-    std::string deviceId = wantJson.at("deviceId").get<std::string>();
-    std::string bundleName = wantJson.at("bundleName").get<std::string>();
-    std::string abilityName = wantJson.at("abilityName").get<std::string>();
-    SetElementName(deviceId, bundleName, abilityName);
-
-    std::string uri = wantJson.at("uri").get<std::string>();
-    SetUri(uri);
-
-    std::string type = wantJson.at("type").get<std::string>();
-    SetType(type);
-
-    unsigned int flags = wantJson.at("flags").get<unsigned int>();
-    SetFlags(flags);
-
-    std::string action = wantJson.at("action").get<std::string>();
-    SetAction(action);
-
-    std::string parametersString = wantJson.at("parameters").get<std::string>();
-    WantParams parameters = WantParamWrapper::ParseWantParams(parametersString);
+    if (!wantJson["action"].is_string()) {
+        ABILITYBASE_LOGE("ReadFromJson: action is not a string.");
+        return false;
+    }
+    SetAction(wantJson["action"]);
+    
+    if (!wantJson["parameters"].is_string()) {
+        ABILITYBASE_LOGE("ReadFromJson: parameters is not a string.");
+        return false;
+    }
+    WantParams parameters = WantParamWrapper::ParseWantParams(wantJson["parameters"]);
     SetParams(parameters);
     std::string moduleName = GetStringParam(PARAM_MODULE_NAME);
     SetModuleName(moduleName);
