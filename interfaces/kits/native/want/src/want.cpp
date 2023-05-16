@@ -1239,6 +1239,9 @@ bool Want::IsEquals(const Want &want)
     if (!OperationEquals(want)) {
         return false;
     }
+    if (GetType() != want.GetType()) {
+        return false;
+    }
     if (!(parameters_ == want.GetParams())) {
         return false;
     }
