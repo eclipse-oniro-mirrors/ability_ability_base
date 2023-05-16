@@ -1858,7 +1858,7 @@ bool Want::ReadFromJson(nlohmann::json &wantJson)
         ABILITYBASE_LOGE("Incomplete wantJson");
         return false;
     }
-    
+
     if (!wantJson["deviceId"].is_string()) {
         ABILITYBASE_LOGE("ReadFromJson: deviceId is not a string.");
         return false;
@@ -1872,19 +1872,19 @@ bool Want::ReadFromJson(nlohmann::json &wantJson)
         return false;
     }
     SetElementName(wantJson["deviceId"], wantJson["bundleName"], wantJson["abilityName"]);
-    
+
     if (!wantJson["uri"].is_string()) {
         ABILITYBASE_LOGE("ReadFromJson: uri is not a string.");
         return false;
     }
     SetUri(wantJson["uri"]);
-    
+
     if (!wantJson["type"].is_string()) {
         ABILITYBASE_LOGE("ReadFromJson: type is not a string.");
         return false;
     }
     SetType(wantJson["type"]);
-    
+
     if (!wantJson["flags"].is_number_unsigned()) {
         ABILITYBASE_LOGE("ReadFromJson: flags is not a number.");
         return false;
@@ -1896,7 +1896,7 @@ bool Want::ReadFromJson(nlohmann::json &wantJson)
         return false;
     }
     SetAction(wantJson["action"]);
-    
+
     if (!wantJson["parameters"].is_string()) {
         ABILITYBASE_LOGE("ReadFromJson: parameters is not a string.");
         return false;
