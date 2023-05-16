@@ -264,7 +264,12 @@ bool WantParams::operator==(const WantParams &other)
         if (itother == other.params_.end()) {
             return false;
         }
-        if (!CompareInterface(itother->second, itthis.second, WantParams::GetDataType(itother->second))) {
+        int type1 = WantParams::GetDataType(itthis.second);
+        int type2 = WantParams::GetDataType(itother->second);
+        if (type1 != type2) {
+            return false;
+        }
+        if (!CompareInterface(itother->second, itthis.second, type1)) {
             return false;
         }
     }
@@ -329,43 +334,43 @@ sptr<IInterface> WantParams::GetInterfaceByType(int typeId, const std::string &v
 
 bool WantParams::CompareInterface(const sptr<IInterface> iIt1, const sptr<IInterface> iIt2, int typeId)
 {
-    bool flag = false;
+    bool flag = true;
     switch (typeId) {
         case VALUE_TYPE_BOOLEAN:
             flag =
-                static_cast<Boolean *>(IBoolean::Query(iIt1))->Equals(*(static_cast<Boolean *>(IBoolean::Query(iIt1))));
+                static_cast<Boolean *>(IBoolean::Query(iIt1))->Equals(*(static_cast<Boolean *>(IBoolean::Query(iIt2))));
             break;
         case VALUE_TYPE_BYTE:
-            flag = static_cast<Byte *>(IByte::Query(iIt1))->Equals(*(static_cast<Byte *>(IByte::Query(iIt1))));
+            flag = static_cast<Byte *>(IByte::Query(iIt1))->Equals(*(static_cast<Byte *>(IByte::Query(iIt2))));
             break;
         case VALUE_TYPE_CHAR:
-            flag = static_cast<Char *>(IChar::Query(iIt1))->Equals(*(static_cast<Char *>(IChar::Query(iIt1))));
+            flag = static_cast<Char *>(IChar::Query(iIt1))->Equals(*(static_cast<Char *>(IChar::Query(iIt2))));
             break;
         case VALUE_TYPE_SHORT:
-            flag = static_cast<Short *>(IShort::Query(iIt1))->Equals(*(static_cast<Short *>(IShort::Query(iIt1))));
+            flag = static_cast<Short *>(IShort::Query(iIt1))->Equals(*(static_cast<Short *>(IShort::Query(iIt2))));
             break;
         case VALUE_TYPE_INT:
             flag =
-                static_cast<Integer *>(IInteger::Query(iIt1))->Equals(*(static_cast<Integer *>(IInteger::Query(iIt1))));
+                static_cast<Integer *>(IInteger::Query(iIt1))->Equals(*(static_cast<Integer *>(IInteger::Query(iIt2))));
             break;
         case VALUE_TYPE_LONG:
-            flag = static_cast<Long *>(ILong::Query(iIt1))->Equals(*(static_cast<Long *>(ILong::Query(iIt1))));
+            flag = static_cast<Long *>(ILong::Query(iIt1))->Equals(*(static_cast<Long *>(ILong::Query(iIt2))));
             break;
         case VALUE_TYPE_FLOAT:
-            flag = static_cast<Float *>(IFloat::Query(iIt1))->Equals(*(static_cast<Float *>(IFloat::Query(iIt1))));
+            flag = static_cast<Float *>(IFloat::Query(iIt1))->Equals(*(static_cast<Float *>(IFloat::Query(iIt2))));
             break;
         case VALUE_TYPE_DOUBLE:
-            flag = static_cast<Double *>(IDouble::Query(iIt1))->Equals(*(static_cast<Double *>(IDouble::Query(iIt1))));
+            flag = static_cast<Double *>(IDouble::Query(iIt1))->Equals(*(static_cast<Double *>(IDouble::Query(iIt2))));
             break;
         case VALUE_TYPE_STRING:
-            flag = static_cast<String *>(IString::Query(iIt1))->Equals(*(static_cast<String *>(IString::Query(iIt1))));
+            flag = static_cast<String *>(IString::Query(iIt1))->Equals(*(static_cast<String *>(IString::Query(iIt2))));
             break;
         case VALUE_TYPE_ARRAY:
-            flag = static_cast<Array *>(IArray::Query(iIt1))->Equals(*(static_cast<Array *>(IArray::Query(iIt1))));
+            flag = static_cast<Array *>(IArray::Query(iIt1))->Equals(*(static_cast<Array *>(IArray::Query(iIt2))));
             break;
         case VALUE_TYPE_WANTPARAMS:
             flag = static_cast<WantParamWrapper *>(IWantParams::Query(iIt1))
-                       ->Equals(*(static_cast<WantParamWrapper *>(IWantParams::Query(iIt1))));
+                       ->Equals(*(static_cast<WantParamWrapper *>(IWantParams::Query(iIt2))));
             break;
         default:
             break;
