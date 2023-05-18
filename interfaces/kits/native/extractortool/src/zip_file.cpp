@@ -727,7 +727,7 @@ bool ZipFile::UnzipWithInflatedFromMMap(const ZipEntry &zipEntry, const uint16_t
 
         inflateLen = UNZIP_BUF_OUT_LEN - zstream.avail_out;
         if (inflateLen > 0) {
-	        if (memcpy_s(dstDataPtr, inflateLen, bufOut, inflateLen) != EOK) {
+            if (memcpy_s(dstDataPtr, inflateLen, bufOut, inflateLen) != EOK) {
                 ret = false;
                 ABILITYBASE_LOGE("Mem copy failed!");
                 break;
