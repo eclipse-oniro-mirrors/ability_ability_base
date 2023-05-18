@@ -143,7 +143,6 @@ config("want_public_config") {
     "${ability_base_innerapi_path}/log/include",
     "//third_party/jsoncpp/include",
     "//third_party/json/include",
-    "//commonlibrary/c_utils/base/include",
   ]
 }
 
@@ -174,7 +173,7 @@ ohos_shared_library("want") {
     "ability_base:zuri",
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
+    "ipc:ipc_single",
   ]
 
   configs = [ ":want_config" ]

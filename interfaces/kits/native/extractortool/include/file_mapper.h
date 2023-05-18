@@ -43,7 +43,7 @@ public:
 
 private:
     static const int32_t MMAP_PROT = PROT_READ;
-    static const int32_t MMAP_FLAG = MAP_PRIVATE;
+    static const int32_t MMAP_FLAG = MAP_SHARED;
     static const int32_t MAP_XPM = 0x40;
     static int32_t pageSize_;
 

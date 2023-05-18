@@ -53,7 +53,7 @@ bool FileMapper::CreateFileMapper(const std::string &fileName, bool compress,
     int32_t mmapFlag = MMAP_FLAG;
     int32_t prot = MMAP_PROT;
     if (safeRegion) {
-        mmapFlag |= MAP_XPM;
+        mmapFlag = MAP_PRIVATE|MAP_XPM;
         prot |= PROT_WRITE;
     }
     basePtr_ = mmap(nullptr, baseLen_, prot, mmapFlag, fd, adjOffset);

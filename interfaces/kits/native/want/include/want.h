@@ -765,6 +765,8 @@ public:
      */
     bool OperationEquals(const Want &want);
 
+    bool IsEquals(const Want &want);
+
     /**
      * @description: Creates a Want object that contains only the operation component of this Want.
      * @return Returns the created Want object.

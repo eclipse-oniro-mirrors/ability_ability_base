@@ -336,6 +336,16 @@ bool Extractor::GetFileInfo(const std::string &fileName, FileInfo &fileInfo) con
     return true;
 }
 
+bool IsFilePathExist(const std::string rawfilePath, std::vector<std::string> &pathList)
+{
+    for (auto path : pathList) {
+        if (path.find(rawfilePath) != std::string::npos) {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool Extractor::GetFileList(const std::string &srcPath, std::set<std::string> &fileSet)
 {
     if (!initial_) {
@@ -357,6 +367,11 @@ bool Extractor::GetFileList(const std::string &srcPath, std::set<std::string> &f
     std::string pureSrcPath = srcPath;
     if (srcPath[srcPath.length() - 1] == '/') {
         pureSrcPath.assign(srcPath.begin(), srcPath.end() - 1);
+    }
+
+    if (!IsFilePathExist(pureSrcPath, fileList)) {
+        ABILITYBASE_LOGE("GetFileList::srcPath invalid pureSrcPath, %{public}s", pureSrcPath.c_str());
+        return false;
     }
 
     for (auto value : fileList) {
