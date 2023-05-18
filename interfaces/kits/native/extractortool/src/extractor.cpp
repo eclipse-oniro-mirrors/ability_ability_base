@@ -246,9 +246,6 @@ bool Extractor::UnzipData(std::unique_ptr<FileMapper> fileMapper,
 bool Extractor::GetUncompressedData(std::unique_ptr<FileMapper> fileMapper,
     std::unique_ptr<uint8_t[]> &dataPtr, size_t &len, bool safeRegion) const
 {
-    struct sigaction oldAct;
-    ZipFile::HandleSignal(oldAct);
-
     if (!initial_) {
         ABILITYBASE_LOGE("extractor is not initial");
         return false;
@@ -259,10 +256,14 @@ bool Extractor::GetUncompressedData(std::unique_ptr<FileMapper> fileMapper,
         return false;
     }
 
+    struct sigaction oldAct;
+    ZipFile::HandleSignal(oldAct);
+
     void *dataSrc = fileMapper->GetDataPtr();
     len = fileMapper->GetDataLen();
     if (!dataSrc || len == 0) {
         ABILITYBASE_LOGE("dataSrc is nullptr or len is 0.");
+        ZipFile::RecoverSignalHandler(oldAct);
         return false;
     }
 
@@ -274,12 +275,14 @@ bool Extractor::GetUncompressedData(std::unique_ptr<FileMapper> fileMapper,
         dataPtr = std::make_unique<uint8_t[]>(len);
         if (!dataPtr) {
             ABILITYBASE_LOGE("Make unique ptr failed.");
+            ZipFile::RecoverSignalHandler(oldAct);
             return false;
         }
 
         uint8_t *dataDst = static_cast<uint8_t*>(dataPtr.get());
         if (memcpy_s(dataDst, len, dataSrc, len) != EOK) {
             ABILITYBASE_LOGE("memory copy failed.");
+            ZipFile::RecoverSignalHandler(oldAct);
             return false;
         }
     }
