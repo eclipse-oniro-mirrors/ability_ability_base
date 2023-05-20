@@ -661,8 +661,6 @@ bool ZipFile::GetEntryInfoByName(const std::string &file, bool &compress,
 bool ZipFile::ExtractFileFromMMap(const std::string &file, void *mmapDataPtr,
     std::unique_ptr<uint8_t[]> &dataPtr, size_t &len) const
 {
-    struct sigaction oldAct;
-    HandleSignal(oldAct);
     ZipEntry zipEntry;
     if (!GetEntry(file, zipEntry)) {
         ABILITYBASE_LOGE("extract file: not find file");
@@ -680,6 +678,8 @@ bool ZipFile::ExtractFileFromMMap(const std::string &file, void *mmapDataPtr,
         return false;
     }
 
+    struct sigaction oldAct;
+    HandleSignal(oldAct);
     bool ret = UnzipWithInflatedFromMMap(zipEntry, extraSize, mmapDataPtr, dataPtr, len);
     RecoverSignalHandler(oldAct);
     return ret;
