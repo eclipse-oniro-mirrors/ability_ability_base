@@ -17,6 +17,7 @@
 
 #include <cassert>
 #include <cstring>
+#include <exception>
 #include <ostream>
 
 #include "ability_base_log_wrapper.h"
@@ -171,16 +172,21 @@ bool ZipFile::ParseAllEntries()
     HandleSignal(oldAct);
 
     bool ret = true;
-    uint8_t *entryPtr = static_cast<uint8_t *>(fileMapper.GetDataPtr());
-    for (uint16_t i = 0; i < endDir_.totalEntries; i++) {
-        if (!ParseOneEntry(entryPtr)) {
-            ABILITYBASE_LOGE("Parse entry[%{public}d] failed.", i);
-            ret = false;
-            break;
+    try {
+        uint8_t *entryPtr = static_cast<uint8_t *>(fileMapper.GetDataPtr());
+        for (uint16_t i = 0; i < endDir_.totalEntries; i++) {
+            if (!ParseOneEntry(entryPtr)) {
+                ABILITYBASE_LOGE("Parse entry[%{public}d] failed.", i);
+                ret = false;
+                break;
+            }
         }
+        RecoverSignalHandler(oldAct);
+    } catch (int sig) {
+        ABILITYBASE_LOGE("catch sig: %{private}d.", sig);
+        ret = false;
     }
 
-    RecoverSignalHandler(oldAct);
     return ret;
 }
 
@@ -680,8 +686,14 @@ bool ZipFile::ExtractFileFromMMap(const std::string &file, void *mmapDataPtr,
 
     struct sigaction oldAct;
     HandleSignal(oldAct);
-    bool ret = UnzipWithInflatedFromMMap(zipEntry, extraSize, mmapDataPtr, dataPtr, len);
-    RecoverSignalHandler(oldAct);
+    bool ret = false;
+    try {
+        ret = UnzipWithInflatedFromMMap(zipEntry, extraSize, mmapDataPtr, dataPtr, len);
+        RecoverSignalHandler(oldAct);
+    } catch (int sig) {
+        ABILITYBASE_LOGE("catch sig: %{private}d.", sig);
+        ret = false;
+    }
     return ret;
 }
 
@@ -788,6 +800,7 @@ void ZipFile::HandleSignal(struct sigaction &oldAct)
 {
     auto SignalAction = [] (int sig) {
         ABILITYBASE_LOGE("Signal Action, sig: %{public}d.", sig);
+        throw sig;
     };
 
     struct sigaction act;
