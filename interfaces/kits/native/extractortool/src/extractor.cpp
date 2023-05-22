@@ -246,9 +246,6 @@ bool Extractor::UnzipData(std::unique_ptr<FileMapper> fileMapper,
 bool Extractor::GetUncompressedData(std::unique_ptr<FileMapper> fileMapper,
     std::unique_ptr<uint8_t[]> &dataPtr, size_t &len, bool safeRegion) const
 {
-    struct sigaction oldAct;
-    ZipFile::HandleSignal(oldAct);
-
     if (!initial_) {
         ABILITYBASE_LOGE("extractor is not initial");
         return false;
@@ -283,7 +280,7 @@ bool Extractor::GetUncompressedData(std::unique_ptr<FileMapper> fileMapper,
             return false;
         }
     }
-    ZipFile::RecoverSignalHandler(oldAct);
+
     return true;
 }
 
@@ -306,7 +303,17 @@ bool Extractor::ExtractToBufByName(const std::string &fileName, std::unique_ptr<
         return UnzipData(std::move(fileMapper), dataPtr, len);
     }
 
-    return GetUncompressedData(std::move(fileMapper), dataPtr, len, safeRegion);
+    struct sigaction oldAct;
+    ZipFile::HandleSignal(oldAct);
+    bool ret = false;
+    try {
+        ret = GetUncompressedData(std::move(fileMapper), dataPtr, len, safeRegion);
+        ZipFile::RecoverSignalHandler(oldAct);
+    } catch (int sig) {
+        ABILITYBASE_LOGE("catch sig: %{private}d.", sig);
+        ret = false;
+    }
+    return ret;
 }
 
 bool Extractor::GetFileInfo(const std::string &fileName, FileInfo &fileInfo) const

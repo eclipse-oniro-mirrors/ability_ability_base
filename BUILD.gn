@@ -246,6 +246,10 @@ config("ability_extractor_config") {
   ]
 }
 
+config("exceptions") {
+  cflags_cc = [ "-fexceptions" ]
+}
+
 ohos_shared_library("extractortool") {
   sources = [
     "interfaces/kits/native/extractortool/src/extractor.cpp",
@@ -254,6 +258,9 @@ ohos_shared_library("extractortool") {
   ]
 
   cflags = []
+  cflags_cc = []
+  configs = [ ":exceptions" ]
+
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
