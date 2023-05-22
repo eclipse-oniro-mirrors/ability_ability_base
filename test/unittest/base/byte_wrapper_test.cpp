@@ -85,5 +85,18 @@ HWTEST_F(AAfWKByteWrapperTest, ByteWrapperTest_Parse_001, TestSize.Level1)
   byte result = by.Unbox(by.Parse("0x00"));
   EXPECT_EQ(0x00, result);
 }
+
+/**
+ * @tc.number: ByteWrapperTest_Parse_002
+ * @tc.name: Parse
+ * @tc.desc:
+ */
+HWTEST_F(AAfWKByteWrapperTest, ByteWrapperTest_Parse_002, TestSize.Level1)
+{
+    byte value = 0x01;
+    Byte by(value);
+    byte result = by.Unbox(by.Parse("0x01"));
+    EXPECT_EQ('\0', result);
+}
 }
 }
