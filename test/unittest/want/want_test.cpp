@@ -3899,6 +3899,13 @@ HWTEST_F(WantBaseTest, AaFwk_Want_ToString_0100, Function | MediumTest | Level1)
     want1->SetType(type);
     want1->SetFlags(flags);
     want1->SetAction(action);
+    Uri urivalue("");
+    want1->SetUriAndType(urivalue, keyInt);
+    want1->FormatUri(urivalue);
+    want1->FormatUri(keyInt);
+    want1->FormatType(keyInt);
+    want1->FormatUriAndType(urivalue, keyInt);
+    want1->CloneOperation();
     for (auto entity : entities) {
         want1->AddEntity(entity);
     }
@@ -4063,7 +4070,21 @@ HWTEST_F(WantBaseTest, ParseURI_test_001, TestSize.Level1)
     std::string uri = "#Intent;action;end";
     bool result = element.ParseURI(uri);
     EXPECT_EQ(result, false);
-
+    const char *deviceId = "12345";
+    const char *bundleName = "NAME";
+    const char *abilityName = "abilityName";
+    const char *moduleName = "moduleName";
+    ElementName *elementName = new (std::nothrow) ElementName();
+    element.SetElementDeviceID(elementName, deviceId);
+    element.SetElementBundleName(elementName, bundleName);
+    element.SetElementAbilityName(elementName, abilityName);
+    element.SetElementModuleName(elementName, moduleName);
+    element.ClearElement(elementName);
+    element.SetElementDeviceID(nullptr, deviceId);
+    element.SetElementBundleName(nullptr, bundleName);
+    element.SetElementAbilityName(nullptr, abilityName);
+    element.SetElementModuleName(nullptr, moduleName);
+    element.ClearElement(nullptr);
     GTEST_LOG_(INFO) << "ParseURI_test_001 end";
 }
 }  // namespace AAFwk

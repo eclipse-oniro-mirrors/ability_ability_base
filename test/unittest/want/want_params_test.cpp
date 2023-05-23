@@ -912,6 +912,19 @@ HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_CompareInterface_1000, Function | 
 }
 
 /**
+ * @tc.number: AaFwk_WantParams_CompareInterface_1002
+ * @tc.name: CompareInterface
+ * @tc.desc: Test CompareInterface with array type.
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_CompareInterface_1002, Function | MediumTest | Level1)
+{
+    const std::string value = "I5{2,3,5,7,11}";
+    sptr<IInterface> interfaceObj = WantParams::GetInterfaceByType(WantParams::VALUE_TYPE_ARRAY, value);
+    bool result = WantParams::CompareInterface(interfaceObj, interfaceObj, 22);
+    EXPECT_TRUE(result);
+}
+
+/**
  * @tc.number: AaFwk_WantParams_WriteArrayToParcelString_0100
  * @tc.name: WriteArrayToParcelString
  * @tc.desc: Test WriteArrayToParcelString string content.
@@ -1191,6 +1204,8 @@ HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_ReadUnsupportedData_1000, Function
     int type1 = 50;
     bool result2 = wantParams.ReadFromParcelParam(parcel, key, type1, 1);
     EXPECT_EQ(result2, false);
+    UnsupportedData other;
+    std::shared_ptr<UnsupportedData> unsupportedData = std::make_shared<UnsupportedData>(other);
 }
 }
 }

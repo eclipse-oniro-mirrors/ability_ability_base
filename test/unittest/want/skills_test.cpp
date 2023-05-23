@@ -25,6 +25,7 @@
 #include "string_wrapper.h"
 #undef private
 #undef protected
+#include "patterns_matcher.h"
 
 using namespace testing::ext;
 using namespace OHOS::AAFwk;
@@ -34,6 +35,7 @@ namespace OHOS {
 namespace AAFwk {
 static const int LARGE_STR_LEN = 65534;
 static const int SET_COUNT = 20;
+static const int DISMATCH_TYPE = 67584;
 static const int DISMATCH_DATA = -102;
 class SkillsBaseTest : public testing::Test {
 public:
@@ -47,6 +49,7 @@ public:
     void TearDown();
 
     std::shared_ptr<Skills> base_ = nullptr;
+    std::shared_ptr<PatternsMatcher> PatternsMatcherIn_ = nullptr;
     void CompareSkills(const std::shared_ptr<Skills> &skills1, const std::shared_ptr<Skills> &skills2) const;
 };
 
@@ -59,6 +62,7 @@ void SkillsBaseTest::TearDownTestCase(void)
 void SkillsBaseTest::SetUp(void)
 {
     base_ = std::make_shared<Skills>();
+    PatternsMatcherIn_ = std::make_shared<PatternsMatcher>();
 }
 
 void SkillsBaseTest::TearDown(void)
@@ -344,6 +348,9 @@ HWTEST_F(SkillsBaseTest, AaFwk_Skills_Path_0300, Function | MediumTest | Level1)
     base_->RemovePath(pm);
     EXPECT_EQ(0, base_->CountPaths());
     EXPECT_EQ(false, base_->HasPath(path));
+
+    Parcel parcel;
+    EXPECT_EQ(true, base_->Marshalling(parcel));
 }
 
 /**
@@ -917,12 +924,19 @@ HWTEST_F(SkillsBaseTest, AaFwk_Skills_Skills_0200, Function | MediumTest | Level
     Skills skills(skillsBase);
 
     EXPECT_EQ(entityString, skills.GetEntity(0));
+    int index = -5;
+    std::string entityString1 = "";
+    EXPECT_EQ(entityString1, skills.GetEntity(index));
     EXPECT_EQ(actionString, skills.GetAction(0));
+    EXPECT_EQ(entityString1, skills.GetAction(index));
     EXPECT_EQ(authorityString, skills.GetAuthority(0));
+    EXPECT_EQ(entityString1, skills.GetAuthority(index));
     EXPECT_EQ(schemeString, skills.GetScheme(0));
-
+    EXPECT_EQ(entityString1, skills.GetScheme(index));
     EXPECT_EQ(pathString, skills.GetPath(0));
+    EXPECT_EQ(entityString1, skills.GetPath(index));
     EXPECT_EQ(schemeSpecificPartsString, skills.GetSchemeSpecificPart(0));
+    EXPECT_EQ(entityString1, skills.GetSchemeSpecificPart(index));
     EXPECT_EQ(typeString, skills.GetType(0));
 }
 
@@ -962,6 +976,10 @@ HWTEST_F(SkillsBaseTest, AaFwk_Skills_addremoveType_0100, Function | MediumTest 
     std::string type3 = base_->GetType(1);
     EXPECT_EQ(patternStr3, type3);
 
+    std::string patternStr4 = std::string("");
+    std::string type4 = base_->GetType(-5);
+    EXPECT_EQ(patternStr4, type4);
+
     base_->RemoveType(patternStr3, MatchType::GLOBAL);
 
     EXPECT_EQ(0, base_->CountEntities());
@@ -984,6 +1002,43 @@ HWTEST_F(SkillsBaseTest, AaFwk_Skills_MatchData_0100, Function | MediumTest | Le
 }
 
 /**
+ * @tc.number: AaFwk_Skills_MatchData_0200
+ * @tc.name: MatchData
+ * @tc.desc: Test MatchData.
+ * @tc.require: issueI648W6
+ */
+HWTEST_F(SkillsBaseTest, AaFwk_Skills_MatchData_0200, Function | MediumTest | Level1)
+{
+    std::string type = "";
+    std::string scheme = "";
+    std::string value = "this is value";
+    OHOS::Uri data(value);
+    int result = base_->MatchData(type, scheme, data);
+    EXPECT_EQ(result, DISMATCH_TYPE);
+}
+
+/**
+ * @tc.number: AaFwk_Skills_MatchData_0300
+ * @tc.name: MatchData
+ * @tc.desc: Test MatchData.
+ * @tc.require: issueI648W6
+ */
+HWTEST_F(SkillsBaseTest, AaFwk_Skills_MatchData_0300, Function | MediumTest | Level1)
+{
+    std::string type = "this is type";
+    std::string scheme = "this is scheme";
+    std::string value = "this is value";
+    OHOS::Uri data(value);
+    std::string pattern = "this is pattern";
+    PatternsMatcherIn_ = std::make_shared<PatternsMatcher>(pattern, MatchType::DEFAULT);
+    std::string ret = PatternsMatcherIn_->GetPattern();
+    EXPECT_EQ(ret, pattern);
+    base_->AddScheme("12345");
+    int result = base_->MatchData(type, scheme, data);
+    EXPECT_EQ(result, DISMATCH_DATA);
+}
+
+/**
  * @tc.number: AaFwk_Skills_FindMimeType_0100
  * @tc.name: FindMimeType
  * @tc.desc: Test FindMimeType.
@@ -998,6 +1053,60 @@ HWTEST_F(SkillsBaseTest, AaFwk_Skills_FindMimeType_0100, Function | MediumTest |
     std::string type1 = "this is type";
     bool result1 = base_->FindMimeType(type1);
     EXPECT_EQ(result1, false);
+}
+
+/**
+ * @tc.number: AaFwk_Skills_FindMimeType_0200
+ * @tc.name: FindMimeType
+ * @tc.desc: Test FindMimeType.
+ * @tc.require: issue
+ */
+HWTEST_F(SkillsBaseTest, AaFwk_Skills_FindMimeType_0200, Function | MediumTest | Level1)
+{
+    std::string empty;
+    std::string type = "*/*";
+    int typeCount = 1;
+
+    for (int i = 0; i < SET_COUNT; i++) {
+        base_->AddType(type);
+    }
+    EXPECT_EQ(typeCount, base_->CountTypes());
+
+    PatternsMatcherIn_ = std::make_shared<PatternsMatcher>(type, MatchType::DEFAULT);
+    std::string ret = PatternsMatcherIn_->GetPattern();
+    EXPECT_EQ(ret, type);
+    bool result = base_->FindMimeType(type);
+    EXPECT_EQ(result, true);
+}
+
+/**
+ * @tc.number: AaFwk_Skills_FindMimeType_0300
+ * @tc.name: FindMimeType
+ * @tc.desc: Test FindMimeType.
+ * @tc.require: issue
+ */
+HWTEST_F(SkillsBaseTest, AaFwk_Skills_FindMimeType_0300, Function | MediumTest | Level1)
+{
+    std::string empty;
+    std::string type = "type/system.test";
+    int typeCount = 1;
+
+    for (int i = 0; i < SET_COUNT; i++) {
+        base_->AddType(type);
+    }
+    EXPECT_EQ(typeCount, base_->CountTypes());
+
+    PatternsMatcherIn_ = std::make_shared<PatternsMatcher>(type, MatchType::DEFAULT);
+    std::string ret = PatternsMatcherIn_->GetPattern();
+    EXPECT_EQ(ret, type);
+    bool result = base_->FindMimeType(type);
+    EXPECT_EQ(result, true);
+    EXPECT_EQ(true, base_->HasType(type));
+    EXPECT_EQ(type, base_->GetType(0));
+
+    base_->RemoveType(type);
+    EXPECT_EQ(0, base_->CountTypes());
+    EXPECT_EQ(false, base_->FindMimeType(type));
 }
 
 /**
@@ -1036,6 +1145,37 @@ HWTEST_F(SkillsBaseTest, AaFwk_Skills_RegionMatches_0200, Function | MediumTest 
     int len1 = 0;
     bool result1 = base_->RegionMatches(type, toffset, other, ooffset, len1);
     EXPECT_EQ(result1, true);
+}
+
+/**
+ * @tc.number: AaFwk_Skills_RegionMatches_0300
+ * @tc.name: RegionMatches
+ * @tc.desc: Test RegionMatches.
+ * @tc.require: issueI653GZ
+ */
+HWTEST_F(SkillsBaseTest, AaFwk_Skills_RegionMatches_0300, Function | MediumTest | Level1)
+{
+    std::string type = "this is type";
+    int toffset = 1;
+    std::string other = "this is other";
+    int ooffset = -2;
+    int len = 20;
+    bool result = base_->RegionMatches(type, toffset, other, ooffset, len);
+    EXPECT_EQ(result, false);
+}
+
+/**
+ * @tc.number: AaFwk_Skills_MatchEntities_0200
+ * @tc.name: MatchEntities
+ * @tc.desc: Test MatchEntities.
+ * @tc.require: issue
+ */
+HWTEST_F(SkillsBaseTest, AaFwk_Skills_MatchEntities_0200, Function | MediumTest | Level1)
+{
+    std::vector<std::string> entities;
+    std::string ret = "";
+    std::string result = base_->MatchEntities(entities);
+    EXPECT_EQ(result, ret);
 }
 
 using testParamsType = std::tuple<std::string, std::string>;
