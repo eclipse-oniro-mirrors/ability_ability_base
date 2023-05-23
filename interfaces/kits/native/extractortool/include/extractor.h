@@ -96,6 +96,8 @@ public:
 
     bool GetFileList(const std::string &srcPath, std::set<std::string> &fileSet);
 
+    bool IsHapCompress(const std::string &fileName) const;
+
 private:
     const std::string sourceFile_;
     ZipFile zipFile_;
