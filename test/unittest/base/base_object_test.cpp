@@ -151,6 +151,48 @@ HWTEST_F(AAFwkBaseObjectTest, BaseObject_test_007, TestSize.Level1)
 }
 
 /**
+ * @tc.number: BaseObject_test_008
+ * @tc.name: GetClassID
+ * @tc.desc: test GetInterfaceID function and object is Any value.
+ */
+HWTEST_F(AAFwkBaseObjectTest, BaseObject_test_008, TestSize.Level1)
+{
+    Object object;
+    EXPECT_EQ(ClassID::Empty, object.GetClassID());
+}
+
+/**
+ * @tc.number: BaseObject_test_009
+ * @tc.name: GetHashCode
+ * @tc.desc: test GetInterfaceID function and object is Any value.
+ */
+HWTEST_F(AAFwkBaseObjectTest, BaseObject_test_009, TestSize.Level1)
+{
+    std::shared_ptr<Object> object = std::make_shared<Object>();
+    Object object1;
+    InterfaceID iid = {
+        0x8321f710, 0xa0c0, 0x4cbe, 0xbfbc, {0x5, 0xa, 0x7, 0x8, 0xf, 0x1, 0x3, 0x1, 0x2, 0xb, 0x1, 0xb}
+    };
+    Object object2;
+    EXPECT_EQ(false, object->Equals(*(object1.Query(iid)), *(object2.Query(iid))));
+}
+
+/**
+ * @tc.number: BaseObject_test_010
+ * @tc.name: GetHashCode
+ * @tc.desc: test GetInterfaceID function and object is Any value.
+ */
+HWTEST_F(AAFwkBaseObjectTest, BaseObject_test_010, TestSize.Level1)
+{
+    std::shared_ptr<Object> object = std::make_shared<Object>();
+    Object object1;
+    InterfaceID iid = {
+        0x8321f710, 0xa0c0, 0x4cbe, 0xbfbc, {0x5, 0xa, 0x7, 0x8, 0xf, 0x1, 0x3, 0x1, 0x2, 0xb, 0x1, 0xb}
+    };
+    EXPECT_EQ(true, object->Equals(*(object1.Query(iid)), *(object1.Query(iid))));
+}
+
+/**
  * @tc.number: UserObject_test_001
  * @tc.name: ToString
  * @tc.desc: test ToString function and value_ is nullptr.

@@ -85,5 +85,18 @@ HWTEST_F(AAfWKDoubleWrapperTest, DoubleWrapperTest_Parse_001, TestSize.Level1)
   double result = db.Unbox(db.Parse(db.ToString()));
   EXPECT_EQ(1000, result);
 }
+
+/**
+ * @tc.number: DoubleWrapperTest_Parse_002
+ * @tc.name: Parse
+ * @tc.desc:
+ */
+HWTEST_F(AAfWKDoubleWrapperTest, DoubleWrapperTest_Parse_002, TestSize.Level1)
+{
+    double value = 3.14;
+    Double db(value);
+    double result = db.Unbox(db.Parse(db.ToString()));
+    EXPECT_EQ(3.14, result);
+}
 }
 }

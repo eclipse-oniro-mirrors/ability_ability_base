@@ -110,7 +110,7 @@ HWTEST_F(AAfWKUserObjectWrapperTest, UserObjectWrapperTest_Unbox_002, TestSize.L
  * @tc.desc:
  */
 HWTEST_F(AAfWKUserObjectWrapperTest, UserObjectWrapperTest_Parse_001, TestSize.Level1)
-{   
+{
     std::string str = "";
     std::shared_ptr<UserObjectBase> value = nullptr;
     UserObject useObjectValue(value);

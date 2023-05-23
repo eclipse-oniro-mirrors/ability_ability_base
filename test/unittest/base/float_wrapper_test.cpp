@@ -85,5 +85,18 @@ HWTEST_F(AAfWKFloatWrapperTest, FloatWrapperTest_Parse_001, TestSize.Level1)
   float result = ft.Unbox(ft.Parse(ft.ToString()));
   EXPECT_EQ(1.0, result);
 }
+
+/**
+ * @tc.number: FloatWrapperTest_Parse_002
+ * @tc.name: Parse
+ * @tc.desc:
+ */
+HWTEST_F(AAfWKFloatWrapperTest, FloatWrapperTest_Parse_002, TestSize.Level1)
+{
+    float value = 0.0;
+    Float ft(value);
+    float result = ft.Unbox(ft.Parse(ft.ToString()));
+    EXPECT_EQ(0.0, result);
+}
 }
 }
