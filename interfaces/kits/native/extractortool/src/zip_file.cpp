@@ -168,9 +168,7 @@ bool ZipFile::ParseAllEntries()
         return false;
     }
 
-    struct sigaction oldAct;
-    HandleSignal(oldAct);
-
+    HandleSignal();
     bool ret = true;
     try {
         uint8_t *entryPtr = static_cast<uint8_t *>(fileMapper.GetDataPtr());
@@ -181,12 +179,11 @@ bool ZipFile::ParseAllEntries()
                 break;
             }
         }
-        RecoverSignalHandler(oldAct);
     } catch (int sig) {
         ABILITYBASE_LOGE("catch sig: %{private}d.", sig);
         ret = false;
     }
-
+    RecoverSignalHandler();
     return ret;
 }
 
@@ -684,16 +681,15 @@ bool ZipFile::ExtractFileFromMMap(const std::string &file, void *mmapDataPtr,
         return false;
     }
 
-    struct sigaction oldAct;
-    HandleSignal(oldAct);
+    HandleSignal();
     bool ret = false;
     try {
         ret = UnzipWithInflatedFromMMap(zipEntry, extraSize, mmapDataPtr, dataPtr, len);
-        RecoverSignalHandler(oldAct);
     } catch (int sig) {
         ABILITYBASE_LOGE("catch sig: %{private}d.", sig);
         ret = false;
     }
+    RecoverSignalHandler();
     return ret;
 }
 
@@ -796,7 +792,7 @@ bool ZipFile::ReadZStreamFromMMap(const BytePtr &buffer, void* &dataPtr,
     return true;
 }
 
-void ZipFile::HandleSignal(struct sigaction &oldAct)
+void ZipFile::HandleSignal()
 {
     auto SignalAction = [] (int sig) {
         ABILITYBASE_LOGE("Signal Action, sig: %{public}d.", sig);
@@ -804,14 +800,15 @@ void ZipFile::HandleSignal(struct sigaction &oldAct)
     };
 
     struct sigaction act;
-    act.sa_flags = SA_RESETHAND;
     act.sa_handler = SignalAction;
-    sigaction(SIGBUS, &act, &oldAct);
+    sigaction(SIGBUS, &act, nullptr);
 }
 
-void ZipFile::RecoverSignalHandler(const struct sigaction &oldAct)
+void ZipFile::RecoverSignalHandler()
 {
-    sigaction(SIGBUS, &oldAct, nullptr);
+    struct sigaction act;
+    act.sa_handler = SIG_DFL;
+    sigaction(SIGBUS, &act, nullptr);
 }
 }  // namespace AbilityBase
 }  // namespace OHOS

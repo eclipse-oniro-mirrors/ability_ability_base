@@ -303,16 +303,15 @@ bool Extractor::ExtractToBufByName(const std::string &fileName, std::unique_ptr<
         return UnzipData(std::move(fileMapper), dataPtr, len);
     }
 
-    struct sigaction oldAct;
-    ZipFile::HandleSignal(oldAct);
+    ZipFile::HandleSignal();
     bool ret = false;
     try {
         ret = GetUncompressedData(std::move(fileMapper), dataPtr, len, safeRegion);
-        ZipFile::RecoverSignalHandler(oldAct);
     } catch (int sig) {
         ABILITYBASE_LOGE("catch sig: %{private}d.", sig);
         ret = false;
     }
+    ZipFile::RecoverSignalHandler();
     return ret;
 }
 
@@ -389,6 +388,21 @@ bool Extractor::GetFileList(const std::string &srcPath, std::set<std::string> &f
     }
 
     return true;
+}
+
+bool Extractor::IsHapCompress(const std::string &fileName) const
+{
+    int32_t fd = 0;
+    ZipPos offset = 0;
+    uint32_t len = 0;
+    bool compress = false;
+
+    std::string relativePath = GetRelativePath(fileName);
+    if (!zipFile_.GetEntryInfoByName(relativePath, compress, fd, offset, len)) {
+        ABILITYBASE_LOGE("Get entry info by name failed. fileName: %{public}s", fileName.c_str());
+        return false;
+    }
+    return compress;
 }
 
 std::mutex ExtractorUtil::mapMutex_;
