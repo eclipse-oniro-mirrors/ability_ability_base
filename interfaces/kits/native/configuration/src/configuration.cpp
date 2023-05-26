@@ -15,6 +15,7 @@
 
 #include "configuration.h"
 
+#include <mutex>
 #include <nlohmann/json.hpp>
 
 #include "ability_base_log_wrapper.h"
@@ -31,6 +32,7 @@ Configuration::Configuration()
 
 Configuration::Configuration(const Configuration &other) : defaultDisplayId_(other.defaultDisplayId_)
 {
+    std::lock_guard<std::recursive_mutex> lock(configParameterMutex_);
     configParameter_ = other.configParameter_;
 }
 
@@ -41,6 +43,8 @@ Configuration& Configuration::operator=(const Configuration &other)
     }
 
     defaultDisplayId_ = other.defaultDisplayId_;
+
+    std::lock_guard<std::recursive_mutex> lock(configParameterMutex_);
     configParameter_.clear();
     configParameter_ = other.configParameter_;
     return *this;
@@ -81,6 +85,7 @@ bool Configuration::AddItem(int displayId, const std::string &key, const std::st
         return false;
     }
 
+    std::lock_guard<std::recursive_mutex> lock(configParameterMutex_);
     configParameter_[getKey] = value;
     return true;
 }
@@ -96,6 +101,7 @@ std::string Configuration::GetItem(int displayId, const std::string &key) const
         return ConfigurationInner::EMPTY_STRING;
     }
 
+    std::lock_guard<std::recursive_mutex> lock(configParameterMutex_);
     auto iter = configParameter_.find(getKey);
     if (iter != configParameter_.end()) {
         return iter->second;
@@ -106,12 +112,15 @@ std::string Configuration::GetItem(int displayId, const std::string &key) const
 
 int Configuration::GetItemSize() const
 {
+    std::lock_guard<std::recursive_mutex> lock(configParameterMutex_);
     return configParameter_.size();
 }
 
 void Configuration::GetAllKey(std::vector<std::string> &keychain) const
 {
     keychain.clear();
+
+    std::lock_guard<std::recursive_mutex> lock(configParameterMutex_);
     for (const auto &it :configParameter_) {
         keychain.push_back(it.first);
     }
@@ -119,6 +128,7 @@ void Configuration::GetAllKey(std::vector<std::string> &keychain) const
 
 std::string Configuration::GetValue(const std::string &key) const
 {
+    std::lock_guard<std::recursive_mutex> lock(configParameterMutex_);
     auto iter = configParameter_.find(key);
     if (iter != configParameter_.end()) {
         return iter->second;
@@ -136,6 +146,8 @@ void Configuration::CompareDifferent(std::vector<std::string> &diffKeyV, const C
     diffKeyV.clear();
     std::vector<std::string> otherk;
     other.GetAllKey(otherk);
+
+    std::lock_guard<std::recursive_mutex> lock(configParameterMutex_);
     for (const auto &iter : otherk) {
         ABILITYBASE_LOGW(" iter : [%{public}s] | Val: [%{public}s]", iter.c_str(), other.GetValue(iter).c_str());
         // Insert new content directly
@@ -156,6 +168,8 @@ void Configuration::Merge(const std::vector<std::string> &diffKeyV, const Config
     if (diffKeyV.empty()) {
         return;
     }
+
+    std::lock_guard<std::recursive_mutex> lock(configParameterMutex_);
     for (const auto &mergeItemKey : diffKeyV) {
         auto myItem = GetValue(mergeItemKey);
         auto otherItem = other.GetValue(mergeItemKey);
@@ -177,6 +191,7 @@ int Configuration::RemoveItem(int displayId, const std::string &key)
         return 0;
     }
 
+    std::lock_guard<std::recursive_mutex> lock(configParameterMutex_);
     return configParameter_.erase(getKey);
 }
 
@@ -197,6 +212,7 @@ int Configuration::RemoveItem(const std::string &key)
 
 const std::string& Configuration::GetName() const
 {
+    std::lock_guard<std::recursive_mutex> lock(configParameterMutex_);
     json configArray(configParameter_);
     toStrintg_ = configArray.dump();
     return toStrintg_;
@@ -225,8 +241,10 @@ bool Configuration::ReadFromParcel(Parcel &parcel)
         ABILITYBASE_LOGE("ReadFromParcel failed, invalid size.");
         return false;
     }
+
     std::string key;
     std::string val;
+    std::lock_guard<std::recursive_mutex> lock(configParameterMutex_);
     for (int32_t i = 0; i < configSize; i++) {
         key = keys.at(i);
         val = values.at(i);
@@ -252,7 +270,10 @@ bool Configuration::Marshalling(Parcel &parcel) const
     std::vector<std::string> values;
     keys.clear();
     values.clear();
+
     parcel.WriteInt32(defaultDisplayId_);
+
+    std::lock_guard<std::recursive_mutex> lock(configParameterMutex_);
     parcel.WriteInt32(configParameter_.size());
     for (const auto &config : configParameter_) {
         keys.emplace_back(config.first);
