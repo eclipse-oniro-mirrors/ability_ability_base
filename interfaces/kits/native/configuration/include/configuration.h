@@ -16,10 +16,12 @@
 #ifndef OHOS_ABILITY_BASE_CONFIGURATION_H
 #define OHOS_ABILITY_BASE_CONFIGURATION_H
 
-#include <unordered_map>
-#include <string>
-#include <vector>
+#include <mutex>
 #include <set>
+#include <string>
+#include <unordered_map>
+#include <vector>
+
 #include "parcel.h"
 #include "global_configuration_key.h"
 
@@ -210,6 +212,8 @@ private:
 private:
     int defaultDisplayId_ {0};
     mutable std::string toStrintg_ {""}; /* For interface GetName(), Assign value only when calling the interface */
+
+    mutable std::recursive_mutex configParameterMutex_;
     std::unordered_map<std::string, std::string> configParameter_;
 };
 }  // namespace AppExecFwk
