@@ -165,12 +165,14 @@ ohos_shared_library("want") {
     "interfaces/kits/native/want/src/want_params_wrapper.cpp",
   ]
 
-  deps = [ "//third_party/jsoncpp:jsoncpp" ]
+  deps = [
+    ":base",
+    ":zuri",
+    "//third_party/jsoncpp:jsoncpp",
+  ]
   all_dependent_configs = [ ":want_all_dependent_config" ]
 
   external_deps = [
-    "ability_base:base",
-    "ability_base:zuri",
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_single",
