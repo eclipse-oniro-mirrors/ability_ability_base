@@ -23,13 +23,14 @@
         "ram": "",
         "deps": {
             "components": [
+                "c_utils",
                 "hiviewdfx_hilog_native",
-                "ipc",
-                "c_utils"
+                "ipc"
             ],
             "third_party": [
+                "json",
                 "jsoncpp",
-                "json"
+                "zlib"
             ]
         },
         "build": {
