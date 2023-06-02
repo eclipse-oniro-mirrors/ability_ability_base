@@ -203,10 +203,7 @@ ohos_shared_library("session_info") {
     "ipc:ipc_core",
   ]
 
-  public_deps = [
-    "${graphic_rosen_path}/modules/render_service_client:librender_service_client",
-    "${window_manager_scene_path}/session:scene_session",
-  ]
+  public_deps = [ "${graphic_rosen_path}/modules/render_service_client:librender_service_client" ]
 
   subsystem_name = "ability"
   part_name = "ability_base"
