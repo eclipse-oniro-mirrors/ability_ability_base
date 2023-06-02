@@ -52,6 +52,7 @@ ohos_shared_library("base") {
   external_deps = [ "c_utils:utils" ]
 
   subsystem_name = "ability"
+  innerapi_tags = [ "platformsdk" ]
   part_name = "ability_base"
 }
 
@@ -85,6 +86,7 @@ ohos_shared_library("configuration") {
   ]
 
   subsystem_name = "ability"
+  innerapi_tags = [ "platformsdk" ]
   part_name = "ability_base"
 }
 
@@ -117,6 +119,7 @@ ohos_shared_library("zuri") {
   ]
 
   subsystem_name = "ability"
+  innerapi_tags = [ "platformsdk" ]
   part_name = "ability_base"
 }
 
@@ -181,6 +184,7 @@ ohos_shared_library("want") {
   configs = [ ":want_config" ]
   public_configs = [ ":want_public_config" ]
   subsystem_name = "ability"
+  innerapi_tags = [ "platformsdk" ]
   part_name = "ability_base"
 }
 
@@ -209,6 +213,7 @@ ohos_shared_library("session_info") {
   ]
 
   subsystem_name = "ability"
+  innerapi_tags = [ "platformsdk_indirect" ]
   part_name = "ability_base"
 }
 
@@ -234,6 +239,7 @@ ohos_shared_library("string_utils") {
   public_configs = [ ":string_utils_config" ]
 
   subsystem_name = "ability"
+  innerapi_tags = [ "platformsdk_indirect" ]
   part_name = "ability_base"
 }
 
@@ -280,6 +286,7 @@ ohos_shared_library("extractortool") {
   ]
 
   subsystem_name = "ability"
+  innerapi_tags = [ "platformsdk_indirect" ]
   part_name = "ability_base"
 }
 
@@ -303,6 +310,7 @@ ohos_shared_library("extractresourcemanager") {
   public_configs = [ ":ability_extract_resource_manager_config" ]
 
   subsystem_name = "ability"
+  innerapi_tags = [ "platformsdk_indirect" ]
   part_name = "ability_base"
 }
 
