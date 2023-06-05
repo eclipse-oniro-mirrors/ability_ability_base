@@ -21,20 +21,19 @@
 
 #include "iremote_object.h"
 #include "parcel.h"
-#include "session/host/include/zidl/session_interface.h"
 
 namespace OHOS {
 namespace AAFwk {
 
 class SessionInfo : public Parcelable {
 public:
-    SessionInfo() {};
-    virtual ~SessionInfo() {};
+    SessionInfo() = default;
+    virtual ~SessionInfo() = default;
     bool Marshalling(Parcel& parcel) const override;
     static SessionInfo* Unmarshalling(Parcel& parcel);
 
-    sptr<Rosen::ISession> sessionToken = nullptr;
-    sptr<Rosen::ISession> callerSession = nullptr;
+    sptr<IRemoteObject> sessionToken = nullptr;
+    sptr<IRemoteObject> callerSession = nullptr;
     sptr<IRemoteObject> callerToken = nullptr;
     uint64_t persistentId = 0;
 };

@@ -16,8 +16,6 @@
 #include "session_info.h"
 
 #include "ability_base_log_wrapper.h"
-#include "session/host/include/zidl/session_interface.h"
-#include "session/host/include/zidl/session_proxy.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -25,7 +23,7 @@ bool SessionInfo::Marshalling(Parcel& parcel) const
 {
     if (sessionToken) {
         if (!parcel.WriteBool(true) ||
-            !(static_cast<MessageParcel*>(&parcel))->WriteRemoteObject(sessionToken->AsObject())) {
+            !(static_cast<MessageParcel*>(&parcel))->WriteRemoteObject(sessionToken)) {
             ABILITYBASE_LOGE("Write session token failed.");
             return false;
         }
@@ -37,7 +35,7 @@ bool SessionInfo::Marshalling(Parcel& parcel) const
 
     if (callerSession) {
         if (!parcel.WriteBool(true) ||
-            !(static_cast<MessageParcel*>(&parcel))->WriteRemoteObject(callerSession->AsObject())) {
+            !(static_cast<MessageParcel*>(&parcel))->WriteRemoteObject(callerSession)) {
             ABILITYBASE_LOGE("Write caller session failed.");
             return false;
         }
@@ -70,13 +68,11 @@ SessionInfo* SessionInfo::Unmarshalling(Parcel& parcel)
 {
     SessionInfo* info = new SessionInfo();
     if (parcel.ReadBool()) {
-        sptr<IRemoteObject> remoteObject = (static_cast<MessageParcel*>(&parcel))->ReadRemoteObject();
-        info->sessionToken = iface_cast<Rosen::ISession>(remoteObject);
+        info->sessionToken = (static_cast<MessageParcel*>(&parcel))->ReadRemoteObject();
     }
 
     if (parcel.ReadBool()) {
-        sptr<IRemoteObject> remoteObject = (static_cast<MessageParcel*>(&parcel))->ReadRemoteObject();
-        info->callerSession = iface_cast<Rosen::ISession>(remoteObject);
+        info->callerSession = (static_cast<MessageParcel*>(&parcel))->ReadRemoteObject();
     }
 
     if (parcel.ReadBool()) {
