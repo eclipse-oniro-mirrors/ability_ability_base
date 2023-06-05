@@ -171,6 +171,7 @@ ohos_shared_library("want") {
   deps = [
     ":base",
     ":zuri",
+    "//third_party/json:nlohmann_json_static",
     "//third_party/jsoncpp:jsoncpp",
   ]
   all_dependent_configs = [ ":want_all_dependent_config" ]
@@ -206,8 +207,6 @@ ohos_shared_library("session_info") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]
-
-  public_deps = [ "${graphic_rosen_path}/modules/render_service_client:librender_service_client" ]
 
   subsystem_name = "ability"
   innerapi_tags = [ "platformsdk_indirect" ]
