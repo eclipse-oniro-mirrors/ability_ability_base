@@ -61,6 +61,21 @@ bool SessionInfo::Marshalling(Parcel& parcel) const
         ABILITYBASE_LOGE("Write persistent id failed.");
         return false;
     }
+
+    if (!parcel.WriteUint32(static_cast<uint32_t>(state))) {
+        ABILITYBASE_LOGE("Write code failed.");
+        return false;
+    }
+
+    if (!parcel.WriteInt32(code)) {
+        ABILITYBASE_LOGE("Write code failed.");
+        return false;
+    }
+
+    if (!parcel.WriteParcelable(&want)) {
+        ABILITYBASE_LOGE("Write want failed.");
+        return false;
+    }
     return true;
 }
 
@@ -80,6 +95,13 @@ SessionInfo* SessionInfo::Unmarshalling(Parcel& parcel)
     }
 
     info->persistentId = parcel.ReadUint64();
+    info->state = static_cast<CallToState>(parcel.ReadUint32());
+    info->code = parcel.ReadInt32();
+
+    std::unique_ptr<Want> want(parcel.ReadParcelable<Want>());
+    if (want != nullptr) {
+        info->want = *want;
+    }
     return info;
 }
 }  // namespace AAFwk

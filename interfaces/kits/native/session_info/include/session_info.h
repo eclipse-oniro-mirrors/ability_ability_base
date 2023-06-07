@@ -21,9 +21,15 @@
 
 #include "iremote_object.h"
 #include "parcel.h"
+#include "want.h"
 
 namespace OHOS {
 namespace AAFwk {
+enum class CallToState : uint32_t {
+    UNKNOW = 0,
+    FOREGROUND,
+    BACKGROUND
+};
 
 class SessionInfo : public Parcelable {
 public:
@@ -36,6 +42,11 @@ public:
     sptr<IRemoteObject> callerSession = nullptr;
     sptr<IRemoteObject> callerToken = nullptr;
     uint64_t persistentId = 0;
+    // Status of the UIAbility invoked by the StartABilityByCall
+    CallToState state = CallToState::UNKNOW;
+    // Returned resultCode of terminateSelfWithResult
+    int32_t code = -1;
+    Want want;
 };
 } // namespace AAFwk
 } // namespace OHOS

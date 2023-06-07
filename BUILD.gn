@@ -202,6 +202,8 @@ ohos_shared_library("session_info") {
 
   all_dependent_configs = [ ":session_info_all_dependent_config" ]
 
+  deps = [ ":want" ]
+
   external_deps = [
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
