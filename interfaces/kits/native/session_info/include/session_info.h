@@ -45,7 +45,9 @@ public:
     // Status of the UIAbility invoked by the StartABilityByCall
     CallToState state = CallToState::UNKNOW;
     // Returned resultCode of terminateSelfWithResult
-    int32_t code = -1;
+    int32_t resultCode = -1;
+    // requestCode of StartAbilityForResult
+    int32_t requestCode = -1;
     Want want;
 };
 } // namespace AAFwk
