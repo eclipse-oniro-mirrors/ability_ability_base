@@ -77,6 +77,16 @@ bool SessionInfo::Marshalling(Parcel& parcel) const
         return false;
     }
 
+    if (!parcel.WriteString(errorReason)) {
+        ABILITYBASE_LOGE("Write errorReason failed.");
+        return false;
+    }
+
+    if (!parcel.WriteInt32(errorCode)) {
+        ABILITYBASE_LOGE("Write errorCode failed.");
+        return false;
+    }
+
     if (!parcel.WriteParcelable(&want)) {
         ABILITYBASE_LOGE("Write want failed.");
         return false;
@@ -103,6 +113,8 @@ SessionInfo* SessionInfo::Unmarshalling(Parcel& parcel)
     info->state = static_cast<CallToState>(parcel.ReadUint32());
     info->resultCode = parcel.ReadInt32();
     info->requestCode = parcel.ReadInt32();
+    info->errorReason = parcel.ReadString();
+    info->errorCode = parcel.ReadInt32();
 
     std::unique_ptr<Want> want(parcel.ReadParcelable<Want>());
     if (want != nullptr) {
