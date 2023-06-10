@@ -50,6 +50,7 @@ public:
     int32_t requestCode = -1;
     std::string errorReason;
     int32_t errorCode = -1;
+    int64_t uiAbilityId = 0;
     Want want;
 };
 } // namespace AAFwk
