@@ -36,7 +36,7 @@ FileMapper::~FileMapper()
 }
 
 bool FileMapper::CreateFileMapper(const std::string &fileName, bool compress,
-    int32_t fd, int32_t offset, size_t len, bool safeRegion)
+    int32_t fd, size_t offset, size_t len, bool safeRegion)
 {
     if (pageSize_ <= 0) {
         ABILITYBASE_LOGE("CreateFileMapper. pageSize[%{public}d]", pageSize_);
@@ -47,8 +47,8 @@ bool FileMapper::CreateFileMapper(const std::string &fileName, bool compress,
     offset_ = offset;
     dataLen_ = len;
     isCompressed = compress;
-    int32_t adjust = offset % pageSize_;
-    int32_t adjOffset = offset - adjust;
+    size_t adjust = offset % pageSize_;
+    size_t adjOffset = offset - adjust;
     baseLen_ = dataLen_ + adjust;
     int32_t mmapFlag = MMAP_FLAG;
     int32_t prot = MMAP_PROT;
@@ -58,7 +58,9 @@ bool FileMapper::CreateFileMapper(const std::string &fileName, bool compress,
     }
     basePtr_ = mmap(nullptr, baseLen_, prot, mmapFlag, fd, adjOffset);
     if (basePtr_ == MAP_FAILED) {
-        ABILITYBASE_LOGE("CreateFileMapper, mmap failed, errno[%{public}d].", errno);
+        ABILITYBASE_LOGE("CreateFileMapper, mmap failed, errno[%{public}d]. fileName: %{public}s, "
+            "compress: %{public}d, offset: %{public}zu, pageSize: %{public}d, mmapFlag: %{public}d",
+            errno, fileName.c_str(), compress, offset, pageSize_, mmapFlag);
         return false;
     }
     dataPtr_ = reinterpret_cast<uint8_t *>(basePtr_) + adjust;
