@@ -162,7 +162,7 @@ bool ZipFile::ParseAllEntries()
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     FileMapper fileMapper;
-    if (!fileMapper.CreateFileMapper("", false, fileno(file_), static_cast<int32_t>(centralDirPos_),
+    if (!fileMapper.CreateFileMapper("", false, fileno(file_), static_cast<size_t>(centralDirPos_),
         static_cast<size_t>(endDir_.sizeOfCentralDir))) {
         ABILITYBASE_LOGE("Create file mapper failed.");
         return false;
@@ -710,7 +710,7 @@ bool ZipFile::UnzipWithInflatedFromMMap(const ZipEntry &zipEntry, const uint16_t
     uint32_t remainCompressedSize = zipEntry.compressedSize;
     size_t inflateLen = 0;
     uint8_t errorTimes = 0;
-    
+
     len = zipEntry.uncompressedSize;
     dataPtr = std::make_unique<uint8_t[]>(len);
     if (!dataPtr) {

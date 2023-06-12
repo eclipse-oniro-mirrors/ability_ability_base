@@ -216,7 +216,7 @@ std::unique_ptr<FileMapper> Extractor::GetData(const std::string &fileName, bool
 
     std::unique_ptr<FileMapper> fileMapper = std::make_unique<FileMapper>();
     if (!fileMapper->CreateFileMapper(relativePath, compress, fd,
-        static_cast<int32_t>(offset), static_cast<size_t>(len), safeRegion)) {
+        static_cast<size_t>(offset), static_cast<size_t>(len), safeRegion)) {
         ABILITYBASE_LOGE("Create file mapper failed. fileName: %{public}s", fileName.c_str());
         return nullptr;
     }
