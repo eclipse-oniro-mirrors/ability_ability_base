@@ -1908,12 +1908,18 @@ bool Want::ReadFromJson(nlohmann::json &wantJson)
 
     if (wantJson.at("entities").is_null()) {
         ABILITYBASE_LOGI("entities is null");
-    } else {
-        std::vector<std::string> entities;
-        wantJson.at("entities").get_to<std::vector<std::string>>(entities);
-        for (size_t i = 0; i < entities.size(); i++) {
-            AddEntity(entities[i]);
+    } else if (wantJson["entities"].is_array()) {
+        auto size = wantJson["entities"].size();
+        for (size_t i = 0; i < size; i++) {
+            if (!wantJson["entities"][i].is_string()) {
+                ABILITYBASE_LOGE("Item in entities is not string.");
+                return false;
+            }
+            AddEntity(wantJson["entities"][i]);
         }
+    } else {
+        ABILITYBASE_LOGE("Fail to parse entities.");
+        return false;
     }
     return true;
 }
@@ -1930,7 +1936,11 @@ Want *Want::FromString(std::string &string)
         return nullptr;
     }
 
-    nlohmann::json wantJson = nlohmann::json::parse(string);
+    nlohmann::json wantJson = nlohmann::json::parse(string, nullptr, false);
+    if (wantJson.is_discarded()) {
+        ABILITYBASE_LOGE("failed to parse json sting: %{private}s.", string.c_str());
+        return nullptr;
+    }
 
     Want *want = new (std::nothrow) Want();
     if (want != nullptr && !want->ReadFromJson(wantJson)) {
