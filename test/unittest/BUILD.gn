@@ -184,7 +184,7 @@ ohos_unittest("patterns_matcher_test") {
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
   ]
 }
 
@@ -205,7 +205,7 @@ ohos_unittest("skills_test") {
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
   ]
 }
 
@@ -227,7 +227,7 @@ ohos_unittest("want_params_test") {
   external_deps = [
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
   ]
 }
@@ -246,7 +246,7 @@ ohos_unittest("want_params_wrapper_test") {
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
   ]
 }
@@ -268,7 +268,7 @@ ohos_unittest("want_test") {
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
   ]
 }
 
@@ -289,7 +289,7 @@ ohos_unittest("uri_test") {
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
   ]
 }
 
@@ -443,7 +443,7 @@ ohos_unittest("extractor_test") {
     "ability_base:extractortool",
     "ability_base:string_utils",
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
   ]
 }
 
