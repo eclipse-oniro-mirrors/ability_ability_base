@@ -82,7 +82,7 @@ ohos_shared_library("configuration") {
 
   external_deps = [
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
   ]
 
   subsystem_name = "ability"
@@ -115,7 +115,7 @@ ohos_shared_library("zuri") {
 
   external_deps = [
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
   ]
 
   subsystem_name = "ability"
@@ -178,7 +178,7 @@ ohos_shared_library("want") {
 
   external_deps = [
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_single",
   ]
 
@@ -206,7 +206,7 @@ ohos_shared_library("session_info") {
 
   external_deps = [
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
   ]
 
@@ -280,7 +280,7 @@ ohos_shared_library("extractortool") {
 
   external_deps = [
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
   ]
 
   subsystem_name = "ability"
