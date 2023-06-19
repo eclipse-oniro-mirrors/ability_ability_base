@@ -150,7 +150,10 @@ config("want_public_config") {
 }
 
 config("want_all_dependent_config") {
-  include_dirs = [ "${ability_base_kits_native_path}/want/include" ]
+  include_dirs = [
+    "${ability_base_kits_native_path}/want/include",
+    "//third_party/json/include",
+  ]
 }
 
 ohos_shared_library("want") {
