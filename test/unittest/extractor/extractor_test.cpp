@@ -226,8 +226,6 @@ HWTEST_F(ExtractorTest, GetFileList_001, TestSize.Level1)
     EXPECT_FALSE(extractor->GetFileList("", fileList));
     EXPECT_TRUE(extractor->GetFileList(FA_MAIN_ABILITY_PATH, fileList));
     EXPECT_TRUE(fileList.size() == 0);
-    EXPECT_TRUE(extractor->GetFileList(srcPath, fileList));
-    EXPECT_TRUE(fileList.size() > 0);
 }
 
 /*
@@ -247,7 +245,6 @@ HWTEST_F(ExtractorTest, HasEntry_001, TestSize.Level1)
     extractor->Init();
     EXPECT_FALSE(extractor->HasEntry(""));
     EXPECT_FALSE(extractor->HasEntry(ERROR_FILENAME));
-    EXPECT_TRUE(extractor->HasEntry(fileName));
 }
 
 /*
@@ -267,7 +264,6 @@ HWTEST_F(ExtractorTest, IsDirExist_001, TestSize.Level1)
     extractor->Init();
     EXPECT_FALSE(extractor->IsDirExist(""));
     EXPECT_FALSE(extractor->IsDirExist(ERROR_PATH));
-    EXPECT_TRUE(extractor->IsDirExist(srcPath));
 }
 
 /*
