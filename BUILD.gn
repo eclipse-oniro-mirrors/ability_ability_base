@@ -208,6 +208,7 @@ ohos_shared_library("session_info") {
   deps = [ ":want" ]
 
   external_deps = [
+    "ability_runtime:ability_start_setting",
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",

@@ -16,6 +16,7 @@
 #include "session_info.h"
 
 #include "ability_base_log_wrapper.h"
+#include "ability_start_setting.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -92,6 +93,11 @@ bool SessionInfo::Marshalling(Parcel& parcel) const
         return false;
     }
 
+    if (!parcel.WriteParcelable(startSetting.get())) {
+        ABILITYBASE_LOGE("Write startSetting failed.");
+        return false;
+    }
+
     if (!parcel.WriteParcelable(&want)) {
         ABILITYBASE_LOGE("Write want failed.");
         return false;
@@ -121,6 +127,7 @@ SessionInfo* SessionInfo::Unmarshalling(Parcel& parcel)
     info->errorReason = parcel.ReadString();
     info->errorCode = parcel.ReadInt32();
     info->uiAbilityId = parcel.ReadInt64();
+    info->startSetting.reset(parcel.ReadParcelable<AbilityStartSetting>());
 
     std::unique_ptr<Want> want(parcel.ReadParcelable<Want>());
     if (want != nullptr) {
