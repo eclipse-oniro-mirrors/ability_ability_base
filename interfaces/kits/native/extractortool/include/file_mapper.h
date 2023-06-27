@@ -42,10 +42,10 @@ public:
     int32_t GetOffset();
 
 private:
-    static const int32_t MMAP_PROT = PROT_READ;
+    static const size_t MMAP_PROT = PROT_READ;
     static const int32_t MMAP_FLAG = MAP_SHARED;
     static const int32_t MAP_XPM = 0x40;
-    static int32_t pageSize_;
+    static size_t pageSize_;
 
     std::string fileName_;
     bool isCompressed = false;
@@ -54,7 +54,7 @@ private:
     size_t dataLen_ = 0;
     void* basePtr_ = nullptr;
     size_t baseLen_ = 0;
-    int32_t offset_ = 0;
+    size_t offset_ = 0;
 };
 }  // namespace AbilityBase
 }  // namespace OHOS

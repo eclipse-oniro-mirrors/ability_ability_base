@@ -20,7 +20,7 @@
 
 namespace OHOS {
 namespace AbilityBase {
-int32_t FileMapper::pageSize_ = 0;
+size_t FileMapper::pageSize_ = 0;
 FileMapper::FileMapper()
 {
     if (pageSize_ <= 0) {
@@ -51,7 +51,7 @@ bool FileMapper::CreateFileMapper(const std::string &fileName, bool compress,
     size_t adjOffset = offset - adjust;
     baseLen_ = dataLen_ + adjust;
     int32_t mmapFlag = MMAP_FLAG;
-    int32_t prot = MMAP_PROT;
+    size_t prot = MMAP_PROT;
     if (safeRegion) {
         mmapFlag = MAP_PRIVATE|MAP_XPM;
         prot |= PROT_WRITE;
