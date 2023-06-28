@@ -20,7 +20,7 @@
 
 namespace OHOS {
 namespace AbilityBase {
-size_t FileMapper::pageSize_ = 0;
+int32_t FileMapper::pageSize_ = 0;
 FileMapper::FileMapper()
 {
     if (pageSize_ <= 0) {
