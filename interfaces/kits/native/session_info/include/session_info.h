@@ -52,6 +52,7 @@ public:
     int32_t errorCode = -1;
     int64_t uiAbilityId = 0;
     Want want;
+    int32_t userId = -1;
 };
 } // namespace AAFwk
 } // namespace OHOS
