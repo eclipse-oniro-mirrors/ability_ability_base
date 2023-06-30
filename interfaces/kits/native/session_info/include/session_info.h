@@ -25,6 +25,8 @@
 
 namespace OHOS {
 namespace AAFwk {
+class AbilityStartSetting;
+
 enum class CallToState : uint32_t {
     UNKNOW = 0,
     FOREGROUND,
@@ -51,6 +53,7 @@ public:
     std::string errorReason;
     int32_t errorCode = -1;
     int64_t uiAbilityId = 0;
+    std::shared_ptr<AbilityStartSetting> startSetting = nullptr;
     Want want;
 };
 } // namespace AAFwk
