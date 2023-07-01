@@ -855,7 +855,7 @@ public:
     static const std::string PARAM_RESV_START_TIME;
     static const std::string PARAM_ABILITY_ACQUIRE_SHARE_DATA;
     static const std::string PARAM_ABILITY_RECOVERY_RESTART;
-    static const std::string PARAM_ABILITY_TYPES;
+    static const std::string PARAM_ABILITY_URITYPES;
     // module name string
     static const std::string PARAM_MODULE_NAME;
 
