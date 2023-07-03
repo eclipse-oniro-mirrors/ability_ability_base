@@ -55,6 +55,7 @@ public:
     int64_t uiAbilityId = 0;
     std::shared_ptr<AbilityStartSetting> startSetting = nullptr;
     Want want;
+    int32_t userId = -1;
 };
 } // namespace AAFwk
 } // namespace OHOS
