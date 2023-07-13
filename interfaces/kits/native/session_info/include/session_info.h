@@ -56,6 +56,7 @@ public:
     std::shared_ptr<AbilityStartSetting> startSetting = nullptr;
     Want want;
     int32_t userId = -1;
+    bool isNewWant = true;
 };
 } // namespace AAFwk
 } // namespace OHOS
