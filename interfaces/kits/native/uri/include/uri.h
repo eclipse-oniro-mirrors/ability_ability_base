@@ -24,7 +24,7 @@ namespace OHOS {
 class Uri : public Parcelable {
 public:
     explicit Uri(const std::string& uriString);
-    ~Uri() = default;
+    ~Uri();
 
     /**
      * Get the Scheme part.

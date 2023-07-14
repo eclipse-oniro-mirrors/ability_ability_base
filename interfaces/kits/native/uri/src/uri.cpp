@@ -70,6 +70,11 @@ Uri::Uri(const string& uriString)
     }
 }
 
+Uri::~Uri()
+{
+    HiLog::Debug(LABEL, "Uri has been destroyed");
+}
+
 bool Uri::CheckScheme()
 {
     scheme_ = ParseScheme();

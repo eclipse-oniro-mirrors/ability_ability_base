@@ -102,7 +102,9 @@ Want::Want()
  * @return None
  */
 Want::~Want()
-{}
+{
+    ABILITYBASE_LOGD("Want has been destroyed");
+}
 
 /**
  * @description: Copy construcotr of Want class, which is used to initialzie flags, URI, etc.
