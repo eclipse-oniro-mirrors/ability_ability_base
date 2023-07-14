@@ -98,6 +98,10 @@ bool SessionInfo::Marshalling(Parcel& parcel) const
         return false;
     }
 
+    if (!parcel.WriteBool(isNewWant)) {
+        return false;
+    }
+
     if (!parcel.WriteParcelable(&want)) {
         ABILITYBASE_LOGE("Write want failed.");
         return false;
@@ -128,6 +132,7 @@ SessionInfo* SessionInfo::Unmarshalling(Parcel& parcel)
     info->errorCode = parcel.ReadInt32();
     info->uiAbilityId = parcel.ReadInt64();
     info->startSetting.reset(parcel.ReadParcelable<AbilityStartSetting>());
+    info->isNewWant = parcel.ReadBool();
 
     std::unique_ptr<Want> want(parcel.ReadParcelable<Want>());
     if (want != nullptr) {
