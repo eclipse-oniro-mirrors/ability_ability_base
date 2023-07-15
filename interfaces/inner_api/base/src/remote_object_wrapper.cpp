@@ -29,7 +29,7 @@ bool RemoteObjectWrap::Equals(IObject &other)
 
 sptr<IRemoteObjectWrap> RemoteObjectWrap::Box(sptr<IRemoteObject> remoteObject)
 {
-    return new RemoteObjectWrap(remoteObject);
+    return sptr<IRemoteObjectWrap>(new RemoteObjectWrap(remoteObject));
 }
 
 sptr<IRemoteObject> RemoteObjectWrap::UnBox(IRemoteObjectWrap *object)
