@@ -58,7 +58,7 @@ bool SessionInfo::Marshalling(Parcel& parcel) const
         }
     }
 
-    if (!parcel.WriteUint64(persistentId)) {
+    if (!parcel.WriteUint32(persistentId)) {
         ABILITYBASE_LOGE("Write persistent id failed.");
         return false;
     }
@@ -124,7 +124,7 @@ SessionInfo* SessionInfo::Unmarshalling(Parcel& parcel)
         info->callerToken = (static_cast<MessageParcel*>(&parcel))->ReadRemoteObject();
     }
 
-    info->persistentId = parcel.ReadUint64();
+    info->persistentId = parcel.ReadUint32();
     info->state = static_cast<CallToState>(parcel.ReadUint32());
     info->resultCode = parcel.ReadInt32();
     info->requestCode = parcel.ReadInt32();
