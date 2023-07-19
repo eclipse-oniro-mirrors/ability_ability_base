@@ -52,7 +52,10 @@ ohos_shared_library("base") {
   external_deps = [ "c_utils:utils" ]
 
   subsystem_name = "ability"
-  innerapi_tags = [ "platformsdk" ]
+  innerapi_tags = [
+    "platformsdk",
+    "sasdk",
+  ]
   part_name = "ability_base"
 }
 
@@ -119,7 +122,10 @@ ohos_shared_library("zuri") {
   ]
 
   subsystem_name = "ability"
-  innerapi_tags = [ "platformsdk" ]
+  innerapi_tags = [
+    "platformsdk",
+    "sasdk",
+  ]
   part_name = "ability_base"
 }
 
@@ -188,7 +194,10 @@ ohos_shared_library("want") {
   configs = [ ":want_config" ]
   public_configs = [ ":want_public_config" ]
   subsystem_name = "ability"
-  innerapi_tags = [ "platformsdk" ]
+  innerapi_tags = [
+    "platformsdk",
+    "sasdk",
+  ]
   part_name = "ability_base"
 }
 
