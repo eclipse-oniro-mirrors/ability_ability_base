@@ -43,7 +43,7 @@ public:
     sptr<IRemoteObject> sessionToken = nullptr;
     sptr<IRemoteObject> callerSession = nullptr;
     sptr<IRemoteObject> callerToken = nullptr;
-    uint32_t persistentId = 0;
+    int32_t persistentId = 0;
     // Status of the UIAbility invoked by the StartABilityByCall
     CallToState state = CallToState::UNKNOW;
     // Returned resultCode of terminateSelfWithResult
