@@ -77,17 +77,9 @@ bool Extractor::GetFileList(const std::string& srcPath, std::vector<std::string>
         ABILITYBASE_LOGE("GetFileList::srcPath is nullptr");
         return false;
     }
-
-    std::vector<std::string> fileList;
-    if (!GetZipFileNames(fileList)) {
-        ABILITYBASE_LOGE("GetFileList::Get file list failed");
-        return false;
-    }
-
-    for (auto value : fileList) {
-        if (StringStartWith(value, srcPath.c_str(), srcPath.length())) {
-            assetList.emplace_back(value);
-        }
+    zipFile_.GetAllFileList(srcPath, assetList);
+    if (assetList.empty()) {
+        ABILITYBASE_LOGW("empty dir: %{public}s", srcPath.c_str());
     }
 
     return true;
@@ -151,20 +143,6 @@ bool Extractor::ExtractFile(const std::string &fileName, const std::string &targ
     return true;
 }
 
-bool Extractor::GetZipFileNames(std::vector<std::string> &fileNames)
-{
-    auto &entryMap = zipFile_.GetAllEntries();
-    if (entryMap.empty()) {
-        ABILITYBASE_LOGE("Zip file is empty");
-        return false;
-    }
-
-    for (auto &entry : entryMap) {
-        fileNames.emplace_back(entry.first);
-    }
-    return true;
-}
-
 void Extractor::GetSpecifiedTypeFiles(std::vector<std::string> &fileNames, const std::string &suffix)
 {
     auto &entryMap = zipFile_.GetAllEntries();
@@ -182,12 +160,11 @@ void Extractor::GetSpecifiedTypeFiles(std::vector<std::string> &fileNames, const
 
 bool Extractor::IsStageBasedModel(std::string abilityName)
 {
-    auto &entryMap = zipFile_.GetAllEntries();
     std::vector<std::string> splitStrs;
     OHOS::SplitStr(abilityName, ".", splitStrs);
     std::string name = splitStrs.empty() ? abilityName : splitStrs.back();
     std::string entry = "assets/js/" + name + "/" + name + ".js";
-    bool isStageBasedModel = entryMap.find(entry) != entryMap.end();
+    bool isStageBasedModel = zipFile_.HasEntry(entry);
     return isStageBasedModel;
 }
 
@@ -284,10 +261,13 @@ bool Extractor::GetUncompressedData(std::unique_ptr<FileMapper> fileMapper,
     return true;
 }
 
-bool Extractor::IsStageModel() const
+bool Extractor::IsStageModel()
 {
-    std::string fileName = "config.json";
-    return !zipFile_.HasEntry(fileName);
+    if (isStageModel_.has_value()) {
+        return isStageModel_.value();
+    }
+    isStageModel_ = !zipFile_.HasEntry("config.json");
+    return isStageModel_.value();
 }
 
 bool Extractor::ExtractToBufByName(const std::string &fileName, std::unique_ptr<uint8_t[]> &dataPtr, size_t &len,
@@ -339,16 +319,6 @@ bool Extractor::GetFileInfo(const std::string &fileName, FileInfo &fileInfo) con
     return true;
 }
 
-bool IsFilePathExist(const std::string rawfilePath, const std::vector<std::string> &pathList)
-{
-    for (auto path : pathList) {
-        if (path.find(rawfilePath) != std::string::npos) {
-            return true;
-        }
-    }
-    return false;
-}
-
 bool Extractor::GetFileList(const std::string &srcPath, std::set<std::string> &fileSet)
 {
     if (!initial_) {
@@ -361,30 +331,9 @@ bool Extractor::GetFileList(const std::string &srcPath, std::set<std::string> &f
         return false;
     }
 
-    std::vector<std::string> fileList;
-    if (!GetZipFileNames(fileList)) {
-        ABILITYBASE_LOGE("GetFileList::Get file list failed");
-        return false;
-    }
-
-    std::string pureSrcPath = srcPath;
-    if (srcPath[srcPath.length() - 1] == '/') {
-        pureSrcPath.assign(srcPath.begin(), srcPath.end() - 1);
-    }
-
-    if (!IsFilePathExist(pureSrcPath, fileList)) {
-        ABILITYBASE_LOGE("GetFileList::srcPath invalid pureSrcPath, %{public}s", pureSrcPath.c_str());
-        return false;
-    }
-
-    for (auto value : fileList) {
-        if (StringStartWith(value, pureSrcPath.c_str(), pureSrcPath.length())) {
-            if (value.length() == pureSrcPath.length() || value[pureSrcPath.length()] != '/') {
-                continue;
-            }
-            auto separatorPos = value.find('/', pureSrcPath.length() + 1);
-            fileSet.insert(value.substr(pureSrcPath.length() + 1, separatorPos - pureSrcPath.length() - 1));
-        }
+    zipFile_.GetChildNames(srcPath, fileSet);
+    if (fileSet.empty()) {
+        ABILITYBASE_LOGW("empty dir: %{public}s", srcPath.c_str());
     }
 
     return true;
@@ -406,7 +355,7 @@ bool Extractor::IsHapCompress(const std::string &fileName) const
 }
 
 std::mutex ExtractorUtil::mapMutex_;
-std::map<std::string, std::shared_ptr<Extractor>> ExtractorUtil::extractorMap_;
+std::unordered_map<std::string, std::shared_ptr<Extractor>> ExtractorUtil::extractorMap_;
 std::string ExtractorUtil::GetLoadFilePath(const std::string &hapPath)
 {
     std::string loadPath;
