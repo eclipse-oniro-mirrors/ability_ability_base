@@ -57,7 +57,9 @@ ZipEntry::ZipEntry(const CentralDirEntry &centralEntry)
 }
 
 ZipFile::ZipFile(const std::string &pathName) : pathName_(pathName)
-{}
+{
+    dirRoot_ = std::make_shared<DirTreeNode>();
+}
 
 ZipFile::~ZipFile()
 {
@@ -154,8 +156,34 @@ bool ZipFile::ParseOneEntry(uint8_t* &entryPtr)
     ZipEntry currentEntry(directoryEntry);
     currentEntry.fileName = fileName;
     entriesMap_[fileName] = currentEntry;
+    AddEntryToTree(fileName);
     entryPtr += directoryEntry.nameSize + directoryEntry.extraSize + directoryEntry.commentSize;
     return true;
+}
+
+void ZipFile::AddEntryToTree(const std::string &fileName)
+{
+    size_t cur = 0;
+    auto parent = dirRoot_;
+    do {
+        while (cur < fileName.size() && fileName[cur] == FILE_SEPARATOR_CHAR) {
+            cur++;
+        }
+        if (cur >= fileName.size()) {
+            break;
+        }
+        auto next = fileName.find_first_of(FILE_SEPARATOR_CHAR, cur);
+        auto nodeName = fileName.substr(cur, next - cur);
+        auto it = parent->children.find(nodeName);
+        if (it != parent->children.end()) {
+            parent = it->second;
+        } else {
+            auto node = std::make_shared<DirTreeNode>();
+            parent->children.emplace(nodeName, node);
+            parent = node;
+        }
+        cur = next;
+    } while (cur != std::string::npos);
 }
 
 bool ZipFile::ParseAllEntries()
@@ -256,6 +284,7 @@ void ZipFile::Close()
     }
 
     entriesMap_.clear();
+    dirRoot_->children.clear();
     pathName_ = "";
     isOpen_ = false;
 
@@ -268,13 +297,11 @@ void ZipFile::Close()
 // Get all file zipEntry in this file
 const ZipEntryMap &ZipFile::GetAllEntries() const
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
     return entriesMap_;
 }
 
 bool ZipFile::HasEntry(const std::string &entryName) const
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
     return entriesMap_.find(entryName) != entriesMap_.end();
 }
 
@@ -285,18 +312,105 @@ bool ZipFile::IsDirExist(const std::string &dir) const
         return false;
     }
 
-    auto tempDir = dir;
-    if (tempDir.back() != FILE_SEPARATOR_CHAR) {
-        tempDir.push_back(FILE_SEPARATOR_CHAR);
-    }
+    size_t cur = 0;
+    auto parent = dirRoot_;
+    do {
+        while (cur < dir.size() && dir[cur] == FILE_SEPARATOR_CHAR) {
+            cur++;
+        }
+        if (cur >= dir.size()) {
+            break;
+        }
+        auto next = dir.find_first_of(FILE_SEPARATOR_CHAR, cur);
+        auto nodeName = dir.substr(cur, next - cur);
+        auto it = parent->children.find(nodeName);
+        if (it == parent->children.end()) {
+            ABILITYBASE_LOGI("target dir not found, dir : %{public}s", dir.c_str());
+            return false;
+        }
+        parent = it->second;
+        cur = next;
+    } while (cur != std::string::npos);
 
-    for (const auto &item : entriesMap_) {
-        if (item.first.find(tempDir) == 0) {
-            return true;
+    return true;
+}
+namespace {
+void GetTreeFileList(const std::shared_ptr<DirTreeNode> &root, const std::string &rootPath,
+    std::vector<std::string> &assetList)
+{
+    if (root->children.empty()) {
+        assetList.push_back(rootPath);
+    } else {
+        for (const auto &child : root->children) {
+            GetTreeFileList(child.second, rootPath + "/" + child.first, assetList);
         }
     }
-    ABILITYBASE_LOGD("target dir not found, dir : %{private}s", dir.c_str());
-    return false;
+}
+}
+
+void ZipFile::GetAllFileList(const std::string &srcPath, std::vector<std::string> &assetList)
+{
+    if (srcPath.empty()) {
+        ABILITYBASE_LOGE("target dir is empty");
+        return;
+    }
+
+    auto rootName = srcPath.back() == FILE_SEPARATOR_CHAR ?
+        srcPath.substr(0, srcPath.length() - 1) : srcPath;
+
+    size_t cur = 0;
+    auto parent = dirRoot_;
+    do {
+        while (cur < rootName.size() && rootName[cur] == FILE_SEPARATOR_CHAR) {
+            cur++;
+        }
+        if (cur >= rootName.size()) {
+            break;
+        }
+        auto next = rootName.find_first_of(FILE_SEPARATOR_CHAR, cur);
+        auto nodeName = rootName.substr(cur, next - cur);
+        auto it = parent->children.find(nodeName);
+        if (it == parent->children.end()) {
+            ABILITYBASE_LOGI("target srcPath not found: %{public}s", rootName.c_str());
+            return;
+        }
+        parent = it->second;
+        cur = next;
+    } while (cur != std::string::npos);
+
+    GetTreeFileList(parent, rootName, assetList);
+}
+
+void ZipFile::GetChildNames(const std::string &srcPath, std::set<std::string> &fileSet)
+{
+    if (srcPath.empty()) {
+        ABILITYBASE_LOGE("target dir is empty");
+        return;
+    }
+
+    size_t cur = 0;
+    auto parent = dirRoot_;
+    do {
+        while (cur < srcPath.size() && srcPath[cur] == FILE_SEPARATOR_CHAR) {
+            cur++;
+        }
+        if (cur >= srcPath.size()) {
+            break;
+        }
+        auto next = srcPath.find_first_of(FILE_SEPARATOR_CHAR, cur);
+        auto nodeName = srcPath.substr(cur, next - cur);
+        auto it = parent->children.find(nodeName);
+        if (it == parent->children.end()) {
+            ABILITYBASE_LOGI("target srcPath not found: %{public}s", srcPath.c_str());
+            return;
+        }
+        parent = it->second;
+        cur = next;
+    } while (cur != std::string::npos);
+
+    for (const auto &child : parent->children) {
+        fileSet.insert(child.first);
+    }
 }
 
 bool ZipFile::GetEntry(const std::string &entryName, ZipEntry &resultEntry) const

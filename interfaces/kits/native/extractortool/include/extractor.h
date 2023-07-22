@@ -17,6 +17,7 @@
 #define OHOS_ABILITY_BASE_EXTRACTOR_H
 
 #include <mutex>
+#include <optional>
 #include <set>
 #include <string>
 
@@ -59,12 +60,6 @@ public:
      */
     bool ExtractFile(const std::string &fileName, const std::string &targetPath) const;
     /**
-     * @brief Get all file names in a hap file.
-     * @param fileName Indicates the obtained file names in hap.
-     * @return Returns true if the file names obtained successfully; returns false otherwise.
-     */
-    bool GetZipFileNames(std::vector<std::string> &fileNames);
-    /**
      * @brief Get specified type names in a zip file.
      * @param fileNames Indicates the obtained file names in zip.
      * @param suffix Indicates the suffix of file.
@@ -87,7 +82,7 @@ public:
     bool UnzipData(std::unique_ptr<FileMapper> fileMapper, std::unique_ptr<uint8_t[]> &dataPtr, size_t &len) const;
     bool GetUncompressedData(std::unique_ptr<FileMapper> fileMapper,
         std::unique_ptr<uint8_t[]> &dataPtr, size_t &len, bool safeRegion = false) const;
-    bool IsStageModel() const;
+    bool IsStageModel();
 
     bool ExtractToBufByName(const std::string &fileName, std::unique_ptr<uint8_t[]> &dataPtr,
         size_t &len, bool safeRegion = false) const;
@@ -103,6 +98,8 @@ private:
     ZipFile zipFile_;
     bool initial_ = false;
     std::string hapPath_;
+
+    std::optional<bool> isStageModel_;
 };
 
 class ExtractorUtil {
@@ -114,7 +111,7 @@ public:
 
 private:
     static std::mutex mapMutex_;
-    static std::map<std::string, std::shared_ptr<Extractor>> extractorMap_;
+    static std::unordered_map<std::string, std::shared_ptr<Extractor>> extractorMap_;
 };
 }  // namespace AbilityBase
 }  // namespace OHOS
