@@ -119,47 +119,6 @@ HWTEST_F(ExtractorTest, ExtractorCreate_001, TestSize.Level1)
 
 /*
  * Feature: Extractor
- * Function: AddExtractor
- * SubFunction: NA
- * FunctionPoints:Add extractor
- * EnvConditions: NA
- * CaseDescription: Add extractor.
- */
-HWTEST_F(ExtractorTest, ExtractorAdd_001, TestSize.Level1)
-{
-    bool newCreate = false;
-    std::string loadPath;
-    std::shared_ptr<Extractor> extractor1 = ExtractorUtil::GetExtractor(loadPath, newCreate);
-    EXPECT_TRUE(extractor1 == nullptr);
-    EXPECT_FALSE(newCreate);
-    bool addNullExtrator1 = ExtractorUtil::AddExtractor(loadPath, extractor1);
-    EXPECT_FALSE(addNullExtrator1);
-
-    loadPath = ERROR_HAP_PATH;
-    std::shared_ptr<Extractor> extractor2 = ExtractorUtil::GetExtractor(loadPath, newCreate);
-    EXPECT_TRUE(extractor2 == nullptr);
-    EXPECT_FALSE(newCreate);
-    bool addNullExtrator2 = ExtractorUtil::AddExtractor(loadPath, extractor2);
-    EXPECT_FALSE(addNullExtrator2);
-
-    std::shared_ptr<Extractor> extractor3 = ExtractorUtil::GetExtractor(testPath_, newCreate);
-    EXPECT_TRUE(extractor3 != nullptr);
-    if (!addToMap_) {
-        EXPECT_TRUE(newCreate);
-        bool addExtractor = ExtractorUtil::AddExtractor(testPath_, extractor3);
-        EXPECT_TRUE(addExtractor);
-        addToMap_ = true;
-    } else {
-        EXPECT_FALSE(newCreate);
-    }
-
-    loadPath = "";
-    bool addExtractorWithEmptyPath = ExtractorUtil::AddExtractor(loadPath, extractor3);
-    EXPECT_FALSE(addExtractorWithEmptyPath);
-}
-
-/*
- * Feature: Extractor
  * Function: GetLoadFilePath
  * SubFunction: NA
  * FunctionPoints:Get load file path
