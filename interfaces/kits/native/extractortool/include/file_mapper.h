@@ -16,45 +16,41 @@
 #ifndef OHOS_ABILITY_BASE_FILE_MAPPER_H
 #define OHOS_ABILITY_BASE_FILE_MAPPER_H
 
+#include <memory>
 #include <string>
-#include <sys/mman.h>
-#include <unistd.h>
 
 namespace OHOS {
 namespace AbilityBase {
+class ZipFileReader;
 class FileMapper {
 public:
     FileMapper();
-
+    FileMapper(FileMapper &) = delete;
+    void operator=(FileMapper &) = delete;
     ~FileMapper();
 
     bool CreateFileMapper(const std::string &fileName, bool compress,
-        int32_t fd, size_t offset, size_t len, bool safeRegion = false);
+        int32_t fd, size_t offset, size_t len);
+
+    bool CreateFileMapper(std::shared_ptr<ZipFileReader> fileReader, const std::string &fileName,
+        size_t offset, size_t len, bool compress);
 
     bool IsCompressed();
-
-    void* GetDataPtr();
-
+    uint8_t* GetDataPtr();
     size_t GetDataLen();
-
     std::string GetFileName();
-
     int32_t GetOffset();
-
 private:
-    static const size_t MMAP_PROT = PROT_READ;
-    static const int32_t MMAP_FLAG = MAP_SHARED;
-    static const int32_t MAP_XPM = 0x40;
-    static int32_t pageSize_;
-
     std::string fileName_;
     bool isCompressed = false;
 
-    void* dataPtr_ = nullptr;
+    std::unique_ptr<uint8_t[]> dataPtr_ = nullptr;
     size_t dataLen_ = 0;
-    void* basePtr_ = nullptr;
-    size_t baseLen_ = 0;
     size_t offset_ = 0;
+
+    uint8_t* basePtr_ = nullptr;
+    uint8_t* usePtr_ = nullptr;
+    size_t baseLen_ = 0;
 };
 }  // namespace AbilityBase
 }  // namespace OHOS
