@@ -15,15 +15,13 @@
 
 #include "zip_file.h"
 
-#include <cassert>
-#include <cstring>
-#include <exception>
 #include <ostream>
 
 #include "ability_base_log_wrapper.h"
 #include "file_mapper.h"
 #include "file_path_utils.h"
 #include "securec.h"
+#include "zip_file_reader.h"
 #include "zlib.h"
 
 namespace OHOS {
@@ -38,10 +36,8 @@ constexpr uint32_t CENTRAL_SIGNATURE = 0x02014b50;
 constexpr uint32_t EOCD_SIGNATURE = 0x06054b50;
 constexpr uint32_t DATA_DESC_SIGNATURE = 0x08074b50;
 constexpr uint32_t FLAG_DATA_DESC = 0x8;
-constexpr size_t FILE_READ_COUNT = 1;
 constexpr uint8_t INFLATE_ERROR_TIMES = 5;
 const char FILE_SEPARATOR_CHAR = '/';
-constexpr char EXT_NAME_ABC[] = ".abc";
 }  // namespace
 
 ZipEntry::ZipEntry(const CentralDirEntry &centralEntry)
@@ -68,14 +64,16 @@ ZipFile::~ZipFile()
 
 void ZipFile::SetContentLocation(const ZipPos start, const size_t length)
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    if (isOpen_) {
+        ABILITYBASE_LOGE("file has been opened already.");
+        return;
+    }
     fileStartPos_ = start;
     fileLength_ = length;
 }
 
 bool ZipFile::CheckEndDir(const EndDir &endDir) const
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
     size_t lenEndDir = sizeof(EndDir);
     if ((endDir.numDisk != 0) || (endDir.signature != EOCD_SIGNATURE) || (endDir.startDiskOfCentralDir != 0) ||
         (endDir.offset >= fileLength_) || (endDir.totalEntriesInThisDisk != endDir.totalEntries) ||
@@ -90,7 +88,6 @@ bool ZipFile::CheckEndDir(const EndDir &endDir) const
 
 bool ZipFile::ParseEndDirectory()
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
     size_t endDirLen = sizeof(EndDir);
     size_t endFilePos = fileStartPos_ + fileLength_;
 
@@ -101,13 +98,8 @@ bool ZipFile::ParseEndDirectory()
     }
 
     size_t eocdPos = endFilePos - endDirLen;
-    if (fseek(file_, eocdPos, SEEK_SET) != 0) {
-        ABILITYBASE_LOGE("locate EOCD seek failed, error: %{public}d", errno);
-        return false;
-    }
-
-    if (fread(&endDir_, sizeof(EndDir), FILE_READ_COUNT, file_) != FILE_READ_COUNT) {
-        ABILITYBASE_LOGE("read EOCD struct failed, error: %{public}d", errno);
+    if (!zipFileReader_->ReadBuffer(reinterpret_cast<uint8_t*>(&endDir_), eocdPos, sizeof(EndDir))) {
+        ABILITYBASE_LOGE("read EOCD struct failed.");
         return false;
     }
 
@@ -118,7 +110,6 @@ bool ZipFile::ParseEndDirectory()
 
 bool ZipFile::ParseOneEntry(uint8_t* &entryPtr)
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (entryPtr == nullptr) {
         ABILITYBASE_LOGE("Input entryPtr is nullptr.");
         return false;
@@ -147,11 +138,6 @@ bool ZipFile::ParseOneEntry(uint8_t* &entryPtr)
         return false;
     }
     fileName.resize(fileLength);
-
-    if (isRuntime_ && !StringEndWith(fileName, EXT_NAME_ABC, sizeof(EXT_NAME_ABC) - 1)) {
-        entryPtr += directoryEntry.nameSize + directoryEntry.extraSize + directoryEntry.commentSize;
-        return true;
-    }
 
     ZipEntry currentEntry(directoryEntry);
     currentEntry.fileName = fileName;
@@ -188,36 +174,28 @@ void ZipFile::AddEntryToTree(const std::string &fileName)
 
 bool ZipFile::ParseAllEntries()
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
-    FileMapper fileMapper;
-    if (!fileMapper.CreateFileMapper("", false, fileno(file_), static_cast<size_t>(centralDirPos_),
-        static_cast<size_t>(endDir_.sizeOfCentralDir))) {
-        ABILITYBASE_LOGE("Create file mapper failed.");
+    auto centralData = zipFileReader_->ReadBuffer(static_cast<size_t>(centralDirPos_),
+        static_cast<size_t>(endDir_.sizeOfCentralDir));
+    if (centralData.empty()) {
+        ABILITYBASE_LOGE("read central data for [%{public}s] failed.", pathName_.c_str());
         return false;
     }
 
-    HandleSignal();
     bool ret = true;
-    try {
-        uint8_t *entryPtr = static_cast<uint8_t *>(fileMapper.GetDataPtr());
-        for (uint16_t i = 0; i < endDir_.totalEntries; i++) {
-            if (!ParseOneEntry(entryPtr)) {
-                ABILITYBASE_LOGE("Parse entry[%{public}d] failed.", i);
-                ret = false;
-                break;
-            }
+    uint8_t *entryPtr = reinterpret_cast<uint8_t *>(centralData.data());
+    for (uint16_t i = 0; i < endDir_.totalEntries; i++) {
+        if (!ParseOneEntry(entryPtr)) {
+            ABILITYBASE_LOGE("Parse entry[%{public}d] failed.", i);
+            ret = false;
+            break;
         }
-    } catch (int sig) {
-        ABILITYBASE_LOGE("catch sig: %{private}d.", sig);
-        ret = false;
     }
-    RecoverSignalHandler();
+
     return ret;
 }
 
 bool ZipFile::Open()
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (isOpen_) {
         ABILITYBASE_LOGE("has already opened");
         return true;
@@ -225,8 +203,7 @@ bool ZipFile::Open()
 
     if (pathName_.length() > PATH_MAX) {
         ABILITYBASE_LOGE("path length(%{public}u) longer than max path length(%{public}d)",
-            static_cast<unsigned int>(pathName_.length()),
-            PATH_MAX);
+            static_cast<unsigned int>(pathName_.length()), PATH_MAX);
         return false;
     }
     std::string realPath;
@@ -237,35 +214,24 @@ bool ZipFile::Open()
         return false;
     }
 
-    FILE *tmpFile = fopen(realPath.c_str(), "rb");
-    if (tmpFile == nullptr) {
-        ABILITYBASE_LOGE("open file(%{private}s) failed, error: %{public}d", pathName_.c_str(), errno);
+    zipFileReader_ = ZipFileReader::CreateZipFileReader(realPath);
+    if (!zipFileReader_) {
+        ABILITYBASE_LOGE("open file(%{public}s) failed", pathName_.c_str());
         return false;
     }
 
     if (fileLength_ == 0) {
-        if (fseek(tmpFile, 0, SEEK_END) != 0) {
-            ABILITYBASE_LOGE("file seek failed, error: %{public}d", errno);
-            fclose(tmpFile);
-            return false;
-        }
-        int64_t fileLength = ftell(tmpFile);
-        if (fileLength == -1) {
-            ABILITYBASE_LOGE("open file %{private}s failed", pathName_.c_str());
-            fclose(tmpFile);
-            return false;
-        }
+        auto fileLength = zipFileReader_->GetFileLen();
         fileLength_ = static_cast<ZipPos>(fileLength);
         if (fileStartPos_ >= fileLength_) {
             ABILITYBASE_LOGE("open start pos > length failed");
-            fclose(tmpFile);
+            zipFileReader_.reset();
             return false;
         }
 
         fileLength_ -= fileStartPos_;
     }
 
-    file_ = tmpFile;
     bool result = ParseEndDirectory();
     if (result) {
         result = ParseAllEntries();
@@ -277,21 +243,17 @@ bool ZipFile::Open()
 
 void ZipFile::Close()
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
-    if (!isOpen_ || file_ == nullptr) {
+    if (!isOpen_ || zipFileReader_ == nullptr) {
         ABILITYBASE_LOGW("file is not opened");
         return;
     }
 
+    isOpen_ = false;
     entriesMap_.clear();
     dirRoot_->children.clear();
     pathName_ = "";
-    isOpen_ = false;
 
-    if (fclose(file_) != 0) {
-        ABILITYBASE_LOGW("close failed, error: %{public}d", errno);
-    }
-    file_ = nullptr;
+    zipFileReader_.reset();
 }
 
 // Get all file zipEntry in this file
@@ -415,13 +377,12 @@ void ZipFile::GetChildNames(const std::string &srcPath, std::set<std::string> &f
 
 bool ZipFile::GetEntry(const std::string &entryName, ZipEntry &resultEntry) const
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto iter = entriesMap_.find(entryName);
     if (iter != entriesMap_.end()) {
         resultEntry = iter->second;
         return true;
     }
-    ABILITYBASE_LOGE("get entry %{public}s failed", entryName.c_str());
+    ABILITYBASE_LOGW("get entry %{public}s failed", entryName.c_str());
     return false;
 }
 
@@ -432,7 +393,6 @@ size_t ZipFile::GetLocalHeaderSize(const uint16_t nameSize, const uint16_t extra
 
 bool ZipFile::CheckDataDesc(const ZipEntry &zipEntry, const LocalHeader &localHeader) const
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
     uint32_t crcLocal = 0;
     uint32_t compressedLocal = 0;
     uint32_t uncompressedLocal = 0;
@@ -442,13 +402,8 @@ bool ZipFile::CheckDataDesc(const ZipEntry &zipEntry, const LocalHeader &localHe
         auto descPos = zipEntry.localHeaderOffset + GetLocalHeaderSize(localHeader.nameSize, localHeader.extraSize);
         descPos += fileStartPos_ + zipEntry.compressedSize;
 
-        if (fseek(file_, descPos, SEEK_SET) != 0) {
-            ABILITYBASE_LOGE("check local header seek datadesc failed, error: %{public}d", errno);
-            return false;
-        }
-
-        if (fread(&dataDesc, sizeof(DataDesc), FILE_READ_COUNT, file_) != FILE_READ_COUNT) {
-            ABILITYBASE_LOGE("check local header read datadesc failed, error: %{public}d", errno);
+        if (!zipFileReader_->ReadBuffer(reinterpret_cast<uint8_t*>(&dataDesc), descPos, sizeof(DataDesc))) {
+            ABILITYBASE_LOGE("check local header read datadesc failed");
             return false;
         }
 
@@ -477,7 +432,6 @@ bool ZipFile::CheckDataDesc(const ZipEntry &zipEntry, const LocalHeader &localHe
 
 bool ZipFile::CheckCoherencyLocalHeader(const ZipEntry &zipEntry, uint16_t &extraSize) const
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
     LocalHeader localHeader = {0};
 
     if (zipEntry.localHeaderOffset >= fileLength_) {
@@ -485,13 +439,10 @@ bool ZipFile::CheckCoherencyLocalHeader(const ZipEntry &zipEntry, uint16_t &extr
         return false;
     }
 
-    if (fseek(file_, fileStartPos_ + zipEntry.localHeaderOffset, SEEK_SET) != 0) {
-        ABILITYBASE_LOGE("check local header seek failed, error: %{public}d", errno);
-        return false;
-    }
-
-    if (fread(&localHeader, sizeof(LocalHeader), FILE_READ_COUNT, file_) != FILE_READ_COUNT) {
-        ABILITYBASE_LOGE("check local header read localheader failed, error: %{public}d", errno);
+    auto startPos = fileStartPos_ + zipEntry.localHeaderOffset;
+    if (!zipFileReader_->ReadBuffer(reinterpret_cast<uint8_t*>(&localHeader), startPos,
+        sizeof(LocalHeader))) {
+        ABILITYBASE_LOGE("check local header read localheader failed");
         return false;
     }
 
@@ -507,19 +458,17 @@ bool ZipFile::CheckCoherencyLocalHeader(const ZipEntry &zipEntry, uint16_t &extr
         return false;
     }
 
-    std::string fileName;
-    fileName.reserve(MAX_FILE_NAME);
-    fileName.resize(MAX_FILE_NAME - 1);
     size_t fileLength = (localHeader.nameSize >= MAX_FILE_NAME) ? (MAX_FILE_NAME - 1) : localHeader.nameSize;
     if (fileLength != zipEntry.fileName.length()) {
         ABILITYBASE_LOGE("check local header file name size failed");
         return false;
     }
-    if (fread(&(fileName[0]), fileLength, FILE_READ_COUNT, file_) != FILE_READ_COUNT) {
-        ABILITYBASE_LOGE("check local header read file name failed, error: %{public}d", errno);
+    startPos += sizeof(LocalHeader);
+    std::string fileName = zipFileReader_->ReadBuffer(startPos, fileLength);
+    if (fileName.empty()) {
+        ABILITYBASE_LOGE("check local header read file name failed, error");
         return false;
     }
-    fileName.resize(fileLength);
     if (zipEntry.fileName != fileName) {
         ABILITYBASE_LOGE("check local header file name corrupted");
         return false;
@@ -534,50 +483,30 @@ bool ZipFile::CheckCoherencyLocalHeader(const ZipEntry &zipEntry, uint16_t &extr
     return true;
 }
 
-bool ZipFile::SeekToEntryStart(const ZipEntry &zipEntry, const uint16_t extraSize) const
+size_t ZipFile::GetEntryStart(const ZipEntry &zipEntry, const uint16_t extraSize) const
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
     ZipPos startOffset = zipEntry.localHeaderOffset;
     // get data offset, add signature+localheader+namesize+extrasize
     startOffset += GetLocalHeaderSize(zipEntry.fileName.length(), extraSize);
-    if (startOffset + zipEntry.compressedSize > fileLength_) {
-        ABILITYBASE_LOGE("startOffset(%{public}lld)+entryCompressedSize(%{public}ud) > fileLength(%{public}llu)",
-            startOffset,
-            zipEntry.compressedSize,
-            fileLength_);
-        return false;
-    }
     startOffset += fileStartPos_;  // add file start relative to file stream
 
-    if (fseek(file_, startOffset, SEEK_SET) != 0) {
-        ABILITYBASE_LOGE("seek failed, error: %{public}d", errno);
-        return false;
-    }
-    return true;
+    return startOffset;
 }
 
 bool ZipFile::UnzipWithStore(const ZipEntry &zipEntry, const uint16_t extraSize, std::ostream &dest) const
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
-    if (!SeekToEntryStart(zipEntry, extraSize)) {
-        ABILITYBASE_LOGE("seek to entry start failed");
-        return false;
-    }
-
+    auto startPos = GetEntryStart(zipEntry, extraSize);
     uint32_t remainSize = zipEntry.compressedSize;
-    std::string readBuffer;
-    readBuffer.reserve(UNZIP_BUF_OUT_LEN);
-    readBuffer.resize(UNZIP_BUF_OUT_LEN - 1);
     while (remainSize > 0) {
-        size_t readBytes;
         size_t readLen = (remainSize > UNZIP_BUF_OUT_LEN) ? UNZIP_BUF_OUT_LEN : remainSize;
-        readBytes = fread(&(readBuffer[0]), sizeof(Byte), readLen, file_);
-        if (readBytes == 0) {
-            ABILITYBASE_LOGE("unzip store read failed, error: %{public}d", ferror(file_));
+        std::string readBuffer = zipFileReader_->ReadBuffer(startPos, readLen);
+        if (readBuffer.empty()) {
+            ABILITYBASE_LOGE("unzip store read failed, error");
             return false;
         }
-        remainSize -= readBytes;
-        dest.write(&(readBuffer[0]), readBytes);
+        remainSize -= readLen;
+        startPos += readLen;
+        dest.write(readBuffer.data(), readBuffer.length());
     }
 
     return true;
@@ -614,20 +543,19 @@ bool ZipFile::InitZStream(z_stream &zstream) const
     return true;
 }
 
-bool ZipFile::ReadZStream(const BytePtr &buffer, z_stream &zstream, uint32_t &remainCompressedSize) const
+bool ZipFile::ReadZStream(const BytePtr &buffer, z_stream &zstream, uint32_t &remainCompressedSize,
+    size_t &startPos) const
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (zstream.avail_in == 0) {
-        size_t readBytes;
         size_t remainBytes = (remainCompressedSize > UNZIP_BUF_IN_LEN) ? UNZIP_BUF_IN_LEN : remainCompressedSize;
-        readBytes = fread(buffer, sizeof(Byte), remainBytes, file_);
-        if (readBytes == 0) {
-            ABILITYBASE_LOGE("unzip inflated read failed, error: %{public}d", ferror(file_));
+        if (!zipFileReader_->ReadBuffer(buffer, startPos, remainBytes)) {
+            ABILITYBASE_LOGE("unzip inflated read failed, error");
             return false;
         }
 
-        remainCompressedSize -= readBytes;
-        zstream.avail_in = readBytes;
+        remainCompressedSize -= remainBytes;
+        startPos += remainBytes;
+        zstream.avail_in = remainBytes;
         zstream.next_in = buffer;
     }
     return true;
@@ -636,9 +564,11 @@ bool ZipFile::ReadZStream(const BytePtr &buffer, z_stream &zstream, uint32_t &re
 bool ZipFile::UnzipWithInflated(const ZipEntry &zipEntry, const uint16_t extraSize, std::ostream &dest) const
 {
     z_stream zstream;
-    if (!SeekToEntryStart(zipEntry, extraSize) || !InitZStream(zstream)) {
+    if (!InitZStream(zstream)) {
         return false;
     }
+
+    auto startPos = GetEntryStart(zipEntry, extraSize);
 
     BytePtr bufIn = zstream.next_in;
     BytePtr bufOut = zstream.next_out;
@@ -649,7 +579,7 @@ bool ZipFile::UnzipWithInflated(const ZipEntry &zipEntry, const uint16_t extraSi
     size_t inflateLen = 0;
     uint8_t errorTimes = 0;
     while ((remainCompressedSize > 0) || (zstream.avail_in > 0)) {
-        if (!ReadZStream(bufIn, zstream, remainCompressedSize)) {
+        if (!ReadZStream(bufIn, zstream, remainCompressedSize, startPos)) {
             ret = false;
             break;
         }
@@ -691,7 +621,6 @@ bool ZipFile::UnzipWithInflated(const ZipEntry &zipEntry, const uint16_t extraSi
 
 ZipPos ZipFile::GetEntryDataOffset(const ZipEntry &zipEntry, const uint16_t extraSize) const
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
     // get entry data offset relative file
     ZipPos offset = zipEntry.localHeaderOffset;
 
@@ -709,6 +638,11 @@ bool ZipFile::GetDataOffsetRelative(const std::string &file, ZipPos &offset, uin
         return false;
     }
 
+    return GetDataOffsetRelative(zipEntry, offset, length);
+}
+
+bool ZipFile::GetDataOffsetRelative(const ZipEntry &zipEntry, ZipPos &offset, uint32_t &length) const
+{
     uint16_t extraSize = 0;
     if (!CheckCoherencyLocalHeader(zipEntry, extraSize)) {
         ABILITYBASE_LOGE("check coherency local header failed");
@@ -744,40 +678,10 @@ bool ZipFile::ExtractFile(const std::string &file, std::ostream &dest) const
     return ret;
 }
 
-void ZipFile::SetIsRuntime(const bool isRuntime)
-{
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
-    isRuntime_ = isRuntime;
-}
-
-bool ZipFile::GetEntryInfoByName(const std::string &file, bool &compress,
-    int32_t &fd, ZipPos &offset, uint32_t &length) const
-{
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
-    if (!GetDataOffsetRelative(file, offset, length)) {
-        ABILITYBASE_LOGE("Get entry info by name failed.");
-        return false;
-    }
-
-    ZipEntry zipEntry;
-    if (!GetEntry(file, zipEntry)) {
-        ABILITYBASE_LOGE("extract file: not find file");
-        return false;
-    }
-    compress = zipEntry.compressionMethod;
-
-    if (!file_) {
-        ABILITYBASE_LOGE("file[%{public}s] is not opened.", file.c_str());
-        return false;
-    }
-
-    fd = fileno(file_);
-    return true;
-}
-
 bool ZipFile::ExtractFileFromMMap(const std::string &file, void *mmapDataPtr,
     std::unique_ptr<uint8_t[]> &dataPtr, size_t &len) const
 {
+    ABILITYBASE_LOGI("ExtractFileFromMMap %{public}s.", file.c_str());
     ZipEntry zipEntry;
     if (!GetEntry(file, zipEntry)) {
         ABILITYBASE_LOGE("extract file: not find file");
@@ -795,15 +699,9 @@ bool ZipFile::ExtractFileFromMMap(const std::string &file, void *mmapDataPtr,
         return false;
     }
 
-    HandleSignal();
     bool ret = false;
-    try {
-        ret = UnzipWithInflatedFromMMap(zipEntry, extraSize, mmapDataPtr, dataPtr, len);
-    } catch (int sig) {
-        ABILITYBASE_LOGE("catch sig: %{private}d.", sig);
-        ret = false;
-    }
-    RecoverSignalHandler();
+    ret = UnzipWithInflatedFromMMap(zipEntry, extraSize, mmapDataPtr, dataPtr, len);
+
     return ret;
 }
 
@@ -906,23 +804,71 @@ bool ZipFile::ReadZStreamFromMMap(const BytePtr &buffer, void* &dataPtr,
     return true;
 }
 
-void ZipFile::HandleSignal()
+std::unique_ptr<FileMapper> ZipFile::CreateFileMapper(const std::string &fileName, bool safe) const
 {
-    auto SignalAction = [] (int sig) {
-        ABILITYBASE_LOGE("Signal Action, sig: %{public}d.", sig);
-        throw sig;
-    };
+    ZipEntry zipEntry;
+    if (!GetEntry(fileName, zipEntry)) {
+        ABILITYBASE_LOGE("GetEntry failed hapPath %{public}s.", fileName.c_str());
+        return nullptr;
+    }
 
-    struct sigaction act;
-    act.sa_handler = SignalAction;
-    sigaction(SIGBUS, &act, nullptr);
+    ZipPos offset = 0;
+    uint32_t length = 0;
+    if (!GetDataOffsetRelative(zipEntry, offset, length)) {
+        ABILITYBASE_LOGE("GetDataOffsetRelative failed hapPath %{public}s.", fileName.c_str());
+        return nullptr;
+    }
+    bool compress = zipEntry.compressionMethod > 0;
+    if (safe && compress) {
+        ABILITYBASE_LOGW("Entry is compressed for safe: %{public}s.", fileName.c_str());
+    }
+    std::unique_ptr<FileMapper> fileMapper = std::make_unique<FileMapper>();
+    bool result = safe ?
+        fileMapper->CreateFileMapper(fileName, compress, zipFileReader_->GetFd(), offset, length) :
+        fileMapper->CreateFileMapper(zipFileReader_, fileName, offset, length, compress);
+    if (!result) {
+        return nullptr;
+    }
+    return fileMapper;
 }
 
-void ZipFile::RecoverSignalHandler()
+bool ZipFile::ExtractToBufByName(const std::string &fileName, std::unique_ptr<uint8_t[]> &dataPtr,
+    size_t &len) const
 {
-    struct sigaction act;
-    act.sa_handler = SIG_DFL;
-    sigaction(SIGBUS, &act, nullptr);
+    ZipEntry zipEntry;
+    if (!GetEntry(fileName, zipEntry)) {
+        ABILITYBASE_LOGE("GetEntry failed hapPath %{public}s.", fileName.c_str());
+        return false;
+    }
+    ZipPos offset = 0;
+    uint32_t length = 0;
+    if (!GetDataOffsetRelative(zipEntry, offset, length)) {
+        ABILITYBASE_LOGE("GetDataOffsetRelative failed hapPath %{public}s.", fileName.c_str());
+        return false;
+    }
+
+    auto dataTmp = std::make_unique<uint8_t[]>(length);
+    if (!zipFileReader_->ReadBuffer(dataTmp.get(), offset, length)) {
+        ABILITYBASE_LOGE("read file failed, len[%{public}zu]. fileName: %{public}s, offset: %{public}zu",
+            len, fileName.c_str(), (size_t)offset);
+        dataTmp.reset();
+        return false;
+    }
+
+    if (zipEntry.compressionMethod > 0) {
+        uint16_t extraSize = 0;
+        if (!CheckCoherencyLocalHeader(zipEntry, extraSize)) {
+            ABILITYBASE_LOGE("check coherency local header failed");
+            return false;
+        }
+
+        return UnzipWithInflatedFromMMap(zipEntry, extraSize, dataTmp.get(), dataPtr, len);
+    }
+
+    len = length;
+    dataPtr = std::move(dataTmp);
+
+    return true;
 }
 }  // namespace AbilityBase
 }  // namespace OHOS

@@ -16,12 +16,9 @@
 #ifndef OHOS_ABILITY_BASE_ZIP_FILE_H
 #define OHOS_ABILITY_BASE_ZIP_FILE_H
 
-#include <cstdint>
 #include <memory>
-#include <mutex>
 #include <set>
 #include <string>
-#include <signal.h>
 #include <unordered_map>
 #include <vector>
 
@@ -29,6 +26,8 @@
 
 namespace OHOS {
 namespace AbilityBase {
+class ZipFileReader;
+class FileMapper;
 struct CentralDirEntry;
 struct ZipEntry;
 using ZipPos = ZPOS64_T;
@@ -219,27 +218,15 @@ public:
      * @return Returns true if file is successfully extracted; returns false otherwise.
      */
     bool ExtractFile(const std::string &file, std::ostream &dest) const;
-    void SetIsRuntime(const bool isRuntime);
-
-    /**
-     * @brief Get entry info including fd, offset and length for file.
-     * @param file Indicates the entry name.
-     * @param fd Indicates the file descriptor.
-     * @param offset Indicates the obtained offset.
-     * @param length Indicates the length.
-     * @return Returns true if this function is successfully called; returns false otherwise.
-     */
-    bool GetEntryInfoByName(const std::string &file, bool &compress,
-        int32_t &fd, ZipPos &offset, uint32_t &length) const;
 
     bool ExtractFileFromMMap(const std::string &file, void *mmapDataPtr,
         std::unique_ptr<uint8_t[]> &dataPtr, size_t &len) const;
 
-    static void HandleSignal();
-
-    static void RecoverSignalHandler();
-
+    std::unique_ptr<FileMapper> CreateFileMapper(const std::string &fileName, bool safe = false) const;
+    bool ExtractToBufByName(const std::string &fileName, std::unique_ptr<uint8_t[]> &dataPtr,
+        size_t &len) const;
 private:
+    bool GetDataOffsetRelative(const ZipEntry &zipEntry, ZipPos &offset, uint32_t &length) const;
     /**
      * @brief Check the EndDir object.
      * @param endDir Indicates the EndDir object to check.
@@ -307,12 +294,12 @@ private:
      */
     bool UnzipWithInflated(const ZipEntry &zipEntry, const uint16_t extraSize, std::ostream &dest) const;
     /**
-     * @brief Seek to Entry start.
+     * @brief Get Entry start.
      * @param zipEntry Indicates the ZipEntry object.
      * @param extraSize Indicates the extra size.
      * @return Returns true if successfully Seeked; returns false otherwise.
      */
-    bool SeekToEntryStart(const ZipEntry &zipEntry, const uint16_t extraSize) const;
+    size_t GetEntryStart(const ZipEntry &zipEntry, const uint16_t extraSize) const;
     /**
      * @brief Init zlib stream.
      * @param zstream Indicates the obtained z_stream object.
@@ -326,7 +313,7 @@ private:
      * @param remainCompressedSize Indicates the obtained size.
      * @return Returns true if successfully read; returns false otherwise.
      */
-    bool ReadZStream(const BytePtr &buffer, z_stream &zstream, uint32_t &remainCompressedSize) const;
+    bool ReadZStream(const BytePtr &buffer, z_stream &zstream, uint32_t &remainCompressedSize, size_t &startPos) const;
 
     bool UnzipWithInflatedFromMMap(const ZipEntry &zipEntry, const uint16_t extraSize,
         void *mmapDataPtr, std::unique_ptr<uint8_t[]> &dataPtr, size_t &len) const;
@@ -336,7 +323,7 @@ private:
 
 private:
     std::string pathName_;
-    FILE *file_ = nullptr;
+    std::shared_ptr<ZipFileReader> zipFileReader_;
     EndDir endDir_;
     ZipEntryMap entriesMap_;
     std::shared_ptr<DirTreeNode> dirRoot_;
@@ -347,9 +334,6 @@ private:
     // this zip content length in the zip file.
     ZipPos fileLength_ = 0;
     bool isOpen_ = false;
-    bool isRuntime_ = false;
-
-    mutable std::recursive_mutex mutex_;
 };
 }  // namespace AbilityBase
 }  // namespace OHOS

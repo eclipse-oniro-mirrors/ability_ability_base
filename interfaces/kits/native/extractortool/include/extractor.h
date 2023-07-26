@@ -16,10 +16,13 @@
 #ifndef OHOS_ABILITY_BASE_EXTRACTOR_H
 #define OHOS_ABILITY_BASE_EXTRACTOR_H
 
+#include <memory>
 #include <mutex>
 #include <optional>
 #include <set>
 #include <string>
+#include <unordered_map>
+#include <vector>
 
 #include "file_mapper.h"
 #include "zip_file.h"
@@ -75,43 +78,53 @@ public:
     bool IsStageBasedModel(std::string abilityName);
     bool GetFileBuffer(const std::string& srcPath, std::ostringstream& dest);
     bool GetFileList(const std::string& srcPath, std::vector<std::string>& assetList);
+    bool GetFileList(const std::string &srcPath, std::set<std::string> &fileSet);
     bool IsSameHap(const std::string& hapPath) const;
-    void SetRuntimeFlag(bool isRuntime);
 
     std::unique_ptr<FileMapper> GetData(const std::string &fileName, bool safeRegion = false) const;
-    bool UnzipData(std::unique_ptr<FileMapper> fileMapper, std::unique_ptr<uint8_t[]> &dataPtr, size_t &len) const;
-    bool GetUncompressedData(std::unique_ptr<FileMapper> fileMapper,
-        std::unique_ptr<uint8_t[]> &dataPtr, size_t &len, bool safeRegion = false) const;
-    bool IsStageModel();
 
-    bool ExtractToBufByName(const std::string &fileName, std::unique_ptr<uint8_t[]> &dataPtr,
-        size_t &len, bool safeRegion = false) const;
+    bool UnzipData(std::unique_ptr<FileMapper> fileMapper, std::unique_ptr<uint8_t[]> &dataPtr, size_t &len) const;
+    bool IsStageModel();
 
     bool GetFileInfo(const std::string &fileName, FileInfo &fileInfo) const;
 
-    bool GetFileList(const std::string &srcPath, std::set<std::string> &fileSet);
-
     bool IsHapCompress(const std::string &fileName) const;
 
+    bool ExtractToBufByName(const std::string &fileName, std::unique_ptr<uint8_t[]> &dataPtr, size_t &len);
+    /**
+     * For abc file only, to mmap to safe region.
+     */
+    std::shared_ptr<FileMapper> GetSafeData(const std::string &fileName);
+    /**
+     * Cached mmap memory has been transfered to the outside and could be in use for life-long time.
+     * So the zip file is not able to be cloesd.
+     */
+    bool IsRemoveable() const
+    {
+        return mapperCache_.empty();
+    }
 private:
     const std::string sourceFile_;
     ZipFile zipFile_;
     bool initial_ = false;
     std::string hapPath_;
-
     std::optional<bool> isStageModel_;
+
+    std::mutex cacheMutex_;
+    std::unordered_map<std::string, std::shared_ptr<FileMapper>> mapperCache_;
 };
 
 class ExtractorUtil {
 public:
     static std::string GetLoadFilePath(const std::string &hapPath);
     static std::shared_ptr<Extractor> GetExtractor(const std::string &hapPath, bool &newCreate);
-    static bool AddExtractor(const std::string &hapPath, std::shared_ptr<Extractor> extractor);
     static void DeleteExtractor(const std::string &hapPath);
 
 private:
     static std::mutex mapMutex_;
     static std::unordered_map<std::string, std::shared_ptr<Extractor>> extractorMap_;
+
+    static std::vector<std::shared_ptr<Extractor>> removedExtractors_;
 };
 }  // namespace AbilityBase
 }  // namespace OHOS

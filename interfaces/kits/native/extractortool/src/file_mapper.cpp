@@ -13,18 +13,23 @@
  * limitations under the License.
  */
 
-#include <cerrno>
-
 #include "file_mapper.h"
+#include <memory>
+#include <sys/mman.h>
+
 #include "ability_base_log_wrapper.h"
+#include "zip_file_reader.h"
 
 namespace OHOS {
 namespace AbilityBase {
-int32_t FileMapper::pageSize_ = 0;
+namespace {
+int g_pageSize = 0;
+const int32_t MAP_XPM = 0x40;
+}
 FileMapper::FileMapper()
 {
-    if (pageSize_ <= 0) {
-        pageSize_ = sysconf(_SC_PAGESIZE);
+    if (g_pageSize <= 0) {
+        g_pageSize = sysconf(_SC_PAGESIZE);
     }
 }
 
@@ -36,34 +41,63 @@ FileMapper::~FileMapper()
 }
 
 bool FileMapper::CreateFileMapper(const std::string &fileName, bool compress,
-    int32_t fd, size_t offset, size_t len, bool safeRegion)
+    int32_t fd, size_t offset, size_t len)
 {
-    if (pageSize_ <= 0) {
-        ABILITYBASE_LOGE("CreateFileMapper. pageSize[%{public}d]", pageSize_);
+    if (fd < 0 || len == 0) {
+        ABILITYBASE_LOGE("Invalid param fileName: %{public}s", fileName.c_str());
+        return false;
+    }
+    if (dataLen_ > 0) {
+        ABILITYBASE_LOGE("data not empty fileName: %{public}s", fileName_.c_str());
         return false;
     }
 
+    size_t adjust = offset % g_pageSize;
+    size_t adjOffset = offset - adjust;
+    baseLen_ = len + adjust;
+    int32_t mmapFlag = MAP_PRIVATE | MAP_XPM;
+    basePtr_ = (uint8_t*)mmap(nullptr, baseLen_, PROT_READ,
+        mmapFlag, fd, adjOffset);
+    if (basePtr_ == MAP_FAILED) {
+        ABILITYBASE_LOGE("CreateFileMapper, mmap failed, errno[%{public}d]. fileName: %{public}s, "
+            "offset: %{public}zu, pageSize: %{public}d, mmapFlag: %{public}d",
+            errno, fileName.c_str(), offset, g_pageSize, mmapFlag);
+        baseLen_ = 0;
+        return false;
+    }
+
+    isCompressed = compress;
     fileName_ = fileName;
     offset_ = offset;
     dataLen_ = len;
-    isCompressed = compress;
-    size_t adjust = offset % pageSize_;
-    size_t adjOffset = offset - adjust;
-    baseLen_ = dataLen_ + adjust;
-    int32_t mmapFlag = MMAP_FLAG;
-    size_t prot = MMAP_PROT;
-    if (safeRegion) {
-        mmapFlag = MAP_PRIVATE|MAP_XPM;
-        prot |= PROT_WRITE;
-    }
-    basePtr_ = mmap(nullptr, baseLen_, prot, mmapFlag, fd, adjOffset);
-    if (basePtr_ == MAP_FAILED) {
-        ABILITYBASE_LOGE("CreateFileMapper, mmap failed, errno[%{public}d]. fileName: %{public}s, "
-            "compress: %{public}d, offset: %{public}zu, pageSize: %{public}d, mmapFlag: %{public}d",
-            errno, fileName.c_str(), compress, offset, pageSize_, mmapFlag);
+    usePtr_ = reinterpret_cast<uint8_t *>(basePtr_) + adjust;
+    return true;
+}
+
+bool FileMapper::CreateFileMapper(std::shared_ptr<ZipFileReader> fileReader, const std::string &fileName,
+    size_t offset, size_t len, bool compress)
+{
+    if (!fileReader) {
+        ABILITYBASE_LOGE("file null fileName: %{public}s", fileName.c_str());
         return false;
     }
-    dataPtr_ = reinterpret_cast<uint8_t *>(basePtr_) + adjust;
+    if (!fileName_.empty()) {
+        ABILITYBASE_LOGE("data not empty fileName: %{public}s", fileName_.c_str());
+        return false;
+    }
+
+    dataPtr_ = std::make_unique<uint8_t[]>(len);
+    if (!fileReader->ReadBuffer(dataPtr_.get(), offset, len)) {
+        ABILITYBASE_LOGE("CreateFileMapper, read failed, len[%{public}zu]. fileName: %{public}s, "
+            "offset: %{public}zu", len, fileName.c_str(), offset);
+        dataPtr_.reset();
+        return false;
+    }
+    isCompressed = compress;
+    dataLen_ = len;
+    offset_ = offset;
+    fileName_ = fileName;
+
     return true;
 }
 
@@ -72,9 +106,9 @@ bool FileMapper::IsCompressed()
     return isCompressed;
 }
 
-void* FileMapper::GetDataPtr()
+uint8_t* FileMapper::GetDataPtr()
 {
-    return dataPtr_;
+    return dataPtr_ ? dataPtr_.get() : usePtr_;
 }
 
 size_t FileMapper::GetDataLen()
