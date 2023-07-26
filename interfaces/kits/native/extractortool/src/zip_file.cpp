@@ -127,17 +127,12 @@ bool ZipFile::ParseOneEntry(uint8_t* &entryPtr)
     }
 
     entryPtr += sizeof(CentralDirEntry);
-
-    size_t fileLength = 0;
-    std::string fileName;
-    fileName.reserve(MAX_FILE_NAME);
-    fileName.resize(MAX_FILE_NAME - 1);
-    fileLength = (directoryEntry.nameSize >= MAX_FILE_NAME) ? (MAX_FILE_NAME - 1) : directoryEntry.nameSize;
+    size_t fileLength = (directoryEntry.nameSize >= MAX_FILE_NAME) ? (MAX_FILE_NAME - 1) : directoryEntry.nameSize;
+    std::string fileName(fileLength, 0);
     if (memcpy_s(&(fileName[0]), fileLength, entryPtr, fileLength) != EOK) {
         ABILITYBASE_LOGE("Mem copy file name failed.");
         return false;
     }
-    fileName.resize(fileLength);
 
     ZipEntry currentEntry(directoryEntry);
     currentEntry.fileName = fileName;
@@ -432,43 +427,37 @@ bool ZipFile::CheckDataDesc(const ZipEntry &zipEntry, const LocalHeader &localHe
 
 bool ZipFile::CheckCoherencyLocalHeader(const ZipEntry &zipEntry, uint16_t &extraSize) const
 {
-    LocalHeader localHeader = {0};
-
-    if (zipEntry.localHeaderOffset >= fileLength_) {
-        ABILITYBASE_LOGE("check local file header offset is overflow %{public}d", zipEntry.localHeaderOffset);
-        return false;
-    }
-
-    auto startPos = fileStartPos_ + zipEntry.localHeaderOffset;
-    if (!zipFileReader_->ReadBuffer(reinterpret_cast<uint8_t*>(&localHeader), startPos,
-        sizeof(LocalHeader))) {
-        ABILITYBASE_LOGE("check local header read localheader failed");
-        return false;
-    }
-
-    if ((localHeader.signature != LOCAL_HEADER_SIGNATURE) ||
-        (zipEntry.compressionMethod != localHeader.compressionMethod)) {
-        ABILITYBASE_LOGE("check local header signature or compressionMethod failed");
-        return false;
-    }
-
     // current only support store and Z_DEFLATED method
     if ((zipEntry.compressionMethod != Z_DEFLATED) && (zipEntry.compressionMethod != 0)) {
         ABILITYBASE_LOGE("check local header compressionMethod(%{public}d) not support", zipEntry.compressionMethod);
         return false;
     }
 
-    size_t fileLength = (localHeader.nameSize >= MAX_FILE_NAME) ? (MAX_FILE_NAME - 1) : localHeader.nameSize;
-    if (fileLength != zipEntry.fileName.length()) {
-        ABILITYBASE_LOGE("check local header file name size failed");
+    auto nameSize = zipEntry.fileName.length();
+    auto startPos = fileStartPos_ + zipEntry.localHeaderOffset;
+    size_t buffSize = sizeof(LocalHeader) + nameSize;
+    auto buff = zipFileReader_->ReadBuffer(startPos, buffSize);
+    if (buff.size() < buffSize) {
+        ABILITYBASE_LOGE("read header failed");
         return false;
     }
-    startPos += sizeof(LocalHeader);
-    std::string fileName = zipFileReader_->ReadBuffer(startPos, fileLength);
-    if (fileName.empty()) {
-        ABILITYBASE_LOGE("check local header read file name failed, error");
+
+    LocalHeader localHeader = {0};
+    if (memcpy_s(&localHeader, sizeof(LocalHeader), buff.data(), sizeof(LocalHeader)) != EOK) {
+        ABILITYBASE_LOGE("memcpy localheader failed");
         return false;
     }
+    if ((localHeader.signature != LOCAL_HEADER_SIGNATURE) ||
+        (zipEntry.compressionMethod != localHeader.compressionMethod)) {
+        ABILITYBASE_LOGE("check local header signature or compressionMethod failed");
+        return false;
+    }
+
+    if (localHeader.nameSize != nameSize && nameSize < MAX_FILE_NAME - 1) {
+        ABILITYBASE_LOGE("check local header file name corrupted");
+        return false;
+    }
+    std::string fileName = buff.substr(sizeof(LocalHeader));
     if (zipEntry.fileName != fileName) {
         ABILITYBASE_LOGE("check local header file name corrupted");
         return false;
@@ -840,13 +829,14 @@ bool ZipFile::ExtractToBufByName(const std::string &fileName, std::unique_ptr<ui
         ABILITYBASE_LOGE("GetEntry failed hapPath %{public}s.", fileName.c_str());
         return false;
     }
-    ZipPos offset = 0;
-    uint32_t length = 0;
-    if (!GetDataOffsetRelative(zipEntry, offset, length)) {
-        ABILITYBASE_LOGE("GetDataOffsetRelative failed hapPath %{public}s.", fileName.c_str());
+    uint16_t extraSize = 0;
+    if (!CheckCoherencyLocalHeader(zipEntry, extraSize)) {
+        ABILITYBASE_LOGE("check coherency local header failed");
         return false;
     }
 
+    ZipPos offset = GetEntryDataOffset(zipEntry, extraSize);
+    uint32_t length = zipEntry.compressedSize;
     auto dataTmp = std::make_unique<uint8_t[]>(length);
     if (!zipFileReader_->ReadBuffer(dataTmp.get(), offset, length)) {
         ABILITYBASE_LOGE("read file failed, len[%{public}zu]. fileName: %{public}s, offset: %{public}zu",
@@ -856,12 +846,6 @@ bool ZipFile::ExtractToBufByName(const std::string &fileName, std::unique_ptr<ui
     }
 
     if (zipEntry.compressionMethod > 0) {
-        uint16_t extraSize = 0;
-        if (!CheckCoherencyLocalHeader(zipEntry, extraSize)) {
-            ABILITYBASE_LOGE("check coherency local header failed");
-            return false;
-        }
-
         return UnzipWithInflatedFromMMap(zipEntry, extraSize, dataTmp.get(), dataPtr, len);
     }
 
