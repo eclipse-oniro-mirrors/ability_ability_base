@@ -108,6 +108,11 @@ bool SessionInfo::Marshalling(Parcel& parcel) const
         return false;
     }
 
+    if (!parcel.WriteUint32(callingTokenId)) {
+        ABILITYBASE_LOGE("Write callingTokenId failed.");
+        return false;
+    }
+
     if (!parcel.WriteParcelable(&want)) {
         ABILITYBASE_LOGE("Write want failed.");
         return false;
@@ -140,6 +145,7 @@ SessionInfo* SessionInfo::Unmarshalling(Parcel& parcel)
     info->startSetting.reset(parcel.ReadParcelable<AbilityStartSetting>());
     info->isNewWant = parcel.ReadBool();
     info->isClearSession = parcel.ReadBool();
+    info->callingTokenId = parcel.ReadUint32();
 
     std::unique_ptr<Want> want(parcel.ReadParcelable<Want>());
     if (want != nullptr) {
