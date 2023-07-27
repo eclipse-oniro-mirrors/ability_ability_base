@@ -312,26 +312,6 @@ HWTEST_F(ExtractorTest, ExtractFile_001, TestSize.Level1)
 
 /*
  * Feature: Extractor
- * Function: GetZipFileNames
- * SubFunction: NA
- * FunctionPoints:Get zip file names
- * EnvConditions: NA
- * CaseDescription: Create extractor, call get zip file names function.
- */
-HWTEST_F(ExtractorTest, GetZipFileNames_001, TestSize.Level1)
-{
-    std::shared_ptr<Extractor> extractor = std::make_shared<Extractor>(testPath_);
-    std::vector<std::string> fileList;
-    EXPECT_FALSE(extractor->GetZipFileNames(fileList));
-    EXPECT_TRUE(fileList.size() == 0);
-
-    extractor->Init();
-    EXPECT_TRUE(extractor->GetZipFileNames(fileList));
-    EXPECT_TRUE(fileList.size() > 0);
-}
-
-/*
- * Feature: Extractor
  * Function: GetSpecifiedTypeFiles
  * SubFunction: NA
  * FunctionPoints:Get specified type files

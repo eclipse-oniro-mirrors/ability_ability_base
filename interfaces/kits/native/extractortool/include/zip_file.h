@@ -17,10 +17,13 @@
 #define OHOS_ABILITY_BASE_ZIP_FILE_H
 
 #include <cstdint>
-#include <map>
+#include <memory>
 #include <mutex>
+#include <set>
 #include <string>
 #include <signal.h>
+#include <unordered_map>
+#include <vector>
 
 #include "unzip.h"
 
@@ -29,7 +32,7 @@ namespace AbilityBase {
 struct CentralDirEntry;
 struct ZipEntry;
 using ZipPos = ZPOS64_T;
-using ZipEntryMap = std::map<std::string, ZipEntry>;
+using ZipEntryMap = std::unordered_map<std::string, ZipEntry>;
 using BytePtr = Byte *;
 
 // Local file header: descript in APPNOTE-6.3.4
@@ -152,6 +155,10 @@ struct ZipEntry {
     std::string fileName;
 };
 
+struct DirTreeNode {
+    std::unordered_map<std::string, std::shared_ptr<DirTreeNode>> children;
+};
+
 // zip file extract class for bundle format.
 class ZipFile {
 public:
@@ -187,6 +194,8 @@ public:
     bool HasEntry(const std::string &entryName) const;
 
     bool IsDirExist(const std::string &dir) const;
+    void GetAllFileList(const std::string &srcPath, std::vector<std::string> &assetList);
+    void GetChildNames(const std::string &srcPath, std::set<std::string> &fileSet);
 
     /**
      * @brief Get entry by name.
@@ -247,6 +256,7 @@ private:
      * @return Returns true if successfully parsed; returns false otherwise.
      */
     bool ParseOneEntry(uint8_t* &entryPtr);
+    void AddEntryToTree(const std::string &fileName);
     /**
      * @brief Parse all Entries.
      * @return Returns true if successfully parsed; returns false otherwise.
@@ -329,6 +339,7 @@ private:
     FILE *file_ = nullptr;
     EndDir endDir_;
     ZipEntryMap entriesMap_;
+    std::shared_ptr<DirTreeNode> dirRoot_;
     // offset of central directory relative to zip file.
     ZipPos centralDirPos_ = 0;
     // this zip content start offset relative to zip file.

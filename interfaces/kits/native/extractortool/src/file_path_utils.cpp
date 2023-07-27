@@ -449,6 +449,9 @@ std::string GetLoadPath(const std::string& hapPath)
 
 std::string GetRelativePath(const std::string& srcPath)
 {
+    if (srcPath.empty() || srcPath[0] != '/') {
+        return srcPath;
+    }
     std::regex srcPattern(Constants::LOCAL_CODE_PATH);
     std::string relativePath = std::regex_replace(srcPath, srcPattern, "");
     if (relativePath.find(Constants::FILE_SEPARATOR) == 0) {
