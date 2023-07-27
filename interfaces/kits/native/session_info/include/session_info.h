@@ -57,6 +57,7 @@ public:
     Want want;
     int32_t userId = -1;
     bool isNewWant = true;
+    bool isClearSession = false;
 };
 } // namespace AAFwk
 } // namespace OHOS

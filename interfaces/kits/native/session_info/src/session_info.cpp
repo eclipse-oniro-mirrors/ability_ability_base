@@ -99,6 +99,12 @@ bool SessionInfo::Marshalling(Parcel& parcel) const
     }
 
     if (!parcel.WriteBool(isNewWant)) {
+        ABILITYBASE_LOGE("Write isNewWant failed.");
+        return false;
+    }
+
+    if (!parcel.WriteBool(isClearSession)) {
+        ABILITYBASE_LOGE("Write isClearSession failed.");
         return false;
     }
 
@@ -133,6 +139,7 @@ SessionInfo* SessionInfo::Unmarshalling(Parcel& parcel)
     info->uiAbilityId = parcel.ReadInt64();
     info->startSetting.reset(parcel.ReadParcelable<AbilityStartSetting>());
     info->isNewWant = parcel.ReadBool();
+    info->isClearSession = parcel.ReadBool();
 
     std::unique_ptr<Want> want(parcel.ReadParcelable<Want>());
     if (want != nullptr) {
