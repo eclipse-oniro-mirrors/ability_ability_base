@@ -817,6 +817,8 @@ public:
      */
     std::string GetModuleName() const;
 
+    void CloseAllFd();
+
 public:
     // action definition
     static const std::string ACTION_PLAY;

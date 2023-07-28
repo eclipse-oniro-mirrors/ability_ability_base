@@ -158,6 +158,16 @@ WantParams::WantParams(WantParams && other) noexcept
 }
 
 // inner use function
+bool WantParams::NewFds(const WantParams &source, WantParams &dest)
+{
+    // Deep copy
+    for (auto it : source.fds_) {
+        dest.fds_.emplace_back(it);
+    }
+    return true;
+}  // namespace AAFwk
+
+// inner use function
 bool WantParams::NewParams(const WantParams &source, WantParams &dest)
 {
     // Deep copy
@@ -237,7 +247,9 @@ WantParams &WantParams::operator=(const WantParams &other)
 {
     if (this != &other) {
         params_.clear();
+        fds_.clear();
         NewParams(other, *this);
+        NewFds(other, *this);
     }
     return *this;
 }
@@ -250,6 +262,9 @@ WantParams &WantParams::operator=(WantParams &&other) noexcept
         params_ = other.params_;
         // free other resources.
         other.params_.clear();
+        fds_.clear();
+        fds_ = other.fds_;
+        other.fds_.clear();
     }
     return *this;
 }
@@ -1297,6 +1312,7 @@ bool WantParams::ReadFromParcelFD(Parcel &parcel, const std::string &key)
     wp.SetParam(VALUE_PROPERTY, Integer::Box(fd));
     sptr<AAFwk::IWantParams> pWantParams = AAFwk::WantParamWrapper::Box(wp);
     SetParam(key, pWantParams);
+    fds_.emplace_back(fd);
     return true;
 }
 
@@ -1511,6 +1527,15 @@ void WantParams::DumpInfo(int level) const
             ABILITYBASE_LOGI("=WantParams[%{public}s]:%{private}s =======", it.first.c_str(), value.c_str());
         } else {
             ABILITYBASE_LOGI("=WantParams[%{public}s]:type error =======", it.first.c_str());
+        }
+    }
+}
+
+void WantParams::CloseAllFd()
+{
+    for (auto fd : fds_) {
+        if (fd > 0) {
+            close(fd);
         }
     }
 }

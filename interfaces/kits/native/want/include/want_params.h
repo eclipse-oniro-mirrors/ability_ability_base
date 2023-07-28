@@ -18,6 +18,7 @@
 #include <iostream>
 #include <map>
 #include <set>
+#include <unistd.h>
 #include <vector>
 #include "base_interfaces.h"
 #include "refbase.h"
@@ -94,6 +95,8 @@ public:
 
     void DumpInfo(int level) const;
 
+    void CloseAllFd();
+    
 private:
     enum {
         VALUE_TYPE_NULL = -1,
@@ -191,7 +194,9 @@ private:
     // inner use function
     bool NewArrayData(IArray *source, sptr<IArray> &dest);
     bool NewParams(const WantParams &source, WantParams &dest);
+    bool NewFds(const WantParams &source, WantParams &dest);
     std::map<std::string, sptr<IInterface>> params_;
+    std::vector<int> fds_;
     std::vector<UnsupportedData> cachedUnsupportedData_;
 };
 }  // namespace AAFwk

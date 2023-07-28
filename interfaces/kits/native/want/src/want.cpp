@@ -2184,5 +2184,10 @@ bool Want::ReadParameters(Parcel &parcel)
 
     return true;
 }
+
+void Want::CloseAllFd()
+{
+    parameters_.CloseAllFd();
+}
 }  // namespace AAFwk
 }  // namespace OHOS
