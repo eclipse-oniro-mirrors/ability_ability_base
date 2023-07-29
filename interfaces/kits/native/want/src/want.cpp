@@ -1928,7 +1928,7 @@ bool Want::ReadFromJson(nlohmann::json &wantJson)
 
 std::string Want::ToString() const
 {
-    return ToJson().dump();
+    return ToJson().dump(-1, ' ', false, nlohmann::json::error_handler_t::ignore);
 }
 
 Want *Want::FromString(std::string &string)
