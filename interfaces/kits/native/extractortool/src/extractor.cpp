@@ -28,16 +28,13 @@ namespace AbilityBase {
 namespace {
 constexpr char EXT_NAME_ABC[] = ".abc";
 }
-Extractor::Extractor(const std::string &source) : sourceFile_(source), zipFile_(source)
+Extractor::Extractor(const std::string &source) : zipFile_(source)
 {
     hapPath_ = source;
 }
 
 Extractor::~Extractor()
-{
-    mapperCache_.clear();
-    zipFile_.Close();
-}
+{}
 
 bool Extractor::Init()
 {
@@ -190,16 +187,7 @@ std::shared_ptr<FileMapper> Extractor::GetSafeData(const std::string &fileName)
         return nullptr;
     }
 
-    auto it = mapperCache_.find(relativePath);
-    if (it != mapperCache_.end()) {
-        return it->second;
-    }
-
-    std::shared_ptr<FileMapper> result = zipFile_.CreateFileMapper(relativePath, true);
-    if (result) {
-        mapperCache_[relativePath] = result;
-    }
-    return result;
+    return zipFile_.CreateFileMapper(relativePath, true);
 }
 
 bool Extractor::UnzipData(std::unique_ptr<FileMapper> fileMapper,
@@ -235,12 +223,7 @@ bool Extractor::ExtractToBufByName(const std::string &fileName, std::unique_ptr<
     size_t &len)
 {
     std::string relativePath = GetRelativePath(fileName);
-    auto ret = zipFile_.ExtractToBufByName(relativePath, dataPtr, len);
-    if (!ret) {
-        return false;
-    }
-
-    return true;
+    return zipFile_.ExtractToBufByName(relativePath, dataPtr, len);
 }
 
 bool Extractor::GetFileInfo(const std::string &fileName, FileInfo &fileInfo) const
@@ -300,7 +283,6 @@ bool Extractor::IsHapCompress(const std::string &fileName) const
 
 std::mutex ExtractorUtil::mapMutex_;
 std::unordered_map<std::string, std::shared_ptr<Extractor>> ExtractorUtil::extractorMap_;
-std::vector<std::shared_ptr<Extractor>> ExtractorUtil::removedExtractors_;
 std::string ExtractorUtil::GetLoadFilePath(const std::string &hapPath)
 {
     std::string loadPath;
@@ -312,7 +294,7 @@ std::string ExtractorUtil::GetLoadFilePath(const std::string &hapPath)
     return loadPath;
 }
 
-std::shared_ptr<Extractor> ExtractorUtil::GetExtractor(const std::string &hapPath, bool &newCreate)
+std::shared_ptr<Extractor> ExtractorUtil::GetExtractor(const std::string &hapPath, bool &newCreate, bool cache)
 {
     newCreate = false;
     if (hapPath.empty()) {
@@ -333,9 +315,10 @@ std::shared_ptr<Extractor> ExtractorUtil::GetExtractor(const std::string &hapPat
         ABILITYBASE_LOGE("Extractor create failed for %{private}s", hapPath.c_str());
         return nullptr;
     }
-    {
+    if (cache) {
         std::lock_guard<std::mutex> mapMutex(mapMutex_);
         extractorMap_.emplace(hapPath, extractor);
+        ABILITYBASE_LOGI("extractor cache size: %{public}zu.", extractorMap_.size());
     }
     newCreate = true;
     return extractor;
@@ -352,10 +335,6 @@ void ExtractorUtil::DeleteExtractor(const std::string &hapPath)
     auto mapIter = extractorMap_.find(hapPath);
     if (mapIter != extractorMap_.end()) {
         ABILITYBASE_LOGI("DeleteExtractor, hapPath: %{public}s.", hapPath.c_str());
-        if (mapIter->second && !mapIter->second->IsRemoveable()) {
-            removedExtractors_.push_back(mapIter->second);
-            ABILITYBASE_LOGI("size:  %{public}zu", removedExtractors_.size());
-        }
         extractorMap_.erase(mapIter);
     }
 }

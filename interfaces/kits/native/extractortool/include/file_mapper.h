@@ -30,7 +30,7 @@ public:
     ~FileMapper();
 
     bool CreateFileMapper(const std::string &fileName, bool compress,
-        int32_t fd, size_t offset, size_t len);
+        int32_t fd, size_t offset, size_t len, bool release = true);
 
     bool CreateFileMapper(std::shared_ptr<ZipFileReader> fileReader, const std::string &fileName,
         size_t offset, size_t len, bool compress);
@@ -51,6 +51,7 @@ private:
     uint8_t* basePtr_ = nullptr;
     uint8_t* usePtr_ = nullptr;
     size_t baseLen_ = 0;
+    bool release_ = true;
 };
 }  // namespace AbilityBase
 }  // namespace OHOS

@@ -35,13 +35,13 @@ FileMapper::FileMapper()
 
 FileMapper::~FileMapper()
 {
-    if (basePtr_) {
+    if (basePtr_ != nullptr && release_) {
         munmap(basePtr_, baseLen_);
     }
 }
 
 bool FileMapper::CreateFileMapper(const std::string &fileName, bool compress,
-    int32_t fd, size_t offset, size_t len)
+    int32_t fd, size_t offset, size_t len, bool release)
 {
     if (fd < 0 || len == 0) {
         ABILITYBASE_LOGE("Invalid param fileName: %{public}s", fileName.c_str());
@@ -71,6 +71,7 @@ bool FileMapper::CreateFileMapper(const std::string &fileName, bool compress,
     offset_ = offset;
     dataLen_ = len;
     usePtr_ = reinterpret_cast<uint8_t *>(basePtr_) + adjust;
+    release_ = release;
     return true;
 }
 

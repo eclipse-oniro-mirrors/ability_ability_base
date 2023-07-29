@@ -24,7 +24,7 @@
 
 namespace OHOS {
 namespace AbilityBase {
-constexpr size_t MEM_MAX_FILE_SIZE = 1u << 20;
+constexpr size_t MEM_MAX_FILE_SIZE = 1u;
 
 std::shared_ptr<ZipFileReader> ZipFileReader::CreateZipFileReader(const std::string &filePath)
 {
@@ -50,7 +50,7 @@ std::shared_ptr<ZipFileReader> ZipFileReader::CreateZipFileReader(const std::str
 
 ZipFileReader::~ZipFileReader()
 {
-    if (fd_ >= 0) {
+    if (fd_ >= 0 && closable_) {
         close(fd_);
         fd_ = -1;
     }

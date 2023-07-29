@@ -95,36 +95,22 @@ public:
      * For abc file only, to mmap to safe region.
      */
     std::shared_ptr<FileMapper> GetSafeData(const std::string &fileName);
-    /**
-     * Cached mmap memory has been transfered to the outside and could be in use for life-long time.
-     * So the zip file is not able to be cloesd.
-     */
-    bool IsRemoveable() const
-    {
-        return mapperCache_.empty();
-    }
 private:
-    const std::string sourceFile_;
     ZipFile zipFile_;
     bool initial_ = false;
     std::string hapPath_;
     std::optional<bool> isStageModel_;
-
-    std::mutex cacheMutex_;
-    std::unordered_map<std::string, std::shared_ptr<FileMapper>> mapperCache_;
 };
 
 class ExtractorUtil {
 public:
     static std::string GetLoadFilePath(const std::string &hapPath);
-    static std::shared_ptr<Extractor> GetExtractor(const std::string &hapPath, bool &newCreate);
+    static std::shared_ptr<Extractor> GetExtractor(const std::string &hapPath, bool &newCreate, bool cache = false);
     static void DeleteExtractor(const std::string &hapPath);
 
 private:
     static std::mutex mapMutex_;
     static std::unordered_map<std::string, std::shared_ptr<Extractor>> extractorMap_;
-
-    static std::vector<std::shared_ptr<Extractor>> removedExtractors_;
 };
 }  // namespace AbilityBase
 }  // namespace OHOS
