@@ -28,7 +28,7 @@ public:
     static std::shared_ptr<ZipFileReader> CreateZipFileReader(const std::string &filePath);
     static size_t GetFileLen(const std::string &filePath);
 
-    ZipFileReader(const std::string &filePath) : filePath_(filePath), fileLen_(0), fd_(-1) {}
+    ZipFileReader(const std::string &filePath) : filePath_(filePath) {}
     ZipFileReader(ZipFileReader &) = delete;
     void operator=(ZipFileReader &) = delete;
     virtual ~ZipFileReader();
@@ -43,6 +43,10 @@ public:
     {
         return fd_;
     }
+    void SetClosable(bool closable)
+    {
+        closable_ = closable;
+    }
 protected:
     virtual bool init();
 
@@ -51,7 +55,9 @@ protected:
     size_t fileLen_;
 
     // For safe memory, reserve this field and keep the file opened.
-    int fd_;
+    int fd_ = -1;
+    // close fd in destructor
+    bool closable_ = true;
 };
 }
 }

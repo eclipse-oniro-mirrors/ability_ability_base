@@ -812,9 +812,16 @@ std::unique_ptr<FileMapper> ZipFile::CreateFileMapper(const std::string &fileNam
         ABILITYBASE_LOGW("Entry is compressed for safe: %{public}s.", fileName.c_str());
     }
     std::unique_ptr<FileMapper> fileMapper = std::make_unique<FileMapper>();
-    bool result = safe ?
-        fileMapper->CreateFileMapper(fileName, compress, zipFileReader_->GetFd(), offset, length) :
-        fileMapper->CreateFileMapper(zipFileReader_, fileName, offset, length, compress);
+    auto result = false;
+    if (safe) {
+        result = fileMapper->CreateFileMapper(fileName, compress, zipFileReader_->GetFd(), offset, length, false);
+        if (result) {
+            zipFileReader_->SetClosable(false);
+        }
+    } else {
+        result = fileMapper->CreateFileMapper(zipFileReader_, fileName, offset, length, compress);
+    }
+
     if (!result) {
         return nullptr;
     }
