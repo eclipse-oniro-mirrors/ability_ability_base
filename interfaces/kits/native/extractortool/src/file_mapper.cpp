@@ -23,7 +23,7 @@
 namespace OHOS {
 namespace AbilityBase {
 namespace {
-int g_pageSize = 0;
+size_t g_pageSize = 0;
 const int32_t MAP_XPM = 0x40;
 }
 FileMapper::FileMapper()
