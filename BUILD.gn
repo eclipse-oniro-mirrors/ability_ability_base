@@ -265,6 +265,9 @@ ohos_shared_library("extractortool") {
     "interfaces/kits/native/extractortool/src/extractor.cpp",
     "interfaces/kits/native/extractortool/src/file_mapper.cpp",
     "interfaces/kits/native/extractortool/src/zip_file.cpp",
+    "interfaces/kits/native/extractortool/src/zip_file_reader.cpp",
+    "interfaces/kits/native/extractortool/src/zip_file_reader_io.cpp",
+    "interfaces/kits/native/extractortool/src/zip_file_reader_mem.cpp",
   ]
 
   cflags = []
