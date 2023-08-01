@@ -23,7 +23,7 @@
 namespace OHOS {
 namespace AbilityBase {
 namespace {
-size_t g_pageSize = 0;
+long g_pageSize = 0;
 const int32_t MAP_XPM = 0x40;
 }
 FileMapper::FileMapper()
@@ -47,12 +47,16 @@ bool FileMapper::CreateFileMapper(const std::string &fileName, bool compress,
         ABILITYBASE_LOGE("Invalid param fileName: %{public}s", fileName.c_str());
         return false;
     }
+    if (g_pageSize <= 0) {
+        ABILITYBASE_LOGE("Wrong Pagesize: %{public}ld", g_pageSize);
+        return false;
+    }
     if (dataLen_ > 0) {
         ABILITYBASE_LOGE("data not empty fileName: %{public}s", fileName_.c_str());
         return false;
     }
 
-    size_t adjust = offset % g_pageSize;
+    size_t adjust = offset % static_cast<size_t>(g_pageSize);
     size_t adjOffset = offset - adjust;
     baseLen_ = len + adjust;
     int32_t mmapFlag = MAP_PRIVATE | MAP_XPM;
@@ -60,7 +64,7 @@ bool FileMapper::CreateFileMapper(const std::string &fileName, bool compress,
         mmapFlag, fd, adjOffset);
     if (basePtr_ == MAP_FAILED) {
         ABILITYBASE_LOGE("CreateFileMapper, mmap failed, errno[%{public}d]. fileName: %{public}s, "
-            "offset: %{public}zu, pageSize: %{public}d, mmapFlag: %{public}d",
+            "offset: %{public}zu, pageSize: %{public}ld, mmapFlag: %{public}d",
             errno, fileName.c_str(), offset, g_pageSize, mmapFlag);
         baseLen_ = 0;
         return false;

@@ -46,8 +46,8 @@ bool ZipFileReaderIo::ReadBuffer(uint8_t *dst, size_t startPos, size_t bufferSiz
         return false;
     }
 
-    const size_t readCount = pread(fd_, dst, bufferSize, startPos);
-    if (readCount < 0 || readCount < bufferSize) {
+    auto const readCount = pread(fd_, dst, bufferSize, startPos);
+    if (readCount < 0 || static_cast<size_t>(readCount) < bufferSize) {
         ABILITYBASE_LOGE("readfile error: %{public}s-%{public}d", filePath_.c_str(), errno);
         return false;
     }
