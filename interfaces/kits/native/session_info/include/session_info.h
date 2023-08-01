@@ -59,6 +59,7 @@ public:
     int32_t userId = -1;
     bool isNewWant = true;
     bool isClearSession = false;
+    uint32_t callingTokenId = 0;
 };
 } // namespace AAFwk
 } // namespace OHOS
