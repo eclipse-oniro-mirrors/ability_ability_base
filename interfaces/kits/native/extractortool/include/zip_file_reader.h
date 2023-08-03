@@ -52,7 +52,7 @@ protected:
 
 protected:
     std::string filePath_;
-    size_t fileLen_;
+    size_t fileLen_ = 0;
 
     // For safe memory, reserve this field and keep the file opened.
     int fd_ = -1;

@@ -76,10 +76,14 @@ bool ZipFileReader::init()
     if (filePath_.empty()) {
         return false;
     }
-
-    fd_ = open(filePath_.c_str(), O_RDONLY);
+    char resolvePath[PATH_MAX] = {0};
+    if (realpath(filePath_.c_str(), resolvePath) == nullptr) {
+        ABILITYBASE_LOGE("realpath error: %{public}s : %{public}d", resolvePath, errno);
+        return false;
+    }
+    fd_ = open(resolvePath, O_RDONLY);
     if (fd_ < 0) {
-        ABILITYBASE_LOGE("open file error: %{public}s : %{public}d", filePath_.c_str(), errno);
+        ABILITYBASE_LOGE("open file error: %{public}s : %{public}d", resolvePath, errno);
         return false;
     }
 
