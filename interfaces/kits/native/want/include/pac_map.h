@@ -556,6 +556,7 @@ private:
 
     bool IsNumber(const std::string &str);
     bool CompareArrayData(AAFwk::IInterface *one_interface, AAFwk::IInterface *two_interface);
+    bool JudgeType(Json::Value &item);
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
