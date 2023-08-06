@@ -196,7 +196,7 @@ private:
     bool NewParams(const WantParams &source, WantParams &dest);
     bool NewFds(const WantParams &source, WantParams &dest);
     std::map<std::string, sptr<IInterface>> params_;
-    std::vector<int> fds_;
+    std::map<std::string, int> fds_;
     std::vector<UnsupportedData> cachedUnsupportedData_;
 };
 }  // namespace AAFwk

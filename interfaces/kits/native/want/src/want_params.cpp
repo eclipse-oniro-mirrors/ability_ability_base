@@ -162,7 +162,7 @@ bool WantParams::NewFds(const WantParams &source, WantParams &dest)
 {
     // Deep copy
     for (auto it : source.fds_) {
-        dest.fds_.emplace_back(it);
+        dest.fds_[it.first] = it.second;
     }
     return true;
 }  // namespace AAFwk
@@ -1312,7 +1312,7 @@ bool WantParams::ReadFromParcelFD(Parcel &parcel, const std::string &key)
     wp.SetParam(VALUE_PROPERTY, Integer::Box(fd));
     sptr<AAFwk::IWantParams> pWantParams = AAFwk::WantParamWrapper::Box(wp);
     SetParam(key, pWantParams);
-    fds_.emplace_back(fd);
+    fds_[key] = fd;
     return true;
 }
 
@@ -1533,11 +1533,14 @@ void WantParams::DumpInfo(int level) const
 
 void WantParams::CloseAllFd()
 {
-    for (auto fd : fds_) {
-        if (fd > 0) {
-            close(fd);
+    for (auto it : fds_) {
+        if (it.second > 0) {
+            ABILITYBASE_LOGI("CloseAllFd fd:%{public}d.", it.second);
+            close(it.second);
         }
+        params_.erase(it.first);
     }
+    fds_.clear();
 }
 }  // namespace AAFwk
 }  // namespace OHOS
