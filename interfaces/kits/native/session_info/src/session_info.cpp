@@ -118,6 +118,11 @@ bool SessionInfo::Marshalling(Parcel& parcel) const
         return false;
     }
 
+    if (!parcel.WriteBool(reuse)) {
+        ABILITYBASE_LOGE("Write reuse failed.");
+        return false;
+    }
+
     if (!parcel.WriteParcelable(&want)) {
         ABILITYBASE_LOGE("Write want failed.");
         return false;
@@ -152,6 +157,7 @@ SessionInfo* SessionInfo::Unmarshalling(Parcel& parcel)
     info->isNewWant = parcel.ReadBool();
     info->isClearSession = parcel.ReadBool();
     info->callingTokenId = parcel.ReadUint32();
+    info->reuse = parcel.ReadBool();
 
     std::unique_ptr<Want> want(parcel.ReadParcelable<Want>());
     if (want != nullptr) {

@@ -60,6 +60,7 @@ public:
     bool isNewWant = true;
     bool isClearSession = false;
     uint32_t callingTokenId = 0;
+    bool reuse = false;
 };
 } // namespace AAFwk
 } // namespace OHOS
