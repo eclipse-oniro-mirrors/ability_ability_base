@@ -61,6 +61,7 @@ public:
     bool isClearSession = false;
     uint32_t callingTokenId = 0;
     bool reuse = false;
+    int32_t collaboratorType = 0;
 };
 } // namespace AAFwk
 } // namespace OHOS
