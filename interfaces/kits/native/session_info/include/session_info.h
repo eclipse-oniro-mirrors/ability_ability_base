@@ -62,6 +62,7 @@ public:
     uint32_t callingTokenId = 0;
     bool reuse = false;
     int32_t collaboratorType = 0;
+    std::string sessionName = "";
 };
 } // namespace AAFwk
 } // namespace OHOS

@@ -128,6 +128,11 @@ bool SessionInfo::Marshalling(Parcel& parcel) const
         return false;
     }
 
+    if (!parcel.WriteString(sessionName)) {
+        ABILITYBASE_LOGE("Write sessionName failed.");
+        return false;
+    }
+
     if (!parcel.WriteParcelable(&want)) {
         ABILITYBASE_LOGE("Write want failed.");
         return false;
@@ -164,6 +169,7 @@ SessionInfo* SessionInfo::Unmarshalling(Parcel& parcel)
     info->callingTokenId = parcel.ReadUint32();
     info->reuse = parcel.ReadBool();
     info->collaboratorType = parcel.ReadInt32();
+    info->sessionName = parcel.ReadString();
 
     std::unique_ptr<Want> want(parcel.ReadParcelable<Want>());
     if (want != nullptr) {
