@@ -35,15 +35,15 @@ FileMapper::FileMapper()
 
 FileMapper::~FileMapper()
 {
-    if (basePtr_ != nullptr && release_) {
+    if (basePtr_ != nullptr && type_ == FileMapperType::SHARED_MMAP) {
         munmap(basePtr_, baseLen_);
     }
 }
 
 bool FileMapper::CreateFileMapper(const std::string &fileName, bool compress,
-    int32_t fd, size_t offset, size_t len, bool release)
+    int32_t fd, size_t offset, size_t len, FileMapperType type)
 {
-    if (fd < 0 || len == 0) {
+    if (fd < 0 || len == 0 || type == FileMapperType::NORMAL_MEM) {
         ABILITYBASE_LOGE("Invalid param fileName: %{public}s", fileName.c_str());
         return false;
     }
@@ -60,6 +60,9 @@ bool FileMapper::CreateFileMapper(const std::string &fileName, bool compress,
     size_t adjOffset = offset - adjust;
     baseLen_ = len + adjust;
     int32_t mmapFlag = MAP_PRIVATE | MAP_XPM;
+    if (type == FileMapperType::SHARED_MMAP) {
+        mmapFlag = MAP_SHARED;
+    }
     basePtr_ = (uint8_t*)mmap(nullptr, baseLen_, PROT_READ,
         mmapFlag, fd, adjOffset);
     if (basePtr_ == MAP_FAILED) {
@@ -75,7 +78,7 @@ bool FileMapper::CreateFileMapper(const std::string &fileName, bool compress,
     offset_ = offset;
     dataLen_ = len;
     usePtr_ = reinterpret_cast<uint8_t *>(basePtr_) + adjust;
-    release_ = release;
+    type_ = type;
     return true;
 }
 

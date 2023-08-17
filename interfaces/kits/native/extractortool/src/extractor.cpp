@@ -177,7 +177,7 @@ bool Extractor::IsSameHap(const std::string& hapPath) const
 std::unique_ptr<FileMapper> Extractor::GetData(const std::string &fileName, bool) const
 {
     std::string relativePath = GetRelativePath(fileName);
-    return zipFile_.CreateFileMapper(relativePath);
+    return zipFile_.CreateFileMapper(relativePath, FileMapperType::NORMAL_MEM);
 }
 
 std::shared_ptr<FileMapper> Extractor::GetSafeData(const std::string &fileName)
@@ -187,7 +187,13 @@ std::shared_ptr<FileMapper> Extractor::GetSafeData(const std::string &fileName)
         return nullptr;
     }
 
-    return zipFile_.CreateFileMapper(relativePath, true);
+    return zipFile_.CreateFileMapper(relativePath, FileMapperType::SAFE_ABC);
+}
+
+std::unique_ptr<FileMapper> Extractor::GetMmapData(const std::string &fileName)
+{
+    std::string relativePath = GetRelativePath(fileName);
+    return zipFile_.CreateFileMapper(relativePath, FileMapperType::SHARED_MMAP);
 }
 
 bool Extractor::UnzipData(std::unique_ptr<FileMapper> fileMapper,

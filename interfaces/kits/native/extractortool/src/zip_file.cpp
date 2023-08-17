@@ -793,7 +793,7 @@ bool ZipFile::ReadZStreamFromMMap(const BytePtr &buffer, void* &dataPtr,
     return true;
 }
 
-std::unique_ptr<FileMapper> ZipFile::CreateFileMapper(const std::string &fileName, bool safe) const
+std::unique_ptr<FileMapper> ZipFile::CreateFileMapper(const std::string &fileName, FileMapperType type) const
 {
     ZipEntry zipEntry;
     if (!GetEntry(fileName, zipEntry)) {
@@ -808,18 +808,18 @@ std::unique_ptr<FileMapper> ZipFile::CreateFileMapper(const std::string &fileNam
         return nullptr;
     }
     bool compress = zipEntry.compressionMethod > 0;
-    if (safe && compress) {
+    if (type == FileMapperType::SAFE_ABC && compress) {
         ABILITYBASE_LOGW("Entry is compressed for safe: %{public}s.", fileName.c_str());
     }
     std::unique_ptr<FileMapper> fileMapper = std::make_unique<FileMapper>();
     auto result = false;
-    if (safe) {
-        result = fileMapper->CreateFileMapper(fileName, compress, zipFileReader_->GetFd(), offset, length, false);
-        if (result) {
+    if (type == FileMapperType::NORMAL_MEM) {
+        result = fileMapper->CreateFileMapper(zipFileReader_, fileName, offset, length, compress);
+    } else {
+        result = fileMapper->CreateFileMapper(fileName, compress, zipFileReader_->GetFd(), offset, length, type);
+        if (result && type == FileMapperType::SAFE_ABC) {
             zipFileReader_->SetClosable(false);
         }
-    } else {
-        result = fileMapper->CreateFileMapper(zipFileReader_, fileName, offset, length, compress);
     }
 
     if (!result) {
