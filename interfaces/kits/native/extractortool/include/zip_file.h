@@ -22,12 +22,12 @@
 #include <unordered_map>
 #include <vector>
 
+#include "file_mapper.h"
 #include "unzip.h"
 
 namespace OHOS {
 namespace AbilityBase {
 class ZipFileReader;
-class FileMapper;
 struct CentralDirEntry;
 struct ZipEntry;
 using ZipPos = ZPOS64_T;
@@ -222,7 +222,7 @@ public:
     bool ExtractFileFromMMap(const std::string &file, void *mmapDataPtr,
         std::unique_ptr<uint8_t[]> &dataPtr, size_t &len) const;
 
-    std::unique_ptr<FileMapper> CreateFileMapper(const std::string &fileName, bool safe = false) const;
+    std::unique_ptr<FileMapper> CreateFileMapper(const std::string &fileName, FileMapperType type) const;
     bool ExtractToBufByName(const std::string &fileName, std::unique_ptr<uint8_t[]> &dataPtr,
         size_t &len) const;
 private:
