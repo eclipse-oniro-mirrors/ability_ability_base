@@ -82,6 +82,12 @@ public:
     bool IsSameHap(const std::string& hapPath) const;
 
     std::unique_ptr<FileMapper> GetData(const std::string &fileName, bool safeRegion = false) const;
+    /**
+     * Do not use this method unless you exactly know what you are doing.
+     * For file item that user will handle errors, to mmap to safe region.
+     * User should make sure the extractor's release goes after the data's.
+     */
+    std::unique_ptr<FileMapper> GetMmapData(const std::string &fileName);
 
     bool UnzipData(std::unique_ptr<FileMapper> fileMapper, std::unique_ptr<uint8_t[]> &dataPtr, size_t &len) const;
     bool IsStageModel();

@@ -22,6 +22,11 @@
 namespace OHOS {
 namespace AbilityBase {
 class ZipFileReader;
+enum class FileMapperType {
+    NORMAL_MEM,
+    SHARED_MMAP,
+    SAFE_ABC
+};
 class FileMapper {
 public:
     FileMapper();
@@ -30,7 +35,7 @@ public:
     ~FileMapper();
 
     bool CreateFileMapper(const std::string &fileName, bool compress,
-        int32_t fd, size_t offset, size_t len, bool release = true);
+        int32_t fd, size_t offset, size_t len, FileMapperType type);
 
     bool CreateFileMapper(std::shared_ptr<ZipFileReader> fileReader, const std::string &fileName,
         size_t offset, size_t len, bool compress);
@@ -51,7 +56,7 @@ private:
     uint8_t* basePtr_ = nullptr;
     uint8_t* usePtr_ = nullptr;
     size_t baseLen_ = 0;
-    bool release_ = true;
+    FileMapperType type_ = FileMapperType::NORMAL_MEM;
 };
 }  // namespace AbilityBase
 }  // namespace OHOS
