@@ -103,6 +103,10 @@ config("zuri_config") {
   }
 }
 
+config("zuri_exceptions") {
+  cflags_cc = [ "-fexceptions" ]
+}
+
 config("zuri_all_dependent_config") {
   include_dirs = [ "${ability_base_kits_native_path}/uri/include" ]
 }
@@ -113,6 +117,8 @@ ohos_shared_library("zuri") {
   all_dependent_configs = [ ":zuri_all_dependent_config" ]
 
   sources = [ "interfaces/kits/native/uri/src/uri.cpp" ]
+
+  configs = [ ":zuri_exceptions" ]
 
   deps = []
 
