@@ -1476,6 +1476,10 @@ bool PacMap::StringToMapList(const std::string &str, PacMapList &mapList)
         return false;
     }
 
+    if (!root.isObject() && !root.isNull()) {
+        return false;
+    }
+
     if (!root.isMember("pacmap")) {
         return false;
     }
