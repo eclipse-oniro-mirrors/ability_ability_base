@@ -71,9 +71,7 @@ Uri::Uri(const string& uriString)
 }
 
 Uri::~Uri()
-{
-    HiLog::Debug(LABEL, "Uri has been destroyed");
-}
+{}
 
 bool Uri::CheckScheme()
 {
@@ -81,7 +79,15 @@ bool Uri::CheckScheme()
     if (scheme_.empty()) {
         return true;
     }
-    return regex_match(scheme_, SCHEME_REGEX);
+    try {
+        if (!regex_match(scheme_, SCHEME_REGEX)) {
+            return false;
+        }
+    } catch (std::regex_error &message) {
+        HiLog::Error(LABEL, "regex fail! message is %{public}s", message.what());
+        return false;
+    }
+    return true;
 }
 
 string Uri::GetScheme()
