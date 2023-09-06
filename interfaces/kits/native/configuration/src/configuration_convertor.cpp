@@ -27,6 +27,7 @@ Global::Resource::ColorMode ConvertColorMode(std::string colormode)
     static const std::vector<std::pair<std::string, Global::Resource::ColorMode>> resolutions = {
         { "dark", Global::Resource::ColorMode::DARK },
         { "light", Global::Resource::ColorMode::LIGHT },
+        //{ "auto", Global::Resource::ColorMode::AUTO },
     };
 
     for (const auto& [tempColorMode, value] : resolutions) {
@@ -153,6 +154,9 @@ std::string GetColorModeStr(int32_t colormode)
             break;
         case Global::Resource::ColorMode::LIGHT:
             ret = ConfigurationInner::COLOR_MODE_LIGHT;
+            break;
+        case Global::Resource::ColorMode::COLOR_MODE_NOT_SET:
+            ret = ConfigurationInner::COLOR_MODE_AUTO;
             break;
         default:
             break;
