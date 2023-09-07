@@ -1217,11 +1217,11 @@ bool WantParams::ReadFromParcelInt8(Parcel &parcel, const std::string &key)
         if (intf) {
             SetParam(key, intf);
         } else {
-            ABILITYBASE_LOGI("%{public}s insert param fail: key=%{public}s", __func__, key.c_str());
+            ABILITYBASE_LOGI("%{public}s insert arguments fail: key=%{public}s", __func__, key.c_str());
         }
         return true;
     } else {
-        ABILITYBASE_LOGI("%{public}s read data fail: key=%{public}s", __func__, key.c_str());
+        ABILITYBASE_LOGI("%{public}s read data error: key=%{public}s", __func__, key.c_str());
         return false;
     }
 }
@@ -1234,11 +1234,11 @@ bool WantParams::ReadFromParcelChar(Parcel &parcel, const std::string &key)
         if (intf) {
             SetParam(key, intf);
         } else {
-            ABILITYBASE_LOGI("%{public}s insert param fail: key=%{public}s", __func__, key.c_str());
+            ABILITYBASE_LOGI("%{public}s insert param error: key=%{public}s", __func__, key.c_str());
         }
         return true;
     } else {
-        ABILITYBASE_LOGI("%{public}s read data fail: key=%{public}s", __func__, key.c_str());
+        ABILITYBASE_LOGI("%{public}s read data error: key=%{public}s", __func__, key.c_str());
         return false;
     }
 }
@@ -1251,7 +1251,7 @@ bool WantParams::ReadFromParcelShort(Parcel &parcel, const std::string &key)
         if (intf) {
             SetParam(key, intf);
         } else {
-            ABILITYBASE_LOGI("%{public}s insert param fail: key=%{public}s", __func__, key.c_str());
+            ABILITYBASE_LOGI("%{public}s insert arguments error: key=%{public}s", __func__, key.c_str());
         }
         return true;
     } else {
@@ -1268,11 +1268,11 @@ bool WantParams::ReadFromParcelInt(Parcel &parcel, const std::string &key)
         if (intf) {
             SetParam(key, intf);
         } else {
-            ABILITYBASE_LOGI("%{public}s insert param fail: key=%{public}s", __func__, key.c_str());
+            ABILITYBASE_LOGI("%{public}s insert param fail: key:%{public}s", __func__, key.c_str());
         }
         return true;
     } else {
-        ABILITYBASE_LOGI("%{public}s read data fail: key=%{public}s", __func__, key.c_str());
+        ABILITYBASE_LOGI("%{public}s read data fail: key:%{public}s", __func__, key.c_str());
         return false;
     }
 }
@@ -1349,7 +1349,7 @@ bool WantParams::ReadFromParcelLong(Parcel &parcel, const std::string &key)
         }
         return true;
     } else {
-        ABILITYBASE_LOGI("%{public}s read data fail: key=%{public}s", __func__, key.c_str());
+        ABILITYBASE_LOGI("%{public}s read data error: key:%{public}s", __func__, key.c_str());
         return false;
     }
 }
@@ -1362,7 +1362,7 @@ bool WantParams::ReadFromParcelFloat(Parcel &parcel, const std::string &key)
         if (intf) {
             SetParam(key, intf);
         } else {
-            ABILITYBASE_LOGI("%{public}s insert param fail: key=%{public}s", __func__, key.c_str());
+            ABILITYBASE_LOGI("%{public}s insert parameter fail: key=%{public}s", __func__, key.c_str());
         }
         return true;
     } else {
@@ -1379,7 +1379,7 @@ bool WantParams::ReadFromParcelDouble(Parcel &parcel, const std::string &key)
         if (intf) {
             SetParam(key, intf);
         } else {
-            ABILITYBASE_LOGI("%{public}s insert param fail: key=%{public}s", __func__, key.c_str());
+            ABILITYBASE_LOGI("%{public}s insert parameter fail: key:%{public}s", __func__, key.c_str());
         }
         return true;
     } else {

@@ -575,7 +575,7 @@ bool ZipFile::UnzipWithInflated(const ZipEntry &zipEntry, const uint16_t extraSi
 
         zlibErr = inflate(&zstream, Z_SYNC_FLUSH);
         if ((zlibErr >= Z_OK) && (zstream.msg != nullptr)) {
-            ABILITYBASE_LOGE("unzip inflated inflate, error: %{public}d, err msg: %{public}s", zlibErr, zstream.msg);
+            ABILITYBASE_LOGE("unzip inflated inflate, fail: %{public}d, err msg: %{public}s", zlibErr, zstream.msg);
             ret = false;
             break;
         }
@@ -590,7 +590,7 @@ bool ZipFile::UnzipWithInflated(const ZipEntry &zipEntry, const uint16_t extraSi
             errorTimes++;
         }
         if (errorTimes >= INFLATE_ERROR_TIMES) {
-            ABILITYBASE_LOGE("unzip inflated data is abnormal!");
+            ABILITYBASE_LOGE("unzip inflated data is wrong!");
             ret = false;
             break;
         }
@@ -665,6 +665,7 @@ bool ZipFile::ExtractFile(const std::string &file, std::ostream &dest) const
     }
 
     return ret;
+    ABILITYBASE_LOGD("ExtractFile end");
 }
 
 bool ZipFile::ExtractFileFromMMap(const std::string &file, void *mmapDataPtr,
@@ -729,7 +730,7 @@ bool ZipFile::UnzipWithInflatedFromMMap(const ZipEntry &zipEntry, const uint16_t
 
         zlibErr = inflate(&zstream, Z_SYNC_FLUSH);
         if ((zlibErr >= Z_OK) && (zstream.msg != nullptr)) {
-            ABILITYBASE_LOGE("unzip inflated inflate, error: %{public}d, err msg: %{public}s", zlibErr, zstream.msg);
+            ABILITYBASE_LOGE("unzip inflated inflate, error: %{public}d, err msg: %{public}s.", zlibErr, zstream.msg);
             ret = false;
             break;
         }
