@@ -43,6 +43,8 @@ namespace ConfigurationInner {
         OHOS::AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE,
         OHOS::AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE,
         OHOS::AAFwk::GlobalConfigurationKey::DEVICE_TYPE,
+        OHOS::AAFwk::GlobalConfigurationKey::LANGUAGE_IS_SET_BY_APP,
+        OHOS::AAFwk::GlobalConfigurationKey::COLORMODE_IS_SET_BY_APP,
         OHOS::AppExecFwk::ConfigurationInner::APPLICATION_DIRECTION,
         OHOS::AppExecFwk::ConfigurationInner::APPLICATION_DENSITYDPI,
         OHOS::AppExecFwk::ConfigurationInner::APPLICATION_DISPLAYID,
@@ -50,9 +52,11 @@ namespace ConfigurationInner {
 
     constexpr const char* COLOR_MODE_LIGHT = "light";
     constexpr const char* COLOR_MODE_DARK = "dark";
+    constexpr const char* COLOR_MODE_AUTO = "auto";
     constexpr const char* DEVICE_TYPE_DEFAULT = "default";
     constexpr const char* DIRECTION_VERTICAL = "vertical";
     constexpr const char* DIRECTION_HORIZONTAL = "horizontal";
+    constexpr const char* IS_SET_BY_APP = "isSetByApp";
 };
 
 class Configuration final: public Parcelable {
