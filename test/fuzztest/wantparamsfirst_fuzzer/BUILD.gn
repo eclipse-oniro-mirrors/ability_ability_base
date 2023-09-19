@@ -14,11 +14,10 @@
 #####################hydra-fuzz###################
 import("//build/test.gni")
 import("//foundation/ability/ability_base/ability_base.gni")
-module_output_path = "ability_base/want"
 
 ##############################fuzztest##########################################
 ohos_fuzztest("WantParamsFirstFuzzTest") {
-  module_out_path = module_output_path
+  module_out_path = fuzz_test_output_path
 
   fuzz_config_file = "${ability_base_path}/test/fuzztest/wantparamsfirst_fuzzer"
   include_dirs = []
