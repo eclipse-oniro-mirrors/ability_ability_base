@@ -16,3 +16,4 @@ ability_base_innerapi_path = "${ability_base_path}/interfaces/inner_api"
 ability_base_kits_native_path = "${ability_base_path}/interfaces/kits/native"
 base_global_innerapi_path =
     "//base/global/resource_management/interfaces/inner_api"
+base_fuzz_output_path = "ability_base/ability_base"
