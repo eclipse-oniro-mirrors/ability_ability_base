@@ -17,7 +17,7 @@ import("//foundation/ability/ability_base/ability_base.gni")
 
 ##############################fuzztest##########################################
 ohos_fuzztest("WantParamsThirdFuzzTest") {
-  module_out_path = fuzz_test_output_path
+  module_out_path = base_fuzz_output_path
 
   fuzz_config_file = "${ability_base_path}/test/fuzztest/wantparamsthird_fuzzer"
   include_dirs = []
