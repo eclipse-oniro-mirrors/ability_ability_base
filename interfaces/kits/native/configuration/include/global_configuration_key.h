@@ -29,7 +29,7 @@ namespace GlobalConfigurationKey {
     constexpr const char* INPUT_POINTER_DEVICE = "input.pointer.device";
     constexpr const char* DEVICE_TYPE = "const.build.characteristics";
     constexpr const char* LANGUAGE_IS_SET_BY_APP = "ohos.system.language.isSetByApp";
-    constexpr const char* COLORMODE_IS_SET_BY_APP ="ohos.system.colorMode.isSetByApp";
+    constexpr const char* COLORMODE_IS_SET_BY_APP = "ohos.system.colorMode.isSetByApp";
 
 } // namespace GlobalConfigurationKey
 } // namespace AAFwk
