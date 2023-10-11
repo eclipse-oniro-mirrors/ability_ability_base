@@ -865,6 +865,9 @@ public:
     // parameter key
     static const std::string PARAM_BACK_TO_OTHER_MISSION_STACK;
 
+    // application auto startup launch reason
+    static const std::string PARAM_APP_AUTO_STARTUP_LAUNCH_REASON;
+
 private:
     WantParams parameters_;
     Operation operation_;

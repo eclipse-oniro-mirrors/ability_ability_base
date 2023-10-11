@@ -89,6 +89,8 @@ const std::string Want::PARAM_ABILITY_URITYPES("ohos.ability.params.uriTypes");
 
 const std::string Want::PARAM_BACK_TO_OTHER_MISSION_STACK("ability.params.backToOtherMissionStack");
 
+const std::string Want::PARAM_APP_AUTO_STARTUP_LAUNCH_REASON("ability.params.appAutoStartupLaunch");
+
 /**
  * @description:Default construcotr of Want class, which is used to initialzie flags and URI.
  * @param None
