@@ -156,7 +156,6 @@ config("want_public_config") {
     "interfaces/kits/native/uri/include",
     "interfaces/kits/native/want/include",
     "${ability_base_innerapi_path}/log/include",
-    "//third_party/jsoncpp/include",
     "//third_party/json/include",
   ]
 }
@@ -189,7 +188,10 @@ ohos_shared_library("want") {
     "//third_party/json:nlohmann_json_static",
     "//third_party/jsoncpp:jsoncpp",
   ]
-  all_dependent_configs = [ ":want_all_dependent_config" ]
+  all_dependent_configs = [
+    ":want_all_dependent_config",
+    "//third_party/jsoncpp:jsoncpp_public_config",
+  ]
 
   external_deps = [
     "c_utils:utils",
