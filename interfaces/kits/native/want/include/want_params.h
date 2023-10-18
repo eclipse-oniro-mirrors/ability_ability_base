@@ -17,6 +17,7 @@
 
 #include <iostream>
 #include <map>
+#include <mutex>
 #include <set>
 #include <unistd.h>
 #include <vector>
@@ -198,6 +199,7 @@ private:
     std::map<std::string, sptr<IInterface>> params_;
     std::map<std::string, int> fds_;
     std::vector<UnsupportedData> cachedUnsupportedData_;
+    mutable std::mutex paramsLock_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS
