@@ -148,7 +148,6 @@ static void SetNewArray(const AAFwk::InterfaceID &id, AAFwk::IArray *orgIArray, 
  */
 WantParams::WantParams(const WantParams &wantParams)
 {
-    std::lock_guard<std::mutex> mLock(paramsLock_);
     params_.clear();
     NewParams(wantParams, *this);
 }
@@ -247,7 +246,6 @@ bool WantParams::NewArrayData(IArray *source, sptr<IArray> &dest)
 WantParams &WantParams::operator=(const WantParams &other)
 {
     if (this != &other) {
-        std::lock_guard<std::mutex> mLock(paramsLock_);
         params_.clear();
         fds_.clear();
         NewParams(other, *this);
@@ -260,7 +258,6 @@ WantParams &WantParams::operator=(WantParams &&other) noexcept
 {
     if (this != &other) {
         // free existing resources.
-        std::lock_guard<std::mutex> mLock(paramsLock_);
         params_.clear();
         params_ = other.params_;
         // free other resources.
@@ -274,7 +271,6 @@ WantParams &WantParams::operator=(WantParams &&other) noexcept
 
 bool WantParams::operator==(const WantParams &other)
 {
-    std::lock_guard<std::mutex> mLock(paramsLock_);
     if (this->params_.size() != other.params_.size()) {
         return false;
     }
@@ -403,7 +399,6 @@ bool WantParams::CompareInterface(const sptr<IInterface> iIt1, const sptr<IInter
  */
 void WantParams::SetParam(const std::string &key, IInterface *value)
 {
-    std::lock_guard<std::mutex> mLock(paramsLock_);
     params_[key] = value;
 }
 
@@ -414,7 +409,6 @@ void WantParams::SetParam(const std::string &key, IInterface *value)
  */
 sptr<IInterface> WantParams::GetParam(const std::string &key) const
 {
-    std::lock_guard<std::mutex> mLock(paramsLock_);
     auto it = params_.find(key);
     if (it == params_.cend()) {
         return nullptr;
@@ -460,7 +454,6 @@ int WantParams::GetIntParam(const std::string& key, const int defaultValue) cons
 
 const std::map<std::string, sptr<IInterface>> &WantParams::GetParams() const
 {
-    std::lock_guard<std::mutex> mLock(paramsLock_);
     return params_;
 }
 
@@ -473,7 +466,6 @@ const std::set<std::string> WantParams::KeySet() const
 {
     std::set<std::string> keySet;
     keySet.clear();
-    std::lock_guard<std::mutex> mLock(paramsLock_);
     for (auto it : params_) {
         keySet.emplace(it.first);
     }
@@ -487,7 +479,6 @@ const std::set<std::string> WantParams::KeySet() const
  */
 void WantParams::Remove(const std::string &key)
 {
-    std::lock_guard<std::mutex> mLock(paramsLock_);
     params_.erase(key);
 }
 
@@ -498,7 +489,6 @@ void WantParams::Remove(const std::string &key)
  */
 bool WantParams::HasParam(const std::string &key) const
 {
-    std::lock_guard<std::mutex> mLock(paramsLock_);
     return (params_.count(key) > 0);
 }
 
@@ -508,7 +498,6 @@ bool WantParams::HasParam(const std::string &key) const
  */
 int WantParams::Size() const
 {
-    std::lock_guard<std::mutex> mLock(paramsLock_);
     return params_.size();
 }
 
@@ -518,7 +507,6 @@ int WantParams::Size() const
  */
 bool WantParams::IsEmpty() const
 {
-    std::lock_guard<std::mutex> mLock(paramsLock_);
     return (params_.size() == 0);
 }
 
@@ -760,7 +748,6 @@ bool WantParams::DoMarshalling(Parcel &parcel, int depth) const
  */
 bool WantParams::Marshalling(Parcel &parcel) const
 {
-    std::lock_guard<std::mutex> mLock(paramsLock_);
     return DoMarshalling(parcel);
 }
 
@@ -1532,7 +1519,6 @@ WantParams *WantParams::Unmarshalling(Parcel &parcel, int depth)
 
 void WantParams::DumpInfo(int level) const
 {
-    std::lock_guard<std::mutex> mLock(paramsLock_);
     for (auto it : params_) {
         int typeId = WantParams::GetDataType(it.second);
         if (typeId != VALUE_TYPE_NULL) {
@@ -1546,7 +1532,6 @@ void WantParams::DumpInfo(int level) const
 
 void WantParams::CloseAllFd()
 {
-    std::lock_guard<std::mutex> mLock(paramsLock_);
     for (auto it : fds_) {
         if (it.second > 0) {
             ABILITYBASE_LOGI("CloseAllFd fd:%{public}d.", it.second);
