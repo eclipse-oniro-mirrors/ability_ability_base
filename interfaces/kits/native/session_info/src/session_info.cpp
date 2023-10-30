@@ -58,6 +58,18 @@ bool SessionInfo::Marshalling(Parcel& parcel) const
         }
     }
 
+    if (parentToken) {
+        if (!parcel.WriteBool(true) ||
+            !(static_cast<MessageParcel*>(&parcel))->WriteRemoteObject(parentToken)) {
+            ABILITYBASE_LOGE("Write parent token failed.");
+            return false;
+        }
+    } else {
+        if (!parcel.WriteBool(false)) {
+            return false;
+        }
+    }
+
     if (!parcel.WriteInt32(persistentId)) {
         ABILITYBASE_LOGE("Write persistent id failed.");
         return false;
@@ -153,6 +165,10 @@ SessionInfo* SessionInfo::Unmarshalling(Parcel& parcel)
 
     if (parcel.ReadBool()) {
         info->callerToken = (static_cast<MessageParcel*>(&parcel))->ReadRemoteObject();
+    }
+
+    if (parcel.ReadBool()) {
+        info->parentToken = (static_cast<MessageParcel*>(&parcel))->ReadRemoteObject();
     }
 
     info->persistentId = parcel.ReadInt32();
