@@ -43,6 +43,7 @@ public:
     sptr<IRemoteObject> sessionToken = nullptr;
     sptr<IRemoteObject> callerSession = nullptr;
     sptr<IRemoteObject> callerToken = nullptr;
+    sptr<IRemoteObject> parentToken = nullptr;
     int32_t persistentId = 0;
     uint32_t hostWindowId = 0;
     // Status of the UIAbility invoked by the StartABilityByCall
