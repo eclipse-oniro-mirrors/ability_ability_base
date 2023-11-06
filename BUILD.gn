@@ -209,6 +209,30 @@ ohos_shared_library("want") {
   part_name = "ability_base"
 }
 
+################################### view_data ########################################
+config("view_data_config") {
+  include_dirs = [
+    "${ability_base_kits_native_path}/view_data/include",
+    "${ability_base_innerapi_path}/log/include",
+  ]
+}
+
+ohos_shared_library("view_data") {
+  sources = [
+    "interfaces/kits/native/view_data/src/page_node_info.cpp",
+    "interfaces/kits/native/view_data/src/view_data.cpp",
+  ]
+
+  deps = [ "//third_party/json:nlohmann_json_static" ]
+
+  external_deps = [ "hilog:libhilog" ]
+
+  public_configs = [ ":view_data_config" ]
+  subsystem_name = "ability"
+  innerapi_tags = [ "platformsdk_indirect" ]
+  part_name = "ability_base"
+}
+
 ################################### session_info ########################################
 config("session_info_all_dependent_config") {
   include_dirs = [

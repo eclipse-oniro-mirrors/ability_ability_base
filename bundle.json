@@ -132,6 +132,15 @@
                     ]
                   },
                   "name": "//foundation/ability/ability_base:session_info"
+                },
+                {
+                  "header": {
+                    "header_base": "//foundation/ability/ability_base/interfaces/kits/native/view_data/include",
+                    "header_files": [
+                      "view_data.h"
+                    ]
+                  },
+                  "name": "//foundation/ability/ability_base:view_data"
                 }
             ],
             "test": [
