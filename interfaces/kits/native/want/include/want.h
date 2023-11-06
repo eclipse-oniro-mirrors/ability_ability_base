@@ -105,6 +105,10 @@ public:
      * the mission stack. Otherwise, a new ability instance will be created.
      */
     static constexpr unsigned int FLAG_ABILITY_MISSION_TOP = 0x20000000;
+    /**
+     * Indicates that if implicit start ability couldn't match any application, no tip dialog will be pulled up.
+     */
+    static constexpr unsigned int FLAG_START_WITHOUT_TIPS = 0x40000000;
 
     /**
      * @description:  Default construcotr of Want class, which is used to initialzie flags and URI.
