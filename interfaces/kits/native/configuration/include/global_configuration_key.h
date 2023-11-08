@@ -30,6 +30,7 @@ namespace GlobalConfigurationKey {
     constexpr const char* DEVICE_TYPE = "const.build.characteristics";
     constexpr const char* LANGUAGE_IS_SET_BY_APP = "ohos.system.language.isSetByApp";
     constexpr const char* COLORMODE_IS_SET_BY_APP = "ohos.system.colorMode.isSetByApp";
+    constexpr const char* THEME = "ohos.application.theme";
 
 } // namespace GlobalConfigurationKey
 } // namespace AAFwk
