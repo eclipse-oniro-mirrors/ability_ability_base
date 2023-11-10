@@ -21,10 +21,13 @@
 
 namespace OHOS {
 namespace AbilityBase {
+namespace {
+constexpr size_t BIG_FILE_SIZE = 1u << 31;
+}
 std::string ZipFileReaderIo::ReadBuffer(size_t startPos, size_t bufferSize)
 {
     std::string result;
-    if (fd_ < 0 || startPos + bufferSize > fileLen_) {
+    if (fd_ < 0 || startPos >= fileLen_ || bufferSize > fileLen_ - startPos) {
         ABILITYBASE_LOGW("failed: %{public}s, startPos: %{public}zu, bufferSize: %{public}zu, fileLen: %{public}zu",
             filePath_.c_str(), startPos, bufferSize, fileLen_);
         return result;
@@ -40,18 +43,28 @@ std::string ZipFileReaderIo::ReadBuffer(size_t startPos, size_t bufferSize)
 
 bool ZipFileReaderIo::ReadBuffer(uint8_t *dst, size_t startPos, size_t bufferSize)
 {
-    if (dst == nullptr || fd_ < 0 || startPos + bufferSize > fileLen_) {
+    if (dst == nullptr || fd_ < 0 || startPos >= fileLen_ || bufferSize > fileLen_ - startPos) {
         ABILITYBASE_LOGW("failed: %{public}s, startPos: %{public}zu, bufferSize: %{public}zu, fileLen: %{public}zu",
             filePath_.c_str(), startPos, bufferSize, fileLen_);
         return false;
     }
 
-    auto const readCount = pread(fd_, dst, bufferSize, startPos);
-    if (readCount < 0 || static_cast<size_t>(readCount) < bufferSize) {
+    auto remainSize = bufferSize;
+    ssize_t nread = 0;
+    do {
+        nread = pread(fd_, dst, remainSize, startPos);
+        startPos += nread;
+        dst += nread;
+        remainSize -= nread;
+    } while (nread > 0 && remainSize > 0);
+    if (remainSize > 0) {
         ABILITYBASE_LOGE("readfile error: %{public}s-%{public}d", filePath_.c_str(), errno);
         return false;
     }
 
+    if (bufferSize > BIG_FILE_SIZE) {
+        ABILITYBASE_LOGI("big file io success: %{public}zu", bufferSize);
+    }
     return true;
 }
 }
