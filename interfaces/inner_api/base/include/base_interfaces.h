@@ -20,7 +20,7 @@
 #include "base_def.h"
 #include "refbase.h"
 #include "user_object_base.h"
-#include "foundation/communication/ipc/interfaces/innerkits/ipc_core/include/iremote_object.h"
+#include "iremote_object.h"
 
 namespace OHOS {
 namespace AAFwk {
