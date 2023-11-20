@@ -27,7 +27,7 @@ config("base_public_config") {
 config("base_all_dependent_config") {
   include_dirs = [
     "${ability_base_innerapi_path}/base/include",
-    "${ipc_native_path}/src/napi/include"
+    "${ipc_native_path}/src/napi/include",
   ]
 }
 
