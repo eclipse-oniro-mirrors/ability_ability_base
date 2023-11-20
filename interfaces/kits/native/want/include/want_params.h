@@ -24,7 +24,7 @@
 #include "base_interfaces.h"
 #include "refbase.h"
 #include "parcel.h"
-#include "foundation/communication/ipc/interfaces/innerkits/ipc_core/include/message_parcel.h"
+#include "message_parcel.h"
 
 namespace OHOS {
 namespace AAFwk {

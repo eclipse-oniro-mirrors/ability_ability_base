@@ -25,7 +25,10 @@ config("base_public_config") {
 }
 
 config("base_all_dependent_config") {
-  include_dirs = [ "${ability_base_innerapi_path}/base/include" ]
+  include_dirs = [
+    "${ability_base_innerapi_path}/base/include",
+    "${ipc_native_path}/src/napi/include",
+  ]
 }
 
 ohos_shared_library("base") {
@@ -49,7 +52,10 @@ ohos_shared_library("base") {
 
   all_dependent_configs = [ ":base_all_dependent_config" ]
 
-  external_deps = [ "c_utils:utils" ]
+  external_deps = [
+    "c_utils:utils",
+    "ipc:ipc_core",
+  ]
 
   subsystem_name = "ability"
   innerapi_tags = [
@@ -196,6 +202,7 @@ ohos_shared_library("want") {
   external_deps = [
     "c_utils:utils",
     "hilog:libhilog",
+    "ipc:ipc_core",
     "ipc:ipc_single",
   ]
 

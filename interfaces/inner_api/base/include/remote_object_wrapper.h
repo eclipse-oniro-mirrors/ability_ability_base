@@ -17,7 +17,7 @@
 #define OHOS_ABILITY_BASE_REMOTE_OBJECT_WRAPPER_H
 
 #include "base_object.h"
-#include "foundation/communication/ipc/interfaces/innerkits/ipc_core/include/iremote_object.h"
+#include "iremote_object.h"
 #include "refbase.h"
 
 namespace OHOS {
