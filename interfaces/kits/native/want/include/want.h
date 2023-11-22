@@ -863,6 +863,7 @@ public:
     static const std::string PARAM_ABILITY_ACQUIRE_SHARE_DATA;
     static const std::string PARAM_ABILITY_RECOVERY_RESTART;
     static const std::string PARAM_ABILITY_URITYPES;
+    static const std::string PARAM_ABILITY_APPINFOS;
     // module name string
     static const std::string PARAM_MODULE_NAME;
 
