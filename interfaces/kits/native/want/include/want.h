@@ -848,6 +848,11 @@ public:
     // reserved param definition
     static const std::string PARAM_RESV_WINDOW_MODE;
     static const std::string PARAM_RESV_DISPLAY_ID;
+    static const std::string PARAM_RESV_WITH_ANIMATION;
+    static const std::string PARAM_RESV_WINDOW_LEFT;
+    static const std::string PARAM_RESV_WINDOW_TOP;
+    static const std::string PARAM_RESV_WINDOW_WIDTH;
+    static const std::string PARAM_RESV_WINDOW_HEIGHT;
     static const std::string PARAM_RESV_CALLER_TOKEN;
     static const std::string PARAM_RESV_CALLER_BUNDLE_NAME;
     static const std::string PARAM_RESV_CALLER_ABILITY_NAME;
