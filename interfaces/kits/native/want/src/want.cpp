@@ -86,6 +86,7 @@ const std::string Want::PARAM_ABILITY_ACQUIRE_SHARE_DATA("ohos.aafwk.param.Abili
 const std::string Want::PARAM_ABILITY_RECOVERY_RESTART("ohos.ability.params.abilityRecoveryRestart");
 const std::string Want::PARAM_MODULE_NAME("moduleName");
 const std::string Want::PARAM_ABILITY_URITYPES("ohos.ability.params.uriTypes");
+const std::string Want::PARAM_ABILITY_APPINFOS("ohos.ability.params.appInfos");
 
 const std::string Want::PARAM_BACK_TO_OTHER_MISSION_STACK("ability.params.backToOtherMissionStack");
 
