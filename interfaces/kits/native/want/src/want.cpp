@@ -70,6 +70,11 @@ const std::string Want::WANT_END(";end");
 
 const std::string Want::PARAM_RESV_WINDOW_MODE("ohos.aafwk.param.windowMode");
 const std::string Want::PARAM_RESV_DISPLAY_ID("ohos.aafwk.param.displayId");
+const std::string Want::PARAM_RESV_WITH_ANIMATION("ohos.aafwk.param.withAnimation");
+const std::string Want::PARAM_RESV_WINDOW_LEFT("ohos.aafwk.param.windowLeft");
+const std::string Want::PARAM_RESV_WINDOW_TOP("ohos.aafwk.param.windowTop");
+const std::string Want::PARAM_RESV_WINDOW_WIDTH("ohos.aafwk.param.windowWidth");
+const std::string Want::PARAM_RESV_WINDOW_HEIGHT("ohos.aafwk.param.windowHeight");
 const std::string Want::PARAM_RESV_CALLER_TOKEN("ohos.aafwk.param.callerToken");
 const std::string Want::PARAM_RESV_CALLER_BUNDLE_NAME("ohos.aafwk.param.callerBundleName");
 const std::string Want::PARAM_RESV_CALLER_ABILITY_NAME("ohos.aafwk.param.callerAbilityName");
