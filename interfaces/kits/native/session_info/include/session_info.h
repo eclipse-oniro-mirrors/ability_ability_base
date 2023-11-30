@@ -64,7 +64,7 @@ public:
     bool reuse = false;
     int32_t collaboratorType = 0;
     std::string sessionName = "";
-    int64_t uiExtensionComponentId = 0;
+    uint64_t uiExtensionComponentId = 0;
 };
 } // namespace AAFwk
 } // namespace OHOS

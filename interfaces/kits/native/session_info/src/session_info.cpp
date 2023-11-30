@@ -145,7 +145,7 @@ bool SessionInfo::Marshalling(Parcel& parcel) const
         return false;
     }
 
-    if (!parcel.WriteInt64(uiExtensionComponentId)) {
+    if (!parcel.WriteUint64(uiExtensionComponentId)) {
         ABILITYBASE_LOGE("Write uiExtensionComponentId failed.");
         return false;
     }
@@ -191,7 +191,7 @@ SessionInfo* SessionInfo::Unmarshalling(Parcel& parcel)
     info->reuse = parcel.ReadBool();
     info->collaboratorType = parcel.ReadInt32();
     info->sessionName = parcel.ReadString();
-    info->uiExtensionComponentId = parcel.ReadInt64();
+    info->uiExtensionComponentId = parcel.ReadUint64();
 
     std::unique_ptr<Want> want(parcel.ReadParcelable<Want>());
     if (want != nullptr) {
