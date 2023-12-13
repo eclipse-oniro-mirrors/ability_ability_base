@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -32,6 +32,14 @@ extern const char* FD;
 extern const char* REMOTE_OBJECT;
 extern const char* TYPE_PROPERTY;
 extern const char* VALUE_PROPERTY;
+
+enum ScreenMode : int32_t {
+    IDLE_SCREEN_MODE = -1,
+    FULL_SCREEN_MODE = 0,
+    HALF_SCREEN_MODE = 1
+};
+const std::string SCREEN_MODE_KEY = "ScreenMode";
+
 class UnsupportedData {
 public:
     std::u16string key;
