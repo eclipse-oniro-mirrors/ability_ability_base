@@ -715,10 +715,6 @@ bool ZipFile::UnzipWithInflatedFromMMap(const ZipEntry &zipEntry, const uint16_t
 
     len = zipEntry.uncompressedSize;
     dataPtr = std::make_unique<uint8_t[]>(len);
-    if (!dataPtr) {
-        ABILITYBASE_LOGE("Make unique ptr failed.");
-        return false;
-    }
     uint8_t *dstDataPtr = static_cast<uint8_t *>(dataPtr.get());
     void *mmapSrcDataPtr = mmapDataPtr;
 
@@ -736,23 +732,7 @@ bool ZipFile::UnzipWithInflatedFromMMap(const ZipEntry &zipEntry, const uint16_t
         }
 
         inflateLen = UNZIP_BUF_OUT_LEN - zstream.avail_out;
-        if (inflateLen > 0) {
-            if (memcpy_s(dstDataPtr, inflateLen, bufOut, inflateLen) != EOK) {
-                ret = false;
-                ABILITYBASE_LOGE("Mem copy failed!");
-                break;
-            }
-
-            dstDataPtr += inflateLen;
-            zstream.next_out = bufOut;
-            zstream.avail_out = UNZIP_BUF_OUT_LEN;
-            errorTimes = 0;
-        } else {
-            errorTimes++;
-        }
-        if (errorTimes >= INFLATE_ERROR_TIMES) {
-            ABILITYBASE_LOGE("unzip inflated data is abnormal!");
-            ret = false;
+        if (!CopyInflateOut(zstream, inflateLen, &dstDataPtr, bufOut, errorTimes)) {
             break;
         }
     }
@@ -767,6 +747,30 @@ bool ZipFile::UnzipWithInflatedFromMMap(const ZipEntry &zipEntry, const uint16_t
     delete[] bufOut;
     delete[] bufIn;
     return ret;
+}
+
+bool ZipFile::CopyInflateOut(z_stream &zstream, size_t inflateLen, uint8_t** dstDataPtr,
+    BytePtr bufOut, uint8_t &errorTimes) const
+{
+    if (inflateLen > 0) {
+        if (memcpy_s(*dstDataPtr, inflateLen, bufOut, inflateLen) != EOK) {
+            ABILITYBASE_LOGE("Mem copy failed!");
+            return false;
+        }
+
+        *dstDataPtr += inflateLen;
+        zstream.next_out = bufOut;
+        zstream.avail_out = UNZIP_BUF_OUT_LEN;
+        errorTimes = 0;
+    } else {
+        errorTimes++;
+    }
+    if (errorTimes >= INFLATE_ERROR_TIMES) {
+        ABILITYBASE_LOGE("unzip inflated data is abnormal!");
+        return false;
+    }
+
+    return true;
 }
 
 bool ZipFile::ReadZStreamFromMMap(const BytePtr &buffer, void* &dataPtr,

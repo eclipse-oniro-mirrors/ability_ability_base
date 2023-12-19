@@ -53,10 +53,14 @@ bool ZipFileReaderIo::ReadBuffer(uint8_t *dst, size_t startPos, size_t bufferSiz
     ssize_t nread = 0;
     do {
         nread = pread(fd_, dst, remainSize, startPos);
-        startPos += nread;
+        if (nread <= 0) {
+            break;
+        }
+
+        startPos += (size_t)nread;
         dst += nread;
-        remainSize -= nread;
-    } while (nread > 0 && remainSize > 0);
+        remainSize -= (size_t)nread;
+    } while (remainSize > 0);
     if (remainSize > 0) {
         ABILITYBASE_LOGE("readfile error: %{public}s-%{public}d", filePath_.c_str(), errno);
         return false;

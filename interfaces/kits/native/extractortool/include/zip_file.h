@@ -317,7 +317,8 @@ private:
 
     bool UnzipWithInflatedFromMMap(const ZipEntry &zipEntry, const uint16_t extraSize,
         void *mmapDataPtr, std::unique_ptr<uint8_t[]> &dataPtr, size_t &len) const;
-
+    bool CopyInflateOut(z_stream &zstream, size_t inflateLen, uint8_t** dstDataPtr,
+        BytePtr bufOut, uint8_t &errorTimes) const;
     bool ReadZStreamFromMMap(const BytePtr &buffer, void* &dataPtr,
         z_stream &zstream, uint32_t &remainCompressedSize) const;
 
