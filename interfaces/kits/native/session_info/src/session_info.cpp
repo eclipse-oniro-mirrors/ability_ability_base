@@ -22,6 +22,19 @@ namespace OHOS {
 namespace AAFwk {
 bool SessionInfo::Marshalling(Parcel& parcel) const
 {
+    if (!DoMarshallingOne(parcel)) {
+        return false;
+    }
+
+    if (!DoMarshallingTwo(parcel)) {
+        return false;
+    }
+
+    return DoMarshallingThree(parcel);
+}
+
+bool SessionInfo::DoMarshallingOne(Parcel& parcel) const
+{
     if (sessionToken) {
         if (!parcel.WriteBool(true) ||
             !(static_cast<MessageParcel*>(&parcel))->WriteRemoteObject(sessionToken)) {
@@ -69,7 +82,11 @@ bool SessionInfo::Marshalling(Parcel& parcel) const
             return false;
         }
     }
+    return true;
+}
 
+bool SessionInfo::DoMarshallingTwo(Parcel& parcel) const
+{
     if (!parcel.WriteInt32(persistentId)) {
         ABILITYBASE_LOGE("Write persistent id failed.");
         return false;
@@ -114,7 +131,11 @@ bool SessionInfo::Marshalling(Parcel& parcel) const
         ABILITYBASE_LOGE("Write startSetting failed.");
         return false;
     }
+    return true;
+}
 
+bool SessionInfo::DoMarshallingThree(Parcel& parcel) const
+{
     if (!parcel.WriteBool(isNewWant)) {
         ABILITYBASE_LOGE("Write isNewWant failed.");
         return false;
