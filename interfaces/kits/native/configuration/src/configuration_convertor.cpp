@@ -41,11 +41,11 @@ Global::Resource::ColorMode ConvertColorMode(std::string colormode)
 
 Global::Resource::TimeFormat ConvertTimeFormat(std::string timeformat)
 {
-    auto resolution = Global::Resource::TimeFormat::TIME_FORMAT_NOT_SET;
+    auto resolution = Global::Resource::TimeFormat::HOUR_NOT_SET;
 
     static const std::vector<std::pair<std::string, Global::Resource::TimeFormat>> resolutions = {
-        { "false", Global::Resource::TimeFormat::TIME_FORMAT_12 },
-        { "true", Global::Resource::TimeFormat::TIME_FORMAT_24 },
+        { "false", Global::Resource::TimeFormat::HOUR_12 },
+        { "true", Global::Resource::TimeFormat::HOUR_24 },
     };
 
     for (const auto& [tempTimeFormat, value] : resolutions) {
