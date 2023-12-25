@@ -70,6 +70,8 @@ public:
 
     static WantParams ParseWantParams(const std::string &str);
 
+    static WantParams ParseWantParamsWithBrackets(const std::string &str);
+
     static constexpr char SIGNATURE = 'W';
 
 private:

@@ -18,6 +18,23 @@
 
 namespace OHOS {
 namespace AAFwk {
+namespace {
+size_t FindMatchingBrackets(const std::string &str, size_t leftIndex)
+{
+    int count = 0;
+    for (size_t i = leftIndex + 1; i < str.size(); ++i) {
+        if (str[i] == '{') {
+            count++;
+        } else if (str[i] == '}') {
+            if (count == 0) {
+                return i;
+            }
+            count--;
+        }
+    }
+    return -1;
+}
+}
 constexpr int32_t WANT_PARAM_WRAPPER_TWO = 2;
 
 IINTERFACE_IMPL_1(WantParamWrapper, Object, IWantParams);
@@ -202,6 +219,60 @@ WantParams WantParamWrapper::ParseWantParams(const std::string &str)
                 wantPaqrams.SetParam(key,
                     WantParams::GetInterfaceByType(typeId, str.substr(strnum, str.find('"', strnum) - strnum)));
                 strnum = str.find('"', strnum);
+                typeId = 0;
+                key = "";
+            }
+        }
+    }
+    return wantPaqrams;
+}
+
+WantParams WantParamWrapper::ParseWantParamsWithBrackets(const std::string &str)
+{
+    WantParams wantPaqrams;
+    std::string key = "";
+    int typeId = 0;
+    size_t type_index_before = 0;
+    if (!ValidateStr(str)) {
+        return wantPaqrams;
+    }
+    for (size_t strnum = 0; strnum < str.size(); strnum++) {
+        if (str[strnum] == '{' && key != "" && typeId == WantParams::VALUE_TYPE_WANTPARAMS) {
+            size_t num;
+            int count = 0;
+            for (num = strnum; num < str.size(); num++) {
+                if (str[num] == '{') {
+                    count++;
+                } else if (str[num] == '}') {
+                    count--;
+                }
+                if (count == 0) {
+                    break;
+                }
+            }
+            wantPaqrams.SetParam(key, WantParamWrapper::Parse(str.substr(strnum, num - strnum)));
+            key = "";
+            typeId = 0;
+            strnum = num + 1;
+        } else if (str[strnum] == '"') {
+            if (key == "") {
+                strnum++;
+                key = str.substr(strnum, str.find('"', strnum) - strnum);
+                strnum = str.find('"', strnum);
+            } else if (typeId == 0) {
+                type_index_before = strnum;
+                strnum++;
+                typeId = atoi(str.substr(strnum, str.find('"', strnum) - strnum).c_str());
+                if (errno == ERANGE) {
+                    return wantPaqrams;
+                }
+                strnum = str.find('"', strnum);
+            } else {
+                strnum++;
+                auto index = FindMatchingBrackets(str, type_index_before - 1);
+                wantPaqrams.SetParam(key,
+                    WantParams::GetInterfaceByType(typeId, str.substr(strnum, index - 1 - strnum)));
+                strnum = index + 1;
                 typeId = 0;
                 key = "";
             }
