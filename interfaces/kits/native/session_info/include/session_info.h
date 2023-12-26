@@ -65,6 +65,11 @@ public:
     int32_t collaboratorType = 0;
     std::string sessionName = "";
     uint64_t uiExtensionComponentId = 0;
+
+private:
+    bool DoMarshallingOne(Parcel& parcel) const;
+    bool DoMarshallingTwo(Parcel& parcel) const;
+    bool DoMarshallingThree(Parcel& parcel) const;
 };
 } // namespace AAFwk
 } // namespace OHOS
