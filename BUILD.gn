@@ -71,7 +71,6 @@ config("configuration_sdk_config") {
     "interfaces/kits/native/configuration/include",
     "${ability_base_innerapi_path}/log/include",
     "${base_global_innerapi_path}/include",
-    "//base/global/i18n/frameworks/intl/include",
     "//third_party/json/include",
   ]
 }

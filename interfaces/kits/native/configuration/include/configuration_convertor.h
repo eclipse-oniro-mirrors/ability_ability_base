@@ -17,13 +17,12 @@
 #define OHOS_ABILITY_BASE_CONFIGURATION_CONVERTOR_H
 
 #include <string>
-#include "i18n_res.h"
 #include "res_common.h"
 
 namespace OHOS::AppExecFwk {
 Global::Resource::ColorMode ConvertColorMode(std::string colormode);
 
-Global::I18n::TimeFormat ConvertTimeFormat(std::string timeformat);
+Global::Resource::TimeFormat ConvertTimeFormat(std::string timeformat);
 
 Global::Resource::Direction ConvertDirection(int32_t height, int32_t width);
 Global::Resource::Direction ConvertDirection(std::string direction);
