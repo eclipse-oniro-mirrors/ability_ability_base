@@ -39,6 +39,25 @@ Global::Resource::ColorMode ConvertColorMode(std::string colormode)
     return resolution;
 }
 
+Global::Resource::TimeFormat ConvertTimeFormat(std::string timeformat)
+{
+    auto resolution = Global::Resource::TimeFormat::HOUR_NOT_SET;
+
+    static const std::vector<std::pair<std::string, Global::Resource::TimeFormat>> resolutions = {
+        { "false", Global::Resource::TimeFormat::HOUR_12 },
+        { "true", Global::Resource::TimeFormat::HOUR_24 },
+    };
+
+    for (const auto& [tempTimeFormat, value] : resolutions) {
+        if (tempTimeFormat == timeformat) {
+            resolution = value;
+            break;
+        }
+    }
+
+    return resolution;
+}
+
 Global::Resource::Direction ConvertDirection(int32_t height, int32_t width)
 {
     return height >= width ? Global::Resource::Direction::DIRECTION_VERTICAL :

@@ -22,6 +22,8 @@
 namespace OHOS::AppExecFwk {
 Global::Resource::ColorMode ConvertColorMode(std::string colormode);
 
+Global::Resource::TimeFormat ConvertTimeFormat(std::string timeformat);
+
 Global::Resource::Direction ConvertDirection(int32_t height, int32_t width);
 Global::Resource::Direction ConvertDirection(std::string direction);
 
