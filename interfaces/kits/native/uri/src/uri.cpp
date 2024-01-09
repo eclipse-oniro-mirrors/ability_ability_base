@@ -80,6 +80,7 @@ bool Uri::CheckScheme()
         return true;
     }
     try {
+        HiLog::Info(LABEL, "scheme size:%{public}zu", scheme_.size());
         if (!regex_match(scheme_, SCHEME_REGEX)) {
             return false;
         }
