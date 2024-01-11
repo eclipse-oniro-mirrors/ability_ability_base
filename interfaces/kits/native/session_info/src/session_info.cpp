@@ -171,6 +171,11 @@ bool SessionInfo::DoMarshallingThree(Parcel& parcel) const
         return false;
     }
 
+    if (!parcel.WriteBool(isAsyncModalBinding)) {
+        ABILITYBASE_LOGE("Write isAsyncModalBinding failed.");
+        return false;
+    }
+
     if (!parcel.WriteParcelable(&want)) {
         ABILITYBASE_LOGE("Write want failed.");
         return false;
@@ -213,6 +218,7 @@ SessionInfo* SessionInfo::Unmarshalling(Parcel& parcel)
     info->collaboratorType = parcel.ReadInt32();
     info->sessionName = parcel.ReadString();
     info->uiExtensionComponentId = parcel.ReadUint64();
+    info->isAsyncModalBinding = parcel.ReadBool();
 
     std::unique_ptr<Want> want(parcel.ReadParcelable<Want>());
     if (want != nullptr) {

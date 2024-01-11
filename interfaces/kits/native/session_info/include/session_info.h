@@ -65,6 +65,7 @@ public:
     int32_t collaboratorType = 0;
     std::string sessionName = "";
     uint64_t uiExtensionComponentId = 0;
+    bool isAsyncModalBinding = false;
 
 private:
     bool DoMarshallingOne(Parcel& parcel) const;
