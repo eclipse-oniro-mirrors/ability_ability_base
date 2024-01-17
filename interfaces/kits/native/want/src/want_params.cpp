@@ -575,7 +575,7 @@ bool WantParams::WriteToParcelFD(Parcel &parcel, const WantParams &value) const
 
 bool WantParams::WriteToParcelRemoteObject(Parcel &parcel, const WantParams &value) const
 {
-    ABILITYBASE_LOGI("%{public}s called.", __func__);
+    ABILITYBASE_LOGD("called.");
     if (!parcel.WriteInt32(VALUE_TYPE_REMOTE_OBJECT)) {
         return false;
     }
@@ -589,7 +589,7 @@ bool WantParams::WriteToParcelRemoteObject(Parcel &parcel, const WantParams &val
             return false;
         }
         bool ret = messageParcel->WriteRemoteObject(remoteObject);
-        ABILITYBASE_LOGI("%{public}s, WriteRemoteObject ret:%{public}d.", __func__, ret);
+        ABILITYBASE_LOGD("ret:%{public}d.", ret);
         return ret;
     }
     return false;
@@ -1317,7 +1317,7 @@ bool WantParams::ReadFromParcelFD(Parcel &parcel, const std::string &key)
 
 bool WantParams::ReadFromParcelRemoteObject(Parcel &parcel, const std::string &key)
 {
-    ABILITYBASE_LOGI("%{public}s called.", __func__);
+    ABILITYBASE_LOGD("called.");
     auto messageParcel = static_cast<MessageParcel*>(&parcel);
     if (messageParcel == nullptr) {
         return false;

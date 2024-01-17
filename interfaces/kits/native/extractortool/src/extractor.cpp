@@ -324,7 +324,7 @@ std::shared_ptr<Extractor> ExtractorUtil::GetExtractor(const std::string &hapPat
     if (cache) {
         std::lock_guard<std::mutex> mapMutex(mapMutex_);
         extractorMap_.emplace(hapPath, extractor);
-        ABILITYBASE_LOGI("extractor cache size: %{public}zu.", extractorMap_.size());
+        ABILITYBASE_LOGD("extractor cache size: %{public}zu.", extractorMap_.size());
     }
     newCreate = true;
     return extractor;

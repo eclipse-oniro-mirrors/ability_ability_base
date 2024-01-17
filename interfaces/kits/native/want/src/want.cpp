@@ -540,7 +540,7 @@ sptr<IRemoteObject> Want::GetRemoteObject(const std::string &key) const
     auto value = parameters_.GetParam(key);
     IWantParams* iwp = IWantParams::Query(value);
     if (iwp == nullptr) {
-        ABILITYBASE_LOGI("%{public}s is invalid.", key.c_str());
+        ABILITYBASE_LOGD("%{public}s is invalid.", key.c_str());
         return nullptr;
     }
     auto wp = WantParamWrapper::Unbox(iwp);
@@ -1919,7 +1919,7 @@ bool Want::ReadFromJson(nlohmann::json &wantJson)
     SetModuleName(moduleName);
 
     if (wantJson.at("entities").is_null()) {
-        ABILITYBASE_LOGI("entities is null");
+        ABILITYBASE_LOGD("entities is null");
     } else if (wantJson["entities"].is_array()) {
         auto size = wantJson["entities"].size();
         for (size_t i = 0; i < size; i++) {
