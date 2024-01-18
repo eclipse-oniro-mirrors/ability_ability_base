@@ -37,6 +37,7 @@ constexpr uint32_t EOCD_SIGNATURE = 0x06054b50;
 constexpr uint32_t DATA_DESC_SIGNATURE = 0x08074b50;
 constexpr uint32_t FLAG_DATA_DESC = 0x8;
 constexpr uint8_t INFLATE_ERROR_TIMES = 5;
+constexpr uint8_t MAP_FILE_SUFFIX = 4;
 const char FILE_SEPARATOR_CHAR = '/';
 }  // namespace
 
@@ -377,7 +378,6 @@ bool ZipFile::GetEntry(const std::string &entryName, ZipEntry &resultEntry) cons
         resultEntry = iter->second;
         return true;
     }
-    ABILITYBASE_LOGW("get entry %{public}s failed", entryName.c_str());
     return false;
 }
 
@@ -838,7 +838,9 @@ bool ZipFile::ExtractToBufByName(const std::string &fileName, std::unique_ptr<ui
 {
     ZipEntry zipEntry;
     if (!GetEntry(fileName, zipEntry)) {
-        ABILITYBASE_LOGE("GetEntry failed hapPath %{public}s.", fileName.c_str());
+        if (fileName.substr(fileName.length() - MAP_FILE_SUFFIX) != ".map") {
+            ABILITYBASE_LOGE("GetEntry failed hapPath %{public}s.", fileName.c_str());
+        }
         return false;
     }
     uint16_t extraSize = 0;
