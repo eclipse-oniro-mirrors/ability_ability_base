@@ -48,50 +48,43 @@
 #define ABILITYBASE_LOG_TAG "AbilityBase"
 #endif
 
-#ifdef ABILITYBASE_LOG_LABEL
-#undef ABILITYBASE_LOG_LABEL
-#endif
-
-static constexpr OHOS::HiviewDFX::HiLogLabel ABILITYBASE_LOG_LABEL = {
-    LOG_CORE, ABILITYBASE_LOG_DOMAIN, ABILITYBASE_LOG_TAG};
-
 #define __FILENAME__ (__builtin_strrchr(__FILE__, '/') ? __builtin_strrchr(__FILE__, '/') + 1 : __FILE__)
 
 #define ABILITYBASE_LOGF(fmt, ...)                             \
-    (void)OHOS::HiviewDFX::HiLog::Fatal(ABILITYBASE_LOG_LABEL, \
+    ((void)HILOG_IMPL(LOG_CORE, LOG_FATAL, ABILITYBASE_LOG_DOMAIN, ABILITYBASE_LOG_TAG, \
         "[%{public}s(%{public}s:%{public}d)]" fmt,             \
         __FILENAME__,                                          \
         __FUNCTION__,                                          \
         __LINE__,                                              \
-        ##__VA_ARGS__)
+        ##__VA_ARGS__))
 #define ABILITYBASE_LOGE(fmt, ...)                             \
-    (void)OHOS::HiviewDFX::HiLog::Error(ABILITYBASE_LOG_LABEL, \
+    ((void)HILOG_IMPL(LOG_CORE, LOG_ERROR, ABILITYBASE_LOG_DOMAIN, ABILITYBASE_LOG_TAG, \
         "[%{public}s(%{public}s:%{public}d)]" fmt,             \
         __FILENAME__,                                          \
         __FUNCTION__,                                          \
         __LINE__,                                              \
-        ##__VA_ARGS__)
+        ##__VA_ARGS__))
 #define ABILITYBASE_LOGW(fmt, ...)                            \
-    (void)OHOS::HiviewDFX::HiLog::Warn(ABILITYBASE_LOG_LABEL, \
+    ((void)HILOG_IMPL(LOG_CORE, LOG_WARN, ABILITYBASE_LOG_DOMAIN, ABILITYBASE_LOG_TAG, \
         "[%{public}s(%{public}s:%{public}d)]" fmt,            \
         __FILENAME__,                                         \
         __FUNCTION__,                                         \
         __LINE__,                                             \
-        ##__VA_ARGS__)
+        ##__VA_ARGS__))
 #define ABILITYBASE_LOGI(fmt, ...)                            \
-    (void)OHOS::HiviewDFX::HiLog::Info(ABILITYBASE_LOG_LABEL, \
+    ((void)HILOG_IMPL(LOG_CORE, LOG_INFO, ABILITYBASE_LOG_DOMAIN, ABILITYBASE_LOG_TAG, \
         "[%{public}s(%{public}s:%{public}d)]" fmt,            \
         __FILENAME__,                                         \
         __FUNCTION__,                                         \
         __LINE__,                                             \
-        ##__VA_ARGS__)
+        ##__VA_ARGS__))
 #define ABILITYBASE_LOGD(fmt, ...)                             \
-    (void)OHOS::HiviewDFX::HiLog::Debug(ABILITYBASE_LOG_LABEL, \
+    ((void)HILOG_IMPL(LOG_CORE, LOG_DEBUG, ABILITYBASE_LOG_DOMAIN, ABILITYBASE_LOG_TAG, \
         "[%{public}s(%{public}s:%{public}d)]" fmt,             \
         __FILENAME__,                                          \
         __FUNCTION__,                                          \
         __LINE__,                                              \
-        ##__VA_ARGS__)
+        ##__VA_ARGS__))
 #else
 
 #define ABILITYBASE_LOGF(...)
