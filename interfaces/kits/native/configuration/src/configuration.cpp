@@ -149,7 +149,7 @@ void Configuration::CompareDifferent(std::vector<std::string> &diffKeyV, const C
 
     std::lock_guard<std::recursive_mutex> lock(configParameterMutex_);
     for (const auto &iter : otherk) {
-        ABILITYBASE_LOGW(" iter : [%{public}s] | Val: [%{public}s]", iter.c_str(), other.GetValue(iter).c_str());
+        ABILITYBASE_LOGD(" iter : [%{public}s] | Val: [%{public}s]", iter.c_str(), other.GetValue(iter).c_str());
         // Insert new content directly
         auto pair = configParameter_.insert(std::make_pair(iter, other.GetValue(iter)));
         if (pair.second) {
@@ -265,7 +265,7 @@ Configuration *Configuration::Unmarshalling(Parcel &parcel)
 
 bool Configuration::Marshalling(Parcel &parcel) const
 {
-    ABILITYBASE_LOGW("Marshalling");
+    ABILITYBASE_LOGD("called");
     std::vector<std::string> keys;
     std::vector<std::string> values;
     keys.clear();

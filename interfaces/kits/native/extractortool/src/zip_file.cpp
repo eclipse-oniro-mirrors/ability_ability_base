@@ -282,7 +282,7 @@ bool ZipFile::IsDirExist(const std::string &dir) const
         auto nodeName = dir.substr(cur, next - cur);
         auto it = parent->children.find(nodeName);
         if (it == parent->children.end()) {
-            ABILITYBASE_LOGI("target dir not found, dir : %{public}s", dir.c_str());
+            ABILITYBASE_LOGD("target dir not found, dir : %{public}s", dir.c_str());
             return false;
         }
         parent = it->second;
