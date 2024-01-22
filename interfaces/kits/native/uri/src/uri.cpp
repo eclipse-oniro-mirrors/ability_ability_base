@@ -40,7 +40,6 @@ namespace {
     const size_t POS_INC = 1;
     const size_t POS_INC_MORE = 2;
     const size_t POS_INC_AGAIN = 3;
-    const regex SCHEME_REGEX("[a-zA-Z][a-zA-Z|\\d|+|-|.]*$");
 }; // namespace
 
 Uri::Uri(const string& uriString)
@@ -79,8 +78,9 @@ bool Uri::CheckScheme()
         return true;
     }
     try {
+        regex schemeRegex("[a-zA-Z][a-zA-Z|\\d|+|-|.]*$");
         HILOG_IMPL(LOG_CORE, LOG_INFO, 0xD001302,  "URI", "scheme size:%{public}zu", scheme_.size());
-        if (!regex_match(scheme_, SCHEME_REGEX)) {
+        if (!regex_match(scheme_, schemeRegex)) {
             return false;
         }
     } catch (std::regex_error &message) {
