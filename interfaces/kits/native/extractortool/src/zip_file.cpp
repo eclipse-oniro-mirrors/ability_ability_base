@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,6 +18,7 @@
 #include <ostream>
 
 #include "ability_base_log_wrapper.h"
+#include "constants.h"
 #include "file_mapper.h"
 #include "file_path_utils.h"
 #include "securec.h"
@@ -205,9 +206,13 @@ bool ZipFile::Open()
     std::string realPath;
     realPath.reserve(PATH_MAX);
     realPath.resize(PATH_MAX - 1);
-    if (realpath(pathName_.c_str(), &(realPath[0])) == nullptr) {
-        ABILITYBASE_LOGE("transform real path error: %{public}d, pathName: %{public}s", errno, pathName_.c_str());
-        return false;
+    if (pathName_.substr(0, Constants::PROC_PREFIX.size()) == Constants::PROC_PREFIX) {
+        realPath = pathName_;
+    } else {
+        if (realpath(pathName_.c_str(), &(realPath[0])) == nullptr) {
+            ABILITYBASE_LOGE("transform real path error: %{public}d, pathName: %{public}s", errno, pathName_.c_str());
+            return false;
+        }
     }
 
     zipFileReader_ = ZipFileReader::CreateZipFileReader(realPath);

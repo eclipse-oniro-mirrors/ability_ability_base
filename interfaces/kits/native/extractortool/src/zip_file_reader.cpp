@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,6 +19,7 @@
 #include <sys/stat.h>
 
 #include "ability_base_log_wrapper.h"
+#include "constants.h"
 #include "zip_file_reader_io.h"
 #include "zip_file_reader_mem.h"
 
@@ -76,14 +77,20 @@ bool ZipFileReader::init()
     if (filePath_.empty()) {
         return false;
     }
-    char resolvePath[PATH_MAX] = {0};
-    if (realpath(filePath_.c_str(), resolvePath) == nullptr) {
-        ABILITYBASE_LOGE("realpath error: %{public}s : %{public}d", resolvePath, errno);
-        return false;
+    std::string resolvePath;
+    resolvePath.reserve(PATH_MAX);
+    resolvePath.resize(PATH_MAX - 1);
+    if (filePath_.substr(0, Constants::PROC_PREFIX.size()) == Constants::PROC_PREFIX) {
+        resolvePath = filePath_;
+    } else {
+        if (realpath(filePath_.c_str(), &(resolvePath[0])) == nullptr) {
+            ABILITYBASE_LOGE("realpath error: %{public}s : %{public}d", resolvePath.c_str(), errno);
+            return false;
+        }
     }
-    fd_ = open(resolvePath, O_RDONLY);
+    fd_ = open(resolvePath.c_str(), O_RDONLY);
     if (fd_ < 0) {
-        ABILITYBASE_LOGE("open file error: %{public}s : %{public}d", resolvePath, errno);
+        ABILITYBASE_LOGE("open file error: %{public}s : %{public}d", resolvePath.c_str(), errno);
         return false;
     }
 
