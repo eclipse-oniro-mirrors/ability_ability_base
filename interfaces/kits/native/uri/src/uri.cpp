@@ -79,7 +79,6 @@ bool Uri::CheckScheme()
     }
     try {
         regex schemeRegex("[a-zA-Z][a-zA-Z|\\d|+|-|.]*$");
-        HILOG_IMPL(LOG_CORE, LOG_INFO, 0xD001302,  "URI", "scheme size:%{public}zu", scheme_.size());
         if (!regex_match(scheme_, schemeRegex)) {
             return false;
         }
