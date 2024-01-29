@@ -838,7 +838,7 @@ bool ZipFile::ExtractToBufByName(const std::string &fileName, std::unique_ptr<ui
 {
     ZipEntry zipEntry;
     if (!GetEntry(fileName, zipEntry)) {
-        if (fileName.substr(fileName.length() - MAP_FILE_SUFFIX) != ".map") {
+        if (fileName.length() > MAP_FILE_SUFFIX && fileName.substr(fileName.length() - MAP_FILE_SUFFIX) != ".map") {
             ABILITYBASE_LOGE("GetEntry failed hapPath %{public}s.", fileName.c_str());
         }
         return false;
