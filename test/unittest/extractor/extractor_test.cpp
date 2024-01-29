@@ -326,5 +326,21 @@ HWTEST_F(ExtractorTest, IsSameHap_001, TestSize.Level1)
     EXPECT_FALSE(extractor1->IsSameHap(ERROR_HAP_PATH));
     EXPECT_TRUE(extractor1->IsSameHap(testPath_));
 }
+
+/*
+ * Feature: Extractor
+ * Function: ExtractToBufByName
+ * SubFunction: NA
+ * EnvConditions: NA
+ * CaseDescription: Create extractor, call ExtractToBufByName function.
+ */
+HWTEST_F(ExtractorTest, ExtractToBufByName_001, TestSize.Level1)
+{
+    std::shared_ptr<Extractor> extractor1 = std::make_shared<Extractor>(testPath_);
+    extractor1->Init();
+    std::unique_ptr<uint8_t[]> data;
+    size_t len = 0;
+    EXPECT_FALSE(extractor1->ExtractToBufByName("", data, len));
+}
 }  // namespace AbilityBase
 }  // namespace OHOS
