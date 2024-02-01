@@ -35,8 +35,9 @@ extern const char* VALUE_PROPERTY;
 
 enum ScreenMode : int32_t {
     IDLE_SCREEN_MODE = -1,
-    FULL_SCREEN_MODE = 0,
-    HALF_SCREEN_MODE = 1
+    JUMP_SCREEN_MODE = 0,
+    EMBEDDED_FULL_SCREEN_MODE = 1,
+    EMBEDDED_HALF_SCREEN_MODE = 2
 };
 const std::string SCREEN_MODE_KEY = "ScreenMode";
 
