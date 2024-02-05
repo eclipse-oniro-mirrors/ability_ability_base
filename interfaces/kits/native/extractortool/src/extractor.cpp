@@ -39,7 +39,7 @@ Extractor::~Extractor()
 bool Extractor::Init()
 {
     if (!zipFile_.Open()) {
-        ABILITYBASE_LOGE("open zip file failed");
+        ABILITYBASE_LOGD("open zip file failed");
         return false;
     }
     initial_ = true;
@@ -270,7 +270,7 @@ bool Extractor::GetFileList(const std::string &srcPath, std::set<std::string> &f
 
     zipFile_.GetChildNames(srcPath, fileSet);
     if (fileSet.empty()) {
-        ABILITYBASE_LOGW("empty dir: %{public}s", srcPath.c_str());
+        ABILITYBASE_LOGD("empty dir: %{public}s", srcPath.c_str());
     }
 
     return true;
@@ -318,7 +318,7 @@ std::shared_ptr<Extractor> ExtractorUtil::GetExtractor(const std::string &hapPat
 
     std::shared_ptr<Extractor> extractor = std::make_shared<Extractor>(hapPath);
     if (!extractor->Init()) {
-        ABILITYBASE_LOGE("Extractor create failed for %{private}s", hapPath.c_str());
+        ABILITYBASE_LOGD("Extractor create failed for %{private}s", hapPath.c_str());
         return nullptr;
     }
     if (cache) {

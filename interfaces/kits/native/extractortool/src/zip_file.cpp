@@ -240,7 +240,7 @@ bool ZipFile::Open()
 void ZipFile::Close()
 {
     if (!isOpen_ || zipFileReader_ == nullptr) {
-        ABILITYBASE_LOGW("file is not opened");
+        ABILITYBASE_LOGD("file is not opened");
         return;
     }
 
