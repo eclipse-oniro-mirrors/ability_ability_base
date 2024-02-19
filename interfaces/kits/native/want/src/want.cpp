@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -92,6 +92,7 @@ const std::string Want::PARAM_ABILITY_RECOVERY_RESTART("ohos.ability.params.abil
 const std::string Want::PARAM_MODULE_NAME("moduleName");
 const std::string Want::PARAM_ABILITY_URITYPES("ohos.ability.params.uriTypes");
 const std::string Want::PARAM_ABILITY_APPINFOS("ohos.ability.params.appInfos");
+const std::string Want::PARAM_ASSERT_FAULT_SESSION_ID("ohos.ability.params.asssertFaultSessionId");
 
 const std::string Want::PARAM_BACK_TO_OTHER_MISSION_STACK("ability.params.backToOtherMissionStack");
 
