@@ -819,6 +819,7 @@ public:
 
     void CloseAllFd();
 
+    void SetEntities(const std::vector<std::string> &entities);
 public:
     // action definition
     static const std::string ACTION_PLAY;

@@ -98,6 +98,9 @@ public:
 
     void CloseAllFd();
     
+    void GetCachedUnsuppertedData(std::vector<UnsupportedData> &cachedUnsuppertedData) const;
+
+    void SetCachedUnsuppertedData(const std::vector<UnsupportedData> &cachedUnsuppertedData);
 private:
     enum {
         VALUE_TYPE_NULL = -1,
