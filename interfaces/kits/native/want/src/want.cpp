@@ -2199,5 +2199,10 @@ void Want::CloseAllFd()
 {
     parameters_.CloseAllFd();
 }
+
+void Want::SetEntities(const std::vector<std::string> &entities)
+{
+    operation_.SetEntities(entities);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

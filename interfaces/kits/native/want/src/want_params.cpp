@@ -1541,5 +1541,17 @@ void WantParams::CloseAllFd()
     }
     fds_.clear();
 }
+
+void WantParams::GetCachedUnsuppertedData(std::vector<UnsupportedData> &cachedUnsupportedData) const
+{
+    for (UnsupportedData item : cachedUnsupportedData_) {
+        cachedUnsupportedData.emplace_back(std::move(item));
+    }
+}
+
+void WantParams::SetCachedUnsuppertedData(const std::vector<UnsupportedData> &cachedUnsupportedData)
+{
+    cachedUnsupportedData_ = cachedUnsupportedData;
+}
 }  // namespace AAFwk
 }  // namespace OHOS
