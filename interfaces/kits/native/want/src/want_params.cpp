@@ -1542,14 +1542,14 @@ void WantParams::CloseAllFd()
     fds_.clear();
 }
 
-void WantParams::GetCachedUnsuppertedData(std::vector<UnsupportedData> &cachedUnsupportedData) const
+void WantParams::GetCachedUnsupportedData(std::vector<UnsupportedData> &cachedUnsupportedData) const
 {
     for (UnsupportedData item : cachedUnsupportedData_) {
         cachedUnsupportedData.emplace_back(std::move(item));
     }
 }
 
-void WantParams::SetCachedUnsuppertedData(const std::vector<UnsupportedData> &cachedUnsupportedData)
+void WantParams::SetCachedUnsupportedData(const std::vector<UnsupportedData> &cachedUnsupportedData)
 {
     cachedUnsupportedData_ = cachedUnsupportedData;
 }
