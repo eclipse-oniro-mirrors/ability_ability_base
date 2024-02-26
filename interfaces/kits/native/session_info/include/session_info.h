@@ -26,6 +26,7 @@
 namespace OHOS {
 namespace AAFwk {
 class AbilityStartSetting;
+class ProcessOptions;
 
 enum class CallToState : uint32_t {
     UNKNOW = 0,
@@ -56,6 +57,7 @@ public:
     int32_t errorCode = -1;
     int64_t uiAbilityId = 0;
     std::shared_ptr<AbilityStartSetting> startSetting = nullptr;
+    std::shared_ptr<ProcessOptions> processOptions = nullptr;
     Want want;
     int32_t userId = -1;
     bool isNewWant = true;

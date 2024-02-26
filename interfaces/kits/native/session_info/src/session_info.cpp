@@ -17,6 +17,7 @@
 
 #include "ability_base_log_wrapper.h"
 #include "ability_start_setting.h"
+#include "process_options.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -131,6 +132,11 @@ bool SessionInfo::DoMarshallingTwo(Parcel& parcel) const
         ABILITYBASE_LOGE("Write startSetting failed.");
         return false;
     }
+
+    if (!parcel.WriteParcelable(processOptions.get())) {
+        ABILITYBASE_LOGE("Write processOptions failed.");
+        return false;
+    }
     return true;
 }
 
@@ -211,6 +217,7 @@ SessionInfo* SessionInfo::Unmarshalling(Parcel& parcel)
     info->errorCode = parcel.ReadInt32();
     info->uiAbilityId = parcel.ReadInt64();
     info->startSetting.reset(parcel.ReadParcelable<AbilityStartSetting>());
+    info->processOptions.reset(parcel.ReadParcelable<ProcessOptions>());
     info->isNewWant = parcel.ReadBool();
     info->isClearSession = parcel.ReadBool();
     info->callingTokenId = parcel.ReadUint32();
