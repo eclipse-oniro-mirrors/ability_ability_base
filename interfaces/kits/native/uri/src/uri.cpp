@@ -509,6 +509,7 @@ bool Uri::Marshalling(Parcel& parcel) const
         return parcel.WriteString16(Str8ToStr16(uriString_));
     }
 
+    HILOG_IMPL(LOG_CORE, LOG_ERROR, 0xD001302,  "URI", "uriString_ is not ascii string");
     return false;
 }
 
