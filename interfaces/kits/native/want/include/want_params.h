@@ -38,7 +38,7 @@ enum ScreenMode : int32_t {
     FULL_SCREEN_MODE = 0,
     HALF_SCREEN_MODE = 1
 };
-const std::string SCREEN_MODE_KEY = "ohos.extra.param.key.startupMode";
+const std::string SCREEN_MODE_KEY = "ohos.extra.param.key.showMode";
 
 class UnsupportedData {
 public:
