@@ -164,7 +164,7 @@ public:
      * @brief Return all current key-value pairs.
      *
      */
-    const std::string& GetName() const;
+    const std::string GetName() const;
 
     /**
      * @brief read this Sequenceable object from a Parcel.
@@ -216,7 +216,6 @@ private:
 
 private:
     int defaultDisplayId_ {0};
-    mutable std::string toStrintg_ {""}; /* For interface GetName(), Assign value only when calling the interface */
 
     mutable std::recursive_mutex configParameterMutex_;
     std::unordered_map<std::string, std::string> configParameter_;
