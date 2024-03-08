@@ -31,6 +31,8 @@ namespace GlobalConfigurationKey {
     constexpr const char* LANGUAGE_IS_SET_BY_APP = "ohos.system.language.isSetByApp";
     constexpr const char* COLORMODE_IS_SET_BY_APP = "ohos.system.colorMode.isSetByApp";
     constexpr const char* THEME = "ohos.application.theme";
+    constexpr const char* SYSTEM_FONT_SIZE_SCALE = "ohos.system.fontSizeScale";
+    constexpr const char* SYSTEM_FONT_WEIGHT_SCALE = "ohos.system.fontWeightScale";
 
 } // namespace GlobalConfigurationKey
 } // namespace AAFwk
