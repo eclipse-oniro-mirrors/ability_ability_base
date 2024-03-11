@@ -74,7 +74,7 @@ public:
      * @return Returns true if the ZipEntry is successfully finded; returns false otherwise.
      */
     bool HasEntry(const std::string &fileName) const;
-    bool IsDirExist(const std::string &dir) const;
+    bool IsDirExist(const std::string &dir);
     bool IsStageBasedModel(std::string abilityName);
     bool GetFileBuffer(const std::string& srcPath, std::ostringstream& dest);
     bool GetFileList(const std::string& srcPath, std::vector<std::string>& assetList);

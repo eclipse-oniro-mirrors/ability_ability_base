@@ -40,6 +40,49 @@ constexpr uint32_t FLAG_DATA_DESC = 0x8;
 constexpr uint8_t INFLATE_ERROR_TIMES = 5;
 constexpr uint8_t MAP_FILE_SUFFIX = 4;
 const char FILE_SEPARATOR_CHAR = '/';
+
+void GetTreeFileList(std::shared_ptr<DirTreeNode> root, const std::string &rootPath,
+    std::vector<std::string> &assetList)
+{
+    if (root == nullptr) {
+        return;
+    }
+    if (root->children.empty()) {
+        assetList.push_back(rootPath);
+    } else {
+        for (const auto &child : root->children) {
+            GetTreeFileList(child.second, rootPath + "/" + child.first, assetList);
+        }
+    }
+}
+
+void AddEntryToTree(const std::string &fileName, std::shared_ptr<DirTreeNode> root)
+{
+    if (root == nullptr) {
+        return;
+    }
+    size_t cur = 0;
+    auto parent = root;
+    do {
+        while (cur < fileName.size() && fileName[cur] == FILE_SEPARATOR_CHAR) {
+            cur++;
+        }
+        if (cur >= fileName.size()) {
+            break;
+        }
+        auto next = fileName.find_first_of(FILE_SEPARATOR_CHAR, cur);
+        auto nodeName = fileName.substr(cur, next - cur);
+        auto it = parent->children.find(nodeName);
+        if (it != parent->children.end()) {
+            parent = it->second;
+        } else {
+            auto node = std::make_shared<DirTreeNode>();
+            parent->children.emplace(nodeName, node);
+            parent = node;
+        }
+        cur = next;
+    } while (cur != std::string::npos);
+}
 }  // namespace
 
 ZipEntry::ZipEntry(const CentralDirEntry &centralEntry)
@@ -54,10 +97,7 @@ ZipEntry::ZipEntry(const CentralDirEntry &centralEntry)
     modifiedDate = centralEntry.modifiedDate;
 }
 
-ZipFile::ZipFile(const std::string &pathName) : pathName_(pathName)
-{
-    dirRoot_ = std::make_shared<DirTreeNode>();
-}
+ZipFile::ZipFile(const std::string &pathName) : pathName_(pathName) {}
 
 ZipFile::~ZipFile()
 {
@@ -139,34 +179,32 @@ bool ZipFile::ParseOneEntry(uint8_t* &entryPtr)
     ZipEntry currentEntry(directoryEntry);
     currentEntry.fileName = fileName;
     entriesMap_[fileName] = currentEntry;
-    AddEntryToTree(fileName);
     entryPtr += directoryEntry.nameSize + directoryEntry.extraSize + directoryEntry.commentSize;
     return true;
 }
 
-void ZipFile::AddEntryToTree(const std::string &fileName)
+std::shared_ptr<DirTreeNode> ZipFile::MakeDirTree() const
 {
-    size_t cur = 0;
-    auto parent = dirRoot_;
-    do {
-        while (cur < fileName.size() && fileName[cur] == FILE_SEPARATOR_CHAR) {
-            cur++;
+    ABILITYBASE_LOGI("called.");
+    auto root = std::make_shared<DirTreeNode>();
+    for (const auto &[fileName, entry]: entriesMap_) {
+        AddEntryToTree(fileName, root);
+    }
+    return root;
+}
+
+std::shared_ptr<DirTreeNode> ZipFile::GetDirRoot()
+{
+    if (!isOpen_) {
+        return nullptr;
+    }
+    if (dirRoot_ == nullptr) {
+        std::lock_guard guard(dirRootMutex_);
+        if (dirRoot_ == nullptr) {
+            dirRoot_ = MakeDirTree();
         }
-        if (cur >= fileName.size()) {
-            break;
-        }
-        auto next = fileName.find_first_of(FILE_SEPARATOR_CHAR, cur);
-        auto nodeName = fileName.substr(cur, next - cur);
-        auto it = parent->children.find(nodeName);
-        if (it != parent->children.end()) {
-            parent = it->second;
-        } else {
-            auto node = std::make_shared<DirTreeNode>();
-            parent->children.emplace(nodeName, node);
-            parent = node;
-        }
-        cur = next;
-    } while (cur != std::string::npos);
+    }
+    return dirRoot_;
 }
 
 bool ZipFile::ParseAllEntries()
@@ -251,7 +289,10 @@ void ZipFile::Close()
 
     isOpen_ = false;
     entriesMap_.clear();
-    dirRoot_->children.clear();
+    {
+        std::lock_guard guard(dirRootMutex_);
+        dirRoot_.reset();
+    }
     pathName_ = "";
 
     zipFileReader_.reset();
@@ -268,15 +309,18 @@ bool ZipFile::HasEntry(const std::string &entryName) const
     return entriesMap_.find(entryName) != entriesMap_.end();
 }
 
-bool ZipFile::IsDirExist(const std::string &dir) const
+bool ZipFile::IsDirExist(const std::string &dir)
 {
     if (dir.empty()) {
         ABILITYBASE_LOGE("target dir is empty");
         return false;
     }
-
+    auto parent = GetDirRoot();
+    if (parent == nullptr) {
+        ABILITYBASE_LOGE("dir root is null");
+        return false;
+    }
     size_t cur = 0;
-    auto parent = dirRoot_;
     do {
         while (cur < dir.size() && dir[cur] == FILE_SEPARATOR_CHAR) {
             cur++;
@@ -297,19 +341,6 @@ bool ZipFile::IsDirExist(const std::string &dir) const
 
     return true;
 }
-namespace {
-void GetTreeFileList(const std::shared_ptr<DirTreeNode> &root, const std::string &rootPath,
-    std::vector<std::string> &assetList)
-{
-    if (root->children.empty()) {
-        assetList.push_back(rootPath);
-    } else {
-        for (const auto &child : root->children) {
-            GetTreeFileList(child.second, rootPath + "/" + child.first, assetList);
-        }
-    }
-}
-}
 
 void ZipFile::GetAllFileList(const std::string &srcPath, std::vector<std::string> &assetList)
 {
@@ -317,12 +348,16 @@ void ZipFile::GetAllFileList(const std::string &srcPath, std::vector<std::string
         ABILITYBASE_LOGE("target dir is empty");
         return;
     }
+    auto parent = GetDirRoot();
+    if (parent == nullptr) {
+        ABILITYBASE_LOGE("dir root is null");
+        return;
+    }
 
     auto rootName = srcPath.back() == FILE_SEPARATOR_CHAR ?
         srcPath.substr(0, srcPath.length() - 1) : srcPath;
 
     size_t cur = 0;
-    auto parent = dirRoot_;
     do {
         while (cur < rootName.size() && rootName[cur] == FILE_SEPARATOR_CHAR) {
             cur++;
@@ -352,7 +387,11 @@ void ZipFile::GetChildNames(const std::string &srcPath, std::set<std::string> &f
     }
 
     size_t cur = 0;
-    auto parent = dirRoot_;
+    auto parent = GetDirRoot();
+    if (parent == nullptr) {
+        ABILITYBASE_LOGE("dir root is null");
+        return;
+    }
     do {
         while (cur < srcPath.size() && srcPath[cur] == FILE_SEPARATOR_CHAR) {
             cur++;

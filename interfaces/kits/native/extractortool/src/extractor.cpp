@@ -96,7 +96,7 @@ bool Extractor::HasEntry(const std::string &fileName) const
     return zipFile_.HasEntry(fileName);
 }
 
-bool Extractor::IsDirExist(const std::string &dir) const
+bool Extractor::IsDirExist(const std::string &dir)
 {
     if (!initial_) {
         ABILITYBASE_LOGE("extractor is not initial");
