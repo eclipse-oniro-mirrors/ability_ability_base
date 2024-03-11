@@ -17,6 +17,7 @@
 #define OHOS_ABILITY_BASE_ZIP_FILE_H
 
 #include <memory>
+#include <mutex>
 #include <set>
 #include <string>
 #include <unordered_map>
@@ -192,7 +193,7 @@ public:
      */
     bool HasEntry(const std::string &entryName) const;
 
-    bool IsDirExist(const std::string &dir) const;
+    bool IsDirExist(const std::string &dir);
     void GetAllFileList(const std::string &srcPath, std::vector<std::string> &assetList);
     void GetChildNames(const std::string &srcPath, std::set<std::string> &fileSet);
 
@@ -243,7 +244,6 @@ private:
      * @return Returns true if successfully parsed; returns false otherwise.
      */
     bool ParseOneEntry(uint8_t* &entryPtr);
-    void AddEntryToTree(const std::string &fileName);
     /**
      * @brief Parse all Entries.
      * @return Returns true if successfully parsed; returns false otherwise.
@@ -322,11 +322,14 @@ private:
     bool ReadZStreamFromMMap(const BytePtr &buffer, void* &dataPtr,
         z_stream &zstream, uint32_t &remainCompressedSize) const;
 
+    std::shared_ptr<DirTreeNode> GetDirRoot();
+    std::shared_ptr<DirTreeNode> MakeDirTree() const;
 private:
     std::string pathName_;
     std::shared_ptr<ZipFileReader> zipFileReader_;
     EndDir endDir_;
     ZipEntryMap entriesMap_;
+    std::mutex dirRootMutex_;
     std::shared_ptr<DirTreeNode> dirRoot_;
     // offset of central directory relative to zip file.
     ZipPos centralDirPos_ = 0;
