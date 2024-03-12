@@ -1207,5 +1207,33 @@ HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_ReadUnsupportedData_1000, Function
     UnsupportedData other;
     std::shared_ptr<UnsupportedData> unsupportedData = std::make_shared<UnsupportedData>(other);
 }
+
+/**
+ * @tc.number: AaFwk_WantParams_GetCachedUnsupportedData_1000
+ * @tc.name: GetCachedUnsupportedData
+ * @tc.desc: Test GetCachedUnsupportedData.
+ * @tc.require: issueI648W6
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_GetCachedUnsupportedData_1000, Function | MediumTest | Level1)
+{
+    OHOS::AAFwk::WantParams wantParams;
+    AAFwk::UnsupportedData data;
+    data.key = Str8ToStr16("dataKey2");
+    data.type = 2;
+    data.size = 1;
+    int32_t bufferSize = 256;
+    data.buffer = new (std::nothrow) uint8_t[bufferSize];
+    std::vector<AAFwk::UnsupportedData> cacheData;
+    cacheData.emplace_back(std::move(data));
+    wantParams.SetCachedUnsupportedData(cacheData);
+    std::vector<AAFwk::UnsupportedData> getCacheData;
+    wantParams.GetCachedUnsupportedData(getCacheData);
+    EXPECT_EQ(1, getCacheData.size());
+    for (auto item : getCacheData) {
+        EXPECT_EQ(item.key, Str8ToStr16("dataKey2"));
+        EXPECT_EQ(item.type, 2);
+        EXPECT_EQ(item.size, 1);
+    }
+}
 }
 }
