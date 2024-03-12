@@ -250,6 +250,8 @@ WantParams &WantParams::operator=(const WantParams &other)
         fds_.clear();
         NewParams(other, *this);
         NewFds(other, *this);
+        cachedUnsupportedData_.clear();
+        cachedUnsupportedData_ = other.cachedUnsupportedData_;
     }
     return *this;
 }
@@ -265,6 +267,9 @@ WantParams &WantParams::operator=(WantParams &&other) noexcept
         fds_.clear();
         fds_ = other.fds_;
         other.fds_.clear();
+        cachedUnsupportedData_.clear();
+        cachedUnsupportedData_ = other.cachedUnsupportedData_;
+        other.cachedUnsupportedData_.clear();
     }
     return *this;
 }
