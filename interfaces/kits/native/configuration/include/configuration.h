@@ -46,6 +46,8 @@ namespace ConfigurationInner {
         OHOS::AAFwk::GlobalConfigurationKey::THEME,
         OHOS::AAFwk::GlobalConfigurationKey::LANGUAGE_IS_SET_BY_APP,
         OHOS::AAFwk::GlobalConfigurationKey::COLORMODE_IS_SET_BY_APP,
+        OHOS::AAFwk::GlobalConfigurationKey::SYSTEM_FONT_SIZE_SCALE,
+        OHOS::AAFwk::GlobalConfigurationKey::SYSTEM_FONT_WEIGHT_SCALE,
         OHOS::AppExecFwk::ConfigurationInner::APPLICATION_DIRECTION,
         OHOS::AppExecFwk::ConfigurationInner::APPLICATION_DENSITYDPI,
         OHOS::AppExecFwk::ConfigurationInner::APPLICATION_DISPLAYID,
