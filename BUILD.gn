@@ -227,6 +227,7 @@ config("view_data_config") {
 ohos_shared_library("view_data") {
   sources = [
     "interfaces/kits/native/view_data/src/page_node_info.cpp",
+    "interfaces/kits/native/view_data/src/rect.cpp",
     "interfaces/kits/native/view_data/src/view_data.cpp",
   ]
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -26,6 +26,7 @@ constexpr const char* VIEW_DATA_MODULE_NAME = "moduleName";
 constexpr const char* VIEW_DATA_ABILITY_NAME = "abilityName";
 constexpr const char* VIEW_DATA_PAGE_URL = "pageUrl";
 constexpr const char* VIEW_DATA_NODES = "nodes";
+constexpr const char* VIEW_DATA_PAGE_RECT = "pageRect";
 
 void ViewData::FromJsonString(const std::string& jsonStr)
 {
@@ -58,6 +59,9 @@ void ViewData::FromJsonString(const std::string& jsonStr)
             }
         }
     }
+    if (jsonObject.contains(VIEW_DATA_PAGE_RECT)) {
+        pageRect.FromJsonString(jsonObject[VIEW_DATA_PAGE_RECT]);
+    }
 }
 
 std::string ViewData::ToJsonString() const
@@ -72,7 +76,8 @@ std::string ViewData::ToJsonString() const
         {VIEW_DATA_MODULE_NAME, moduleName},
         {VIEW_DATA_ABILITY_NAME, abilityName},
         {VIEW_DATA_PAGE_URL, pageUrl},
-        {VIEW_DATA_NODES, jsonNodes}
+        {VIEW_DATA_NODES, jsonNodes},
+        {VIEW_DATA_PAGE_RECT, pageRect.ToJsonString()}
     };
     return jsonObject.dump();
 }
