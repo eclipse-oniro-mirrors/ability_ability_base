@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,33 +13,23 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_BASE_PAGE_NODE_INFO_H
-#define OHOS_ABILITY_BASE_PAGE_NODE_INFO_H
+#ifndef OHOS_ABILITY_BASE_RECT_H
+#define OHOS_ABILITY_BASE_RECT_H
 
 #include <string>
-
-#include "auto_fill_type.h"
-#include "nlohmann/json.hpp"
-#include "rect.h"
+#include <vector>
 
 namespace OHOS {
 namespace AbilityBase {
-struct PageNodeInfo {
+struct Rect {
     void FromJsonString(const std::string& jsonStr);
-    void ParseJsonToPageNodeInfo(const nlohmann::json& jsonObject);
     std::string ToJsonString() const;
 
-    int32_t id = -1;
-    int32_t depth = -1;
-    AutoFillType autoFillType = AutoFillType::UNSPECIFIED;
-    std::string tag;
-    std::string value;
-    std::string placeholder;
-    std::string passwordRules;
-    bool enableAutoFill = true;
-    Rect rect;
-    bool isFocus = false;
+    float left = 0.0f;
+    float top = 0.0f;
+    float width = 0.0f;
+    float height = 0.0f;
 };
 }  // namespace AbilityBase
 }  // namespace OHOS
-#endif // OHOS_ABILITY_BASE_PAGE_NODE_INFO_H
+#endif // OHOS_ABILITY_BASE_RECT_H

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,7 +22,30 @@ enum class AutoFillType {
     UNSPECIFIED = 0,
     PASSWORD,
     USER_NAME,
-    NEW_PASSWORD
+    NEW_PASSWORD,
+    FULL_STREET_ADDRESS,
+    HOUSE_NUMBER,
+    DISTRICT_ADDRESS,
+    CITY_ADDRESS,
+    PROVINCE_ADDRESS,
+    COUNTRY_ADDRESS,
+    PERSON_FULL_NAME,
+    PERSON_LAST_NAME,
+    PERSON_FIRST_NAME,
+    PHONE_NUMBER,
+    PHONE_COUNTRY_CODE,
+    FULL_PHONE_NUMBER,
+    EMAIL_ADDRESS,
+    BANK_CARD_NUMBER,
+    ID_CARD_NUMBER,
+    PRECISE_TIME,
+    HOUR_AND_MINUTE,
+    DATE,
+    MONTH,
+    YEAR,
+    NICKNAME,
+    DETAIL_INFO_WITHOUT_STREET,
+    FORMAT_ADDRESS,
 };
 }  // namespace AbilityBase
 }  // namespace OHOS
