@@ -2201,6 +2201,11 @@ void Want::CloseAllFd()
     parameters_.CloseAllFd();
 }
 
+void Want::RemoveAllFd()
+{
+    parameters_.RemoveAllFd();
+}
+
 void Want::SetEntities(const std::vector<std::string> &entities)
 {
     operation_.SetEntities(entities);

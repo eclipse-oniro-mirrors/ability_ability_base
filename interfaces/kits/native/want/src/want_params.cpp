@@ -558,14 +558,21 @@ bool WantParams::WriteToParcelWantParams(Parcel &parcel, sptr<IInterface> &o, in
 bool WantParams::WriteToParcelFD(Parcel &parcel, const WantParams &value) const
 {
     ABILITYBASE_LOGI("%{public}s called.", __func__);
-    if (!parcel.WriteInt32(VALUE_TYPE_FD)) {
-        return false;
-    }
 
     auto fdWrap = value.GetParam(VALUE_PROPERTY);
     AAFwk::IInteger *fdIWrap = AAFwk::IInteger::Query(fdWrap);
     if (fdIWrap != nullptr) {
         int fd = AAFwk::Integer::Unbox(fdIWrap);
+        int dupFd = dup(fd);
+        if (dupFd < 0) {
+            ABILITYBASE_LOGI("The fd in want is invalid, no need to be written.");
+            parcel.WriteInt32(VALUE_TYPE_INVALID_FD);
+            return true;
+        }
+        close(dupFd);
+        if (!parcel.WriteInt32(VALUE_TYPE_FD)) {
+            return false;
+        }
         auto messageParcel = static_cast<MessageParcel*>(&parcel);
         if (messageParcel == nullptr) {
             return false;
@@ -1287,6 +1294,11 @@ bool WantParams::ReadFromParcelWantParamWrapper(Parcel &parcel, const std::strin
         return ReadFromParcelFD(parcel, key);
     }
 
+    if (type == VALUE_TYPE_INVALID_FD) {
+        ABILITYBASE_LOGI("The fd in want is invalid");
+        return true;
+    }
+
     if (type == VALUE_TYPE_REMOTE_OBJECT) {
         return ReadFromParcelRemoteObject(parcel, key);
     }
@@ -1542,6 +1554,14 @@ void WantParams::CloseAllFd()
             ABILITYBASE_LOGI("CloseAllFd fd:%{public}d.", it.second);
             close(it.second);
         }
+        params_.erase(it.first);
+    }
+    fds_.clear();
+}
+
+void WantParams::RemoveAllFd()
+{
+    for (auto it : fds_) {
         params_.erase(it.first);
     }
     fds_.clear();

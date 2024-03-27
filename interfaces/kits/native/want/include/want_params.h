@@ -106,7 +106,9 @@ public:
     void DumpInfo(int level) const;
 
     void CloseAllFd();
-    
+
+    void RemoveAllFd();
+
     void GetCachedUnsupportedData(std::vector<UnsupportedData> &cachedUnsuppertedData) const;
 
     void SetCachedUnsupportedData(const std::vector<UnsupportedData> &cachedUnsuppertedData);
@@ -143,7 +145,8 @@ private:
         VALUE_TYPE_WANTPARAMS = 101,
         VALUE_TYPE_ARRAY = 102,
         VALUE_TYPE_FD = 103,
-        VALUE_TYPE_REMOTE_OBJECT = 104
+        VALUE_TYPE_REMOTE_OBJECT = 104,
+        VALUE_TYPE_INVALID_FD = 105,
     };
 
     bool WriteArrayToParcel(Parcel &parcel, IArray *ao, int depth) const;
