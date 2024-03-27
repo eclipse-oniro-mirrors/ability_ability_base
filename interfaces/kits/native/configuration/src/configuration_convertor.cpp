@@ -154,6 +154,7 @@ Global::Resource::DeviceType ConvertDeviceType(std::string deviceType)
         {"tv", Global::Resource::DeviceType::DEVICE_TV},
         {"watch", Global::Resource::DeviceType::DEVICE_WEARABLE},
         {"2in1", Global::Resource::DeviceType::DEVICE_TWOINONE},
+        {"wearable", Global::Resource::DeviceType::DEVICE_WEARABLE}
     };
 
     if (deviceTypes.find(deviceType) != deviceTypes.end()) {
