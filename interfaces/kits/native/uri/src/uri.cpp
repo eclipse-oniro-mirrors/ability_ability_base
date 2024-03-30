@@ -78,7 +78,7 @@ bool Uri::CheckScheme()
         return true;
     }
     try {
-        regex schemeRegex("[a-zA-Z][a-zA-Z|\\d|+|-|.]*$");
+        regex schemeRegex("[a-zA-Z][a-zA-Z|\\d|\\+|\\-|.]*$");
         if (!regex_match(scheme_, schemeRegex)) {
             return false;
         }
