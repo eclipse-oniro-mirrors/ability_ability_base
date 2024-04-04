@@ -823,6 +823,8 @@ public:
 
     void CloseAllFd();
 
+    void RemoveAllFd();
+
     void SetEntities(const std::vector<std::string> &entities);
 public:
     // action definition
