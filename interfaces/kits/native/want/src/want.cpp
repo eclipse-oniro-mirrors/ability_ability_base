@@ -2206,6 +2206,11 @@ void Want::RemoveAllFd()
     parameters_.RemoveAllFd();
 }
 
+void Want::DupAllFd()
+{
+    parameters_.DupAllFd();
+}
+
 void Want::SetEntities(const std::vector<std::string> &entities)
 {
     operation_.SetEntities(entities);
