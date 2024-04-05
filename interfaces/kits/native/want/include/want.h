@@ -825,6 +825,8 @@ public:
 
     void RemoveAllFd();
 
+    void DupAllFd();
+
     void SetEntities(const std::vector<std::string> &entities);
 public:
     // action definition

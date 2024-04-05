@@ -109,6 +109,8 @@ public:
 
     void RemoveAllFd();
 
+    void DupAllFd();
+
     void GetCachedUnsupportedData(std::vector<UnsupportedData> &cachedUnsuppertedData) const;
 
     void SetCachedUnsupportedData(const std::vector<UnsupportedData> &cachedUnsuppertedData);
