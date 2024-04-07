@@ -47,6 +47,22 @@ enum class AutoFillType {
     DETAIL_INFO_WITHOUT_STREET,
     FORMAT_ADDRESS,
 };
+
+enum class PopupPlacement {
+    LEFT = 0,
+    RIGHT,
+    TOP,
+    BOTTOM,
+    TOP_LEFT,
+    TOP_RIGHT,
+    BOTTOM_LEFT,
+    BOTTOM_RIGHT,
+    LEFT_TOP,
+    LEFT_BOTTOM,
+    RIGHT_TOP,
+    RIGHT_BOTTOM,
+    NONE,
+};
 }  // namespace AbilityBase
 }  // namespace OHOS
 #endif // OHOS_ABILITY_BASE_AUTO_FILL_TYPE_H
