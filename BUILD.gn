@@ -341,6 +341,7 @@ ohos_shared_library("extractortool") {
   external_deps = [
     "c_utils:utils",
     "hilog:libhilog",
+    "hitrace:hitrace_meter",
   ]
 
   subsystem_name = "ability"

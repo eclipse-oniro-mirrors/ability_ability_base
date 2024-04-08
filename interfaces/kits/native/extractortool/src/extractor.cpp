@@ -20,6 +20,7 @@
 #include "ability_base_log_wrapper.h"
 #include "constants.h"
 #include "file_path_utils.h"
+#include "hitrace_meter.h"
 #include "securec.h"
 #include "string_ex.h"
 
@@ -38,6 +39,7 @@ Extractor::~Extractor()
 
 bool Extractor::Init()
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (!zipFile_.Open()) {
         ABILITYBASE_LOGD("open zip file failed");
         return false;
@@ -69,6 +71,7 @@ bool Extractor::GetFileBuffer(const std::string& srcPath, std::ostringstream& de
 
 bool Extractor::GetFileList(const std::string& srcPath, std::vector<std::string>& assetList)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (!initial_) {
         ABILITYBASE_LOGE("extractor is not initial");
         return false;
@@ -228,6 +231,7 @@ bool Extractor::IsStageModel()
 bool Extractor::ExtractToBufByName(const std::string &fileName, std::unique_ptr<uint8_t[]> &dataPtr,
     size_t &len)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::string relativePath = GetRelativePath(fileName);
     return zipFile_.ExtractToBufByName(relativePath, dataPtr, len);
 }
@@ -308,6 +312,7 @@ std::shared_ptr<Extractor> ExtractorUtil::GetExtractor(const std::string &hapPat
         return nullptr;
     }
     {
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "GetExtractor_find_from_cache");
         std::lock_guard<std::mutex> mapMutex(mapMutex_);
         auto mapIter = extractorMap_.find(hapPath);
         if (mapIter != extractorMap_.end()) {
@@ -322,6 +327,7 @@ std::shared_ptr<Extractor> ExtractorUtil::GetExtractor(const std::string &hapPat
         return nullptr;
     }
     if (cache) {
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "GetExtractor_store");
         std::lock_guard<std::mutex> mapMutex(mapMutex_);
         extractorMap_.emplace(hapPath, extractor);
         ABILITYBASE_LOGD("extractor cache size: %{public}zu.", extractorMap_.size());
@@ -332,6 +338,7 @@ std::shared_ptr<Extractor> ExtractorUtil::GetExtractor(const std::string &hapPat
 
 void ExtractorUtil::DeleteExtractor(const std::string &hapPath)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (hapPath.empty()) {
         ABILITYBASE_LOGE("DeleteExtractor hapPath is empty.");
         return;

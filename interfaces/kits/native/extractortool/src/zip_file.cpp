@@ -21,6 +21,7 @@
 #include "constants.h"
 #include "file_mapper.h"
 #include "file_path_utils.h"
+#include "hitrace_meter.h"
 #include "securec.h"
 #include "zip_file_reader.h"
 #include "zlib.h"
@@ -199,6 +200,7 @@ std::shared_ptr<DirTreeNode> ZipFile::GetDirRoot()
         return nullptr;
     }
     if (dirRoot_ == nullptr) {
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "make_dir_tree");
         std::lock_guard guard(dirRootMutex_);
         if (dirRoot_ == nullptr) {
             dirRoot_ = MakeDirTree();
