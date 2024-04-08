@@ -26,6 +26,7 @@
                 "ability_runtime",
                 "c_utils",
                 "hilog",
+                "hitrace",
                 "ipc",
                 "resource_management"
             ],
