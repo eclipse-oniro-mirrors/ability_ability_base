@@ -46,6 +46,8 @@ namespace ConfigurationInner {
         OHOS::AAFwk::GlobalConfigurationKey::THEME,
         OHOS::AAFwk::GlobalConfigurationKey::LANGUAGE_IS_SET_BY_APP,
         OHOS::AAFwk::GlobalConfigurationKey::COLORMODE_IS_SET_BY_APP,
+        OHOS::AAFwk::GlobalConfigurationKey::COLORMODE_NEED_REMOVE_SET_BY_SA,
+        OHOS::AAFwk::GlobalConfigurationKey::COLORMODE_IS_SET_BY_SA,
         OHOS::AAFwk::GlobalConfigurationKey::SYSTEM_FONT_SIZE_SCALE,
         OHOS::AAFwk::GlobalConfigurationKey::SYSTEM_FONT_WEIGHT_SCALE,
         OHOS::AppExecFwk::ConfigurationInner::APPLICATION_DIRECTION,
@@ -60,6 +62,8 @@ namespace ConfigurationInner {
     constexpr const char* DIRECTION_VERTICAL = "vertical";
     constexpr const char* DIRECTION_HORIZONTAL = "horizontal";
     constexpr const char* IS_SET_BY_APP = "isSetByApp";
+    constexpr const char* NEED_REMOVE_SET_BY_SA = "needRemoveSetBySa";
+    constexpr const char* IS_SET_BY_SA = "isSetBySa";
 };
 
 class Configuration final: public Parcelable {

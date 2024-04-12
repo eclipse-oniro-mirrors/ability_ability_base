@@ -30,6 +30,8 @@ namespace GlobalConfigurationKey {
     constexpr const char* DEVICE_TYPE = "const.build.characteristics";
     constexpr const char* LANGUAGE_IS_SET_BY_APP = "ohos.system.language.isSetByApp";
     constexpr const char* COLORMODE_IS_SET_BY_APP = "ohos.system.colorMode.isSetByApp";
+    constexpr const char* COLORMODE_NEED_REMOVE_SET_BY_SA = "ohos.system.colorMode.needRemoveSetBySa";
+    constexpr const char* COLORMODE_IS_SET_BY_SA = "ohos.system.colorMode.isSetBySa";
     constexpr const char* THEME = "ohos.application.theme";
     constexpr const char* SYSTEM_FONT_SIZE_SCALE = "ohos.system.fontSizeScale";
     constexpr const char* SYSTEM_FONT_WEIGHT_SCALE = "ohos.system.fontWeightScale";
