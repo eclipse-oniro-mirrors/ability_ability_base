@@ -854,6 +854,7 @@ public:
     static const std::string PARAM_RESV_WINDOW_MODE;
     static const std::string PARAM_RESV_DISPLAY_ID;
     static const std::string PARAM_RESV_WITH_ANIMATION;
+    static const std::string PARAM_RESV_WINDOW_FOCUSED;
     static const std::string PARAM_RESV_WINDOW_LEFT;
     static const std::string PARAM_RESV_WINDOW_TOP;
     static const std::string PARAM_RESV_WINDOW_WIDTH;
