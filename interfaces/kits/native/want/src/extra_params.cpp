@@ -62,8 +62,7 @@ bool ExtraParams::operator==(const ExtraParams &other) const
         if (devType_.size() != other.devType_.size()) {
             return false;
         } else if (devType_.size() > 0 && other.devType_.size() > 0 && devType_.size() == other.devType_.size()) {
-            std::vector<string>::const_iterator it1;
-            for (it1 = devType_.cbegin(); it1 != devType_.cend(); it1++) {
+            for (std::vector<string>::const_iterator it1 = devType_.cbegin(); it1 != devType_.cend(); it1++) {
                 std::vector<string>::const_iterator it2;
                 it2 = std::find(other.devType_.cbegin(), other.devType_.cend(), *it1);
                 if (it2 == other.devType_.cend()) {

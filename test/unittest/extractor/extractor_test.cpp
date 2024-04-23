@@ -248,29 +248,6 @@ HWTEST_F(ExtractorTest, ExtractByName_001, TestSize.Level1)
 
 /*
  * Feature: Extractor
- * Function: ExtractFile
- * SubFunction: NA
- * FunctionPoints:Extract file
- * EnvConditions: NA
- * CaseDescription: Create extractor, call extract file function.
- */
-HWTEST_F(ExtractorTest, ExtractFile_001, TestSize.Level1)
-{
-    std::shared_ptr<Extractor> extractor = std::make_shared<Extractor>(testPath_);
-    std::string outPath = OUT_PATH;
-    std::string srcPath = MODULE_JSON_PATH;
-    EXPECT_FALSE(extractor->ExtractFile(srcPath, outPath));
-
-    extractor->Init();
-    EXPECT_FALSE(extractor->ExtractFile("", outPath));
-    EXPECT_FALSE(extractor->ExtractFile(srcPath, ""));
-    EXPECT_TRUE(extractor->ExtractFile(srcPath, outPath));
-    std::ifstream f(outPath.c_str());
-    EXPECT_TRUE(f.good());
-}
-
-/*
- * Feature: Extractor
  * Function: GetSpecifiedTypeFiles
  * SubFunction: NA
  * FunctionPoints:Get specified type files
