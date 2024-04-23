@@ -56,13 +56,6 @@ public:
      */
     bool ExtractByName(const std::string &fileName, std::ostream &dest) const;
     /**
-     * @brief Extract to dest path on filesystem.
-     * @param fileName Indicates the file name.
-     * @param targetPath Indicates the target Path.
-     * @return Returns true if the file extracted to filesystem successfully; returns false otherwise.
-     */
-    bool ExtractFile(const std::string &fileName, const std::string &targetPath) const;
-    /**
      * @brief Get specified type names in a zip file.
      * @param fileNames Indicates the obtained file names in zip.
      * @param suffix Indicates the suffix of file.

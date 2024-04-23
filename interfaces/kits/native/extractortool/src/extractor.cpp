@@ -125,28 +125,6 @@ bool Extractor::ExtractByName(const std::string &fileName, std::ostream &dest) c
     return true;
 }
 
-bool Extractor::ExtractFile(const std::string &fileName, const std::string &targetPath) const
-{
-    std::ofstream fileStream;
-    fileStream.open(targetPath, std::ios_base::out | std::ios_base::binary);
-    if (!fileStream.is_open()) {
-        ABILITYBASE_LOGE("fail to open %{private}s file to write", targetPath.c_str());
-        return false;
-    }
-    if ((!ExtractByName(fileName, fileStream)) || (!fileStream.good())) {
-        ABILITYBASE_LOGE("fail to extract %{public}s zip file into stream", fileName.c_str());
-        fileStream.clear();
-        fileStream.close();
-        if (remove(targetPath.c_str()) != 0) {
-            ABILITYBASE_LOGE("fail to remove %{private}s file which writes stream error", targetPath.c_str());
-        }
-        return false;
-    }
-    fileStream.clear();
-    fileStream.close();
-    return true;
-}
-
 void Extractor::GetSpecifiedTypeFiles(std::vector<std::string> &fileNames, const std::string &suffix)
 {
     auto &entryMap = zipFile_.GetAllEntries();
