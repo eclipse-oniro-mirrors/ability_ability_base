@@ -71,6 +71,7 @@ const std::string Want::WANT_END(";end");
 const std::string Want::PARAM_RESV_WINDOW_MODE("ohos.aafwk.param.windowMode");
 const std::string Want::PARAM_RESV_DISPLAY_ID("ohos.aafwk.param.displayId");
 const std::string Want::PARAM_RESV_WITH_ANIMATION("ohos.aafwk.param.withAnimation");
+const std::string Want::PARAM_RESV_WINDOW_FOCUSED("ohos.aafwk.param.windowFocused");
 const std::string Want::PARAM_RESV_WINDOW_LEFT("ohos.aafwk.param.windowLeft");
 const std::string Want::PARAM_RESV_WINDOW_TOP("ohos.aafwk.param.windowTop");
 const std::string Want::PARAM_RESV_WINDOW_WIDTH("ohos.aafwk.param.windowWidth");
