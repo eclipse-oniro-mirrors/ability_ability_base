@@ -441,7 +441,46 @@ ohos_unittest("extractor_test") {
 
   external_deps = [
     "ability_base:extractortool",
+    "ability_base:extractresourcemanager",
     "ability_base:string_utils",
+    "c_utils:utils",
+    "hilog:libhilog",
+  ]
+}
+
+######################################################################
+viewdata_output_path = "ability_base/view_data_test"
+
+######################################################################
+config("viewdata_private_config") {
+  visibility = [ ":*" ]
+  include_dirs = [
+    "{ability_base_path}/interfaces/kits/native/view_data/include",
+    "//third_party/zlib/contrib/minizip",
+    "//third_party/zlib",
+  ]
+
+  defines = [ "ABILITYBASE_LOG_TAG = \"ViewDataTest\"" ]
+}
+
+ohos_unittest("view_data_test") {
+  module_out_path = viewdata_output_path
+  sources = [ "viewdata/view_data_test.cpp" ]
+
+  configs = [ ":viewdata_private_config" ]
+
+  deps = [
+    "//third_party/googletest:gtest_main",
+    "//third_party/zlib:shared_libz",
+  ]
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:session_info",
+    "ability_base:string_utils",
+    "ability_base:view_data",
+    "ability_base:want",
+    "ability_base:zuri",
     "c_utils:utils",
     "hilog:libhilog",
   ]
@@ -470,6 +509,7 @@ group("unittest") {
     ":string_wrapper_test",
     ":uri_test",
     ":user_object_wrapper_test",
+    ":view_data_test",
     ":want_params_test",
     ":want_params_wrapper_test",
     ":want_test",

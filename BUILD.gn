@@ -382,7 +382,9 @@ group("base_innerkits_target") {
     ":configuration",
     ":extractortool",
     ":extractresourcemanager",
+    ":session_info",
     ":string_utils",
+    ":view_data",
     ":want",
   ]
 }

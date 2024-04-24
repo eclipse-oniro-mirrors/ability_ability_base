@@ -16,6 +16,12 @@
 #include <fstream>
 #include <gtest/gtest.h>
 #include <iostream>
+#define private public
+#define protected public
+#include "extract_resource_manager.h"
+#include "zip_file.h"
+#undef private
+#undef protected
 #include "extractor.h"
 
 using namespace testing;
@@ -141,6 +147,7 @@ HWTEST_F(ExtractorTest, GetLoadFilePath_001, TestSize.Level1)
 
     loadPath = TEST_THIRD_HAP_PATH;
     loadFilePath = ExtractorUtil::GetLoadFilePath(loadPath);
+    ExtractorUtil::DeleteExtractor(loadPath);
     EXPECT_TRUE(loadPath != loadFilePath);
 }
 
@@ -318,6 +325,60 @@ HWTEST_F(ExtractorTest, ExtractToBufByName_001, TestSize.Level1)
     std::unique_ptr<uint8_t[]> data;
     size_t len = 0;
     EXPECT_FALSE(extractor1->ExtractToBufByName("", data, len));
+}
+
+/*
+ * Feature: Extractor
+ * Function: GetData
+ * SubFunction: NA
+ * EnvConditions: NA
+ * CaseDescription: Create extractor, call GetData function.
+ */
+HWTEST_F(ExtractorTest, GetData_001, TestSize.Level1)
+{
+    std::shared_ptr<Extractor> extractor1 = std::make_shared<Extractor>(testPath_);
+    std::string fileName = "www";
+    extractor1->GetData(fileName, false);
+    extractor1->GetSafeData(fileName);
+    bool res = extractor1->IsHapCompress(fileName);
+    EXPECT_EQ(res, false);
+}
+
+/*
+ * Feature: ExtractResourceManager
+ * Function: SetGlobalObject
+ * SubFunction: NA
+ * EnvConditions: NA
+ * CaseDescription: Create ExtractResourceManager, call SetGlobalObject function.
+ */
+HWTEST_F(ExtractorTest, SetGlobalObject_001, TestSize.Level1)
+{
+    std::shared_ptr<Global::Resource::ResourceManager> resourceManager = nullptr;
+    std::shared_ptr<ExtractResourceManager> ers = std::make_shared<ExtractResourceManager>();
+    ers->SetGlobalObject(resourceManager);
+    EXPECT_EQ(ers->GetGlobalObject(), nullptr);
+}
+
+/*
+ * Feature: ZipFile
+ * Function: SetContentLocation
+ * SubFunction: NA
+ * EnvConditions: NA
+ * CaseDescription: Create ZipFile, call SetContentLocation function.
+ */
+HWTEST_F(ExtractorTest, SetContentLocation_001, TestSize.Level1)
+{
+    std::shared_ptr<ZipFile> zipf = std::make_shared<ZipFile>(TEST_HAP_PATH);
+    ZipPos start = 0;
+    size_t length = 1;
+    zipf->SetContentLocation(start, length);
+    std::string srcPath = "srcPath";
+    std::set<std::string> fileSet;
+    zipf->GetChildNames(srcPath, fileSet);
+    std::string fileName = "www";
+    std::unique_ptr<uint8_t[]> dataPtr = std::make_unique<uint8_t[]>(length);
+    bool ret = zipf->ExtractFileFromMMap(fileName, nullptr, dataPtr, length);
+    EXPECT_EQ(ret, false);
 }
 }  // namespace AbilityBase
 }  // namespace OHOS
