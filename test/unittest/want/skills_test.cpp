@@ -387,7 +387,6 @@ HWTEST_F(SkillsBaseTest, AaFwk_Skills_ActionsIterator_0100, Function | MediumTes
     base_->actions_.push_back("a");
     base_->actions_.push_back("b");
     auto iter = base_->ActionsIterator();
-
     EXPECT_EQ(*iter, "a");
 }
 

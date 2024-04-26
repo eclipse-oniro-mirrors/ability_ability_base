@@ -1235,5 +1235,19 @@ HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_GetCachedUnsupportedData_1000, Fun
         EXPECT_EQ(item.size, 1);
     }
 }
+
+/**
+ * @tc.number: AaFwk_WantParams_DupAllFd_1000
+ * @tc.name: DupAllFd
+ * @tc.desc: Test DupAllFd.
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_DupAllFd_1000, Function | MediumTest | Level1)
+{
+    std::string keyStr = "FD";
+    std::string valueStr = "sdasdfdsffdgfdg";
+    WantParams wantParams;
+    wantParams.DupAllFd();
+    EXPECT_EQ(valueStr, String::Unbox(IString::Query(wantParamsOut_->GetParam(keyStr))));
+}
 }
 }

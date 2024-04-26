@@ -4039,6 +4039,23 @@ HWTEST_F(WantBaseTest, DumpInfo_test_001, TestSize.Level1)
 }
 
 /**
+ * @tc.number: DupAllFd_test_001
+ * @tc.name: DupAllFd
+ * @tc.desc: Test the want function DupAllFd.
+ */
+HWTEST_F(WantBaseTest, DupAllFd_test_001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "DupAllFd_test_001 start";
+
+    Want want;
+    want.operation_.entities_.push_back("a");
+    want.operation_.entities_.push_back("b");
+    want.DupAllFd();
+    EXPECT_EQ(true, want.operation_.GetEntities().size() == 2);
+    GTEST_LOG_(INFO) << "DupAllFd_test_001 end";
+}
+
+/**
  * @tc.number: SetElementModuleName_test_001
  * @tc.name: SetElementModuleName
  * @tc.desc: Test the want function SetElementModuleName.
