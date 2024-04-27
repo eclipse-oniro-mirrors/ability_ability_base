@@ -27,6 +27,8 @@ constexpr const char* VIEW_DATA_ABILITY_NAME = "abilityName";
 constexpr const char* VIEW_DATA_PAGE_URL = "pageUrl";
 constexpr const char* VIEW_DATA_NODES = "nodes";
 constexpr const char* VIEW_DATA_PAGE_RECT = "pageRect";
+constexpr const char* VIEW_DATA_USER_SELECTED = "isUserSelected";
+constexpr const char* VIEW_DATA_OTHER_ACCOUNT = "isOtherAccount";
 
 void ViewData::FromJsonString(const std::string& jsonStr)
 {
@@ -46,6 +48,12 @@ void ViewData::FromJsonString(const std::string& jsonStr)
     }
     if (jsonObject.contains(VIEW_DATA_PAGE_URL) && jsonObject[VIEW_DATA_PAGE_URL].is_string()) {
         pageUrl = jsonObject.at(VIEW_DATA_PAGE_URL).get<std::string>();
+    }
+    if (jsonObject.contains(VIEW_DATA_USER_SELECTED) && jsonObject[VIEW_DATA_USER_SELECTED].is_boolean()) {
+        isUserSelected = jsonObject.at(VIEW_DATA_USER_SELECTED).get<bool>();
+    }
+    if (jsonObject.contains(VIEW_DATA_OTHER_ACCOUNT) && jsonObject[VIEW_DATA_OTHER_ACCOUNT].is_boolean()) {
+        isOtherAccount = jsonObject.at(VIEW_DATA_OTHER_ACCOUNT).get<bool>();
     }
     if (jsonObject.contains(VIEW_DATA_NODES) && jsonObject[VIEW_DATA_NODES].is_array()) {
         nodes.clear();
@@ -77,6 +85,8 @@ std::string ViewData::ToJsonString() const
         {VIEW_DATA_ABILITY_NAME, abilityName},
         {VIEW_DATA_PAGE_URL, pageUrl},
         {VIEW_DATA_NODES, jsonNodes},
+        {VIEW_DATA_USER_SELECTED, isUserSelected},
+        {VIEW_DATA_OTHER_ACCOUNT, isOtherAccount},
         {VIEW_DATA_PAGE_RECT, pageRect.ToJsonString()}
     };
     return jsonObject.dump();
