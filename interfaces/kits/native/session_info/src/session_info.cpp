@@ -31,7 +31,11 @@ bool SessionInfo::Marshalling(Parcel& parcel) const
         return false;
     }
 
-    return DoMarshallingThree(parcel);
+    if (!DoMarshallingThree(parcel)) {
+        return false;
+    }
+
+    return DoMarshallingFour(parcel);
 }
 
 bool SessionInfo::DoMarshallingOne(Parcel& parcel) const
@@ -88,6 +92,15 @@ bool SessionInfo::DoMarshallingOne(Parcel& parcel) const
 
 bool SessionInfo::DoMarshallingTwo(Parcel& parcel) const
 {
+    if (!parcel.WriteString(identityToken)) {
+        ABILITYBASE_LOGE("Write identityToken failed.");
+        return false;
+    }
+    return true;
+}
+
+bool SessionInfo::DoMarshallingThree(Parcel& parcel) const
+{
     if (!parcel.WriteInt32(persistentId)) {
         ABILITYBASE_LOGE("Write persistent id failed.");
         return false;
@@ -140,7 +153,7 @@ bool SessionInfo::DoMarshallingTwo(Parcel& parcel) const
     return true;
 }
 
-bool SessionInfo::DoMarshallingThree(Parcel& parcel) const
+bool SessionInfo::DoMarshallingFour(Parcel& parcel) const
 {
     if (!parcel.WriteBool(isNewWant)) {
         ABILITYBASE_LOGE("Write isNewWant failed.");
@@ -208,6 +221,7 @@ SessionInfo* SessionInfo::Unmarshalling(Parcel& parcel)
         info->parentToken = (static_cast<MessageParcel*>(&parcel))->ReadRemoteObject();
     }
 
+    info->identityToken = parcel.ReadString();
     info->persistentId = parcel.ReadInt32();
     info->hostWindowId = parcel.ReadUint32();
     info->state = static_cast<CallToState>(parcel.ReadUint32());
