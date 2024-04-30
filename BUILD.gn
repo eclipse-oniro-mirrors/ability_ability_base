@@ -25,10 +25,7 @@ config("base_public_config") {
 }
 
 config("base_all_dependent_config") {
-  include_dirs = [
-    "${ability_base_innerapi_path}/base/include",
-    "${ipc_native_path}/src/napi/include",
-  ]
+  include_dirs = [ "${ability_base_innerapi_path}/base/include" ]
 }
 
 ohos_shared_library("base") {
@@ -70,7 +67,6 @@ config("configuration_sdk_config") {
   include_dirs = [
     "interfaces/kits/native/configuration/include",
     "${ability_base_innerapi_path}/log/include",
-    "${base_global_innerapi_path}/include",
     "//third_party/json/include",
   ]
 }
@@ -93,6 +89,7 @@ ohos_shared_library("configuration") {
     "c_utils:utils",
     "hilog:libhilog",
   ]
+  public_external_deps = [ "resource_management:global_resmgr" ]
 
   subsystem_name = "ability"
   innerapi_tags = [ "platformsdk" ]
@@ -191,8 +188,6 @@ ohos_shared_library("want") {
   deps = [
     ":base",
     ":zuri",
-    "//third_party/json:nlohmann_json_static",
-    "//third_party/jsoncpp:jsoncpp",
   ]
   all_dependent_configs = [
     ":want_all_dependent_config",
@@ -204,6 +199,8 @@ ohos_shared_library("want") {
     "hilog:libhilog",
     "ipc:ipc_core",
     "ipc:ipc_single",
+    "json:nlohmann_json_static",
+    "jsoncpp:jsoncpp",
   ]
 
   configs = [ ":want_config" ]
@@ -231,9 +228,12 @@ ohos_shared_library("view_data") {
     "interfaces/kits/native/view_data/src/view_data.cpp",
   ]
 
-  deps = [ "//third_party/json:nlohmann_json_static" ]
+  deps = []
 
-  external_deps = [ "hilog:libhilog" ]
+  external_deps = [
+    "hilog:libhilog",
+    "json:nlohmann_json_static",
+  ]
 
   public_configs = [ ":view_data_config" ]
   subsystem_name = "ability"
@@ -304,8 +304,6 @@ config("ability_extractor_config") {
     "interfaces/kits/native/extractortool/include",
     "${ability_base_innerapi_path}/log/include",
     "//third_party/json/include",
-    "//third_party/zlib/contrib/minizip",
-    "//third_party/zlib",
   ]
 }
 
@@ -331,10 +329,7 @@ ohos_shared_library("extractortool") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
 
-  deps = [
-    ":string_utils",
-    "//third_party/zlib:shared_libz",
-  ]
+  deps = [ ":string_utils" ]
 
   public_configs = [ ":ability_extractor_config" ]
 
@@ -344,6 +339,10 @@ ohos_shared_library("extractortool") {
     "hitrace:hitrace_meter",
   ]
 
+  public_external_deps = [
+    "zlib:libz",
+    "zlib:shared_libz",
+  ]
   subsystem_name = "ability"
   innerapi_tags = [
     "chipsetsdk_indirect",
