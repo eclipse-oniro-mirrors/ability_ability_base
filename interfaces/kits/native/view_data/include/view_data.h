@@ -35,6 +35,8 @@ struct ViewData {
     std::string pageUrl;
     std::vector<PageNodeInfo> nodes;
     Rect pageRect;
+    bool isUserSelected = false;
+    bool isOtherAccount = false;
 };
 }  // namespace AbilityBase
 }  // namespace OHOS
