@@ -162,6 +162,11 @@ bool SessionInfo::DoMarshallingThree(Parcel& parcel) const
         return false;
     }
 
+    if (!parcel.WriteBool(hasContinuousTask)) {
+        ABILITYBASE_LOGE("Write hasContinuousTask failed.");
+        return false;
+    }
+
     if (!parcel.WriteInt32(collaboratorType)) {
         ABILITYBASE_LOGE("Write collaboratorType failed.");
         return false;
@@ -222,6 +227,7 @@ SessionInfo* SessionInfo::Unmarshalling(Parcel& parcel)
     info->isClearSession = parcel.ReadBool();
     info->callingTokenId = parcel.ReadUint32();
     info->reuse = parcel.ReadBool();
+    info->hasContinuousTask = parcel.ReadBool();
     info->collaboratorType = parcel.ReadInt32();
     info->sessionName = parcel.ReadString();
     info->uiExtensionComponentId = parcel.ReadUint64();
