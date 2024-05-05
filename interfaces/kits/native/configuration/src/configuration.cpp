@@ -59,9 +59,25 @@ bool Configuration::MakeTheKey(std::string &getKey, int id, const std::string &p
         return false;
     }
 
-    if (std::find(ConfigurationInner::SystemConfigurationKeyStore.begin(),
-        ConfigurationInner::SystemConfigurationKeyStore.end(), param) ==
-        ConfigurationInner::SystemConfigurationKeyStore.end()) {
+    const std::vector<std::string> SystemConfigurationKeyStore {
+        OHOS::AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE,
+        OHOS::AAFwk::GlobalConfigurationKey::SYSTEM_HOUR,
+        OHOS::AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE,
+        OHOS::AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE,
+        OHOS::AAFwk::GlobalConfigurationKey::DEVICE_TYPE,
+        OHOS::AAFwk::GlobalConfigurationKey::THEME,
+        OHOS::AAFwk::GlobalConfigurationKey::LANGUAGE_IS_SET_BY_APP,
+        OHOS::AAFwk::GlobalConfigurationKey::COLORMODE_IS_SET_BY_APP,
+        OHOS::AAFwk::GlobalConfigurationKey::COLORMODE_NEED_REMOVE_SET_BY_SA,
+        OHOS::AAFwk::GlobalConfigurationKey::COLORMODE_IS_SET_BY_SA,
+        OHOS::AAFwk::GlobalConfigurationKey::SYSTEM_FONT_SIZE_SCALE,
+        OHOS::AAFwk::GlobalConfigurationKey::SYSTEM_FONT_WEIGHT_SCALE,
+        OHOS::AppExecFwk::ConfigurationInner::APPLICATION_DIRECTION,
+        OHOS::AppExecFwk::ConfigurationInner::APPLICATION_DENSITYDPI,
+        OHOS::AppExecFwk::ConfigurationInner::APPLICATION_DISPLAYID,
+    };
+    if (std::find(SystemConfigurationKeyStore.begin(), SystemConfigurationKeyStore.end(), param) ==
+        SystemConfigurationKeyStore.end()) {
         return false;
     }
 
