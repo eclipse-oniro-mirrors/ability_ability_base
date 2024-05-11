@@ -39,7 +39,7 @@ enum ScreenMode : int32_t {
     EMBEDDED_FULL_SCREEN_MODE = 1,
     EMBEDDED_HALF_SCREEN_MODE = 2
 };
-const std::string SCREEN_MODE_KEY = "ohos.extra.param.key.showMode";
+constexpr const char* SCREEN_MODE_KEY = "ohos.extra.param.key.showMode";
 
 class UnsupportedData {
 public:
