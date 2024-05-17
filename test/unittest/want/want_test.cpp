@@ -4056,6 +4056,25 @@ HWTEST_F(WantBaseTest, DupAllFd_test_001, TestSize.Level1)
 }
 
 /**
+ * @tc.number: SetEntities_test_001
+ * @tc.name: SetEntities
+ * @tc.desc: Test the want function SetEntities.
+ */
+HWTEST_F(WantBaseTest, SetEntities_test_001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "SetEntities_test_001 start";
+
+    Want want;
+    want.operation_.entities_.push_back("a");
+    want.operation_.entities_.push_back("b");
+    std::vector<std::string> entities;
+    want.SetEntities(entities);
+    auto ret = want.operation_.GetEntities().size();
+    EXPECT_EQ(ret, 0);
+    GTEST_LOG_(INFO) << "SetEntities_test_001 end";
+}
+
+/**
  * @tc.number: SetElementModuleName_test_001
  * @tc.name: SetElementModuleName
  * @tc.desc: Test the want function SetElementModuleName.

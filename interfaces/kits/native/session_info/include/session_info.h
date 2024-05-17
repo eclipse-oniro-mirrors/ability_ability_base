@@ -45,6 +45,7 @@ public:
     sptr<IRemoteObject> callerSession = nullptr;
     sptr<IRemoteObject> callerToken = nullptr;
     sptr<IRemoteObject> parentToken = nullptr;
+    std::string identityToken;
     int32_t persistentId = 0;
     uint32_t hostWindowId = 0;
     // Status of the UIAbility invoked by the StartABilityByCall
@@ -64,6 +65,7 @@ public:
     bool isClearSession = false;
     uint32_t callingTokenId = 0;
     bool reuse = false;
+    bool hasContinuousTask = false;
     int32_t collaboratorType = 0;
     std::string sessionName = "";
     uint64_t uiExtensionComponentId = 0;
@@ -73,6 +75,7 @@ private:
     bool DoMarshallingOne(Parcel& parcel) const;
     bool DoMarshallingTwo(Parcel& parcel) const;
     bool DoMarshallingThree(Parcel& parcel) const;
+    bool DoMarshallingFour(Parcel& parcel) const;
 };
 } // namespace AAFwk
 } // namespace OHOS

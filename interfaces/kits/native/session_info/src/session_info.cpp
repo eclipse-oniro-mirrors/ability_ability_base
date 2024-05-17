@@ -31,7 +31,11 @@ bool SessionInfo::Marshalling(Parcel& parcel) const
         return false;
     }
 
-    return DoMarshallingThree(parcel);
+    if (!DoMarshallingThree(parcel)) {
+        return false;
+    }
+
+    return DoMarshallingFour(parcel);
 }
 
 bool SessionInfo::DoMarshallingOne(Parcel& parcel) const
@@ -88,6 +92,15 @@ bool SessionInfo::DoMarshallingOne(Parcel& parcel) const
 
 bool SessionInfo::DoMarshallingTwo(Parcel& parcel) const
 {
+    if (!parcel.WriteString(identityToken)) {
+        ABILITYBASE_LOGE("Write identityToken failed.");
+        return false;
+    }
+    return true;
+}
+
+bool SessionInfo::DoMarshallingThree(Parcel& parcel) const
+{
     if (!parcel.WriteInt32(persistentId)) {
         ABILITYBASE_LOGE("Write persistent id failed.");
         return false;
@@ -140,7 +153,7 @@ bool SessionInfo::DoMarshallingTwo(Parcel& parcel) const
     return true;
 }
 
-bool SessionInfo::DoMarshallingThree(Parcel& parcel) const
+bool SessionInfo::DoMarshallingFour(Parcel& parcel) const
 {
     if (!parcel.WriteBool(isNewWant)) {
         ABILITYBASE_LOGE("Write isNewWant failed.");
@@ -159,6 +172,11 @@ bool SessionInfo::DoMarshallingThree(Parcel& parcel) const
 
     if (!parcel.WriteBool(reuse)) {
         ABILITYBASE_LOGE("Write reuse failed.");
+        return false;
+    }
+
+    if (!parcel.WriteBool(hasContinuousTask)) {
+        ABILITYBASE_LOGE("Write hasContinuousTask failed.");
         return false;
     }
 
@@ -208,6 +226,7 @@ SessionInfo* SessionInfo::Unmarshalling(Parcel& parcel)
         info->parentToken = (static_cast<MessageParcel*>(&parcel))->ReadRemoteObject();
     }
 
+    info->identityToken = parcel.ReadString();
     info->persistentId = parcel.ReadInt32();
     info->hostWindowId = parcel.ReadUint32();
     info->state = static_cast<CallToState>(parcel.ReadUint32());
@@ -222,6 +241,7 @@ SessionInfo* SessionInfo::Unmarshalling(Parcel& parcel)
     info->isClearSession = parcel.ReadBool();
     info->callingTokenId = parcel.ReadUint32();
     info->reuse = parcel.ReadBool();
+    info->hasContinuousTask = parcel.ReadBool();
     info->collaboratorType = parcel.ReadInt32();
     info->sessionName = parcel.ReadString();
     info->uiExtensionComponentId = parcel.ReadUint64();
