@@ -26,9 +26,9 @@ namespace OHOS {
 namespace AbilityBase {
 namespace {
     static const std::string TJSON =
-        "{\"abilityName\":\"\",\"bundleName\":\"\",\"moduleName\":\"\","
-        "\"nodes\":[],\"pageRect\":\"{\\\"height\\\":0.0,\\\"left\\\":0.0,"
-        "\\\"top\\\":0.0,\\\"width\\\":0.0}\",\"pageUrl\":\"\"}";
+        "{\"abilityName\":\"\",\"bundleName\":\"\",\"isOtherAccount\":false,\"isUserSelected\":false,"
+        "\"moduleName\":\"\",\"nodes\":[],\"pageRect\":\"{\\\"height\\\":0.0,\\\"left\\\":0.0,\\\"top\\\":0.0,"
+        "\\\"width\\\":0.0}\",\"pageUrl\":\"\"}";
 } // namespace
 class ViewDataTest : public testing::Test {
 public:
