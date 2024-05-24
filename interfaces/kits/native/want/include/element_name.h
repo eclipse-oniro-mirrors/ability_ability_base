@@ -78,16 +78,6 @@ public:
         return moduleName_;
     }
 
-    inline std::string GetShortName() const
-    {
-        return shortName_;
-    }
- 
-    inline std::string GetUri() const
-    {
-        return uri_;
-    }
-
     bool ReadFromParcel(Parcel &parcel);
     virtual bool Marshalling(Parcel &parcel) const override;
     static ElementName *Unmarshalling(Parcel &parcel);
@@ -105,8 +95,6 @@ private:
     std::string bundleName_;
     std::string abilityName_;
     std::string moduleName_;
-    std::string shortName_ = "";
-    std::string uri_ = "";
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
