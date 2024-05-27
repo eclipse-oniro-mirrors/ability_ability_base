@@ -40,7 +40,9 @@ constexpr uint32_t DATA_DESC_SIGNATURE = 0x08074b50;
 constexpr uint32_t FLAG_DATA_DESC = 0x8;
 constexpr uint8_t INFLATE_ERROR_TIMES = 5;
 constexpr uint8_t MAP_FILE_SUFFIX = 4;
-const char FILE_SEPARATOR_CHAR = '/';
+constexpr char FILE_SEPARATOR_CHAR = '/';
+constexpr const char* WRONG_FILE_SEPARATOR = "//";
+constexpr uint32_t CACHE_CASE_THRESHOLD = 10000;
 
 void GetTreeFileList(std::shared_ptr<DirTreeNode> root, const std::string &rootPath,
     std::vector<std::string> &assetList)
@@ -48,11 +50,15 @@ void GetTreeFileList(std::shared_ptr<DirTreeNode> root, const std::string &rootP
     if (root == nullptr) {
         return;
     }
-    if (root->children.empty()) {
+    if (!root->isDir && !rootPath.empty()) {
         assetList.push_back(rootPath);
     } else {
+        std::string prefix = rootPath;
+        if (!prefix.empty()) {
+            prefix.push_back(FILE_SEPARATOR_CHAR);
+        }
         for (const auto &child : root->children) {
-            GetTreeFileList(child.second, rootPath + "/" + child.first, assetList);
+            GetTreeFileList(child.second, prefix + child.first, assetList);
         }
     }
 }
@@ -71,18 +77,24 @@ void AddEntryToTree(const std::string &fileName, std::shared_ptr<DirTreeNode> ro
         if (cur >= fileName.size()) {
             break;
         }
-        auto next = fileName.find_first_of(FILE_SEPARATOR_CHAR, cur);
+        auto next = fileName.find(FILE_SEPARATOR_CHAR, cur);
         auto nodeName = fileName.substr(cur, next - cur);
         auto it = parent->children.find(nodeName);
         if (it != parent->children.end()) {
             parent = it->second;
         } else {
             auto node = std::make_shared<DirTreeNode>();
+            node->isDir = next != std::string::npos;
             parent->children.emplace(nodeName, node);
             parent = node;
         }
         cur = next;
     } while (cur != std::string::npos);
+}
+
+inline bool IsRootDir(const std::string &dirName)
+{
+    return dirName.size() == 1 && dirName.back() == FILE_SEPARATOR_CHAR;
 }
 }  // namespace
 
@@ -188,6 +200,7 @@ std::shared_ptr<DirTreeNode> ZipFile::MakeDirTree() const
 {
     ABILITYBASE_LOGI("called.");
     auto root = std::make_shared<DirTreeNode>();
+    root->isDir = true;
     for (const auto &[fileName, entry]: entriesMap_) {
         AddEntryToTree(fileName, root);
     }
@@ -199,12 +212,10 @@ std::shared_ptr<DirTreeNode> ZipFile::GetDirRoot()
     if (!isOpen_) {
         return nullptr;
     }
+    std::lock_guard guard(dirRootMutex_);
     if (dirRoot_ == nullptr) {
         HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "make_dir_tree");
-        std::lock_guard guard(dirRootMutex_);
-        if (dirRoot_ == nullptr) {
-            dirRoot_ = MakeDirTree();
-        }
+        dirRoot_ = MakeDirTree();
     }
     return dirRoot_;
 }
@@ -246,7 +257,7 @@ bool ZipFile::Open()
     std::string realPath;
     realPath.reserve(PATH_MAX);
     realPath.resize(PATH_MAX - 1);
-    if (pathName_.substr(0, Constants::PROC_PREFIX.size()) == Constants::PROC_PREFIX) {
+    if (pathName_.substr(0, Constants::GetProcPrefix().size()) == Constants::GetProcPrefix()) {
         realPath = pathName_;
     } else {
         if (realpath(pathName_.c_str(), &(realPath[0])) == nullptr) {
@@ -311,12 +322,138 @@ bool ZipFile::HasEntry(const std::string &entryName) const
     return entriesMap_.find(entryName) != entriesMap_.end();
 }
 
+void ZipFile::SetCacheMode(CacheMode cacheMode)
+{
+    std::lock_guard lock(dirRootMutex_);
+    cacheMode_ = cacheMode;
+    if (!UseDirCache()) {
+        dirRoot_.reset();
+    }
+}
+
+bool ZipFile::UseDirCache() const
+{
+    auto mode = cacheMode_;
+    bool useCache = mode == CacheMode::CACHE_ALL;
+    if (mode == CacheMode::CACHE_CASE && entriesMap_.size() >= CACHE_CASE_THRESHOLD) {
+        useCache = true;
+    }
+    return useCache;
+}
+
 bool ZipFile::IsDirExist(const std::string &dir)
 {
     if (dir.empty()) {
         ABILITYBASE_LOGE("target dir is empty");
         return false;
     }
+    if (IsRootDir(dir)) {
+        return true;
+    }
+    if (dir.find(WRONG_FILE_SEPARATOR) != std::string::npos) {
+        ABILITYBASE_LOGW("Wrong input format");
+        return false;
+    }
+
+    auto tmpDir = dir;
+    if (tmpDir.front() == FILE_SEPARATOR_CHAR) {
+        tmpDir.erase(tmpDir.begin());
+    }
+    if (tmpDir.back() != FILE_SEPARATOR_CHAR) {
+        tmpDir.push_back(FILE_SEPARATOR_CHAR);
+    }
+    if (entriesMap_.count(tmpDir) > 0) {
+        return true;
+    }
+    tmpDir.pop_back();
+    if (entriesMap_.count(tmpDir) > 0) {
+        ABILITYBASE_LOGW("file not dir");
+        return false;
+    }
+
+    if (UseDirCache()) {
+        return IsDirExistCache(tmpDir);
+    }
+    return IsDirExistNormal(tmpDir);
+}
+
+void ZipFile::GetAllFileList(const std::string &srcPath, std::vector<std::string> &assetList)
+{
+    if (srcPath.empty()) {
+        ABILITYBASE_LOGW("target dir is empty");
+        return;
+    }
+    if (IsRootDir(srcPath)) {
+        for (const auto &[fileName, fileInfo] : entriesMap_) {
+            assetList.push_back(fileName);
+        }
+        return;
+    }
+    if (srcPath.find(WRONG_FILE_SEPARATOR) != std::string::npos) {
+        ABILITYBASE_LOGW("Wrong input format");
+        return;
+    }
+
+    auto tmpDir = srcPath;
+    if (tmpDir.front() == FILE_SEPARATOR_CHAR) {
+        tmpDir.erase(tmpDir.begin());
+    }
+    if (tmpDir.back() != FILE_SEPARATOR_CHAR) {
+        tmpDir.push_back(FILE_SEPARATOR_CHAR);
+    }
+    if (entriesMap_.count(tmpDir) > 0) {
+        return;
+    }
+    tmpDir.pop_back();
+    if (entriesMap_.count(tmpDir) > 0) {
+        ABILITYBASE_LOGW("file not dir");
+        return;
+    }
+
+    if (UseDirCache()) {
+        GetAllFileListCache(tmpDir, assetList);
+    } else {
+        GetAllFileListNormal(tmpDir, assetList);
+    }
+}
+
+void ZipFile::GetChildNames(const std::string &srcPath, std::set<std::string> &fileSet)
+{
+    if (srcPath.empty()) {
+        ABILITYBASE_LOGE("target dir is empty");
+        return;
+    }
+    if (srcPath.find(WRONG_FILE_SEPARATOR) != std::string::npos) {
+        ABILITYBASE_LOGW("Wrong input format");
+        return;
+    }
+    auto tmpDir = srcPath;
+    if (!IsRootDir(tmpDir)) {
+        if (tmpDir.front() == FILE_SEPARATOR_CHAR) {
+            tmpDir.erase(tmpDir.begin());
+        }
+        if (tmpDir.back() != FILE_SEPARATOR_CHAR) {
+            tmpDir.push_back(FILE_SEPARATOR_CHAR);
+        }
+        if (entriesMap_.count(tmpDir) > 0) {
+            return;
+        }
+        tmpDir.pop_back();
+        if (entriesMap_.count(tmpDir) > 0) {
+            ABILITYBASE_LOGW("file not dir");
+            return;
+        }
+    }
+
+    if (UseDirCache()) {
+        GetChildNamesCache(tmpDir, fileSet);
+    } else {
+        GetChildNamesNormal(tmpDir, fileSet);
+    }
+}
+
+bool ZipFile::IsDirExistCache(const std::string &dir)
+{
     auto parent = GetDirRoot();
     if (parent == nullptr) {
         ABILITYBASE_LOGE("dir root is null");
@@ -330,7 +467,7 @@ bool ZipFile::IsDirExist(const std::string &dir)
         if (cur >= dir.size()) {
             break;
         }
-        auto next = dir.find_first_of(FILE_SEPARATOR_CHAR, cur);
+        auto next = dir.find(FILE_SEPARATOR_CHAR, cur);
         auto nodeName = dir.substr(cur, next - cur);
         auto it = parent->children.find(nodeName);
         if (it == parent->children.end()) {
@@ -344,12 +481,8 @@ bool ZipFile::IsDirExist(const std::string &dir)
     return true;
 }
 
-void ZipFile::GetAllFileList(const std::string &srcPath, std::vector<std::string> &assetList)
+void ZipFile::GetAllFileListCache(const std::string &srcPath, std::vector<std::string> &assetList)
 {
-    if (srcPath.empty()) {
-        ABILITYBASE_LOGE("target dir is empty");
-        return;
-    }
     auto parent = GetDirRoot();
     if (parent == nullptr) {
         ABILITYBASE_LOGE("dir root is null");
@@ -367,7 +500,7 @@ void ZipFile::GetAllFileList(const std::string &srcPath, std::vector<std::string
         if (cur >= rootName.size()) {
             break;
         }
-        auto next = rootName.find_first_of(FILE_SEPARATOR_CHAR, cur);
+        auto next = rootName.find(FILE_SEPARATOR_CHAR, cur);
         auto nodeName = rootName.substr(cur, next - cur);
         auto it = parent->children.find(nodeName);
         if (it == parent->children.end()) {
@@ -381,13 +514,8 @@ void ZipFile::GetAllFileList(const std::string &srcPath, std::vector<std::string
     GetTreeFileList(parent, rootName, assetList);
 }
 
-void ZipFile::GetChildNames(const std::string &srcPath, std::set<std::string> &fileSet)
+void ZipFile::GetChildNamesCache(const std::string &srcPath, std::set<std::string> &fileSet)
 {
-    if (srcPath.empty()) {
-        ABILITYBASE_LOGE("target dir is empty");
-        return;
-    }
-
     size_t cur = 0;
     auto parent = GetDirRoot();
     if (parent == nullptr) {
@@ -401,7 +529,7 @@ void ZipFile::GetChildNames(const std::string &srcPath, std::set<std::string> &f
         if (cur >= srcPath.size()) {
             break;
         }
-        auto next = srcPath.find_first_of(FILE_SEPARATOR_CHAR, cur);
+        auto next = srcPath.find(FILE_SEPARATOR_CHAR, cur);
         auto nodeName = srcPath.substr(cur, next - cur);
         auto it = parent->children.find(nodeName);
         if (it == parent->children.end()) {
@@ -413,7 +541,62 @@ void ZipFile::GetChildNames(const std::string &srcPath, std::set<std::string> &f
     } while (cur != std::string::npos);
 
     for (const auto &child : parent->children) {
-        fileSet.insert(child.first);
+        if (!child.second->isDir) {
+            fileSet.insert(child.first);
+        } else {
+            auto pathName = child.first;
+            pathName.push_back(FILE_SEPARATOR_CHAR);
+            fileSet.insert(pathName);
+        }
+    }
+}
+
+bool ZipFile::IsDirExistNormal(const std::string &dir)
+{
+    auto targetDir = dir;
+    if (targetDir.back() != FILE_SEPARATOR_CHAR) {
+        targetDir.push_back(FILE_SEPARATOR_CHAR);
+    }
+    for (const auto &[fileName, fileInfo] : entriesMap_) {
+        if (fileName.size() > targetDir.size() && fileName.substr(0, targetDir.size()) == targetDir) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void ZipFile::GetAllFileListNormal(const std::string &srcPath, std::vector<std::string> &assetList)
+{
+    auto targetDir = srcPath;
+    if (targetDir.back() != FILE_SEPARATOR_CHAR) {
+        targetDir.push_back(FILE_SEPARATOR_CHAR);
+    }
+    for (const auto &[fileName, fileInfo] : entriesMap_) {
+        if (fileName.size() > targetDir.size() && fileName.back() != FILE_SEPARATOR_CHAR &&
+            fileName.substr(0, targetDir.size()) == targetDir) {
+            assetList.push_back(fileName);
+        }
+    }
+}
+
+void ZipFile::GetChildNamesNormal(const std::string &srcPath, std::set<std::string> &fileSet)
+{
+    auto targetDir = srcPath;
+    if (targetDir.back() != FILE_SEPARATOR_CHAR) {
+        targetDir.push_back(FILE_SEPARATOR_CHAR);
+    }
+    if (IsRootDir(srcPath)) {
+        for (const auto &[fileName, fileInfo] : entriesMap_) {
+            auto nextPos = fileName.find(FILE_SEPARATOR_CHAR);
+            fileSet.insert(nextPos == std::string::npos ? fileName : fileName.substr(0, nextPos + 1));
+        }
+        return;
+    }
+    for (const auto &[fileName, fileInfo] : entriesMap_) {
+        if (fileName.size() > targetDir.size() && fileName.substr(0, targetDir.size()) == targetDir) {
+            fileSet.insert(fileName.substr(targetDir.size(),
+                fileName.find(FILE_SEPARATOR_CHAR, targetDir.size()) - targetDir.size() + 1));
+        }
     }
 }
 

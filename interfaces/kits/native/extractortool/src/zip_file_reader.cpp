@@ -80,7 +80,7 @@ bool ZipFileReader::init()
     std::string resolvePath;
     resolvePath.reserve(PATH_MAX);
     resolvePath.resize(PATH_MAX - 1);
-    if (filePath_.substr(0, Constants::PROC_PREFIX.size()) == Constants::PROC_PREFIX) {
+    if (filePath_.substr(0, Constants::GetProcPrefix().size()) == Constants::GetProcPrefix()) {
         resolvePath = filePath_;
     } else {
         if (realpath(filePath_.c_str(), &(resolvePath[0])) == nullptr) {
