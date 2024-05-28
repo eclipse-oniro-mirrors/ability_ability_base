@@ -70,7 +70,7 @@ public:
     std::string sessionName = "";
     uint64_t uiExtensionComponentId = 0;
     bool isAsyncModalBinding = false;
-    bool isModal = false; // // To ensure security, this attribute must be rewritten on the server-side.
+    bool isModal = true; // To ensure security, this attribute must be rewritten on the server-side.
 
 private:
     bool DoMarshallingOne(Parcel& parcel) const;
