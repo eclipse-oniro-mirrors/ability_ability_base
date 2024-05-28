@@ -1247,7 +1247,13 @@ HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_DupAllFd_1000, Function | MediumTe
     std::string valueStr = "sdasdfdsffdgfdg";
     WantParams wantParams;
     wantParams.DupAllFd();
-    EXPECT_EQ(valueStr, String::Unbox(IString::Query(wantParamsOut_->GetParam(keyStr))));
+    wantParamsIn_->SetParam(keyStr, String::Box(valueStr));
+    Parcel in;
+    if (wantParamsOut_ != nullptr) {
+        wantParamsIn_->Marshalling(in);
+        std::shared_ptr<WantParams> wantParamsOut_(WantParams::Unmarshalling(in));
+        EXPECT_EQ(valueStr, String::Unbox(IString::Query(wantParamsOut_->GetParam(keyStr))));
+    }
 }
 }
 }
