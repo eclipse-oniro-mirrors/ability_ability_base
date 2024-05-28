@@ -156,7 +156,14 @@ struct ZipEntry {
 };
 
 struct DirTreeNode {
+    bool isDir = false;
     std::unordered_map<std::string, std::shared_ptr<DirTreeNode>> children;
+};
+
+enum class CacheMode: uint32_t {
+    CACHE_NONE = 0,
+    CACHE_CASE,  // This mode depends on file amount in hap.
+    CACHE_ALL
 };
 
 // zip file extract class for bundle format.
@@ -226,6 +233,8 @@ public:
     std::unique_ptr<FileMapper> CreateFileMapper(const std::string &fileName, FileMapperType type) const;
     bool ExtractToBufByName(const std::string &fileName, std::unique_ptr<uint8_t[]> &dataPtr,
         size_t &len) const;
+    void SetCacheMode(CacheMode cacheMode);
+    bool UseDirCache() const;
 private:
     bool GetDataOffsetRelative(const ZipEntry &zipEntry, ZipPos &offset, uint32_t &length) const;
     /**
@@ -324,6 +333,15 @@ private:
 
     std::shared_ptr<DirTreeNode> GetDirRoot();
     std::shared_ptr<DirTreeNode> MakeDirTree() const;
+
+    bool IsDirExistCache(const std::string &dir);
+    void GetAllFileListCache(const std::string &srcPath, std::vector<std::string> &assetList);
+    void GetChildNamesCache(const std::string &srcPath, std::set<std::string> &fileSet);
+
+    bool IsDirExistNormal(const std::string &dir);
+    void GetAllFileListNormal(const std::string &srcPath, std::vector<std::string> &assetList);
+    void GetChildNamesNormal(const std::string &srcPath, std::set<std::string> &fileSet);
+
 private:
     std::string pathName_;
     std::shared_ptr<ZipFileReader> zipFileReader_;
@@ -338,6 +356,7 @@ private:
     // this zip content length in the zip file.
     ZipPos fileLength_ = 0;
     bool isOpen_ = false;
+    CacheMode cacheMode_ = CacheMode::CACHE_CASE;
 };
 }  // namespace AbilityBase
 }  // namespace OHOS

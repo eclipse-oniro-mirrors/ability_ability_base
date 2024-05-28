@@ -94,6 +94,10 @@ public:
      * For abc file only, to mmap to safe region.
      */
     std::shared_ptr<FileMapper> GetSafeData(const std::string &fileName);
+    void SetCacheMode(CacheMode cacheMode)
+    {
+        zipFile_.SetCacheMode(cacheMode);
+    }
 private:
     ZipFile zipFile_;
     bool initial_ = false;

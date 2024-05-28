@@ -27,7 +27,10 @@ constexpr const char* FILE_DOT = "\\.";
 
 constexpr const char* COMPRESS_PROPERTY = "compress";
 
-const std::string PROC_PREFIX = "/proc/";
+inline std::string GetProcPrefix()
+{
+    return "/proc/";
+}
 }  // namespace Constants
 }  // namespace AbilityBase
 }  // namespace OHOS

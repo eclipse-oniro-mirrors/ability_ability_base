@@ -20,9 +20,9 @@
 #define protected public
 #include "extract_resource_manager.h"
 #include "zip_file.h"
+#include "extractor.h"
 #undef private
 #undef protected
-#include "extractor.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -230,6 +230,53 @@ HWTEST_F(ExtractorTest, IsDirExist_001, TestSize.Level1)
     extractor->Init();
     EXPECT_FALSE(extractor->IsDirExist(""));
     EXPECT_FALSE(extractor->IsDirExist(ERROR_PATH));
+}
+
+/*
+ * Feature: Extractor
+ * Function: IsDirExist
+ * SubFunction: NA
+ * FunctionPoints:Is dir exist
+ * EnvConditions: NA
+ * CaseDescription: Create extractor, call is dir exist function.
+ */
+HWTEST_F(ExtractorTest, IsDirExist_002, TestSize.Level1)
+{
+    std::shared_ptr<Extractor> extractor = std::make_shared<Extractor>(testPath_);
+
+    extractor->initial_ = true;
+    extractor->zipFile_.entriesMap_.emplace("a/b/c.txt", ZipEntry());
+    extractor->zipFile_.entriesMap_.emplace("a/c.txt", ZipEntry());
+    extractor->zipFile_.entriesMap_.emplace("a/b.txt", ZipEntry());
+    extractor->zipFile_.entriesMap_.emplace("a.txt", ZipEntry());
+    extractor->zipFile_.entriesMap_.emplace("b.txt", ZipEntry());
+    extractor->zipFile_.entriesMap_.emplace("b/c.txt", ZipEntry());
+    extractor->zipFile_.entriesMap_.emplace("b/c/", ZipEntry());
+    extractor->zipFile_.entriesMap_.emplace("c", ZipEntry());
+    extractor->zipFile_.isOpen_ = true;
+
+    EXPECT_FALSE(extractor->IsDirExist(""));
+    EXPECT_TRUE(extractor->IsDirExist("/"));
+    EXPECT_TRUE(extractor->IsDirExist("a"));
+    EXPECT_TRUE(extractor->IsDirExist("b/c"));
+    EXPECT_TRUE(extractor->IsDirExist("b/c/"));
+    EXPECT_FALSE(extractor->IsDirExist("a.txt"));
+    EXPECT_FALSE(extractor->IsDirExist("a.txt/"));
+    EXPECT_FALSE(extractor->IsDirExist("d"));
+    EXPECT_FALSE(extractor->IsDirExist("d/"));
+    EXPECT_FALSE(extractor->IsDirExist("a/b/c.txt"));
+
+    extractor->SetCacheMode(CacheMode::CACHE_ALL);
+
+    EXPECT_FALSE(extractor->IsDirExist(""));
+    EXPECT_TRUE(extractor->IsDirExist("/"));
+    EXPECT_TRUE(extractor->IsDirExist("a"));
+    EXPECT_TRUE(extractor->IsDirExist("b/c"));
+    EXPECT_TRUE(extractor->IsDirExist("b/c/"));
+    EXPECT_FALSE(extractor->IsDirExist("a.txt"));
+    EXPECT_FALSE(extractor->IsDirExist("a.txt/"));
+    EXPECT_FALSE(extractor->IsDirExist("d"));
+    EXPECT_FALSE(extractor->IsDirExist("a/b/c.txt"));
 }
 
 /*
