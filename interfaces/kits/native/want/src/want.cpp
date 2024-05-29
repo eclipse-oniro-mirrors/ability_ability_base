@@ -98,6 +98,7 @@ const std::string Want::PARAM_ASSERT_FAULT_SESSION_ID("ohos.ability.params.assse
 const std::string Want::PARAM_BACK_TO_OTHER_MISSION_STACK("ability.params.backToOtherMissionStack");
 
 const std::string Want::PARAM_APP_AUTO_STARTUP_LAUNCH_REASON("ability.params.appAutoStartupLaunch");
+const std::string Want::PARAM_APP_CLONE_INDEX_KEY("ohos.extra.param.key.appCloneIndex");
 
 /**
  * @description:Default construcotr of Want class, which is used to initialzie flags and URI.

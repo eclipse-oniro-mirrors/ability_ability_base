@@ -885,6 +885,9 @@ public:
     // application auto startup launch reason
     static const std::string PARAM_APP_AUTO_STARTUP_LAUNCH_REASON;
 
+    // app clone index
+    static const std::string PARAM_APP_CLONE_INDEX_KEY;
+
 private:
     WantParams parameters_;
     Operation operation_;
