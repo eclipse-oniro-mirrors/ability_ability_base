@@ -72,6 +72,8 @@ bool Configuration::MakeTheKey(std::string &getKey, int id, const std::string &p
         OHOS::AAFwk::GlobalConfigurationKey::COLORMODE_IS_SET_BY_SA,
         OHOS::AAFwk::GlobalConfigurationKey::SYSTEM_FONT_SIZE_SCALE,
         OHOS::AAFwk::GlobalConfigurationKey::SYSTEM_FONT_WEIGHT_SCALE,
+        OHOS::AAFwk::GlobalConfigurationKey::SYSTEM_MCC,
+        OHOS::AAFwk::GlobalConfigurationKey::SYSTEM_MNC,
         OHOS::AppExecFwk::ConfigurationInner::APPLICATION_DIRECTION,
         OHOS::AppExecFwk::ConfigurationInner::APPLICATION_DENSITYDPI,
         OHOS::AppExecFwk::ConfigurationInner::APPLICATION_DISPLAYID,
