@@ -196,6 +196,131 @@ HWTEST_F(ExtractorTest, GetFileList_001, TestSize.Level1)
 
 /*
  * Feature: Extractor
+ * Function: GetFileList
+ * SubFunction: NA
+ * FunctionPoints:Get file list
+ * EnvConditions: NA
+ * CaseDescription: Create extractor, call get file list function.
+ */
+HWTEST_F(ExtractorTest, GetFileList_002, TestSize.Level1)
+{
+    std::shared_ptr<Extractor> extractor = std::make_shared<Extractor>(testPath_);
+
+    extractor->initial_ = true;
+    extractor->zipFile_.entriesMap_.emplace("a/b/c.txt", ZipEntry());
+    extractor->zipFile_.entriesMap_.emplace("a/c.txt", ZipEntry());
+    extractor->zipFile_.entriesMap_.emplace("a/b.txt", ZipEntry());
+    extractor->zipFile_.entriesMap_.emplace("a.txt", ZipEntry());
+    extractor->zipFile_.entriesMap_.emplace("b.txt", ZipEntry());
+    extractor->zipFile_.entriesMap_.emplace("b/c.txt", ZipEntry());
+    extractor->zipFile_.entriesMap_.emplace("b/c/", ZipEntry());
+    extractor->zipFile_.entriesMap_.emplace("c", ZipEntry());
+    extractor->zipFile_.isOpen_ = true;
+
+    std::vector<std::string> fileList;
+    extractor->GetFileList("b", fileList);
+    EXPECT_TRUE(fileList.size() == 1);
+    EXPECT_TRUE(fileList[0] == "b/c.txt");
+
+    fileList.clear();
+    extractor->GetFileList("a/", fileList);
+    EXPECT_TRUE(fileList.size() == 3);
+    std::set<std::string> firstSet(fileList.begin(), fileList.end());
+    EXPECT_TRUE(firstSet.size() == 3);
+
+    fileList.clear();
+    extractor->GetFileList("/", fileList);
+    EXPECT_TRUE(fileList.size() == 7);
+
+    extractor->SetCacheMode(CacheMode::CACHE_ALL);
+
+    fileList.clear();
+    extractor->GetFileList("b", fileList);
+    EXPECT_TRUE(fileList.size() == 1);
+    EXPECT_TRUE(fileList[0] == "b/c.txt");
+
+    fileList.clear();
+    extractor->GetFileList("a/", fileList);
+    EXPECT_TRUE(fileList.size() == 3);
+    for (const auto &name : fileList) {
+        EXPECT_TRUE(firstSet.count(name) > 0);
+    }
+
+    fileList.clear();
+    extractor->GetFileList("/", fileList);
+    EXPECT_TRUE(fileList.size() == 7);
+}
+
+/*
+ * Feature: Extractor
+ * Function: GetFileList
+ * SubFunction: NA
+ * FunctionPoints:Get file list
+ * EnvConditions: NA
+ * CaseDescription: Create extractor, call get file list function.
+ */
+HWTEST_F(ExtractorTest, GetFileList_003, TestSize.Level1)
+{
+    std::shared_ptr<Extractor> extractor = std::make_shared<Extractor>(testPath_);
+
+    extractor->initial_ = true;
+    extractor->zipFile_.entriesMap_.emplace("a/b/c.txt", ZipEntry());
+    extractor->zipFile_.entriesMap_.emplace("a/c.txt", ZipEntry());
+    extractor->zipFile_.entriesMap_.emplace("a/b.txt", ZipEntry());
+    extractor->zipFile_.entriesMap_.emplace("a.txt", ZipEntry());
+    extractor->zipFile_.entriesMap_.emplace("b.txt", ZipEntry());
+    extractor->zipFile_.entriesMap_.emplace("b/c.txt", ZipEntry());
+    extractor->zipFile_.entriesMap_.emplace("b/c/", ZipEntry());
+    extractor->zipFile_.entriesMap_.emplace("c", ZipEntry());
+    extractor->zipFile_.isOpen_ = true;
+
+    std::set<std::string> fileList;
+    extractor->GetFileList("b", fileList);
+    EXPECT_TRUE(fileList.size() == 2);
+    EXPECT_TRUE(fileList.count("c.txt") > 0);
+    EXPECT_TRUE(fileList.count("c") > 0);
+
+    fileList.clear();
+    extractor->GetFileList("/", fileList);
+    EXPECT_TRUE(fileList.size() == 5);
+    EXPECT_TRUE(fileList.count("a") > 0);
+    EXPECT_TRUE(fileList.count("a.txt") > 0);
+    EXPECT_TRUE(fileList.count("b.txt") > 0);
+    EXPECT_TRUE(fileList.count("b") > 0);
+    EXPECT_TRUE(fileList.count("c") > 0);
+
+    fileList.clear();
+    extractor->GetFileList("a/", fileList);
+    EXPECT_TRUE(fileList.size() == 3);
+    EXPECT_TRUE(fileList.count("c.txt") > 0);
+    EXPECT_TRUE(fileList.count("b") > 0);
+
+    extractor->SetCacheMode(CacheMode::CACHE_ALL);
+
+    fileList.clear();
+    extractor->GetFileList("b", fileList);
+    EXPECT_TRUE(fileList.size() == 2);
+    EXPECT_TRUE(fileList.count("c.txt") > 0);
+    EXPECT_TRUE(fileList.count("c") > 0);
+
+    fileList.clear();
+    extractor->GetFileList("/", fileList);
+    EXPECT_TRUE(fileList.size() == 5);
+    EXPECT_TRUE(fileList.count("a") > 0);
+    EXPECT_TRUE(fileList.count("a.txt") > 0);
+    EXPECT_TRUE(fileList.count("b.txt") > 0);
+    EXPECT_TRUE(fileList.count("b") > 0);
+    EXPECT_TRUE(fileList.count("c") > 0);
+
+    fileList.clear();
+    extractor->GetFileList("a/", fileList);
+    EXPECT_TRUE(fileList.size() == 3);
+    EXPECT_TRUE(fileList.count("c.txt") > 0);
+    EXPECT_TRUE(fileList.count("b") > 0);
+}
+
+/*
+ * Feature: Extractor
  * Function: HasEntry
  * SubFunction: NA
  * FunctionPoints:Has entry

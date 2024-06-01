@@ -385,7 +385,9 @@ void ZipFile::GetAllFileList(const std::string &srcPath, std::vector<std::string
     }
     if (IsRootDir(srcPath)) {
         for (const auto &[fileName, fileInfo] : entriesMap_) {
-            assetList.push_back(fileName);
+            if (!fileName.empty() && fileName.back() != FILE_SEPARATOR_CHAR) {
+                assetList.push_back(fileName);
+            }
         }
         return;
     }
@@ -541,13 +543,7 @@ void ZipFile::GetChildNamesCache(const std::string &srcPath, std::set<std::strin
     } while (cur != std::string::npos);
 
     for (const auto &child : parent->children) {
-        if (!child.second->isDir) {
-            fileSet.insert(child.first);
-        } else {
-            auto pathName = child.first;
-            pathName.push_back(FILE_SEPARATOR_CHAR);
-            fileSet.insert(pathName);
-        }
+        fileSet.insert(child.first);
     }
 }
 
@@ -588,14 +584,14 @@ void ZipFile::GetChildNamesNormal(const std::string &srcPath, std::set<std::stri
     if (IsRootDir(srcPath)) {
         for (const auto &[fileName, fileInfo] : entriesMap_) {
             auto nextPos = fileName.find(FILE_SEPARATOR_CHAR);
-            fileSet.insert(nextPos == std::string::npos ? fileName : fileName.substr(0, nextPos + 1));
+            fileSet.insert(nextPos == std::string::npos ? fileName : fileName.substr(0, nextPos));
         }
         return;
     }
     for (const auto &[fileName, fileInfo] : entriesMap_) {
         if (fileName.size() > targetDir.size() && fileName.substr(0, targetDir.size()) == targetDir) {
             fileSet.insert(fileName.substr(targetDir.size(),
-                fileName.find(FILE_SEPARATOR_CHAR, targetDir.size()) - targetDir.size() + 1));
+                fileName.find(FILE_SEPARATOR_CHAR, targetDir.size()) - targetDir.size()));
         }
     }
 }
