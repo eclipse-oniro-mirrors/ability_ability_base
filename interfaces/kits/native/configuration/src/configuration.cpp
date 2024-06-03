@@ -77,6 +77,7 @@ bool Configuration::MakeTheKey(std::string &getKey, int id, const std::string &p
         OHOS::AppExecFwk::ConfigurationInner::APPLICATION_DIRECTION,
         OHOS::AppExecFwk::ConfigurationInner::APPLICATION_DENSITYDPI,
         OHOS::AppExecFwk::ConfigurationInner::APPLICATION_DISPLAYID,
+        OHOS::AppExecFwk::ConfigurationInner::APPLICATION_FONT,
     };
     if (std::find(SystemConfigurationKeyStore.begin(), SystemConfigurationKeyStore.end(), param) ==
         SystemConfigurationKeyStore.end()) {
