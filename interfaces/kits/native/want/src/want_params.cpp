@@ -14,6 +14,9 @@
  */
 
 #include "want_params.h"
+#ifndef WANT_PARAM_USE_LONG
+#define WANT_PARAM_USE_LONG
+#endif
 
 #include "ability_base_log_wrapper.h"
 #include "base_interfaces.h"

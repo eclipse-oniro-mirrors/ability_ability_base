@@ -299,8 +299,8 @@ HWTEST_F(WantBaseTest, AaFwk_Want_Parcelable_0200, Function | MediumTest | Level
     if (WantOut_ != nullptr) {
         pos2 = in.GetReadPosition();
         CompareWant(WantIn_, WantOut_);
-        std::string outString(String::Unbox(IString::Query(WantOut_->GetParams().GetParam(keyStr))));
-        EXPECT_STREQ(std::to_string(valueLong).c_str(), outString.c_str());
+        long retLong = Long::Unbox(ILong::Query(WantOut_->GetParams().GetParam(keyStr)));
+        EXPECT_EQ(valueLong, retLong);
         GTEST_LOG_(INFO) << "Unmarshalling: pos1: " << pos1 << ", pos2: " << pos2 << ", result: " << result;
     }
     pos1 = in.GetReadPosition();
@@ -308,8 +308,8 @@ HWTEST_F(WantBaseTest, AaFwk_Want_Parcelable_0200, Function | MediumTest | Level
     if (WantOut2_ != nullptr) {
         pos2 = in.GetReadPosition();
         CompareWant(WantIn_, WantOut2_);
-        std::string outString2(String::Unbox(IString::Query(WantOut2_->GetParams().GetParam(keyStr))));
-        EXPECT_STREQ(std::to_string(valueLong).c_str(), outString2.c_str());
+        long retLong = Long::Unbox(ILong::Query(WantOut2_->GetParams().GetParam(keyStr)));
+        EXPECT_EQ(valueLong, retLong);
     }
 }
 
