@@ -99,6 +99,11 @@ const std::string Want::PARAM_BACK_TO_OTHER_MISSION_STACK("ability.params.backTo
 
 const std::string Want::PARAM_APP_AUTO_STARTUP_LAUNCH_REASON("ability.params.appAutoStartupLaunch");
 const std::string Want::PARAM_APP_CLONE_INDEX_KEY("ohos.extra.param.key.appCloneIndex");
+const std::string Want::PARAM_ATOMIC_SERVICE_PAGE_PATH("ohos.param.atomicservice.pagePath");
+const std::string Want::PARAM_ATOMIC_SERVICE_ROUTER_NAME("ohos.param.atomicservice.routerName");
+const std::string Want::PARAM_ATOMIC_SERVICE_PAGE_SOURCE_FILE("ohos.param.atomicservice.pageSourceFile");
+const std::string Want::PARAM_ATOMIC_SERVICE_BUILD_FUNCTION("ohos.param.atomicservice.buildFunction");
+const std::string Want::PARAM_ATOMIC_SERVICE_SUB_PACKAGE_NAME("ohos.param.atomicservice.subpackageName");
 
 /**
  * @description:Default construcotr of Want class, which is used to initialzie flags and URI.
