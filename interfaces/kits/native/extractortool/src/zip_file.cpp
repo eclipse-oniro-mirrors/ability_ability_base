@@ -185,7 +185,7 @@ bool ZipFile::ParseOneEntry(uint8_t* &entryPtr)
 
 std::shared_ptr<DirTreeNode> ZipFile::MakeDirTree() const
 {
-    ABILITYBASE_LOGI("called.");
+    ABILITYBASE_LOGI("called. %{pathName}", pathName_);
     auto root = std::make_shared<DirTreeNode>();
     for (const auto &[fileName, entry]: entriesMap_) {
         AddEntryToTree(fileName, root);
@@ -283,7 +283,7 @@ bool ZipFile::Open()
 void ZipFile::Close()
 {
     if (!isOpen_ || zipFileReader_ == nullptr) {
-        ABILITYBASE_LOGD("file is not opened");
+        ABILITYBASE_LOGD("file is not opened %{pathName}",  pathName_);
         return;
     }
 
@@ -691,7 +691,7 @@ bool ZipFile::ExtractFile(const std::string &file, std::ostream &dest) const
 {
     ZipEntry zipEntry;
     if (!GetEntry(file, zipEntry)) {
-        ABILITYBASE_LOGE("extract file: not find file");
+        ABILITYBASE_LOGE("extract file: not find file %{file}", file.c_str());
         return false;
     }
 
