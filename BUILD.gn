@@ -193,6 +193,11 @@ ohos_shared_library("want") {
     "//third_party/jsoncpp:jsoncpp_public_config",
   ]
 
+  public_configs = [
+    ":want_all_dependent_config",
+    "//third_party/jsoncpp:jsoncpp_public_config",
+  ]
+
   external_deps = [
     "c_utils:utils",
     "hilog:libhilog",
@@ -203,7 +208,7 @@ ohos_shared_library("want") {
   ]
 
   configs = [ ":want_config" ]
-  public_configs = [ ":want_public_config" ]
+  public_configs += [ ":want_public_config" ]
   subsystem_name = "ability"
   innerapi_tags = [
     "platformsdk",
