@@ -119,7 +119,7 @@ bool Extractor::ExtractByName(const std::string &fileName, std::ostream &dest) c
         return false;
     }
     if (!zipFile_.ExtractFile(fileName, dest)) {
-        ABILITYBASE_LOGE("extractor is not ExtractFile");
+        ABILITYBASE_LOGE("extractor is not ExtractFile %{public}s", fileName.c_str());
         return false;
     }
     return true;
