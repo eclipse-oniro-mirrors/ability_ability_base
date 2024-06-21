@@ -46,7 +46,7 @@
                       "header_files": [
                         "base_def.h",
                         "base_interfaces.h",
-                        "base_object.h",
+                        "base_obj.h",
                         "base_types.h",
                         "bool_wrapper.h",
                         "byte_wrapper.h",

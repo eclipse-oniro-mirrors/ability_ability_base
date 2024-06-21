@@ -21,7 +21,7 @@
 #include <regex>
 #include <securec.h>
 
-#include "base_object.h"
+#include "base_obj.h"
 #include "bool_wrapper.h"
 #include "zchar_wrapper.h"
 #include "byte_wrapper.h"

@@ -20,7 +20,7 @@
 
 #include "ability_base_log_wrapper.h"
 #include "base_interfaces.h"
-#include "base_object.h"
+#include "base_obj.h"
 #include "bool_wrapper.h"
 #include "byte_wrapper.h"
 #include "double_wrapper.h"

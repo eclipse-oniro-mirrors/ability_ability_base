@@ -16,7 +16,7 @@
 #ifndef OHOS_ABILITY_BASE_REMOTE_OBJECT_WRAPPER_H
 #define OHOS_ABILITY_BASE_REMOTE_OBJECT_WRAPPER_H
 
-#include "base_object.h"
+#include "base_obj.h"
 #include "iremote_object.h"
 #include "refbase.h"
 

@@ -19,7 +19,7 @@
 #include <functional>
 #include <vector>
 
-#include "base_object.h"
+#include "base_obj.h"
 
 namespace OHOS {
 namespace AAFwk {
