@@ -34,6 +34,12 @@ enum class CallToState : uint32_t {
     BACKGROUND
 };
 
+enum class UIExtensionUsage : uint32_t {
+    MODAL = 0,
+    EMBEDDED,
+    CONSTRAINED_EMBEDDED
+};
+
 class SessionInfo : public Parcelable {
 public:
     SessionInfo() = default;
@@ -70,8 +76,8 @@ public:
     std::string sessionName = "";
     uint64_t uiExtensionComponentId = 0;
     bool isAsyncModalBinding = false;
-    bool isModal = true; // To ensure security, this attribute must be rewritten on the server-side.
-
+    // To ensure security, this attribute must be rewritten on the server-side.
+    UIExtensionUsage uiExtensionUsage = UIExtensionUsage::MODAL;
 private:
     bool DoMarshallingOne(Parcel& parcel) const;
     bool DoMarshallingTwo(Parcel& parcel) const;
