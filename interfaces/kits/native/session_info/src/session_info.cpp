@@ -200,6 +200,11 @@ bool SessionInfo::DoMarshallingFour(Parcel& parcel) const
         return false;
     }
 
+    if (!parcel.WriteUint32(static_cast<uint32_t>(uiExtensionUsage))) {
+        ABILITYBASE_LOGE("Write uiExtensionUsage failed.");
+        return false;
+    }
+
     if (!parcel.WriteParcelable(&want)) {
         ABILITYBASE_LOGE("Write want failed.");
         return false;
@@ -246,6 +251,7 @@ SessionInfo* SessionInfo::Unmarshalling(Parcel& parcel)
     info->sessionName = parcel.ReadString();
     info->uiExtensionComponentId = parcel.ReadUint64();
     info->isAsyncModalBinding = parcel.ReadBool();
+    info->uiExtensionUsage = static_cast<UIExtensionUsage>(parcel.ReadUint32());
 
     std::unique_ptr<Want> want(parcel.ReadParcelable<Want>());
     if (want != nullptr) {
