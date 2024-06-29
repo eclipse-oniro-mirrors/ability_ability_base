@@ -888,6 +888,12 @@ public:
     // app clone index
     static const std::string PARAM_APP_CLONE_INDEX_KEY;
 
+    static const std::string PARAM_ATOMIC_SERVICE_PAGE_PATH;
+    static const std::string PARAM_ATOMIC_SERVICE_ROUTER_NAME;
+    static const std::string PARAM_ATOMIC_SERVICE_PAGE_SOURCE_FILE;
+    static const std::string PARAM_ATOMIC_SERVICE_BUILD_FUNCTION;
+    static const std::string PARAM_ATOMIC_SERVICE_SUB_PACKAGE_NAME;
+
 private:
     WantParams parameters_;
     Operation operation_;

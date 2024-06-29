@@ -205,6 +205,11 @@ bool SessionInfo::DoMarshallingFour(Parcel& parcel) const
         return false;
     }
 
+    if (!parcel.WriteBool(isAtomicService)) {
+        ABILITYBASE_LOGE("Write isAtomicService failed.");
+        return false;
+    }
+
     if (!parcel.WriteParcelable(&want)) {
         ABILITYBASE_LOGE("Write want failed.");
         return false;
@@ -252,6 +257,7 @@ SessionInfo* SessionInfo::Unmarshalling(Parcel& parcel)
     info->uiExtensionComponentId = parcel.ReadUint64();
     info->isAsyncModalBinding = parcel.ReadBool();
     info->uiExtensionUsage = static_cast<UIExtensionUsage>(parcel.ReadUint32());
+    info->isAtomicService = parcel.ReadBool();
 
     std::unique_ptr<Want> want(parcel.ReadParcelable<Want>());
     if (want != nullptr) {
