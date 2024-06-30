@@ -21,24 +21,13 @@
 
 #include "iremote_object.h"
 #include "parcel.h"
+#include "session_info_constants.h"
 #include "want.h"
 
 namespace OHOS {
 namespace AAFwk {
 class AbilityStartSetting;
 class ProcessOptions;
-
-enum class CallToState : uint32_t {
-    UNKNOW = 0,
-    FOREGROUND,
-    BACKGROUND
-};
-
-enum class UIExtensionUsage : uint32_t {
-    MODAL = 0,
-    EMBEDDED,
-    CONSTRAINED_EMBEDDED
-};
 
 class SessionInfo : public Parcelable {
 public:
