@@ -250,7 +250,7 @@ WantParams WantParamWrapper::ParseWantParamsWithBrackets(const std::string &str)
                     break;
                 }
             }
-            wantPaqrams.SetParam(key, WantParamWrapper::Parse(str.substr(strnum, num - strnum)));
+            wantPaqrams.SetParam(key, WantParamWrapper::Parse(str.substr(strnum, num - strnum + 1)));
             key = "";
             typeId = 0;
             strnum = num + 1;
