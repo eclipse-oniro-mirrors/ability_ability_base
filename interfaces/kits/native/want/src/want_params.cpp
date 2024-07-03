@@ -446,6 +446,7 @@ std::string WantParams::GetStringParam(const std::string& key) const
 
 int WantParams::GetIntParam(const std::string& key, const int defaultValue) const
 {
+    ABILITYBASE_LOGD("called.");
     auto value = GetParam(key);
     IInteger *ao = IInteger::Query(value);
     if (ao != nullptr) {

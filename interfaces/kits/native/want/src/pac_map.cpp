@@ -1497,6 +1497,9 @@ bool PacMap::StringToMapList(const std::string &str, PacMapList &mapList)
 
 bool PacMap::ParseJson(Json::Value &data, PacMapList &mapList)
 {
+    if (data.isNull() || !data.isObject()) {
+        return false;
+    }
     Json::Value::Members keyList = data.getMemberNames();
     if (keyList.size() == 0) {
         return false;
