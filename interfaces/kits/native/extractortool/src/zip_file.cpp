@@ -135,7 +135,11 @@ bool ZipFile::CheckEndDir(const EndDir &endDir) const
         (endDir.commentLen != 0) ||
         // central dir can't overlap end of central dir
         ((endDir.offset + endDir.sizeOfCentralDir + lenEndDir) > fileLength_)) {
-        ABILITYBASE_LOGE("end dir format error");
+        ABILITYBASE_LOGW("end dir format error. fileLen: %{public}llu, signature: %{public}u, numDisk: %{public}hu, "
+            "startDiskOfCentralDir: %{public}hu, totalEntriesInThisDisk: %{public}hu, totalEntries: %{public}hu, "
+            "sizeOfCentralDir: %{public}u, offset: %{public}u, commentLen: %{public}hu.",
+            fileLength_, endDir.signature, endDir.numDisk, endDir.startDiskOfCentralDir, endDir.totalEntriesInThisDisk,
+            endDir.totalEntries, endDir.sizeOfCentralDir, endDir.offset, endDir.commentLen);
         return false;
     }
     return true;
@@ -222,6 +226,7 @@ std::shared_ptr<DirTreeNode> ZipFile::GetDirRoot()
 
 bool ZipFile::ParseAllEntries()
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto centralData = zipFileReader_->ReadBuffer(static_cast<size_t>(centralDirPos_),
         static_cast<size_t>(endDir_.sizeOfCentralDir));
     if (centralData.empty()) {
@@ -260,6 +265,7 @@ bool ZipFile::Open()
     if (pathName_.substr(0, Constants::GetProcPrefix().size()) == Constants::GetProcPrefix()) {
         realPath = pathName_;
     } else {
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "realpath_file");
         if (realpath(pathName_.c_str(), &(realPath[0])) == nullptr) {
             ABILITYBASE_LOGE("transform real path error: %{public}d, pathName: %{public}s", errno, pathName_.c_str());
             return false;
