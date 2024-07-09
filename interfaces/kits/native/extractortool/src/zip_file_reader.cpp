@@ -20,6 +20,7 @@
 
 #include "ability_base_log_wrapper.h"
 #include "constants.h"
+#include "hitrace_meter.h"
 #include "zip_file_reader_io.h"
 #include "zip_file_reader_mem.h"
 
@@ -83,11 +84,13 @@ bool ZipFileReader::init()
     if (filePath_.substr(0, Constants::GetProcPrefix().size()) == Constants::GetProcPrefix()) {
         resolvePath = filePath_;
     } else {
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "realpath_file");
         if (realpath(filePath_.c_str(), &(resolvePath[0])) == nullptr) {
             ABILITYBASE_LOGE("realpath error: %{public}s : %{public}d", resolvePath.c_str(), errno);
             return false;
         }
     }
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "open_file");
     fd_ = open(resolvePath.c_str(), O_RDONLY);
     if (fd_ < 0) {
         ABILITYBASE_LOGE("open file error: %{public}s : %{public}d", resolvePath.c_str(), errno);
