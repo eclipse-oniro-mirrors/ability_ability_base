@@ -127,7 +127,7 @@ bool WantParamWrapper::ValidateStr(const std::string &str)
 
 sptr<IWantParams> WantParamWrapper::Parse(const std::string &str)
 {
-    WantParams wantPaqrams;
+    WantParams wantParams;
     std::string key = "";
     int typeId = 0;
     if (ValidateStr(str)) {
@@ -145,7 +145,7 @@ sptr<IWantParams> WantParamWrapper::Parse(const std::string &str)
                         break;
                     }
                 }
-                wantPaqrams.SetParam(key, WantParamWrapper::Parse(str.substr(strnum, num - strnum + 1)));
+                wantParams.SetParam(key, WantParamWrapper::Parse(str.substr(strnum, num - strnum + 1)));
                 key = "";
                 typeId = 0;
                 strnum = num + 1;
@@ -163,7 +163,7 @@ sptr<IWantParams> WantParamWrapper::Parse(const std::string &str)
                     strnum = str.find('"', strnum);
                 } else {
                     strnum++;
-                    wantPaqrams.SetParam(key,
+                    wantParams.SetParam(key,
                         WantParams::GetInterfaceByType(typeId, str.substr(strnum, str.find('"', strnum) - strnum)));
                     strnum = str.find('"', strnum);
                     typeId = 0;
@@ -172,17 +172,17 @@ sptr<IWantParams> WantParamWrapper::Parse(const std::string &str)
             }
         }
     }
-    sptr<IWantParams> iwantParams = new (std::nothrow) WantParamWrapper(wantPaqrams);
+    sptr<IWantParams> iwantParams = new (std::nothrow) WantParamWrapper(wantParams);
     return iwantParams;
 }
 
 WantParams WantParamWrapper::ParseWantParams(const std::string &str)
 {
-    WantParams wantPaqrams;
+    WantParams wantParams;
     std::string key = "";
     int typeId = 0;
     if (!ValidateStr(str)) {
-        return wantPaqrams;
+        return wantParams;
     }
     for (size_t strnum = 0; strnum < str.size(); strnum++) {
         if (str[strnum] == '{' && key != "" && typeId == WantParams::VALUE_TYPE_WANTPARAMS) {
@@ -198,7 +198,7 @@ WantParams WantParamWrapper::ParseWantParams(const std::string &str)
                     break;
                 }
             }
-            wantPaqrams.SetParam(key, WantParamWrapper::Parse(str.substr(strnum, num - strnum)));
+            wantParams.SetParam(key, WantParamWrapper::Parse(str.substr(strnum, num - strnum)));
             key = "";
             typeId = 0;
             strnum = num + 1;
@@ -211,12 +211,12 @@ WantParams WantParamWrapper::ParseWantParams(const std::string &str)
                 strnum++;
                 typeId = atoi(str.substr(strnum, str.find('"', strnum) - strnum).c_str());
                 if (errno == ERANGE) {
-                    return wantPaqrams;
+                    return wantParams;
                 }
                 strnum = str.find('"', strnum);
             } else {
                 strnum++;
-                wantPaqrams.SetParam(key,
+                wantParams.SetParam(key,
                     WantParams::GetInterfaceByType(typeId, str.substr(strnum, str.find('"', strnum) - strnum)));
                 strnum = str.find('"', strnum);
                 typeId = 0;
@@ -224,17 +224,17 @@ WantParams WantParamWrapper::ParseWantParams(const std::string &str)
             }
         }
     }
-    return wantPaqrams;
+    return wantParams;
 }
 
 WantParams WantParamWrapper::ParseWantParamsWithBrackets(const std::string &str)
 {
-    WantParams wantPaqrams;
+    WantParams wantParams;
     std::string key = "";
     int typeId = 0;
     size_t type_index_before = 0;
     if (!ValidateStr(str)) {
-        return wantPaqrams;
+        return wantParams;
     }
     for (size_t strnum = 0; strnum < str.size(); strnum++) {
         if (str[strnum] == '{' && key != "" && typeId == WantParams::VALUE_TYPE_WANTPARAMS) {
@@ -250,7 +250,7 @@ WantParams WantParamWrapper::ParseWantParamsWithBrackets(const std::string &str)
                     break;
                 }
             }
-            wantPaqrams.SetParam(key, WantParamWrapper::Parse(str.substr(strnum, num - strnum + 1)));
+            wantParams.SetParam(key, WantParamWrapper::Parse(str.substr(strnum, num - strnum + 1)));
             key = "";
             typeId = 0;
             strnum = num + 1;
@@ -264,13 +264,13 @@ WantParams WantParamWrapper::ParseWantParamsWithBrackets(const std::string &str)
                 strnum++;
                 typeId = atoi(str.substr(strnum, str.find('"', strnum) - strnum).c_str());
                 if (errno == ERANGE) {
-                    return wantPaqrams;
+                    return wantParams;
                 }
                 strnum = str.find('"', strnum);
             } else {
                 strnum++;
                 auto index = FindMatchingBrackets(str, type_index_before - 1);
-                wantPaqrams.SetParam(key,
+                wantParams.SetParam(key,
                     WantParams::GetInterfaceByType(typeId, str.substr(strnum, index - 1 - strnum)));
                 strnum = index + 1;
                 typeId = 0;
@@ -278,7 +278,7 @@ WantParams WantParamWrapper::ParseWantParamsWithBrackets(const std::string &str)
             }
         }
     }
-    return wantPaqrams;
+    return wantParams;
 }
 }  // namespace AAFwk
 }  // namespace OHOS
