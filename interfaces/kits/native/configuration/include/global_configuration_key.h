@@ -38,6 +38,8 @@ namespace GlobalConfigurationKey {
     constexpr const char* SYSTEM_MCC = "ohos.system.mcc";
     constexpr const char* SYSTEM_MNC = "ohos.system.mnc";
     constexpr const char* APPLICATION_FONT = "ohos.application.font";
+    constexpr const char* APP_FONT_SIZE_SCALE = "ohos.app.fontSizeScale";
+    constexpr const char* APP_FONT_MAX_SCALE = "ohos.app.fontMaxScale";
 
 } // namespace GlobalConfigurationKey
 } // namespace AAFwk
