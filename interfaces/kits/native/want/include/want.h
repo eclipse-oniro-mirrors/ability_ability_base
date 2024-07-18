@@ -85,6 +85,10 @@ public:
      */
     static constexpr unsigned int FLAG_INSTALL_ON_DEMAND = 0x00000800;
     /**
+     * Indicates the continuation is quick start
+     */
+    static constexpr unsigned int FLAG_ABILITY_PREPARE_CONTINUATION = 0x00001000;
+    /**
      * Returns the result to the source ability slice.
      */
     static constexpr unsigned int FLAG_ABILITYSLICE_FORWARD_RESULT = 0x04000000;
