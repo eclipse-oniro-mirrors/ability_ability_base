@@ -29,7 +29,7 @@ void Rect::FromJsonString(const std::string& jsonStr)
 {
     nlohmann::json jsonObject = nlohmann::json::parse(jsonStr, nullptr, false);
     if (jsonObject.is_discarded()) {
-        ABILITYBASE_LOGE("Failed to parse json string.");
+        ABILITYBASE_LOGE("json parse failed");
         return;
     }
     if (jsonObject.contains(VIEW_DATA_RECT_LEFT) && jsonObject[VIEW_DATA_RECT_LEFT].is_number_float()) {

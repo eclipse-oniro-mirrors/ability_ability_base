@@ -51,18 +51,18 @@ bool Extractor::Init()
 bool Extractor::GetFileBuffer(const std::string& srcPath, std::ostringstream& dest)
 {
     if (!initial_) {
-        ABILITYBASE_LOGE("extractor is not initial");
+        ABILITYBASE_LOGE("not init");
         return false;
     }
 
     if (srcPath.empty()) {
-        ABILITYBASE_LOGE("GetFileBuffer::srcPath is nullptr");
+        ABILITYBASE_LOGE("empty srcPath");
         return false;
     }
 
     std::string relativePath = GetRelativePath(srcPath);
     if (!ExtractByName(relativePath, dest)) {
-        ABILITYBASE_LOGE("GetFileBuffer::Extract file failed");
+        ABILITYBASE_LOGE("extract file failed");
         return false;
     }
 
@@ -73,12 +73,12 @@ bool Extractor::GetFileList(const std::string& srcPath, std::vector<std::string>
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (!initial_) {
-        ABILITYBASE_LOGE("extractor is not initial");
+        ABILITYBASE_LOGE("not init");
         return false;
     }
 
     if (srcPath.empty()) {
-        ABILITYBASE_LOGE("GetFileList::srcPath is nullptr");
+        ABILITYBASE_LOGE("empty srcPath");
         return false;
     }
     zipFile_.GetAllFileList(srcPath, assetList);
@@ -92,7 +92,7 @@ bool Extractor::GetFileList(const std::string& srcPath, std::vector<std::string>
 bool Extractor::HasEntry(const std::string &fileName) const
 {
     if (!initial_) {
-        ABILITYBASE_LOGE("extractor is not initial");
+        ABILITYBASE_LOGE("not init");
         return false;
     }
 
@@ -102,11 +102,11 @@ bool Extractor::HasEntry(const std::string &fileName) const
 bool Extractor::IsDirExist(const std::string &dir)
 {
     if (!initial_) {
-        ABILITYBASE_LOGE("extractor is not initial");
+        ABILITYBASE_LOGE("not init");
         return false;
     }
     if (dir.empty()) {
-        ABILITYBASE_LOGE("param dir empty");
+        ABILITYBASE_LOGE("dir empty");
         return false;
     }
     return zipFile_.IsDirExist(dir);
@@ -115,11 +115,11 @@ bool Extractor::IsDirExist(const std::string &dir)
 bool Extractor::ExtractByName(const std::string &fileName, std::ostream &dest) const
 {
     if (!initial_) {
-        ABILITYBASE_LOGE("extractor is not initial");
+        ABILITYBASE_LOGE("not init");
         return false;
     }
     if (!zipFile_.ExtractFile(fileName, dest)) {
-        ABILITYBASE_LOGE("extractor is not ExtractFile %{public}s", fileName.c_str());
+        ABILITYBASE_LOGE("not ExtractFile %{public}s", fileName.c_str());
         return false;
     }
     return true;
@@ -181,17 +181,17 @@ bool Extractor::UnzipData(std::unique_ptr<FileMapper> fileMapper,
     std::unique_ptr<uint8_t[]> &dataPtr, size_t &len) const
 {
     if (!initial_) {
-        ABILITYBASE_LOGE("extractor is not initial");
+        ABILITYBASE_LOGE("not init");
         return false;
     }
 
     if (!fileMapper) {
-        ABILITYBASE_LOGE("Input fileMapper is nullptr.");
+        ABILITYBASE_LOGE("null fileMapper");
         return false;
     }
 
     if (!zipFile_.ExtractFileFromMMap(fileMapper->GetFileName(), fileMapper->GetDataPtr(), dataPtr, len)) {
-        ABILITYBASE_LOGE("extract file from MMap failed.");
+        ABILITYBASE_LOGE("ExtractFileFromMMap failed");
         return false;
     }
     return true;
@@ -219,14 +219,14 @@ bool Extractor::GetFileInfo(const std::string &fileName, FileInfo &fileInfo) con
     std::string relativePath = GetRelativePath(fileName);
     ZipEntry zipEntry;
     if (!zipFile_.GetEntry(relativePath, zipEntry)) {
-        ABILITYBASE_LOGE("Get zip entry failed.");
+        ABILITYBASE_LOGE("Get entry failed");
         return false;
     }
 
     ZipPos offset = 0;
     uint32_t length = 0;
     if (!zipFile_.GetDataOffsetRelative(relativePath, offset, length)) {
-        ABILITYBASE_LOGE("Get data offset relative failed.");
+        ABILITYBASE_LOGE("GetDataOffsetRelative failed");
         return false;
     }
 
@@ -241,12 +241,12 @@ bool Extractor::GetFileInfo(const std::string &fileName, FileInfo &fileInfo) con
 bool Extractor::GetFileList(const std::string &srcPath, std::set<std::string> &fileSet)
 {
     if (!initial_) {
-        ABILITYBASE_LOGE("extractor is not initial");
+        ABILITYBASE_LOGE("not init");
         return false;
     }
 
     if (srcPath.empty()) {
-        ABILITYBASE_LOGE("GetFileList::srcPath is nullptr");
+        ABILITYBASE_LOGE("empty srcPath");
         return false;
     }
 
@@ -263,7 +263,7 @@ bool Extractor::IsHapCompress(const std::string &fileName) const
     std::string relativePath = GetRelativePath(fileName);
     ZipEntry zipEntry;
     if (!zipFile_.GetEntry(relativePath, zipEntry)) {
-        ABILITYBASE_LOGE("Get entry info by name failed. fileName: %{public}s", fileName.c_str());
+        ABILITYBASE_LOGE("GetEntry failed fileName: %{public}s", fileName.c_str());
         return false;
     }
     return zipEntry.compressionMethod > 0;
@@ -286,7 +286,7 @@ std::shared_ptr<Extractor> ExtractorUtil::GetExtractor(const std::string &hapPat
 {
     newCreate = false;
     if (hapPath.empty()) {
-        ABILITYBASE_LOGE("Input hapPath is empty.");
+        ABILITYBASE_LOGE("empty hapPath");
         return nullptr;
     }
     {
@@ -294,21 +294,21 @@ std::shared_ptr<Extractor> ExtractorUtil::GetExtractor(const std::string &hapPat
         std::lock_guard<std::mutex> mapMutex(mapMutex_);
         auto mapIter = extractorMap_.find(hapPath);
         if (mapIter != extractorMap_.end()) {
-            ABILITYBASE_LOGD("Extractor exists, hapPath: %{private}s.", hapPath.c_str());
+            ABILITYBASE_LOGD("hapPath: %{private}s", hapPath.c_str());
             return mapIter->second;
         }
     }
 
     std::shared_ptr<Extractor> extractor = std::make_shared<Extractor>(hapPath);
     if (!extractor->Init()) {
-        ABILITYBASE_LOGD("Extractor create failed for %{private}s", hapPath.c_str());
+        ABILITYBASE_LOGD("create failed for %{private}s", hapPath.c_str());
         return nullptr;
     }
     if (cache) {
         HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "GetExtractor_store");
         std::lock_guard<std::mutex> mapMutex(mapMutex_);
         extractorMap_.emplace(hapPath, extractor);
-        ABILITYBASE_LOGD("extractor cache size: %{public}zu.", extractorMap_.size());
+        ABILITYBASE_LOGD("extractor cache size: %{public}zu", extractorMap_.size());
     }
     newCreate = true;
     return extractor;
@@ -318,14 +318,14 @@ void ExtractorUtil::DeleteExtractor(const std::string &hapPath)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (hapPath.empty()) {
-        ABILITYBASE_LOGE("DeleteExtractor hapPath is empty.");
+        ABILITYBASE_LOGE("empty hapPath");
         return;
     }
 
     std::lock_guard<std::mutex> mapMutex(mapMutex_);
     auto mapIter = extractorMap_.find(hapPath);
     if (mapIter != extractorMap_.end()) {
-        ABILITYBASE_LOGI("DeleteExtractor, hapPath: %{public}s.", hapPath.c_str());
+        ABILITYBASE_LOGI("hapPath: %{public}s", hapPath.c_str());
         extractorMap_.erase(mapIter);
     }
 }

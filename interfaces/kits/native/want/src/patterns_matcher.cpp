@@ -115,7 +115,7 @@ bool PatternsMatcher::MatchPattern(std::string pattern, std::string match, Match
             return GlobPattern(pattern, match);
         }
         default: {
-            ABILITYBASE_LOGE("MatchPattern::The other type");
+            ABILITYBASE_LOGE("invalid type");
             return false;
         }
     }

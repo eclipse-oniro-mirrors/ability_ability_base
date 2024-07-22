@@ -34,7 +34,7 @@ void PageNodeInfo::FromJsonString(const std::string& jsonStr)
 {
     nlohmann::json jsonObject = nlohmann::json::parse(jsonStr, nullptr, false);
     if (jsonObject.is_discarded()) {
-        ABILITYBASE_LOGE("Failed to parse json string.");
+        ABILITYBASE_LOGE("json parse failed");
         return;
     }
     if (jsonObject.contains(PAGE_NODE_INFO_ID) && jsonObject[PAGE_NODE_INFO_ID].is_number()) {
@@ -68,7 +68,7 @@ void PageNodeInfo::FromJsonString(const std::string& jsonStr)
 void PageNodeInfo::ParseJsonToPageNodeInfo(const nlohmann::json& jsonObject)
 {
     if (jsonObject.is_discarded()) {
-        ABILITYBASE_LOGE("Failed to parse json string.");
+        ABILITYBASE_LOGE("json parse failed");
         return;
     }
     if (jsonObject.contains(PAGE_NODE_INFO_RECT)) {

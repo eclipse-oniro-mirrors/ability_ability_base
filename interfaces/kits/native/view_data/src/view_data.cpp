@@ -34,7 +34,7 @@ void ViewData::FromJsonString(const std::string& jsonStr)
 {
     nlohmann::json jsonObject = nlohmann::json::parse(jsonStr, nullptr, false);
     if (jsonObject.is_discarded()) {
-        ABILITYBASE_LOGE("Failed to parse json string.");
+        ABILITYBASE_LOGE("json parse failed");
         return;
     }
     if (jsonObject.contains(VIEW_DATA_BUNDLE_NAME) && jsonObject[VIEW_DATA_BUNDLE_NAME].is_string()) {
