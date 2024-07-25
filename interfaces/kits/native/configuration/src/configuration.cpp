@@ -28,9 +28,7 @@ constexpr int CYCLE_LIMIT = 1000;
 }
 using json = nlohmann::json;
 Configuration::Configuration()
-{
-    AddItem(AAFwk::GlobalConfigurationKey::APP_FONT_SIZE_SCALE, ConfigurationInner::DEFAULT_APP_FONT_SIZE_SCALE);
-}
+{}
 
 Configuration::Configuration(const Configuration &other) : defaultDisplayId_(other.defaultDisplayId_)
 {
