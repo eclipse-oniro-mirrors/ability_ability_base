@@ -175,8 +175,8 @@ bool SessionInfo::DoMarshallingFour(Parcel& parcel) const
         return false;
     }
 
-    if (!parcel.WriteBool(hasContinuousTask)) {
-        ABILITYBASE_LOGE("Write hasContinuousTask failed");
+    if (!parcel.WriteBool(canStartAbilityFromBackground)) {
+        ABILITYBASE_LOGE("Write canStartAbilityFromBackground failed.");
         return false;
     }
 
@@ -251,7 +251,7 @@ SessionInfo* SessionInfo::Unmarshalling(Parcel& parcel)
     info->isClearSession = parcel.ReadBool();
     info->callingTokenId = parcel.ReadUint32();
     info->reuse = parcel.ReadBool();
-    info->hasContinuousTask = parcel.ReadBool();
+    info->canStartAbilityFromBackground = parcel.ReadBool();
     info->collaboratorType = parcel.ReadInt32();
     info->sessionName = parcel.ReadString();
     info->uiExtensionComponentId = parcel.ReadUint64();

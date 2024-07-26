@@ -60,7 +60,7 @@ public:
     bool isClearSession = false;
     uint32_t callingTokenId = 0;
     bool reuse = false;
-    bool hasContinuousTask = false;
+    bool canStartAbilityFromBackground = false;
     int32_t collaboratorType = 0;
     std::string sessionName = "";
     uint64_t uiExtensionComponentId = 0;
