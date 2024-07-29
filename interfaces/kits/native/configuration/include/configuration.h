@@ -45,7 +45,7 @@ namespace ConfigurationInner {
     constexpr const char* NEED_REMOVE_SET_BY_SA = "needRemoveSetBySa";
     constexpr const char* IS_SET_BY_SA = "isSetBySa";
     constexpr const char* IS_APP_FONT_FOLLOW_SYSTEM = "followSystem";
-    constexpr const char* DEFAULT_APP_FONT_SIZE_SCALE = "nonFollowSystem";
+    constexpr const char* SYSTEM_DEFAULT_FONTSIZE_SCALE = "1.0";
 };
 
 class Configuration final: public Parcelable {
