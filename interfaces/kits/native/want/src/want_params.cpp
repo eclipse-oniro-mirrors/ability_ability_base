@@ -1570,8 +1570,8 @@ void WantParams::DupAllFd()
         if (it.second > 0) {
             int dupFd = dup(it.second);
             if (dupFd > 0) {
-                WantParams wp;
                 params_.erase(it.first);
+                WantParams wp;
                 wp.SetParam(TYPE_PROPERTY, String::Box(FD));
                 wp.SetParam(VALUE_PROPERTY, Integer::Box(dupFd));
                 sptr<AAFwk::IWantParams> pWantParams = AAFwk::WantParamWrapper::Box(wp);
