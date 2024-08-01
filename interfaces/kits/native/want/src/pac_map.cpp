@@ -1289,7 +1289,7 @@ bool PacMap::GetBaseJsonValue(PacMapList::const_iterator &it, Json::Value &json)
 // Base data: short
 bool PacMap::ToJsonArrayShort(std::vector<short> &array, Json::Value &item, int type) const
 {
-    ABILITYBASE_LOGD("ToJsonArrayShort start");
+    ABILITYBASE_LOGD("start");
     if (array.size() > 0) {
         for (size_t i = 0; i < array.size(); i++) {
             item["data"].append(array[i]);
@@ -1302,7 +1302,7 @@ bool PacMap::ToJsonArrayShort(std::vector<short> &array, Json::Value &item, int 
 // Base data: Integer
 bool PacMap::ToJsonArrayInt(std::vector<int> &array, Json::Value &item, int type) const
 {
-    ABILITYBASE_LOGD("ToJsonArrayInt start");
+    ABILITYBASE_LOGD("start");
     if (array.size() > 0) {
         for (size_t i = 0; i < array.size(); i++) {
             item["data"].append(array[i]);
@@ -1328,7 +1328,7 @@ bool PacMap::ToJsonArrayLong(std::vector<long> &array, Json::Value &item, int ty
 // Base data: byte
 bool PacMap::ToJsonArrayByte(std::vector<byte> &array, Json::Value &item, int type) const
 {
-    ABILITYBASE_LOGD("ToJsonArrayByte start");
+    ABILITYBASE_LOGD("start");
     if (array.size() > 0) {
         for (size_t i = 0; i < array.size(); i++) {
             item["data"].append(array[i]);
@@ -1377,7 +1377,7 @@ bool PacMap::ToJsonArrayDouble(std::vector<double> &array, Json::Value &item, in
 // Base data: string
 bool PacMap::ToJsonArrayString(std::vector<std::string> &array, Json::Value &item, int type) const
 {
-    ABILITYBASE_LOGD("ToJsonArrayString start");
+    ABILITYBASE_LOGD("start");
     if (array.size() > 0) {
         for (size_t i = 0; i < array.size(); i++) {
             item["data"].append(array[i]);

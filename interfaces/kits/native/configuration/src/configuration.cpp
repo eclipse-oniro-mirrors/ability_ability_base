@@ -90,7 +90,7 @@ bool Configuration::MakeTheKey(std::string &getKey, int id, const std::string &p
     getKey += std::to_string(id);
     getKey += ConfigurationInner::CONNECTION_SYMBOL;
     getKey += param;
-    ABILITYBASE_LOGD(" getKey [%{public}s]", getKey.c_str());
+    ABILITYBASE_LOGD("key: %{public}s", getKey.c_str());
 
     return true;
 }
@@ -170,7 +170,7 @@ void Configuration::CompareDifferent(std::vector<std::string> &diffKeyV, const C
 
     std::lock_guard<std::recursive_mutex> lock(configParameterMutex_);
     for (const auto &iter : otherk) {
-        ABILITYBASE_LOGD(" iter : [%{public}s] | Val: [%{public}s]", iter.c_str(), other.GetValue(iter).c_str());
+        ABILITYBASE_LOGD("iter:%{public}s,Val:%{public}s", iter.c_str(), other.GetValue(iter).c_str());
         // Insert new content directly
         auto pair = configParameter_.insert(std::make_pair(iter, other.GetValue(iter)));
         if (pair.second) {
@@ -248,17 +248,17 @@ bool Configuration::ReadFromParcel(Parcel &parcel)
     keys.clear();
     values.clear();
     if (!parcel.ReadStringVector(&keys)) {
-        ABILITYBASE_LOGE("ReadStringVector for keys failed.");
+        ABILITYBASE_LOGE("read keys failed");
         return false;
     }
     if (!parcel.ReadStringVector(&values)) {
-        ABILITYBASE_LOGE("ReadStringVector for values failed.");
+        ABILITYBASE_LOGE("read values failed");
         return false;
     }
     size_t keySize = keys.size();
     size_t valueSize = values.size();
     if (keySize != valueSize || configSize != (int32_t)valueSize || configSize > CYCLE_LIMIT) {
-        ABILITYBASE_LOGE("ReadFromParcel failed, invalid size.");
+        ABILITYBASE_LOGE("invalid size");
         return false;
     }
 

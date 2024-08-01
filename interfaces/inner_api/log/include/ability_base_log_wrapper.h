@@ -45,7 +45,7 @@
 #endif
 
 #ifndef ABILITYBASE_LOG_TAG
-#define ABILITYBASE_LOG_TAG "AbilityBase"
+#define ABILITYBASE_LOG_TAG "Base"
 #endif
 
 #define __FILENAME__ (__builtin_strrchr(__FILE__, '/') ? __builtin_strrchr(__FILE__, '/') + 1 : __FILE__)

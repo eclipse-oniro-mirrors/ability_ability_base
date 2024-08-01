@@ -25,7 +25,7 @@ namespace AppExecFwk {
 #define READ_PARCEL_AND_RETURN_FALSE_IF_FAIL(type, parcel, data)         \
     do {                                                                 \
         if (!(parcel).Read##type(data)) {                                \
-            ABILITYBASE_LOGE("fail to read %{public}s type from parcel", #type); \
+            ABILITYBASE_LOGE("read failed: %{public}s", #type); \
             return false;                                                \
         }                                                                \
     } while (0)
@@ -33,7 +33,7 @@ namespace AppExecFwk {
 #define WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(type, parcel, data)         \
     do {                                                                  \
         if (!(parcel).Write##type(data)) {                                \
-            ABILITYBASE_LOGE("fail to write %{public}s type into parcel", #type); \
+            ABILITYBASE_LOGE("write failed: %{public}s", #type); \
             return false;                                                 \
         }                                                                 \
     } while (0)
@@ -41,7 +41,7 @@ namespace AppExecFwk {
 #define WRITE_PARCEL_AND_RETURN(type, parcel, data)                               \
     do {                                                                          \
         if (!(parcel).Write##type(data)) {                                        \
-            ABILITYBASE_LOGE("fail to write %{public}s type into parcel", #type); \
+            ABILITYBASE_LOGE("write failed: %{public}s", #type); \
             return;                                                               \
         }                                                                         \
     } while (0)

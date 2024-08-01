@@ -25,7 +25,7 @@ namespace AbilityBase {
 bool ZipFileReaderMem::init()
 {
     if (!ZipFileReader::init()) {
-        ABILITYBASE_LOGE("base_trace: open file error: %{public}s", filePath_.c_str());
+        ABILITYBASE_LOGE("init error: %{public}s", filePath_.c_str());
         return false;
     }
     posix_fadvise(fd_, 0, 0, POSIX_FADV_SEQUENTIAL);
@@ -50,7 +50,7 @@ bool ZipFileReaderMem::init()
 std::string ZipFileReaderMem::ReadBuffer(size_t startPos, size_t bufferSize)
 {
     if (startPos + bufferSize > fileContent_.length()) {
-        ABILITYBASE_LOGW("failed: %{public}s, startPos: %{public}zu, bufferSize: %{public}zu, fileLen: %{public}zu",
+        ABILITYBASE_LOGE("failed: %{public}s, startPos: %{public}zu, bufferSize: %{public}zu, fileLen: %{public}zu",
             filePath_.c_str(), startPos, bufferSize, fileLen_);
         return "";
     }
@@ -61,7 +61,7 @@ std::string ZipFileReaderMem::ReadBuffer(size_t startPos, size_t bufferSize)
 bool ZipFileReaderMem::ReadBuffer(uint8_t *dst, size_t startPos, size_t bufferSize)
 {
     if (!dst || startPos + bufferSize > fileContent_.length()) {
-        ABILITYBASE_LOGW("failed: %{public}s, startPos: %{public}zu, bufferSize: %{public}zu, fileLen: %{public}zu",
+        ABILITYBASE_LOGE("failed: %{public}s, startPos: %{public}zu, bufferSize: %{public}zu, fileLen: %{public}zu",
             filePath_.c_str(), startPos, bufferSize, fileLen_);
         return false;
     }

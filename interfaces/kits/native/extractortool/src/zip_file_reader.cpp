@@ -32,7 +32,7 @@ std::shared_ptr<ZipFileReader> ZipFileReader::CreateZipFileReader(const std::str
 {
     size_t fileSize = GetFileLen(filePath);
     if (fileSize == 0) {
-        ABILITYBASE_LOGE("filelen error: %{public}s", filePath.c_str());
+        ABILITYBASE_LOGE("fileSize error: %{public}s", filePath.c_str());
         return nullptr;
     }
 
@@ -69,7 +69,7 @@ size_t ZipFileReader::GetFileLen(const std::string &filePath)
         return fileStat.st_size;
     }
 
-    ABILITYBASE_LOGE("file oppen error: %{public}s : %{public}d", filePath.c_str(), errno);
+    ABILITYBASE_LOGE("error: %{public}s : %{public}d", filePath.c_str(), errno);
     return 0;
 }
 
