@@ -68,6 +68,7 @@ public:
     // To ensure security, this attribute must be rewritten on the server-side.
     UIExtensionUsage uiExtensionUsage = UIExtensionUsage::MODAL;
     bool isAtomicService = false;
+    bool isBackTransition = false;
 
 private:
     bool DoMarshallingOne(Parcel& parcel) const;
