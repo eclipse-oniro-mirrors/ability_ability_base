@@ -66,6 +66,7 @@ bool Configuration::MakeTheKey(std::string &getKey, int id, const std::string &p
         OHOS::AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE,
         OHOS::AAFwk::GlobalConfigurationKey::DEVICE_TYPE,
         OHOS::AAFwk::GlobalConfigurationKey::THEME,
+        OHOS::AAFwk::GlobalConfigurationKey::THEME_ID,
         OHOS::AAFwk::GlobalConfigurationKey::LANGUAGE_IS_SET_BY_APP,
         OHOS::AAFwk::GlobalConfigurationKey::COLORMODE_IS_SET_BY_APP,
         OHOS::AAFwk::GlobalConfigurationKey::COLORMODE_NEED_REMOVE_SET_BY_SA,
