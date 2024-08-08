@@ -179,7 +179,6 @@ ohos_shared_library("want") {
 
   public_configs = [
     ":want_all_dependent_config",
-    "//third_party/jsoncpp:jsoncpp_public_config",
   ]
 
   external_deps = [
