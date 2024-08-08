@@ -177,9 +177,7 @@ ohos_shared_library("want") {
     ":zuri",
   ]
 
-  public_configs = [
-    ":want_all_dependent_config",
-  ]
+  public_configs = [ ":want_all_dependent_config" ]
 
   external_deps = [
     "c_utils:utils",
