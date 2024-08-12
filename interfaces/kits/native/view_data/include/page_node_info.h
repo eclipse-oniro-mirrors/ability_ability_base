@@ -35,7 +35,7 @@ struct PageNodeInfo {
     std::string tag;
     std::string value;
     std::string placeholder;
-    std::string metaData;
+    std::string metadata;
     std::string passwordRules;
     bool enableAutoFill = true;
     Rect rect;

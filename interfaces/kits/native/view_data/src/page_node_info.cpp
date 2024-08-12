@@ -26,7 +26,7 @@ constexpr const char* PAGE_NODE_INFO_TAG = "tag";
 constexpr const char* PAGE_NODE_INFO_VALUE = "value";
 constexpr const char* PAGE_NODE_INFO_PLACEHOLDER = "placeholder";
 constexpr const char* PAGE_NODE_INFO_PASSWORD_RULES = "passwordRules";
-constexpr const char* PAGE_NODE_INFO_META_DATA = "metaData";
+constexpr const char* PAGE_NODE_INFO_META_DATA = "metadata";
 constexpr const char* PAGE_NODE_INFO_ENABLE_AUTO_FILL = "enableAutoFill";
 constexpr const char* PAGE_NODE_INFO_RECT = "rect";
 constexpr const char* PAGE_NODE_INFO_IS_FOCUS = "isFocus";
@@ -60,7 +60,7 @@ void PageNodeInfo::FromJsonString(const std::string& jsonStr)
         passwordRules = jsonObject.at(PAGE_NODE_INFO_PASSWORD_RULES).get<std::string>();
     }
     if (jsonObject.contains(PAGE_NODE_INFO_META_DATA) && jsonObject[PAGE_NODE_INFO_META_DATA].is_string()) {
-        metaData = jsonObject.at(PAGE_NODE_INFO_META_DATA).get<std::string>();
+        metadata = jsonObject.at(PAGE_NODE_INFO_META_DATA).get<std::string>();
     }
     if (jsonObject.contains(PAGE_NODE_INFO_ENABLE_AUTO_FILL) &&
         jsonObject[PAGE_NODE_INFO_ENABLE_AUTO_FILL].is_boolean()) {
@@ -93,7 +93,7 @@ std::string PageNodeInfo::ToJsonString() const
         {PAGE_NODE_INFO_VALUE, value},
         {PAGE_NODE_INFO_PLACEHOLDER, placeholder},
         {PAGE_NODE_INFO_PASSWORD_RULES, passwordRules},
-        {PAGE_NODE_INFO_META_DATA, metaData},
+        {PAGE_NODE_INFO_META_DATA, metadata},
         {PAGE_NODE_INFO_ENABLE_AUTO_FILL, enableAutoFill},
         {PAGE_NODE_INFO_RECT, rect.ToJsonString()},
         {PAGE_NODE_INFO_IS_FOCUS, isFocus}
