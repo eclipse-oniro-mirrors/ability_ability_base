@@ -244,7 +244,7 @@ SessionInfo* SessionInfo::Unmarshalling(Parcel& parcel)
     info->identityToken = parcel.ReadString();
     info->persistentId = parcel.ReadInt32();
     info->hostWindowId = parcel.ReadUint32();
-    info->realHostWindowId = parcel.ReadUint32();
+    info->realHostWindowId = parcel.ReadInt32();
     info->state = static_cast<CallToState>(parcel.ReadUint32());
     info->resultCode = parcel.ReadInt32();
     info->requestCode = parcel.ReadInt32();
