@@ -120,7 +120,6 @@ Want::Want()
  */
 Want::~Want()
 {
-    ABILITYBASE_LOGD("Want has been destroyed");
 }
 
 /**
@@ -556,18 +555,18 @@ sptr<IRemoteObject> Want::GetRemoteObject(const std::string &key) const
     auto type = wp.GetParam(TYPE_PROPERTY);
     IString* iString = IString::Query(type);
     if (iString == nullptr) {
-        ABILITYBASE_LOGI("it not contains TYPE_PROPERTY.");
+        ABILITYBASE_LOGI("null iString");
         return nullptr;
     }
     if (REMOTE_OBJECT != String::Unbox(iString)) {
-        ABILITYBASE_LOGE("invalid type.");
+        ABILITYBASE_LOGE("invalid type");
         return nullptr;
     }
 
     auto remoteObjVal = wp.GetParam(VALUE_PROPERTY);
     IRemoteObjectWrap* iRemoteObj = IRemoteObjectWrap::Query(remoteObjVal);
     if (iRemoteObj == nullptr) {
-        ABILITYBASE_LOGE("it not contains VALUE_PROPERTY.");
+        ABILITYBASE_LOGE("null iRemoteObj");
         return nullptr;
     }
     return RemoteObjectWrap::UnBox(iRemoteObj);
@@ -1880,45 +1879,45 @@ bool Want::ReadFromJson(nlohmann::json &wantJson)
     }
 
     if (!wantJson["deviceId"].is_string()) {
-        ABILITYBASE_LOGE("ReadFromJson: deviceId is not a string.");
+        ABILITYBASE_LOGE("deviceId not string");
         return false;
     }
     if (!wantJson["bundleName"].is_string()) {
-        ABILITYBASE_LOGE("ReadFromJson: bundleName is not a string.");
+        ABILITYBASE_LOGE("bundleName not string");
         return false;
     }
     if (!wantJson["abilityName"].is_string()) {
-        ABILITYBASE_LOGE("ReadFromJson: abilityName is not a string.");
+        ABILITYBASE_LOGE("abilityName not string");
         return false;
     }
     SetElementName(wantJson["deviceId"], wantJson["bundleName"], wantJson["abilityName"]);
 
     if (!wantJson["uri"].is_string()) {
-        ABILITYBASE_LOGE("ReadFromJson: uri is not a string.");
+        ABILITYBASE_LOGE("uri not string");
         return false;
     }
     SetUri(wantJson["uri"]);
 
     if (!wantJson["type"].is_string()) {
-        ABILITYBASE_LOGE("ReadFromJson: type is not a string.");
+        ABILITYBASE_LOGE("type not string");
         return false;
     }
     SetType(wantJson["type"]);
 
     if (!wantJson["flags"].is_number_unsigned()) {
-        ABILITYBASE_LOGE("ReadFromJson: flags is not a number.");
+        ABILITYBASE_LOGE("flags not number");
         return false;
     }
     SetFlags(wantJson["flags"]);
 
     if (!wantJson["action"].is_string()) {
-        ABILITYBASE_LOGE("ReadFromJson: action is not a string.");
+        ABILITYBASE_LOGE("action not string");
         return false;
     }
     SetAction(wantJson["action"]);
 
     if (!wantJson["parameters"].is_string()) {
-        ABILITYBASE_LOGE("ReadFromJson: parameters is not a string.");
+        ABILITYBASE_LOGE("parameters not string");
         return false;
     }
     WantParams parameters = WantParamWrapper::ParseWantParams(wantJson["parameters"]);
@@ -1927,18 +1926,18 @@ bool Want::ReadFromJson(nlohmann::json &wantJson)
     SetModuleName(moduleName);
 
     if (wantJson.at("entities").is_null()) {
-        ABILITYBASE_LOGD("entities is null");
+        ABILITYBASE_LOGD("null entities");
     } else if (wantJson["entities"].is_array()) {
         auto size = wantJson["entities"].size();
         for (size_t i = 0; i < size; i++) {
             if (!wantJson["entities"][i].is_string()) {
-                ABILITYBASE_LOGE("Item in entities is not string.");
+                ABILITYBASE_LOGE("entities not string");
                 return false;
             }
             AddEntity(wantJson["entities"][i]);
         }
     } else {
-        ABILITYBASE_LOGE("Fail to parse entities.");
+        ABILITYBASE_LOGE("parse entities failed");
         return false;
     }
     return true;
@@ -1952,13 +1951,13 @@ std::string Want::ToString() const
 Want *Want::FromString(std::string &string)
 {
     if (string.empty()) {
-        ABILITYBASE_LOGE("Invalid string.");
+        ABILITYBASE_LOGE("Invalid string");
         return nullptr;
     }
 
     nlohmann::json wantJson = nlohmann::json::parse(string, nullptr, false);
     if (wantJson.is_discarded()) {
-        ABILITYBASE_LOGE("failed to parse json sting: %{private}s.", string.c_str());
+        ABILITYBASE_LOGE("json parse failed: %{private}s.", string.c_str());
         return nullptr;
     }
 
@@ -2094,7 +2093,7 @@ bool Want::WriteElement(Parcel &parcel) const
     if (element == emptyElement) {
         if (!parcel.WriteInt32(VALUE_NULL)) {
             return false;
-            ABILITYBASE_LOGD("Failed to write int");
+            ABILITYBASE_LOGD("write int filed");
         }
     } else {
         if (!parcel.WriteInt32(VALUE_OBJECT)) {

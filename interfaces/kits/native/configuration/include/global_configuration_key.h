@@ -33,11 +33,14 @@ namespace GlobalConfigurationKey {
     constexpr const char* COLORMODE_NEED_REMOVE_SET_BY_SA = "ohos.system.colorMode.needRemoveSetBySa";
     constexpr const char* COLORMODE_IS_SET_BY_SA = "ohos.system.colorMode.isSetBySa";
     constexpr const char* THEME = "ohos.application.theme";
+    constexpr const char* THEME_ID = "ohos.application.themeId";
     constexpr const char* SYSTEM_FONT_SIZE_SCALE = "ohos.system.fontSizeScale";
     constexpr const char* SYSTEM_FONT_WEIGHT_SCALE = "ohos.system.fontWeightScale";
     constexpr const char* SYSTEM_MCC = "ohos.system.mcc";
     constexpr const char* SYSTEM_MNC = "ohos.system.mnc";
     constexpr const char* APPLICATION_FONT = "ohos.application.font";
+    constexpr const char* APP_FONT_SIZE_SCALE = "ohos.app.fontSizeScale";
+    constexpr const char* APP_FONT_MAX_SCALE = "ohos.app.fontMaxScale";
 
 } // namespace GlobalConfigurationKey
 } // namespace AAFwk

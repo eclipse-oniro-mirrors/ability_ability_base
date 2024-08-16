@@ -64,7 +64,7 @@ Uri::Uri(const string& uriString)
 
     if (!CheckScheme()) {
         uriString_ = EMPTY;
-        HILOG_IMPL(LOG_CORE, LOG_ERROR, 0xD001302,  "URI", "Scheme wrong!");
+        HILOG_IMPL(LOG_CORE, LOG_ERROR, 0xD001305,  "URI", "Scheme wrong");
     }
 }
 
@@ -83,7 +83,7 @@ bool Uri::CheckScheme()
             return false;
         }
     } catch (std::regex_error &message) {
-        HILOG_IMPL(LOG_CORE, LOG_ERROR, 0xD001302,  "URI", "regex fail! message is %{public}s", message.what());
+        HILOG_IMPL(LOG_CORE, LOG_ERROR, 0xD001305,  "URI", "regex fail,message:%{public}s", message.what());
         return false;
     }
     return true;
@@ -509,7 +509,7 @@ bool Uri::Marshalling(Parcel& parcel) const
         return parcel.WriteString16(Str8ToStr16(uriString_));
     }
 
-    HILOG_IMPL(LOG_CORE, LOG_ERROR, 0xD001302,  "URI", "uriString_ is not ascii string");
+    HILOG_IMPL(LOG_CORE, LOG_ERROR, 0xD001305,  "URI", "uriString_ is not ascii string");
     return false;
 }
 

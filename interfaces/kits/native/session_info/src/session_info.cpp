@@ -35,7 +35,11 @@ bool SessionInfo::Marshalling(Parcel& parcel) const
         return false;
     }
 
-    return DoMarshallingFour(parcel);
+    if (!DoMarshallingFour(parcel)) {
+        return false;
+    }
+
+    return DoMarshallingFive(parcel);
 }
 
 bool SessionInfo::DoMarshallingOne(Parcel& parcel) const
@@ -43,7 +47,7 @@ bool SessionInfo::DoMarshallingOne(Parcel& parcel) const
     if (sessionToken) {
         if (!parcel.WriteBool(true) ||
             !(static_cast<MessageParcel*>(&parcel))->WriteRemoteObject(sessionToken)) {
-            ABILITYBASE_LOGE("Write session token failed.");
+            ABILITYBASE_LOGE("Write session token failed");
             return false;
         }
     } else {
@@ -55,7 +59,7 @@ bool SessionInfo::DoMarshallingOne(Parcel& parcel) const
     if (callerSession) {
         if (!parcel.WriteBool(true) ||
             !(static_cast<MessageParcel*>(&parcel))->WriteRemoteObject(callerSession)) {
-            ABILITYBASE_LOGE("Write caller session failed.");
+            ABILITYBASE_LOGE("Write caller session failed");
             return false;
         }
     } else {
@@ -67,7 +71,7 @@ bool SessionInfo::DoMarshallingOne(Parcel& parcel) const
     if (callerToken) {
         if (!parcel.WriteBool(true) ||
             !(static_cast<MessageParcel*>(&parcel))->WriteRemoteObject(callerToken)) {
-            ABILITYBASE_LOGE("Write caller token failed.");
+            ABILITYBASE_LOGE("Write caller token failed");
             return false;
         }
     } else {
@@ -79,7 +83,7 @@ bool SessionInfo::DoMarshallingOne(Parcel& parcel) const
     if (parentToken) {
         if (!parcel.WriteBool(true) ||
             !(static_cast<MessageParcel*>(&parcel))->WriteRemoteObject(parentToken)) {
-            ABILITYBASE_LOGE("Write parent token failed.");
+            ABILITYBASE_LOGE("Write parent token failed");
             return false;
         }
     } else {
@@ -93,7 +97,7 @@ bool SessionInfo::DoMarshallingOne(Parcel& parcel) const
 bool SessionInfo::DoMarshallingTwo(Parcel& parcel) const
 {
     if (!parcel.WriteString(identityToken)) {
-        ABILITYBASE_LOGE("Write identityToken failed.");
+        ABILITYBASE_LOGE("Write identityToken failed");
         return false;
     }
     return true;
@@ -102,52 +106,57 @@ bool SessionInfo::DoMarshallingTwo(Parcel& parcel) const
 bool SessionInfo::DoMarshallingThree(Parcel& parcel) const
 {
     if (!parcel.WriteInt32(persistentId)) {
-        ABILITYBASE_LOGE("Write persistent id failed.");
+        ABILITYBASE_LOGE("Write persistent id failed");
         return false;
     }
 
     if (!parcel.WriteUint32(hostWindowId)) {
-        ABILITYBASE_LOGE("Write host window id failed.");
+        ABILITYBASE_LOGE("Write host window id failed");
+        return false;
+    }
+
+    if (!parcel.WriteUint32(realHostWindowId)) {
+        ABILITYBASE_LOGE("Write real host window id failed.");
         return false;
     }
 
     if (!parcel.WriteUint32(static_cast<uint32_t>(state))) {
-        ABILITYBASE_LOGE("Write state failed.");
+        ABILITYBASE_LOGE("Write state failed");
         return false;
     }
 
     if (!parcel.WriteInt32(resultCode)) {
-        ABILITYBASE_LOGE("Write resultCode failed.");
+        ABILITYBASE_LOGE("Write resultCode failed");
         return false;
     }
 
     if (!parcel.WriteInt32(requestCode)) {
-        ABILITYBASE_LOGE("Write requestCode failed.");
+        ABILITYBASE_LOGE("Write requestCode failed");
         return false;
     }
 
     if (!parcel.WriteString(errorReason)) {
-        ABILITYBASE_LOGE("Write errorReason failed.");
+        ABILITYBASE_LOGE("Write errorReason failed");
         return false;
     }
 
     if (!parcel.WriteInt32(errorCode)) {
-        ABILITYBASE_LOGE("Write errorCode failed.");
+        ABILITYBASE_LOGE("Write errorCode failed");
         return false;
     }
 
     if (!parcel.WriteInt64(uiAbilityId)) {
-        ABILITYBASE_LOGE("Write uiAbilityId failed.");
+        ABILITYBASE_LOGE("Write uiAbilityId failed");
         return false;
     }
 
     if (!parcel.WriteParcelable(startSetting.get())) {
-        ABILITYBASE_LOGE("Write startSetting failed.");
+        ABILITYBASE_LOGE("Write startSetting failed");
         return false;
     }
 
     if (!parcel.WriteParcelable(processOptions.get())) {
-        ABILITYBASE_LOGE("Write processOptions failed.");
+        ABILITYBASE_LOGE("Write processOptions failed");
         return false;
     }
     return true;
@@ -156,62 +165,71 @@ bool SessionInfo::DoMarshallingThree(Parcel& parcel) const
 bool SessionInfo::DoMarshallingFour(Parcel& parcel) const
 {
     if (!parcel.WriteBool(isNewWant)) {
-        ABILITYBASE_LOGE("Write isNewWant failed.");
+        ABILITYBASE_LOGE("Write isNewWant failed");
         return false;
     }
 
     if (!parcel.WriteBool(isClearSession)) {
-        ABILITYBASE_LOGE("Write isClearSession failed.");
+        ABILITYBASE_LOGE("Write isClearSession failed");
         return false;
     }
 
     if (!parcel.WriteUint32(callingTokenId)) {
-        ABILITYBASE_LOGE("Write callingTokenId failed.");
+        ABILITYBASE_LOGE("Write callingTokenId failed");
         return false;
     }
 
     if (!parcel.WriteBool(reuse)) {
-        ABILITYBASE_LOGE("Write reuse failed.");
+        ABILITYBASE_LOGE("Write reuse failed");
         return false;
     }
 
-    if (!parcel.WriteBool(hasContinuousTask)) {
-        ABILITYBASE_LOGE("Write hasContinuousTask failed.");
+    if (!parcel.WriteBool(canStartAbilityFromBackground)) {
+        ABILITYBASE_LOGE("Write canStartAbilityFromBackground failed.");
         return false;
     }
 
     if (!parcel.WriteInt32(collaboratorType)) {
-        ABILITYBASE_LOGE("Write collaboratorType failed.");
+        ABILITYBASE_LOGE("Write collaboratorType failed");
         return false;
     }
 
     if (!parcel.WriteString(sessionName)) {
-        ABILITYBASE_LOGE("Write sessionName failed.");
+        ABILITYBASE_LOGE("Write sessionName failed");
         return false;
     }
 
     if (!parcel.WriteUint64(uiExtensionComponentId)) {
-        ABILITYBASE_LOGE("Write uiExtensionComponentId failed.");
+        ABILITYBASE_LOGE("Write uiExtensionComponentId failed");
         return false;
     }
 
     if (!parcel.WriteBool(isAsyncModalBinding)) {
-        ABILITYBASE_LOGE("Write isAsyncModalBinding failed.");
+        ABILITYBASE_LOGE("Write isAsyncModalBinding failed");
         return false;
     }
 
     if (!parcel.WriteUint32(static_cast<uint32_t>(uiExtensionUsage))) {
-        ABILITYBASE_LOGE("Write uiExtensionUsage failed.");
+        ABILITYBASE_LOGE("Write uiExtensionUsage failed");
         return false;
     }
 
     if (!parcel.WriteBool(isAtomicService)) {
-        ABILITYBASE_LOGE("Write isAtomicService failed.");
+        ABILITYBASE_LOGE("Write isAtomicService failed");
         return false;
     }
 
+    return true;
+}
+
+bool SessionInfo::DoMarshallingFive(Parcel& parcel) const
+{
+    if (!parcel.WriteBool(isBackTransition)) {
+        ABILITYBASE_LOGE("Write isBackTransition failed.");
+        return false;
+    }
     if (!parcel.WriteParcelable(&want)) {
-        ABILITYBASE_LOGE("Write want failed.");
+        ABILITYBASE_LOGE("Write want failed");
         return false;
     }
     return true;
@@ -239,6 +257,7 @@ SessionInfo* SessionInfo::Unmarshalling(Parcel& parcel)
     info->identityToken = parcel.ReadString();
     info->persistentId = parcel.ReadInt32();
     info->hostWindowId = parcel.ReadUint32();
+    info->realHostWindowId = parcel.ReadInt32();
     info->state = static_cast<CallToState>(parcel.ReadUint32());
     info->resultCode = parcel.ReadInt32();
     info->requestCode = parcel.ReadInt32();
@@ -251,13 +270,14 @@ SessionInfo* SessionInfo::Unmarshalling(Parcel& parcel)
     info->isClearSession = parcel.ReadBool();
     info->callingTokenId = parcel.ReadUint32();
     info->reuse = parcel.ReadBool();
-    info->hasContinuousTask = parcel.ReadBool();
+    info->canStartAbilityFromBackground = parcel.ReadBool();
     info->collaboratorType = parcel.ReadInt32();
     info->sessionName = parcel.ReadString();
     info->uiExtensionComponentId = parcel.ReadUint64();
     info->isAsyncModalBinding = parcel.ReadBool();
     info->uiExtensionUsage = static_cast<UIExtensionUsage>(parcel.ReadUint32());
     info->isAtomicService = parcel.ReadBool();
+    info->isBackTransition = parcel.ReadBool();
 
     std::unique_ptr<Want> want(parcel.ReadParcelable<Want>());
     if (want != nullptr) {

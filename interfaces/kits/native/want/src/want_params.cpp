@@ -58,7 +58,7 @@ UnsupportedData::UnsupportedData(const UnsupportedData &other) : key(other.key),
 {
     buffer = new uint8_t[size];
     if (memcpy_s(buffer, size, other.buffer, size) != EOK) {
-        ABILITYBASE_LOGI("copy construct fail due to memcpy");
+        ABILITYBASE_LOGE("memcpy failed");
 
         key.clear();
         type = 0;
@@ -86,7 +86,7 @@ UnsupportedData &UnsupportedData::operator=(const UnsupportedData &other)
     size = other.size;
     buffer = new uint8_t[size];
     if (memcpy_s(buffer, size, other.buffer, size) != EOK) {
-        ABILITYBASE_LOGI("copy assignment fail due to memcpy");
+        ABILITYBASE_LOGE("memcpy failed");
 
         key.clear();
         type = 0;
@@ -446,7 +446,7 @@ std::string WantParams::GetStringParam(const std::string& key) const
 
 int WantParams::GetIntParam(const std::string& key, const int defaultValue) const
 {
-    ABILITYBASE_LOGD("called.");
+    ABILITYBASE_LOGD("called");
     auto value = GetParam(key);
     IInteger *ao = IInteger::Query(value);
     if (ao != nullptr) {
@@ -561,7 +561,7 @@ bool WantParams::WriteToParcelWantParams(Parcel &parcel, sptr<IInterface> &o, in
 
 bool WantParams::WriteToParcelFD(Parcel &parcel, const WantParams &value) const
 {
-    ABILITYBASE_LOGI("%{public}s called.", __func__);
+    ABILITYBASE_LOGI("called");
     if (!parcel.WriteInt32(VALUE_TYPE_FD)) {
         return false;
     }
@@ -575,7 +575,7 @@ bool WantParams::WriteToParcelFD(Parcel &parcel, const WantParams &value) const
             return false;
         }
         bool ret = messageParcel->WriteFileDescriptor(fd);
-        ABILITYBASE_LOGI("%{public}s, WriteFileDescriptor fd:%{public}d, ret:%{public}d.", __func__, fd, ret);
+        ABILITYBASE_LOGI("fd:%{public}d, ret:%{public}d", fd, ret);
         return ret;
     }
 
@@ -584,7 +584,7 @@ bool WantParams::WriteToParcelFD(Parcel &parcel, const WantParams &value) const
 
 bool WantParams::WriteToParcelRemoteObject(Parcel &parcel, const WantParams &value) const
 {
-    ABILITYBASE_LOGD("called.");
+    ABILITYBASE_LOGD("called");
     if (!parcel.WriteInt32(VALUE_TYPE_REMOTE_OBJECT)) {
         return false;
     }
@@ -598,7 +598,7 @@ bool WantParams::WriteToParcelRemoteObject(Parcel &parcel, const WantParams &val
             return false;
         }
         bool ret = messageParcel->WriteRemoteObject(remoteObject);
-        ABILITYBASE_LOGD("ret:%{public}d.", ret);
+        ABILITYBASE_LOGD("ret:%{public}d", ret);
         return ret;
     }
     return false;
@@ -850,7 +850,6 @@ bool WantParams::WriteArrayToParcelBool(Parcel &parcel, IArray *ao) const
     }
 
     for (std::vector<int8_t>::size_type i = 0; i < array.size(); i++) {
-        ABILITYBASE_LOGI("%{public}s bool of array: %{public}d", __func__, array[i]);
         intArray.push_back(array[i]);
     }
     return parcel.WriteInt32Vector(intArray);
@@ -1015,7 +1014,7 @@ bool WantParams::ReadFromParcelArrayString(Parcel &parcel, sptr<IArray> &ao)
 {
     std::vector<std::u16string> value;
     if (!parcel.ReadString16Vector(&value)) {
-        ABILITYBASE_LOGI("%{public}s read string of array fail.", __func__);
+        ABILITYBASE_LOGE("read string of array fail");
         return false;
     }
 
@@ -1027,7 +1026,7 @@ bool WantParams::ReadFromParcelArrayString(Parcel &parcel, sptr<IArray> &ao)
         }
         return true;
     } else {
-        ABILITYBASE_LOGI("%{public}s create string of array fail.", __func__);
+        ABILITYBASE_LOGE("null ao");
     }
     return false;
 }
@@ -1037,7 +1036,7 @@ bool WantParams::ReadFromParcelArrayBool(Parcel &parcel, sptr<IArray> &ao)
     std::vector<int32_t> value;
     std::vector<int8_t> boolValue;
     if (!parcel.ReadInt32Vector(&value)) {
-        ABILITYBASE_LOGI("%{public}s read bool of array fail.", __func__);
+        ABILITYBASE_LOGE("read bool of array fail");
         return false;
     }
 
@@ -1052,7 +1051,7 @@ bool WantParams::ReadFromParcelArrayByte(Parcel &parcel, sptr<IArray> &ao)
 {
     std::vector<int8_t> value;
     if (!parcel.ReadInt8Vector(&value)) {
-        ABILITYBASE_LOGI("%{public}s read byte of array fail.", __func__);
+        ABILITYBASE_LOGE("read value failed");
         return false;
     }
     return SetArray<int8_t, Byte>(g_IID_IByte, value, ao);
@@ -1062,7 +1061,7 @@ bool WantParams::ReadFromParcelArrayChar(Parcel &parcel, sptr<IArray> &ao)
 {
     std::vector<int32_t> value;
     if (!parcel.ReadInt32Vector(&value)) {
-        ABILITYBASE_LOGI("%{public}s char bool of array fail.", __func__);
+        ABILITYBASE_LOGE("read value failed");
         return false;
     }
     return SetArray<int32_t, Char>(g_IID_IChar, value, ao);
@@ -1072,7 +1071,7 @@ bool WantParams::ReadFromParcelArrayShort(Parcel &parcel, sptr<IArray> &ao)
 {
     std::vector<short> value;
     if (!parcel.ReadInt16Vector(&value)) {
-        ABILITYBASE_LOGI("%{public}s read short of array fail.", __func__);
+        ABILITYBASE_LOGE("read value failed");
         return false;
     }
     return SetArray<short, Short>(g_IID_IShort, value, ao);
@@ -1082,7 +1081,7 @@ bool WantParams::ReadFromParcelArrayInt(Parcel &parcel, sptr<IArray> &ao)
 {
     std::vector<int> value;
     if (!parcel.ReadInt32Vector(&value)) {
-        ABILITYBASE_LOGI("%{public}s read int of array fail.", __func__);
+        ABILITYBASE_LOGE("read value failed");
         return false;
     }
     return SetArray<int, Integer>(g_IID_IInteger, value, ao);
@@ -1092,7 +1091,7 @@ bool WantParams::ReadFromParcelArrayLong(Parcel &parcel, sptr<IArray> &ao)
 {
     std::vector<int64_t> value;
     if (!parcel.ReadInt64Vector(&value)) {
-        ABILITYBASE_LOGI("%{public}s read long of array fail.", __func__);
+        ABILITYBASE_LOGE("read value failed");
         return false;
     }
 
@@ -1111,7 +1110,7 @@ bool WantParams::ReadFromParcelArrayFloat(Parcel &parcel, sptr<IArray> &ao)
 {
     std::vector<float> value;
     if (!parcel.ReadFloatVector(&value)) {
-        ABILITYBASE_LOGI("%{public}s read float of array fail.", __func__);
+        ABILITYBASE_LOGE("read value failed");
         return false;
     }
     return SetArray<float, Float>(g_IID_IFloat, value, ao);
@@ -1121,7 +1120,7 @@ bool WantParams::ReadFromParcelArrayDouble(Parcel &parcel, sptr<IArray> &ao)
 {
     std::vector<double> value;
     if (!parcel.ReadDoubleVector(&value)) {
-        ABILITYBASE_LOGI("%{public}s read double of array fail.", __func__);
+        ABILITYBASE_LOGE("read value failed");
         return false;
     }
     return SetArray<double, Double>(g_IID_IDouble, value, ao);
@@ -1132,7 +1131,7 @@ bool WantParams::ReadFromParcelArrayWantParams(Parcel &parcel, sptr<IArray> &ao,
     int32_t size = parcel.ReadInt32();
     static constexpr int32_t maxAllowedSize = 1024;
     if (size < 0 || size > maxAllowedSize) {
-        ABILITYBASE_LOGE("%{public}s invalid size: %{public}d", __func__, size);
+        ABILITYBASE_LOGE("invalid size: %{public}d", size);
         return false;
     }
     std::vector<sptr<IInterface>> arrayWantParams;
@@ -1195,7 +1194,7 @@ bool WantParams::ReadFromParcelString(Parcel &parcel, const std::string &key)
     if (intf) {
         SetParam(key, intf);
     } else {
-        ABILITYBASE_LOGI("%{public}s read data fail: key=%{public}s", __func__, key.c_str());
+        ABILITYBASE_LOGE("read data fail: key=%{public}s", key.c_str());
     }
     return true;
 }
@@ -1208,11 +1207,11 @@ bool WantParams::ReadFromParcelBool(Parcel &parcel, const std::string &key)
         if (intf) {
             SetParam(key, intf);
         } else {
-            ABILITYBASE_LOGI("%{public}s insert param fail: key=%{public}s", __func__, key.c_str());
+            ABILITYBASE_LOGE("insert param fail: key=%{public}s", key.c_str());
         }
         return true;
     } else {
-        ABILITYBASE_LOGI("%{public}s read data fail: key=%{public}s", __func__, key.c_str());
+        ABILITYBASE_LOGE("read data fail: key=%{public}s", key.c_str());
         return false;
     }
 }
@@ -1225,11 +1224,11 @@ bool WantParams::ReadFromParcelInt8(Parcel &parcel, const std::string &key)
         if (intf) {
             SetParam(key, intf);
         } else {
-            ABILITYBASE_LOGI("%{public}s insert arguments fail: key=%{public}s", __func__, key.c_str());
+            ABILITYBASE_LOGE("insert arguments fail: key=%{public}s", key.c_str());
         }
         return true;
     } else {
-        ABILITYBASE_LOGI("%{public}s read data error: key=%{public}s", __func__, key.c_str());
+        ABILITYBASE_LOGE("read data error: key=%{public}s", key.c_str());
         return false;
     }
 }
@@ -1242,11 +1241,11 @@ bool WantParams::ReadFromParcelChar(Parcel &parcel, const std::string &key)
         if (intf) {
             SetParam(key, intf);
         } else {
-            ABILITYBASE_LOGI("%{public}s insert param error: key=%{public}s", __func__, key.c_str());
+            ABILITYBASE_LOGE("insert param error: key=%{public}s", key.c_str());
         }
         return true;
     } else {
-        ABILITYBASE_LOGI("%{public}s read data error: key=%{public}s", __func__, key.c_str());
+        ABILITYBASE_LOGE("read data error: key=%{public}s", key.c_str());
         return false;
     }
 }
@@ -1259,11 +1258,11 @@ bool WantParams::ReadFromParcelShort(Parcel &parcel, const std::string &key)
         if (intf) {
             SetParam(key, intf);
         } else {
-            ABILITYBASE_LOGI("%{public}s insert arguments error: key=%{public}s", __func__, key.c_str());
+            ABILITYBASE_LOGE("insert arguments error: key=%{public}s", key.c_str());
         }
         return true;
     } else {
-        ABILITYBASE_LOGI("%{public}s read data fail: key=%{public}s", __func__, key.c_str());
+        ABILITYBASE_LOGE("read data fail: key=%{public}s", key.c_str());
         return false;
     }
 }
@@ -1276,11 +1275,11 @@ bool WantParams::ReadFromParcelInt(Parcel &parcel, const std::string &key)
         if (intf) {
             SetParam(key, intf);
         } else {
-            ABILITYBASE_LOGI("%{public}s insert param fail: key:%{public}s", __func__, key.c_str());
+            ABILITYBASE_LOGE("insert param fail: key:%{public}s", key.c_str());
         }
         return true;
     } else {
-        ABILITYBASE_LOGI("%{public}s read data fail: key:%{public}s", __func__, key.c_str());
+        ABILITYBASE_LOGE("read data fail: key:%{public}s", key.c_str());
         return false;
     }
 }
@@ -1292,7 +1291,7 @@ bool WantParams::ReadFromParcelWantParamWrapper(Parcel &parcel, const std::strin
     }
 
     if (type == VALUE_TYPE_INVALID_FD) {
-        ABILITYBASE_LOGI("The fd in want is invalid");
+        ABILITYBASE_LOGE("fd invalid");
         return true;
     }
 
@@ -1313,13 +1312,12 @@ bool WantParams::ReadFromParcelWantParamWrapper(Parcel &parcel, const std::strin
 
 bool WantParams::ReadFromParcelFD(Parcel &parcel, const std::string &key)
 {
-    ABILITYBASE_LOGI("%{public}s called.", __func__);
     auto messageParcel = static_cast<MessageParcel*>(&parcel);
     if (messageParcel == nullptr) {
         return false;
     }
     auto fd = messageParcel->ReadFileDescriptor();
-    ABILITYBASE_LOGI("%{public}s fd:%{public}d.", __func__, fd);
+    ABILITYBASE_LOGI("fd:%{public}d", fd);
     WantParams wp;
     wp.SetParam(TYPE_PROPERTY, String::Box(FD));
     wp.SetParam(VALUE_PROPERTY, Integer::Box(fd));
@@ -1331,7 +1329,7 @@ bool WantParams::ReadFromParcelFD(Parcel &parcel, const std::string &key)
 
 bool WantParams::ReadFromParcelRemoteObject(Parcel &parcel, const std::string &key)
 {
-    ABILITYBASE_LOGD("called.");
+    ABILITYBASE_LOGD("called");
     auto messageParcel = static_cast<MessageParcel*>(&parcel);
     if (messageParcel == nullptr) {
         return false;
@@ -1358,11 +1356,11 @@ bool WantParams::ReadFromParcelLong(Parcel &parcel, const std::string &key)
         if (intf) {
             SetParam(key, intf);
         } else {
-            ABILITYBASE_LOGI("%{public}s insert param fail: key=%{public}s", __func__, key.c_str());
+            ABILITYBASE_LOGE("insert param fail: key=%{public}s", key.c_str());
         }
         return true;
     } else {
-        ABILITYBASE_LOGI("%{public}s read data error: key:%{public}s", __func__, key.c_str());
+        ABILITYBASE_LOGE("read data error: key:%{public}s", key.c_str());
         return false;
     }
 }
@@ -1375,11 +1373,11 @@ bool WantParams::ReadFromParcelFloat(Parcel &parcel, const std::string &key)
         if (intf) {
             SetParam(key, intf);
         } else {
-            ABILITYBASE_LOGI("%{public}s insert parameter fail: key=%{public}s", __func__, key.c_str());
+            ABILITYBASE_LOGE("insert parameter fail: key=%{public}s", key.c_str());
         }
         return true;
     } else {
-        ABILITYBASE_LOGI("%{public}s read data fail: key=%{public}s", __func__, key.c_str());
+        ABILITYBASE_LOGE("read data fail: key=%{public}s", key.c_str());
         return false;
     }
 }
@@ -1392,11 +1390,11 @@ bool WantParams::ReadFromParcelDouble(Parcel &parcel, const std::string &key)
         if (intf) {
             SetParam(key, intf);
         } else {
-            ABILITYBASE_LOGI("%{public}s insert parameter fail: key:%{public}s", __func__, key.c_str());
+            ABILITYBASE_LOGE("insert parameter fail: key:%{public}s", key.c_str());
         }
         return true;
     } else {
-        ABILITYBASE_LOGI("%{public}s read data fail: key=%{public}s", __func__, key.c_str());
+        ABILITYBASE_LOGE("read data fail: key=%{public}s", key.c_str());
         return false;
     }
 }
@@ -1409,7 +1407,7 @@ bool WantParams::ReadUnsupportedData(Parcel &parcel, const std::string &key, int
     }
     static constexpr int32_t maxAllowedSize = 100 * 1024 * 1024;
     if (bufferSize < 0 || bufferSize > maxAllowedSize) {
-        ABILITYBASE_LOGE("%{public}s invalid size: %{public}d", __func__, bufferSize);
+        ABILITYBASE_LOGE("invalid size: %{public}d", bufferSize);
         return false;
     }
 
@@ -1498,18 +1496,18 @@ bool WantParams::ReadFromParcel(Parcel &parcel, int depth)
 {
     int32_t size;
     if (!parcel.ReadInt32(size)) {
-        ABILITYBASE_LOGI("%{public}s read size fail.", __func__);
+        ABILITYBASE_LOGE("read size fail");
         return false;
     }
     for (int32_t i = 0; i < size; i++) {
         std::u16string key = parcel.ReadString16();
         int type;
         if (!parcel.ReadInt32(type)) {
-            ABILITYBASE_LOGI("%{public}s read type fail.", __func__);
+            ABILITYBASE_LOGE("read type fail");
             return false;
         }
         if (!ReadFromParcelParam(parcel, Str16ToStr8(key), type, depth)) {
-            ABILITYBASE_LOGI("%{public}s get i=%{public}d fail.", __func__, i);
+            ABILITYBASE_LOGE("get i=%{public}d fail", i);
             return false;
         }
     }
@@ -1539,7 +1537,7 @@ void WantParams::DumpInfo(int level) const
             std::string value = WantParams::GetStringByType(it.second, typeId);
             ABILITYBASE_LOGI("=WantParams[%{public}s]:%{private}s =======", it.first.c_str(), value.c_str());
         } else {
-            ABILITYBASE_LOGI("=WantParams[%{public}s]:type error =======", it.first.c_str());
+            ABILITYBASE_LOGE("=WantParams[%{public}s]:type error =======", it.first.c_str());
         }
     }
 }
@@ -1548,7 +1546,7 @@ void WantParams::CloseAllFd()
 {
     for (auto it : fds_) {
         if (it.second > 0) {
-            ABILITYBASE_LOGI("CloseAllFd fd:%{public}d.", it.second);
+            ABILITYBASE_LOGI("fd:%{public}d", it.second);
             close(it.second);
         }
         params_.erase(it.first);
@@ -1570,8 +1568,8 @@ void WantParams::DupAllFd()
         if (it.second > 0) {
             int dupFd = dup(it.second);
             if (dupFd > 0) {
-                WantParams wp;
                 params_.erase(it.first);
+                WantParams wp;
                 wp.SetParam(TYPE_PROPERTY, String::Box(FD));
                 wp.SetParam(VALUE_PROPERTY, Integer::Box(dupFd));
                 sptr<AAFwk::IWantParams> pWantParams = AAFwk::WantParamWrapper::Box(wp);

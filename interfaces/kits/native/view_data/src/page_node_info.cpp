@@ -26,6 +26,7 @@ constexpr const char* PAGE_NODE_INFO_TAG = "tag";
 constexpr const char* PAGE_NODE_INFO_VALUE = "value";
 constexpr const char* PAGE_NODE_INFO_PLACEHOLDER = "placeholder";
 constexpr const char* PAGE_NODE_INFO_PASSWORD_RULES = "passwordRules";
+constexpr const char* PAGE_NODE_INFO_META_DATA = "metadata";
 constexpr const char* PAGE_NODE_INFO_ENABLE_AUTO_FILL = "enableAutoFill";
 constexpr const char* PAGE_NODE_INFO_RECT = "rect";
 constexpr const char* PAGE_NODE_INFO_IS_FOCUS = "isFocus";
@@ -34,7 +35,7 @@ void PageNodeInfo::FromJsonString(const std::string& jsonStr)
 {
     nlohmann::json jsonObject = nlohmann::json::parse(jsonStr, nullptr, false);
     if (jsonObject.is_discarded()) {
-        ABILITYBASE_LOGE("Failed to parse json string.");
+        ABILITYBASE_LOGE("json parse failed");
         return;
     }
     if (jsonObject.contains(PAGE_NODE_INFO_ID) && jsonObject[PAGE_NODE_INFO_ID].is_number()) {
@@ -58,6 +59,9 @@ void PageNodeInfo::FromJsonString(const std::string& jsonStr)
     if (jsonObject.contains(PAGE_NODE_INFO_PASSWORD_RULES) && jsonObject[PAGE_NODE_INFO_PASSWORD_RULES].is_string()) {
         passwordRules = jsonObject.at(PAGE_NODE_INFO_PASSWORD_RULES).get<std::string>();
     }
+    if (jsonObject.contains(PAGE_NODE_INFO_META_DATA) && jsonObject[PAGE_NODE_INFO_META_DATA].is_string()) {
+        metadata = jsonObject.at(PAGE_NODE_INFO_META_DATA).get<std::string>();
+    }
     if (jsonObject.contains(PAGE_NODE_INFO_ENABLE_AUTO_FILL) &&
         jsonObject[PAGE_NODE_INFO_ENABLE_AUTO_FILL].is_boolean()) {
         enableAutoFill = jsonObject.at(PAGE_NODE_INFO_ENABLE_AUTO_FILL).get<bool>();
@@ -68,7 +72,7 @@ void PageNodeInfo::FromJsonString(const std::string& jsonStr)
 void PageNodeInfo::ParseJsonToPageNodeInfo(const nlohmann::json& jsonObject)
 {
     if (jsonObject.is_discarded()) {
-        ABILITYBASE_LOGE("Failed to parse json string.");
+        ABILITYBASE_LOGE("json parse failed");
         return;
     }
     if (jsonObject.contains(PAGE_NODE_INFO_RECT)) {
@@ -89,6 +93,7 @@ std::string PageNodeInfo::ToJsonString() const
         {PAGE_NODE_INFO_VALUE, value},
         {PAGE_NODE_INFO_PLACEHOLDER, placeholder},
         {PAGE_NODE_INFO_PASSWORD_RULES, passwordRules},
+        {PAGE_NODE_INFO_META_DATA, metadata},
         {PAGE_NODE_INFO_ENABLE_AUTO_FILL, enableAutoFill},
         {PAGE_NODE_INFO_RECT, rect.ToJsonString()},
         {PAGE_NODE_INFO_IS_FOCUS, isFocus}

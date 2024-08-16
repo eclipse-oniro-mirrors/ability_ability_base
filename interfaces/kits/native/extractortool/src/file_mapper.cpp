@@ -66,7 +66,7 @@ bool FileMapper::CreateFileMapper(const std::string &fileName, bool compress,
     basePtr_ = (uint8_t*)mmap(nullptr, baseLen_, PROT_READ,
         mmapFlag, fd, adjOffset);
     if (basePtr_ == MAP_FAILED) {
-        ABILITYBASE_LOGE("CreateFileMapper, mmap failed, errno[%{public}d]. fileName: %{public}s, "
+        ABILITYBASE_LOGE("mmap failed, errno[%{public}d]. fileName: %{public}s, "
             "offset: %{public}zu, pageSize: %{public}ld, mmapFlag: %{public}d",
             errno, fileName.c_str(), offset, g_pageSize, mmapFlag);
         baseLen_ = 0;
@@ -96,7 +96,7 @@ bool FileMapper::CreateFileMapper(std::shared_ptr<ZipFileReader> fileReader, con
 
     dataPtr_ = std::make_unique<uint8_t[]>(len);
     if (!fileReader->ReadBuffer(dataPtr_.get(), offset, len)) {
-        ABILITYBASE_LOGE("CreateFileMapper, read failed, len[%{public}zu]. fileName: %{public}s, "
+        ABILITYBASE_LOGE("read failed, len[%{public}zu]. fileName: %{public}s, "
             "offset: %{public}zu", len, fileName.c_str(), offset);
         dataPtr_.reset();
         return false;

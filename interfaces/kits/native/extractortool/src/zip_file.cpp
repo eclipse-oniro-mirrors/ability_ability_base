@@ -120,7 +120,7 @@ ZipFile::~ZipFile()
 void ZipFile::SetContentLocation(const ZipPos start, const size_t length)
 {
     if (isOpen_) {
-        ABILITYBASE_LOGE("file has been opened already.");
+        ABILITYBASE_LOGE("opened");
         return;
     }
     fileStartPos_ = start;
@@ -135,7 +135,11 @@ bool ZipFile::CheckEndDir(const EndDir &endDir) const
         (endDir.commentLen != 0) ||
         // central dir can't overlap end of central dir
         ((endDir.offset + endDir.sizeOfCentralDir + lenEndDir) > fileLength_)) {
-        ABILITYBASE_LOGE("end dir format error");
+        ABILITYBASE_LOGW("failed:fileLen: %{public}llu, signature: %{public}u, numDisk: %{public}hu, "
+            "startDiskOfCentralDir: %{public}hu, totalEntriesInThisDisk: %{public}hu, totalEntries: %{public}hu, "
+            "sizeOfCentralDir: %{public}u, offset: %{public}u, commentLen: %{public}hu",
+            fileLength_, endDir.signature, endDir.numDisk, endDir.startDiskOfCentralDir, endDir.totalEntriesInThisDisk,
+            endDir.totalEntries, endDir.sizeOfCentralDir, endDir.offset, endDir.commentLen);
         return false;
     }
     return true;
@@ -147,14 +151,14 @@ bool ZipFile::ParseEndDirectory()
     size_t endFilePos = fileStartPos_ + fileLength_;
 
     if (fileLength_ <= endDirLen) {
-        ABILITYBASE_LOGE("parse EOCD file length(%{public}llu) <= end dir length(%{public}llu)",
+        ABILITYBASE_LOGE("fileStartPos_:(%{public}llu) <= fileLength_:(%{public}llu)",
             fileStartPos_, fileLength_);
         return false;
     }
 
     size_t eocdPos = endFilePos - endDirLen;
     if (!zipFileReader_->ReadBuffer(reinterpret_cast<uint8_t*>(&endDir_), eocdPos, sizeof(EndDir))) {
-        ABILITYBASE_LOGE("read EOCD struct failed.");
+        ABILITYBASE_LOGE("read EOCD failed");
         return false;
     }
 
@@ -166,18 +170,18 @@ bool ZipFile::ParseEndDirectory()
 bool ZipFile::ParseOneEntry(uint8_t* &entryPtr)
 {
     if (entryPtr == nullptr) {
-        ABILITYBASE_LOGE("Input entryPtr is nullptr.");
+        ABILITYBASE_LOGE("null entryPtr");
         return false;
     }
 
     CentralDirEntry directoryEntry;
     if (memcpy_s(&directoryEntry, sizeof(CentralDirEntry), entryPtr, sizeof(CentralDirEntry)) != EOK) {
-        ABILITYBASE_LOGE("Mem copy directory entry failed.");
+        ABILITYBASE_LOGE("Mem copy directory entry failed");
         return false;
     }
 
     if (directoryEntry.signature != CENTRAL_SIGNATURE) {
-        ABILITYBASE_LOGE("parse entry, check signature failed");
+        ABILITYBASE_LOGE("check signature failed");
         return false;
     }
 
@@ -185,7 +189,7 @@ bool ZipFile::ParseOneEntry(uint8_t* &entryPtr)
     size_t fileLength = (directoryEntry.nameSize >= MAX_FILE_NAME) ? (MAX_FILE_NAME - 1) : directoryEntry.nameSize;
     std::string fileName(fileLength, 0);
     if (memcpy_s(&(fileName[0]), fileLength, entryPtr, fileLength) != EOK) {
-        ABILITYBASE_LOGE("Mem copy file name failed.");
+        ABILITYBASE_LOGE("Mem copy file name failed");
         return false;
     }
 
@@ -198,7 +202,7 @@ bool ZipFile::ParseOneEntry(uint8_t* &entryPtr)
 
 std::shared_ptr<DirTreeNode> ZipFile::MakeDirTree() const
 {
-    ABILITYBASE_LOGI("called.");
+    ABILITYBASE_LOGI("called");
     auto root = std::make_shared<DirTreeNode>();
     root->isDir = true;
     for (const auto &[fileName, entry]: entriesMap_) {
@@ -222,10 +226,11 @@ std::shared_ptr<DirTreeNode> ZipFile::GetDirRoot()
 
 bool ZipFile::ParseAllEntries()
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto centralData = zipFileReader_->ReadBuffer(static_cast<size_t>(centralDirPos_),
         static_cast<size_t>(endDir_.sizeOfCentralDir));
     if (centralData.empty()) {
-        ABILITYBASE_LOGE("read central data for [%{public}s] failed.", pathName_.c_str());
+        ABILITYBASE_LOGE("centralData empty for [%{public}s] failed", pathName_.c_str());
         return false;
     }
 
@@ -233,7 +238,7 @@ bool ZipFile::ParseAllEntries()
     uint8_t *entryPtr = reinterpret_cast<uint8_t *>(centralData.data());
     for (uint16_t i = 0; i < endDir_.totalEntries; i++) {
         if (!ParseOneEntry(entryPtr)) {
-            ABILITYBASE_LOGE("Parse entry[%{public}d] failed.", i);
+            ABILITYBASE_LOGE("Parse entry[%{public}d] failed", i);
             ret = false;
             break;
         }
@@ -245,13 +250,13 @@ bool ZipFile::ParseAllEntries()
 bool ZipFile::Open()
 {
     if (isOpen_) {
-        ABILITYBASE_LOGE("has already opened");
+        ABILITYBASE_LOGE("opened");
         return true;
     }
 
     if (pathName_.length() > PATH_MAX) {
-        ABILITYBASE_LOGE("path length(%{public}u) longer than max path length(%{public}d)",
-            static_cast<unsigned int>(pathName_.length()), PATH_MAX);
+        ABILITYBASE_LOGE("failed:path length:%{public}u",
+            static_cast<unsigned int>(pathName_.length()));
         return false;
     }
     std::string realPath;
@@ -260,8 +265,9 @@ bool ZipFile::Open()
     if (pathName_.substr(0, Constants::GetProcPrefix().size()) == Constants::GetProcPrefix()) {
         realPath = pathName_;
     } else {
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "realpath_file");
         if (realpath(pathName_.c_str(), &(realPath[0])) == nullptr) {
-            ABILITYBASE_LOGE("transform real path error: %{public}d, pathName: %{public}s", errno, pathName_.c_str());
+            ABILITYBASE_LOGE("realpath error: %{public}d, pathName: %{public}s", errno, pathName_.c_str());
             return false;
         }
     }
@@ -276,7 +282,7 @@ bool ZipFile::Open()
         auto fileLength = zipFileReader_->GetFileLen();
         fileLength_ = static_cast<ZipPos>(fileLength);
         if (fileStartPos_ >= fileLength_) {
-            ABILITYBASE_LOGE("open start pos > length failed");
+            ABILITYBASE_LOGE("pos > length");
             zipFileReader_.reset();
             return false;
         }
@@ -296,7 +302,7 @@ bool ZipFile::Open()
 void ZipFile::Close()
 {
     if (!isOpen_ || zipFileReader_ == nullptr) {
-        ABILITYBASE_LOGD("file is not opened");
+        ABILITYBASE_LOGD("not opened");
         return;
     }
 
@@ -344,14 +350,14 @@ bool ZipFile::UseDirCache() const
 bool ZipFile::IsDirExist(const std::string &dir)
 {
     if (dir.empty()) {
-        ABILITYBASE_LOGE("target dir is empty");
+        ABILITYBASE_LOGE("dir empty");
         return false;
     }
     if (IsRootDir(dir)) {
         return true;
     }
     if (dir.find(WRONG_FILE_SEPARATOR) != std::string::npos) {
-        ABILITYBASE_LOGW("Wrong input format");
+        ABILITYBASE_LOGW("Wrong format");
         return false;
     }
 
@@ -380,7 +386,7 @@ bool ZipFile::IsDirExist(const std::string &dir)
 void ZipFile::GetAllFileList(const std::string &srcPath, std::vector<std::string> &assetList)
 {
     if (srcPath.empty()) {
-        ABILITYBASE_LOGW("target dir is empty");
+        ABILITYBASE_LOGW("empty dir");
         return;
     }
     if (IsRootDir(srcPath)) {
@@ -392,7 +398,7 @@ void ZipFile::GetAllFileList(const std::string &srcPath, std::vector<std::string
         return;
     }
     if (srcPath.find(WRONG_FILE_SEPARATOR) != std::string::npos) {
-        ABILITYBASE_LOGW("Wrong input format");
+        ABILITYBASE_LOGW("Wrong format");
         return;
     }
 
@@ -422,7 +428,7 @@ void ZipFile::GetAllFileList(const std::string &srcPath, std::vector<std::string
 void ZipFile::GetChildNames(const std::string &srcPath, std::set<std::string> &fileSet)
 {
     if (srcPath.empty()) {
-        ABILITYBASE_LOGE("target dir is empty");
+        ABILITYBASE_LOGE("empty dir");
         return;
     }
     if (srcPath.find(WRONG_FILE_SEPARATOR) != std::string::npos) {
@@ -458,7 +464,7 @@ bool ZipFile::IsDirExistCache(const std::string &dir)
 {
     auto parent = GetDirRoot();
     if (parent == nullptr) {
-        ABILITYBASE_LOGE("dir root is null");
+        ABILITYBASE_LOGE("null parent");
         return false;
     }
     size_t cur = 0;
@@ -473,7 +479,7 @@ bool ZipFile::IsDirExistCache(const std::string &dir)
         auto nodeName = dir.substr(cur, next - cur);
         auto it = parent->children.find(nodeName);
         if (it == parent->children.end()) {
-            ABILITYBASE_LOGD("target dir not found, dir : %{public}s", dir.c_str());
+            ABILITYBASE_LOGD("dir not found, dir : %{public}s", dir.c_str());
             return false;
         }
         parent = it->second;
@@ -487,7 +493,7 @@ void ZipFile::GetAllFileListCache(const std::string &srcPath, std::vector<std::s
 {
     auto parent = GetDirRoot();
     if (parent == nullptr) {
-        ABILITYBASE_LOGE("dir root is null");
+        ABILITYBASE_LOGE("null parent");
         return;
     }
 
@@ -506,7 +512,7 @@ void ZipFile::GetAllFileListCache(const std::string &srcPath, std::vector<std::s
         auto nodeName = rootName.substr(cur, next - cur);
         auto it = parent->children.find(nodeName);
         if (it == parent->children.end()) {
-            ABILITYBASE_LOGI("target srcPath not found: %{public}s", rootName.c_str());
+            ABILITYBASE_LOGE("srcPath not found: %{public}s", rootName.c_str());
             return;
         }
         parent = it->second;
@@ -521,7 +527,7 @@ void ZipFile::GetChildNamesCache(const std::string &srcPath, std::set<std::strin
     size_t cur = 0;
     auto parent = GetDirRoot();
     if (parent == nullptr) {
-        ABILITYBASE_LOGE("dir root is null");
+        ABILITYBASE_LOGE("null parent");
         return;
     }
     do {
@@ -535,7 +541,7 @@ void ZipFile::GetChildNamesCache(const std::string &srcPath, std::set<std::strin
         auto nodeName = srcPath.substr(cur, next - cur);
         auto it = parent->children.find(nodeName);
         if (it == parent->children.end()) {
-            ABILITYBASE_LOGI("target srcPath not found: %{public}s", srcPath.c_str());
+            ABILITYBASE_LOGI("srcPath not found: %{public}s", srcPath.c_str());
             return;
         }
         parent = it->second;
@@ -623,12 +629,12 @@ bool ZipFile::CheckDataDesc(const ZipEntry &zipEntry, const LocalHeader &localHe
         descPos += fileStartPos_ + zipEntry.compressedSize;
 
         if (!zipFileReader_->ReadBuffer(reinterpret_cast<uint8_t*>(&dataDesc), descPos, sizeof(DataDesc))) {
-            ABILITYBASE_LOGE("check local header read datadesc failed");
+            ABILITYBASE_LOGE("ReadBuffer failed");
             return false;
         }
 
         if (dataDesc.signature != DATA_DESC_SIGNATURE) {
-            ABILITYBASE_LOGE("check local header check datadesc signature failed");
+            ABILITYBASE_LOGE("check signature failed");
             return false;
         }
 
@@ -643,7 +649,7 @@ bool ZipFile::CheckDataDesc(const ZipEntry &zipEntry, const LocalHeader &localHe
 
     if ((zipEntry.crc != crcLocal) || (zipEntry.compressedSize != compressedLocal) ||
         (zipEntry.uncompressedSize != uncompressedLocal)) {
-        ABILITYBASE_LOGE("check local header compressed size corrupted");
+        ABILITYBASE_LOGE("size corrupted");
         return false;
     }
 
@@ -654,7 +660,7 @@ bool ZipFile::CheckCoherencyLocalHeader(const ZipEntry &zipEntry, uint16_t &extr
 {
     // current only support store and Z_DEFLATED method
     if ((zipEntry.compressionMethod != Z_DEFLATED) && (zipEntry.compressionMethod != 0)) {
-        ABILITYBASE_LOGE("check local header compressionMethod(%{public}d) not support", zipEntry.compressionMethod);
+        ABILITYBASE_LOGE("compressionMethod(%{public}d) not support", zipEntry.compressionMethod);
         return false;
     }
 
@@ -674,17 +680,17 @@ bool ZipFile::CheckCoherencyLocalHeader(const ZipEntry &zipEntry, uint16_t &extr
     }
     if ((localHeader.signature != LOCAL_HEADER_SIGNATURE) ||
         (zipEntry.compressionMethod != localHeader.compressionMethod)) {
-        ABILITYBASE_LOGE("check local header signature or compressionMethod failed");
+        ABILITYBASE_LOGE("signature or compressionMethod failed");
         return false;
     }
 
     if (localHeader.nameSize != nameSize && nameSize < MAX_FILE_NAME - 1) {
-        ABILITYBASE_LOGE("check local header file name corrupted");
+        ABILITYBASE_LOGE("name corrupted");
         return false;
     }
     std::string fileName = buff.substr(sizeof(LocalHeader));
     if (zipEntry.fileName != fileName) {
-        ABILITYBASE_LOGE("check local header file name corrupted");
+        ABILITYBASE_LOGE("name corrupted");
         return false;
     }
 
@@ -715,7 +721,7 @@ bool ZipFile::UnzipWithStore(const ZipEntry &zipEntry, const uint16_t extraSize,
         size_t readLen = (remainSize > UNZIP_BUF_OUT_LEN) ? UNZIP_BUF_OUT_LEN : remainSize;
         std::string readBuffer = zipFileReader_->ReadBuffer(startPos, readLen);
         if (readBuffer.empty()) {
-            ABILITYBASE_LOGE("unzip store read failed, error");
+            ABILITYBASE_LOGE("unzip store read failed");
             return false;
         }
         remainSize -= readLen;
@@ -730,24 +736,24 @@ bool ZipFile::InitZStream(z_stream &zstream) const
 {
     // init zlib stream
     if (memset_s(&zstream, sizeof(z_stream), 0, sizeof(z_stream))) {
-        ABILITYBASE_LOGE("unzip stream buffer init failed");
+        ABILITYBASE_LOGE("stream buffer init failed");
         return false;
     }
     int32_t zlibErr = inflateInit2(&zstream, -MAX_WBITS);
     if (zlibErr != Z_OK) {
-        ABILITYBASE_LOGE("unzip inflated init failed");
+        ABILITYBASE_LOGE("init failed");
         return false;
     }
 
     BytePtr bufOut = new (std::nothrow) Byte[UNZIP_BUF_OUT_LEN];
     if (bufOut == nullptr) {
-        ABILITYBASE_LOGE("unzip inflated new out buffer failed");
+        ABILITYBASE_LOGE("null bufOut");
         return false;
     }
 
     BytePtr bufIn = new (std::nothrow) Byte[UNZIP_BUF_IN_LEN];
     if (bufIn == nullptr) {
-        ABILITYBASE_LOGE("unzip inflated new in buffer failed");
+        ABILITYBASE_LOGE("null bufIn");
         delete[] bufOut;
         return false;
     }
@@ -763,7 +769,7 @@ bool ZipFile::ReadZStream(const BytePtr &buffer, z_stream &zstream, uint32_t &re
     if (zstream.avail_in == 0) {
         size_t remainBytes = (remainCompressedSize > UNZIP_BUF_IN_LEN) ? UNZIP_BUF_IN_LEN : remainCompressedSize;
         if (!zipFileReader_->ReadBuffer(buffer, startPos, remainBytes)) {
-            ABILITYBASE_LOGE("unzip inflated read failed, error");
+            ABILITYBASE_LOGE("read failed");
             return false;
         }
 
@@ -800,7 +806,7 @@ bool ZipFile::UnzipWithInflated(const ZipEntry &zipEntry, const uint16_t extraSi
 
         zlibErr = inflate(&zstream, Z_SYNC_FLUSH);
         if ((zlibErr >= Z_OK) && (zstream.msg != nullptr)) {
-            ABILITYBASE_LOGE("unzip inflated inflate, fail: %{public}d, err msg: %{public}s", zlibErr, zstream.msg);
+            ABILITYBASE_LOGE("unzip failed: %{public}d, msg: %{public}s", zlibErr, zstream.msg);
             ret = false;
             break;
         }
@@ -815,7 +821,7 @@ bool ZipFile::UnzipWithInflated(const ZipEntry &zipEntry, const uint16_t extraSi
             errorTimes++;
         }
         if (errorTimes >= INFLATE_ERROR_TIMES) {
-            ABILITYBASE_LOGE("unzip inflated data is wrong!");
+            ABILITYBASE_LOGE("data is wrong");
             ret = false;
             break;
         }
@@ -824,7 +830,7 @@ bool ZipFile::UnzipWithInflated(const ZipEntry &zipEntry, const uint16_t extraSi
     // free all dynamically allocated data structures except the next_in and next_out for this stream.
     zlibErr = inflateEnd(&zstream);
     if (zlibErr != Z_OK) {
-        ABILITYBASE_LOGE("unzip inflateEnd error, error: %{public}d", zlibErr);
+        ABILITYBASE_LOGE("inflateEnd error: %{public}d", zlibErr);
         ret = false;
     }
 
@@ -848,7 +854,7 @@ bool ZipFile::GetDataOffsetRelative(const std::string &file, ZipPos &offset, uin
 {
     ZipEntry zipEntry;
     if (!GetEntry(file, zipEntry)) {
-        ABILITYBASE_LOGE("extract file: not find file");
+        ABILITYBASE_LOGE("not find file");
         return false;
     }
 
@@ -872,7 +878,7 @@ bool ZipFile::ExtractFile(const std::string &file, std::ostream &dest) const
 {
     ZipEntry zipEntry;
     if (!GetEntry(file, zipEntry)) {
-        ABILITYBASE_LOGE("extract file: not find file");
+        ABILITYBASE_LOGE("not find file");
         return false;
     }
 
@@ -890,21 +896,19 @@ bool ZipFile::ExtractFile(const std::string &file, std::ostream &dest) const
     }
 
     return ret;
-    ABILITYBASE_LOGD("ExtractFile end");
 }
 
 bool ZipFile::ExtractFileFromMMap(const std::string &file, void *mmapDataPtr,
     std::unique_ptr<uint8_t[]> &dataPtr, size_t &len) const
 {
-    ABILITYBASE_LOGI("ExtractFileFromMMap %{public}s.", file.c_str());
     ZipEntry zipEntry;
     if (!GetEntry(file, zipEntry)) {
-        ABILITYBASE_LOGE("extract file: not find file");
+        ABILITYBASE_LOGE("not find file");
         return false;
     }
 
     if (!zipEntry.compressionMethod) {
-        ABILITYBASE_LOGE("file[%{public}s] is not extracted.", file.c_str());
+        ABILITYBASE_LOGE("file[%{public}s] is not extracted", file.c_str());
         return false;
     }
 
@@ -925,7 +929,7 @@ bool ZipFile::UnzipWithInflatedFromMMap(const ZipEntry &zipEntry, const uint16_t
 {
     z_stream zstream;
     if (!InitZStream(zstream)) {
-        ABILITYBASE_LOGE("Init zstream failed.");
+        ABILITYBASE_LOGE("Init zstream failed");
         return false;
     }
 
@@ -951,7 +955,7 @@ bool ZipFile::UnzipWithInflatedFromMMap(const ZipEntry &zipEntry, const uint16_t
 
         zlibErr = inflate(&zstream, Z_SYNC_FLUSH);
         if ((zlibErr >= Z_OK) && (zstream.msg != nullptr)) {
-            ABILITYBASE_LOGE("unzip inflated inflate, error: %{public}d, err msg: %{public}s.", zlibErr, zstream.msg);
+            ABILITYBASE_LOGE("unzip error: %{public}d, msg: %{public}s", zlibErr, zstream.msg);
             ret = false;
             break;
         }
@@ -965,7 +969,7 @@ bool ZipFile::UnzipWithInflatedFromMMap(const ZipEntry &zipEntry, const uint16_t
     // free all dynamically allocated data structures except the next_in and next_out for this stream.
     zlibErr = inflateEnd(&zstream);
     if (zlibErr != Z_OK) {
-        ABILITYBASE_LOGE("unzip inflateEnd error, error: %{public}d", zlibErr);
+        ABILITYBASE_LOGE("inflateEnd error: %{public}d", zlibErr);
         ret = false;
     }
 
@@ -979,7 +983,7 @@ bool ZipFile::CopyInflateOut(z_stream &zstream, size_t inflateLen, uint8_t** dst
 {
     if (inflateLen > 0) {
         if (memcpy_s(*dstDataPtr, inflateLen, bufOut, inflateLen) != EOK) {
-            ABILITYBASE_LOGE("Mem copy failed!");
+            ABILITYBASE_LOGE("Mem copy failed");
             return false;
         }
 
@@ -991,7 +995,7 @@ bool ZipFile::CopyInflateOut(z_stream &zstream, size_t inflateLen, uint8_t** dst
         errorTimes++;
     }
     if (errorTimes >= INFLATE_ERROR_TIMES) {
-        ABILITYBASE_LOGE("unzip inflated data is abnormal!");
+        ABILITYBASE_LOGE("data is abnormal");
         return false;
     }
 
@@ -1002,7 +1006,7 @@ bool ZipFile::ReadZStreamFromMMap(const BytePtr &buffer, void* &dataPtr,
     z_stream &zstream, uint32_t &remainCompressedSize) const
 {
     if (!dataPtr) {
-        ABILITYBASE_LOGE("Input dataPtr is nullptr.");
+        ABILITYBASE_LOGE("null dataPtr");
         return false;
     }
 
@@ -1011,7 +1015,7 @@ bool ZipFile::ReadZStreamFromMMap(const BytePtr &buffer, void* &dataPtr,
         size_t remainBytes = (remainCompressedSize > UNZIP_BUF_IN_LEN) ? UNZIP_BUF_IN_LEN : remainCompressedSize;
         size_t readBytes = sizeof(Byte) * remainBytes;
         if (memcpy_s(buffer, readBytes, srcDataPtr, readBytes) != EOK) {
-            ABILITYBASE_LOGE("Mem copy failed.");
+            ABILITYBASE_LOGE("Mem copy failed");
             return false;
         }
         srcDataPtr += readBytes;
@@ -1027,19 +1031,19 @@ std::unique_ptr<FileMapper> ZipFile::CreateFileMapper(const std::string &fileNam
 {
     ZipEntry zipEntry;
     if (!GetEntry(fileName, zipEntry)) {
-        ABILITYBASE_LOGE("GetEntry failed hapPath %{public}s.", fileName.c_str());
+        ABILITYBASE_LOGE("GetEntry failed hapPath %{public}s", fileName.c_str());
         return nullptr;
     }
 
     ZipPos offset = 0;
     uint32_t length = 0;
     if (!GetDataOffsetRelative(zipEntry, offset, length)) {
-        ABILITYBASE_LOGE("GetDataOffsetRelative failed hapPath %{public}s.", fileName.c_str());
+        ABILITYBASE_LOGE("GetDataOffsetRelative failed hapPath %{public}s", fileName.c_str());
         return nullptr;
     }
     bool compress = zipEntry.compressionMethod > 0;
     if (type == FileMapperType::SAFE_ABC && compress) {
-        ABILITYBASE_LOGW("Entry is compressed for safe: %{public}s.", fileName.c_str());
+        ABILITYBASE_LOGW("Entry is compressed for safe: %{public}s", fileName.c_str());
     }
     std::unique_ptr<FileMapper> fileMapper = std::make_unique<FileMapper>();
     auto result = false;
@@ -1064,7 +1068,7 @@ bool ZipFile::ExtractToBufByName(const std::string &fileName, std::unique_ptr<ui
     ZipEntry zipEntry;
     if (!GetEntry(fileName, zipEntry)) {
         if (fileName.length() > MAP_FILE_SUFFIX && fileName.substr(fileName.length() - MAP_FILE_SUFFIX) != ".map") {
-            ABILITYBASE_LOGE("GetEntry failed hapPath %{public}s.", fileName.c_str());
+            ABILITYBASE_LOGE("GetEntry failed hapPath %{public}s", fileName.c_str());
         }
         return false;
     }
@@ -1078,7 +1082,7 @@ bool ZipFile::ExtractToBufByName(const std::string &fileName, std::unique_ptr<ui
     uint32_t length = zipEntry.compressedSize;
     auto dataTmp = std::make_unique<uint8_t[]>(length);
     if (!zipFileReader_->ReadBuffer(dataTmp.get(), offset, length)) {
-        ABILITYBASE_LOGE("read file failed, len[%{public}zu]. fileName: %{public}s, offset: %{public}zu",
+        ABILITYBASE_LOGE("read file failed, len[%{public}zu] fileName: %{public}s, offset: %{public}zu",
             len, fileName.c_str(), (size_t)offset);
         dataTmp.reset();
         return false;

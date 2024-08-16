@@ -28,7 +28,7 @@ std::string ZipFileReaderIo::ReadBuffer(size_t startPos, size_t bufferSize)
 {
     std::string result;
     if (fd_ < 0 || startPos >= fileLen_ || bufferSize > fileLen_ - startPos) {
-        ABILITYBASE_LOGW("failed: %{public}s, startPos: %{public}zu, bufferSize: %{public}zu, fileLen: %{public}zu",
+        ABILITYBASE_LOGE("failed: %{public}s, startPos: %{public}zu, bufferSize: %{public}zu, fileLen: %{public}zu",
             filePath_.c_str(), startPos, bufferSize, fileLen_);
         return result;
     }
@@ -44,7 +44,7 @@ std::string ZipFileReaderIo::ReadBuffer(size_t startPos, size_t bufferSize)
 bool ZipFileReaderIo::ReadBuffer(uint8_t *dst, size_t startPos, size_t bufferSize)
 {
     if (dst == nullptr || fd_ < 0 || startPos >= fileLen_ || bufferSize > fileLen_ - startPos) {
-        ABILITYBASE_LOGW("failed: %{public}s, startPos: %{public}zu, bufferSize: %{public}zu, fileLen: %{public}zu",
+        ABILITYBASE_LOGE("failed: %{public}s, startPos: %{public}zu, bufferSize: %{public}zu, fileLen: %{public}zu",
             filePath_.c_str(), startPos, bufferSize, fileLen_);
         return false;
     }
@@ -67,7 +67,7 @@ bool ZipFileReaderIo::ReadBuffer(uint8_t *dst, size_t startPos, size_t bufferSiz
     }
 
     if (bufferSize > BIG_FILE_SIZE) {
-        ABILITYBASE_LOGI("big file io success: %{public}zu", bufferSize);
+        ABILITYBASE_LOGW("big file io success: %{public}zu", bufferSize);
     }
     return true;
 }

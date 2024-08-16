@@ -43,6 +43,7 @@ public:
     std::string identityToken;
     int32_t persistentId = 0;
     uint32_t hostWindowId = 0;
+    int32_t realHostWindowId = 0;
     // Status of the UIAbility invoked by the StartABilityByCall
     CallToState state = CallToState::UNKNOW;
     // Returned resultCode of terminateSelfWithResult
@@ -60,7 +61,7 @@ public:
     bool isClearSession = false;
     uint32_t callingTokenId = 0;
     bool reuse = false;
-    bool hasContinuousTask = false;
+    bool canStartAbilityFromBackground = false;
     int32_t collaboratorType = 0;
     std::string sessionName = "";
     uint64_t uiExtensionComponentId = 0;
@@ -68,12 +69,14 @@ public:
     // To ensure security, this attribute must be rewritten on the server-side.
     UIExtensionUsage uiExtensionUsage = UIExtensionUsage::MODAL;
     bool isAtomicService = false;
+    bool isBackTransition = false;
 
 private:
     bool DoMarshallingOne(Parcel& parcel) const;
     bool DoMarshallingTwo(Parcel& parcel) const;
     bool DoMarshallingThree(Parcel& parcel) const;
     bool DoMarshallingFour(Parcel& parcel) const;
+    bool DoMarshallingFive(Parcel& parcel) const;
 };
 } // namespace AAFwk
 } // namespace OHOS
