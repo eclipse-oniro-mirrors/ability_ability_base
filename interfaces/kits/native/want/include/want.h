@@ -866,6 +866,9 @@ public:
     static const std::string PARAM_RESV_CALLER_TOKEN;
     static const std::string PARAM_RESV_CALLER_BUNDLE_NAME;
     static const std::string PARAM_RESV_CALLER_ABILITY_NAME;
+    static const std::string PARAM_RESV_CALLER_NATIVE_NAME;
+    static const std::string PARAM_RESV_CALLER_APP_ID;
+    static const std::string PARAM_RESV_CALLER_APP_IDENTIFIER;
     static const std::string PARAM_RESV_CALLER_UID;
     static const std::string PARAM_RESV_CALLER_PID;
     static const std::string PARAM_RESV_FOR_RESULT;
