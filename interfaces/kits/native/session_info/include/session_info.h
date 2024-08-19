@@ -70,6 +70,7 @@ public:
     UIExtensionUsage uiExtensionUsage = UIExtensionUsage::MODAL;
     bool isAtomicService = false;
     bool isBackTransition = false;
+    bool isSkipErms = false;
 
 private:
     bool DoMarshallingOne(Parcel& parcel) const;
