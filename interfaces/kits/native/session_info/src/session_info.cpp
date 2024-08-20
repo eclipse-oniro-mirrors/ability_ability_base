@@ -35,7 +35,11 @@ bool SessionInfo::Marshalling(Parcel& parcel) const
         return false;
     }
 
-    return DoMarshallingFour(parcel);
+    if (!DoMarshallingFour(parcel)) {
+        return false;
+    }
+
+    return DoMarshallingFive(parcel);
 }
 
 bool SessionInfo::DoMarshallingOne(Parcel& parcel) const
@@ -210,6 +214,15 @@ bool SessionInfo::DoMarshallingFour(Parcel& parcel) const
         return false;
     }
 
+    return true;
+}
+
+bool SessionInfo::DoMarshallingFive(Parcel& parcel) const
+{
+    if (!parcel.WriteBool(isBackTransition)) {
+        ABILITYBASE_LOGE("Write isBackTransition failed.");
+        return false;
+    }
     if (!parcel.WriteParcelable(&want)) {
         ABILITYBASE_LOGE("Write want failed");
         return false;
@@ -258,6 +271,7 @@ SessionInfo* SessionInfo::Unmarshalling(Parcel& parcel)
     info->isAsyncModalBinding = parcel.ReadBool();
     info->uiExtensionUsage = static_cast<UIExtensionUsage>(parcel.ReadUint32());
     info->isAtomicService = parcel.ReadBool();
+    info->isBackTransition = parcel.ReadBool();
 
     std::unique_ptr<Want> want(parcel.ReadParcelable<Want>());
     if (want != nullptr) {

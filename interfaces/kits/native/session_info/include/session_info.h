@@ -68,12 +68,14 @@ public:
     // To ensure security, this attribute must be rewritten on the server-side.
     UIExtensionUsage uiExtensionUsage = UIExtensionUsage::MODAL;
     bool isAtomicService = false;
+    bool isBackTransition = false;
 
 private:
     bool DoMarshallingOne(Parcel& parcel) const;
     bool DoMarshallingTwo(Parcel& parcel) const;
     bool DoMarshallingThree(Parcel& parcel) const;
     bool DoMarshallingFour(Parcel& parcel) const;
+    bool DoMarshallingFive(Parcel& parcel) const;
 };
 } // namespace AAFwk
 } // namespace OHOS
