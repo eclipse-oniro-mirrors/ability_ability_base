@@ -181,12 +181,6 @@ public:
      */
     void Close();
     /**
-     * @brief Set this zip content start offset and length in the zip file form pathName.
-     * @param start Indicates the zip content location start position.
-     * @param length Indicates the zip content length.
-     */
-    void SetContentLocation(const ZipPos start, const size_t length);
-    /**
      * @brief Get all entries in the zip file.
      * @param start Indicates the zip content location start position.
      * @param length Indicates the zip content length.
@@ -211,22 +205,7 @@ public:
      * @return Returns true if the ZipEntry is successfully finded; returns false otherwise.
      */
     bool GetEntry(const std::string &entryName, ZipEntry &resultEntry) const;
-    /**
-     * @brief Get data relative offset for file.
-     * @param file Indicates the entry name.
-     * @param offset Indicates the obtained offset.
-     * @param length Indicates the length.
-     * @return Returns true if this function is successfully called; returns false otherwise.
-     */
-    bool GetDataOffsetRelative(const std::string &file, ZipPos &offset, uint32_t &length) const;
-    /**
-     * @brief Get data relative offset for file.
-     * @param file Indicates the entry name.
-     * @param dest Indicates the obtained ostream object.
-     * @return Returns true if file is successfully extracted; returns false otherwise.
-     */
-    bool ExtractFile(const std::string &file, std::ostream &dest) const;
-
+    bool GetDataOffsetRelative(const ZipEntry &zipEntry, ZipPos &offset, uint32_t &length) const;
     bool ExtractFileFromMMap(const std::string &file, void *mmapDataPtr,
         std::unique_ptr<uint8_t[]> &dataPtr, size_t &len) const;
 
@@ -236,7 +215,6 @@ public:
     void SetCacheMode(CacheMode cacheMode);
     bool UseDirCache() const;
 private:
-    bool GetDataOffsetRelative(const ZipEntry &zipEntry, ZipPos &offset, uint32_t &length) const;
     /**
      * @brief Check the EndDir object.
      * @param endDir Indicates the EndDir object to check.
@@ -287,22 +265,6 @@ private:
      */
     bool CheckCoherencyLocalHeader(const ZipEntry &zipEntry, uint16_t &extraSize) const;
     /**
-     * @brief Unzip ZipEntry object to ostream.
-     * @param zipEntry Indicates the ZipEntry object.
-     * @param extraSize Indicates the size.
-     * @param dest Indicates the obtained ostream object.
-     * @return Returns true if successfully Unzip; returns false otherwise.
-     */
-    bool UnzipWithStore(const ZipEntry &zipEntry, const uint16_t extraSize, std::ostream &dest) const;
-    /**
-     * @brief Unzip ZipEntry object to ostream.
-     * @param zipEntry Indicates the ZipEntry object.
-     * @param extraSize Indicates the size.
-     * @param dest Indicates the obtained ostream object.
-     * @return Returns true if successfully Unzip; returns false otherwise.
-     */
-    bool UnzipWithInflated(const ZipEntry &zipEntry, const uint16_t extraSize, std::ostream &dest) const;
-    /**
      * @brief Get Entry start.
      * @param zipEntry Indicates the ZipEntry object.
      * @param extraSize Indicates the extra size.
@@ -315,15 +277,6 @@ private:
      * @return Returns true if successfully init; returns false otherwise.
      */
     bool InitZStream(z_stream &zstream) const;
-    /**
-     * @brief Read zlib stream.
-     * @param buffer Indicates the buffer to read.
-     * @param zstream Indicates the obtained z_stream object.
-     * @param remainCompressedSize Indicates the obtained size.
-     * @return Returns true if successfully read; returns false otherwise.
-     */
-    bool ReadZStream(const BytePtr &buffer, z_stream &zstream, uint32_t &remainCompressedSize, size_t &startPos) const;
-
     bool UnzipWithInflatedFromMMap(const ZipEntry &zipEntry, const uint16_t extraSize,
         void *mmapDataPtr, std::unique_ptr<uint8_t[]> &dataPtr, size_t &len) const;
     bool CopyInflateOut(z_stream &zstream, size_t inflateLen, uint8_t** dstDataPtr,

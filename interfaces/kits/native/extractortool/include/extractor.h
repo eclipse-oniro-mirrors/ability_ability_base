@@ -47,9 +47,8 @@ public:
      * @return Returns true if the file is successfully opened; returns false otherwise.
      */
     virtual bool Init();
-
     /**
-     * @brief Extract to dest stream by file name.
+     * @brief Deprecated, use ExtractToBufByName instead. Extract to dest stream by file name.
      * @param fileName Indicates the file name.
      * @param dest Indicates the obtained std::ostream object.
      * @return Returns true if the file extracted successfully; returns false otherwise.
@@ -68,13 +67,14 @@ public:
      */
     bool HasEntry(const std::string &fileName) const;
     bool IsDirExist(const std::string &dir);
-    bool IsStageBasedModel(std::string abilityName);
+    /**
+     * @brief deprecated, use ExtractToBufByName instead
+     */
     bool GetFileBuffer(const std::string& srcPath, std::ostringstream& dest);
     bool GetFileList(const std::string& srcPath, std::vector<std::string>& assetList);
     bool GetFileList(const std::string &srcPath, std::set<std::string> &fileSet);
-    bool IsSameHap(const std::string& hapPath) const;
 
-    std::unique_ptr<FileMapper> GetData(const std::string &fileName, bool safeRegion = false) const;
+    std::unique_ptr<FileMapper> GetData(const std::string &fileName) const;
     /**
      * Do not use this method unless you exactly know what you are doing.
      * For file item that user will handle errors, to mmap to safe region.
@@ -89,7 +89,7 @@ public:
 
     bool IsHapCompress(const std::string &fileName) const;
 
-    bool ExtractToBufByName(const std::string &fileName, std::unique_ptr<uint8_t[]> &dataPtr, size_t &len);
+    bool ExtractToBufByName(const std::string &fileName, std::unique_ptr<uint8_t[]> &dataPtr, size_t &len) const;
     /**
      * For abc file only, to mmap to safe region.
      */
