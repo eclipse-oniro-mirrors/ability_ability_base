@@ -40,6 +40,8 @@ std::string GetColorModeStr(int32_t colormode);
 
 std::string GetDirectionStr(int32_t height, int32_t width);
 
+std::string GetDirectionStr(int32_t orientation);
+
 std::string GetDensityStr(float density);
 } // namespace OHOS::AppExecFwk
 #endif  // OHOS_ABILITY_BASE_CONFIGURATION_CONVERTOR_H

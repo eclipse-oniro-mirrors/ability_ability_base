@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -228,10 +228,27 @@ bool SessionInfo::DoMarshallingFive(Parcel& parcel) const
         ABILITYBASE_LOGE("Write isBackTransition failed.");
         return false;
     }
+
     if (!parcel.WriteBool(isSkipErms)) {
         ABILITYBASE_LOGE("Write isSkipErms failed.");
         return false;
     }
+
+    if (!parcel.WriteUint64(displayId)) {
+        ABILITYBASE_LOGE("Write displayId failed.");
+        return false;
+    }
+
+    if (!parcel.WriteFloat(density)) {
+        ABILITYBASE_LOGE("Write density failed.");
+        return false;
+    }
+
+    if (!parcel.WriteInt32(orientation)) {
+        ABILITYBASE_LOGE("Write orientation failed.");
+        return false;
+    }
+
     if (!parcel.WriteParcelable(&want)) {
         ABILITYBASE_LOGE("Write want failed");
         return false;
@@ -283,6 +300,9 @@ SessionInfo* SessionInfo::Unmarshalling(Parcel& parcel)
     info->isAtomicService = parcel.ReadBool();
     info->isBackTransition = parcel.ReadBool();
     info->isSkipErms = parcel.ReadBool();
+    info->displayId = parcel.ReadUint64();
+    info->density = parcel.ReadFloat();
+    info->orientation = parcel.ReadInt32();
 
     std::unique_ptr<Want> want(parcel.ReadParcelable<Want>());
     if (want != nullptr) {
