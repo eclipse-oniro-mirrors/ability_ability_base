@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -206,6 +206,26 @@ std::string GetDirectionStr(Global::Resource::Direction direction)
 std::string GetDirectionStr(int32_t height, int32_t width)
 {
     return GetDirectionStr(ConvertDirection(height, width));
+}
+
+std::string GetDirectionStr(int32_t orientation)
+{
+    std::string ret("no_direction");
+
+    static const std::vector<std::pair<int32_t, std::string>> resolutions = {
+        { 0, ConfigurationInner::DIRECTION_VERTICAL },
+        { 1, ConfigurationInner::DIRECTION_HORIZONTAL },
+        { 2, ConfigurationInner::DIRECTION_VERTICAL },
+        { 3, ConfigurationInner::DIRECTION_HORIZONTAL },
+    };
+
+    for (const auto& [tempOrientation, value] : resolutions) {
+        if (tempOrientation == orientation) {
+            ret = value;
+            break;
+        }
+    }
+    return ret;
 }
 
 std::string GetDensityStr(Global::Resource::ScreenDensity density)

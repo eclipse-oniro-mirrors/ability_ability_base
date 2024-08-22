@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -64,13 +64,17 @@ public:
     bool canStartAbilityFromBackground = false;
     int32_t collaboratorType = 0;
     std::string sessionName = "";
-    uint64_t uiExtensionComponentId = 0;
     bool isAsyncModalBinding = false;
-    // To ensure security, this attribute must be rewritten on the server-side.
-    UIExtensionUsage uiExtensionUsage = UIExtensionUsage::MODAL;
     bool isAtomicService = false;
     bool isBackTransition = false;
     bool isSkipErms = false;
+    // The following attributes are used for UIExtension
+    // To ensure security, this attribute must be rewritten on the server-side.
+    UIExtensionUsage uiExtensionUsage = UIExtensionUsage::MODAL;
+    uint64_t uiExtensionComponentId = 0;
+    uint64_t displayId = 0;
+    float density = 0.0f;
+    int32_t orientation = 0;
 
 private:
     bool DoMarshallingOne(Parcel& parcel) const;
