@@ -133,6 +133,7 @@ HWTEST_F(AAfWKZcharWrapperTest, ZcharWrapperTest_WriteUTF8Bytes_001, TestSize.Le
     char *dst = new char [4];
     int32_t size = 4;
     zcharValue.WriteUTF8Bytes(dst, value, size);
+    EXPECT_EQ(1, zcharValue.GetByteSize(value));
 }
 
 /**
@@ -147,6 +148,7 @@ HWTEST_F(AAfWKZcharWrapperTest, ZcharWrapperTest_WriteUTF8Bytes_002, TestSize.Le
     char *dst = new char [4];
     int32_t size = 3;
     zcharValue.WriteUTF8Bytes(dst, value, size);
+    EXPECT_EQ(1, zcharValue.GetByteSize(value));
 }
 
 /**
@@ -161,6 +163,7 @@ HWTEST_F(AAfWKZcharWrapperTest, ZcharWrapperTest_WriteUTF8Bytes_003, TestSize.Le
     char *dst = new char [4];
     int32_t size = 2;
     zcharValue.WriteUTF8Bytes(dst, value, size);
+    EXPECT_EQ(1, zcharValue.GetByteSize(value));
 }
 
 /**
