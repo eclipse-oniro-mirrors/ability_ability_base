@@ -117,16 +117,6 @@ ZipFile::~ZipFile()
     Close();
 }
 
-void ZipFile::SetContentLocation(const ZipPos start, const size_t length)
-{
-    if (isOpen_) {
-        ABILITYBASE_LOGE("opened");
-        return;
-    }
-    fileStartPos_ = start;
-    fileLength_ = length;
-}
-
 bool ZipFile::CheckEndDir(const EndDir &endDir) const
 {
     size_t lenEndDir = sizeof(EndDir);
@@ -713,25 +703,6 @@ size_t ZipFile::GetEntryStart(const ZipEntry &zipEntry, const uint16_t extraSize
     return startOffset;
 }
 
-bool ZipFile::UnzipWithStore(const ZipEntry &zipEntry, const uint16_t extraSize, std::ostream &dest) const
-{
-    auto startPos = GetEntryStart(zipEntry, extraSize);
-    uint32_t remainSize = zipEntry.compressedSize;
-    while (remainSize > 0) {
-        size_t readLen = (remainSize > UNZIP_BUF_OUT_LEN) ? UNZIP_BUF_OUT_LEN : remainSize;
-        std::string readBuffer = zipFileReader_->ReadBuffer(startPos, readLen);
-        if (readBuffer.empty()) {
-            ABILITYBASE_LOGE("unzip store read failed");
-            return false;
-        }
-        remainSize -= readLen;
-        startPos += readLen;
-        dest.write(readBuffer.data(), readBuffer.length());
-    }
-
-    return true;
-}
-
 bool ZipFile::InitZStream(z_stream &zstream) const
 {
     // init zlib stream
@@ -763,82 +734,6 @@ bool ZipFile::InitZStream(z_stream &zstream) const
     return true;
 }
 
-bool ZipFile::ReadZStream(const BytePtr &buffer, z_stream &zstream, uint32_t &remainCompressedSize,
-    size_t &startPos) const
-{
-    if (zstream.avail_in == 0) {
-        size_t remainBytes = (remainCompressedSize > UNZIP_BUF_IN_LEN) ? UNZIP_BUF_IN_LEN : remainCompressedSize;
-        if (!zipFileReader_->ReadBuffer(buffer, startPos, remainBytes)) {
-            ABILITYBASE_LOGE("read failed");
-            return false;
-        }
-
-        remainCompressedSize -= remainBytes;
-        startPos += remainBytes;
-        zstream.avail_in = remainBytes;
-        zstream.next_in = buffer;
-    }
-    return true;
-}
-
-bool ZipFile::UnzipWithInflated(const ZipEntry &zipEntry, const uint16_t extraSize, std::ostream &dest) const
-{
-    z_stream zstream;
-    if (!InitZStream(zstream)) {
-        return false;
-    }
-
-    auto startPos = GetEntryStart(zipEntry, extraSize);
-
-    BytePtr bufIn = zstream.next_in;
-    BytePtr bufOut = zstream.next_out;
-
-    bool ret = true;
-    int32_t zlibErr = Z_OK;
-    uint32_t remainCompressedSize = zipEntry.compressedSize;
-    size_t inflateLen = 0;
-    uint8_t errorTimes = 0;
-    while ((remainCompressedSize > 0) || (zstream.avail_in > 0)) {
-        if (!ReadZStream(bufIn, zstream, remainCompressedSize, startPos)) {
-            ret = false;
-            break;
-        }
-
-        zlibErr = inflate(&zstream, Z_SYNC_FLUSH);
-        if ((zlibErr >= Z_OK) && (zstream.msg != nullptr)) {
-            ABILITYBASE_LOGE("unzip failed: %{public}d, msg: %{public}s", zlibErr, zstream.msg);
-            ret = false;
-            break;
-        }
-
-        inflateLen = UNZIP_BUF_OUT_LEN - zstream.avail_out;
-        if (inflateLen > 0) {
-            dest.write((const char *)bufOut, inflateLen);
-            zstream.next_out = bufOut;
-            zstream.avail_out = UNZIP_BUF_OUT_LEN;
-            errorTimes = 0;
-        } else {
-            errorTimes++;
-        }
-        if (errorTimes >= INFLATE_ERROR_TIMES) {
-            ABILITYBASE_LOGE("data is wrong");
-            ret = false;
-            break;
-        }
-    }
-
-    // free all dynamically allocated data structures except the next_in and next_out for this stream.
-    zlibErr = inflateEnd(&zstream);
-    if (zlibErr != Z_OK) {
-        ABILITYBASE_LOGE("inflateEnd error: %{public}d", zlibErr);
-        ret = false;
-    }
-
-    delete[] bufOut;
-    delete[] bufIn;
-    return ret;
-}
-
 ZipPos ZipFile::GetEntryDataOffset(const ZipEntry &zipEntry, const uint16_t extraSize) const
 {
     // get entry data offset relative file
@@ -848,17 +743,6 @@ ZipPos ZipFile::GetEntryDataOffset(const ZipEntry &zipEntry, const uint16_t extr
     offset += fileStartPos_;
 
     return offset;
-}
-
-bool ZipFile::GetDataOffsetRelative(const std::string &file, ZipPos &offset, uint32_t &length) const
-{
-    ZipEntry zipEntry;
-    if (!GetEntry(file, zipEntry)) {
-        ABILITYBASE_LOGE("not find file");
-        return false;
-    }
-
-    return GetDataOffsetRelative(zipEntry, offset, length);
 }
 
 bool ZipFile::GetDataOffsetRelative(const ZipEntry &zipEntry, ZipPos &offset, uint32_t &length) const
@@ -872,30 +756,6 @@ bool ZipFile::GetDataOffsetRelative(const ZipEntry &zipEntry, ZipPos &offset, ui
     offset = GetEntryDataOffset(zipEntry, extraSize);
     length = zipEntry.compressedSize;
     return true;
-}
-
-bool ZipFile::ExtractFile(const std::string &file, std::ostream &dest) const
-{
-    ZipEntry zipEntry;
-    if (!GetEntry(file, zipEntry)) {
-        ABILITYBASE_LOGE("not find file");
-        return false;
-    }
-
-    uint16_t extraSize = 0;
-    if (!CheckCoherencyLocalHeader(zipEntry, extraSize)) {
-        ABILITYBASE_LOGE("check coherency local header failed");
-        return false;
-    }
-
-    bool ret = true;
-    if (zipEntry.compressionMethod == 0) {
-        ret = UnzipWithStore(zipEntry, extraSize, dest);
-    } else {
-        ret = UnzipWithInflated(zipEntry, extraSize, dest);
-    }
-
-    return ret;
 }
 
 bool ZipFile::ExtractFileFromMMap(const std::string &file, void *mmapDataPtr,
@@ -918,10 +778,7 @@ bool ZipFile::ExtractFileFromMMap(const std::string &file, void *mmapDataPtr,
         return false;
     }
 
-    bool ret = false;
-    ret = UnzipWithInflatedFromMMap(zipEntry, extraSize, mmapDataPtr, dataPtr, len);
-
-    return ret;
+    return UnzipWithInflatedFromMMap(zipEntry, extraSize, mmapDataPtr, dataPtr, len);
 }
 
 bool ZipFile::UnzipWithInflatedFromMMap(const ZipEntry &zipEntry, const uint16_t extraSize,

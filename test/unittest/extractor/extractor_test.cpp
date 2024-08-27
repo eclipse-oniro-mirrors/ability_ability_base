@@ -446,45 +446,6 @@ HWTEST_F(ExtractorTest, GetSpecifiedTypeFiles_001, TestSize.Level1)
 
 /*
  * Feature: Extractor
- * Function: IsStageBasedModel
- * SubFunction: NA
- * FunctionPoints:Is stage based model
- * EnvConditions: NA
- * CaseDescription: Create extractor, call is stage based model function.
- */
-HWTEST_F(ExtractorTest, IsStageBasedModel_001, TestSize.Level1)
-{
-    std::shared_ptr<Extractor> extractor = std::make_shared<Extractor>(testPath_);
-    std::vector<std::string> fileList;
-    EXPECT_FALSE(extractor->IsStageBasedModel("MainAbility"));
-
-    extractor->Init();
-    EXPECT_FALSE(extractor->IsStageBasedModel("MainAbility"));
-}
-
-/*
- * Feature: Extractor
- * Function: IsSameHap
- * SubFunction: NA
- * FunctionPoints:Is same hap
- * EnvConditions: NA
- * CaseDescription: Create extractor, call is same hap function.
- */
-HWTEST_F(ExtractorTest, IsSameHap_001, TestSize.Level1)
-{
-    std::string loadPath;
-    std::shared_ptr<Extractor> extractor = std::make_shared<Extractor>(loadPath);
-    EXPECT_FALSE(extractor->IsSameHap(""));
-
-    std::shared_ptr<Extractor> extractor1 = std::make_shared<Extractor>(testPath_);
-    extractor1->Init();
-    EXPECT_FALSE(extractor1->IsSameHap(""));
-    EXPECT_FALSE(extractor1->IsSameHap(ERROR_HAP_PATH));
-    EXPECT_TRUE(extractor1->IsSameHap(testPath_));
-}
-
-/*
- * Feature: Extractor
  * Function: ExtractToBufByName
  * SubFunction: NA
  * EnvConditions: NA
@@ -510,7 +471,7 @@ HWTEST_F(ExtractorTest, GetData_001, TestSize.Level1)
 {
     std::shared_ptr<Extractor> extractor1 = std::make_shared<Extractor>(testPath_);
     std::string fileName = "www";
-    extractor1->GetData(fileName, false);
+    extractor1->GetData(fileName);
     extractor1->GetSafeData(fileName);
     bool res = extractor1->IsHapCompress(fileName);
     EXPECT_EQ(res, false);
@@ -529,28 +490,6 @@ HWTEST_F(ExtractorTest, SetGlobalObject_001, TestSize.Level1)
     std::shared_ptr<ExtractResourceManager> ers = std::make_shared<ExtractResourceManager>();
     ers->SetGlobalObject(resourceManager);
     EXPECT_EQ(ers->GetGlobalObject(), nullptr);
-}
-
-/*
- * Feature: ZipFile
- * Function: SetContentLocation
- * SubFunction: NA
- * EnvConditions: NA
- * CaseDescription: Create ZipFile, call SetContentLocation function.
- */
-HWTEST_F(ExtractorTest, SetContentLocation_001, TestSize.Level1)
-{
-    std::shared_ptr<ZipFile> zipf = std::make_shared<ZipFile>(TEST_HAP_PATH);
-    ZipPos start = 0;
-    size_t length = 1;
-    zipf->SetContentLocation(start, length);
-    std::string srcPath = "srcPath";
-    std::set<std::string> fileSet;
-    zipf->GetChildNames(srcPath, fileSet);
-    std::string fileName = "www";
-    std::unique_ptr<uint8_t[]> dataPtr = std::make_unique<uint8_t[]>(length);
-    bool ret = zipf->ExtractFileFromMMap(fileName, nullptr, dataPtr, length);
-    EXPECT_EQ(ret, false);
 }
 }  // namespace AbilityBase
 }  // namespace OHOS

@@ -50,22 +50,14 @@ bool Extractor::Init()
 
 bool Extractor::GetFileBuffer(const std::string& srcPath, std::ostringstream& dest)
 {
-    if (!initial_) {
-        ABILITYBASE_LOGE("not init");
+    std::unique_ptr<uint8_t[]> data;
+    size_t dataLen = 0;
+
+    if (!ExtractToBufByName(srcPath, data, dataLen)) {
         return false;
     }
 
-    if (srcPath.empty()) {
-        ABILITYBASE_LOGE("empty srcPath");
-        return false;
-    }
-
-    std::string relativePath = GetRelativePath(srcPath);
-    if (!ExtractByName(relativePath, dest)) {
-        ABILITYBASE_LOGE("extract file failed");
-        return false;
-    }
-
+    dest.write(reinterpret_cast<char*>(data.get()), dataLen);
     return true;
 }
 
@@ -114,14 +106,13 @@ bool Extractor::IsDirExist(const std::string &dir)
 
 bool Extractor::ExtractByName(const std::string &fileName, std::ostream &dest) const
 {
-    if (!initial_) {
-        ABILITYBASE_LOGE("not init");
+    std::unique_ptr<uint8_t[]> data;
+    size_t dataLen = 0;
+    if (!ExtractToBufByName(fileName, data, dataLen)) {
+        ABILITYBASE_LOGE("ExtractFile fail: %{public}s", fileName.c_str());
         return false;
     }
-    if (!zipFile_.ExtractFile(fileName, dest)) {
-        ABILITYBASE_LOGE("not ExtractFile %{public}s", fileName.c_str());
-        return false;
-    }
+    dest.write(reinterpret_cast<char*>(data.get()), dataLen);
     return true;
 }
 
@@ -140,22 +131,7 @@ void Extractor::GetSpecifiedTypeFiles(std::vector<std::string> &fileNames, const
     }
 }
 
-bool Extractor::IsStageBasedModel(std::string abilityName)
-{
-    std::vector<std::string> splitStrs;
-    OHOS::SplitStr(abilityName, ".", splitStrs);
-    std::string name = splitStrs.empty() ? abilityName : splitStrs.back();
-    std::string entry = "assets/js/" + name + "/" + name + ".js";
-    bool isStageBasedModel = zipFile_.HasEntry(entry);
-    return isStageBasedModel;
-}
-
-bool Extractor::IsSameHap(const std::string& hapPath) const
-{
-    return !hapPath_.empty() && !hapPath.empty() && hapPath_ == hapPath;
-}
-
-std::unique_ptr<FileMapper> Extractor::GetData(const std::string &fileName, bool) const
+std::unique_ptr<FileMapper> Extractor::GetData(const std::string &fileName) const
 {
     std::string relativePath = GetRelativePath(fileName);
     return zipFile_.CreateFileMapper(relativePath, FileMapperType::NORMAL_MEM);
@@ -207,7 +183,7 @@ bool Extractor::IsStageModel()
 }
 
 bool Extractor::ExtractToBufByName(const std::string &fileName, std::unique_ptr<uint8_t[]> &dataPtr,
-    size_t &len)
+    size_t &len) const
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::string relativePath = GetRelativePath(fileName);
@@ -225,7 +201,7 @@ bool Extractor::GetFileInfo(const std::string &fileName, FileInfo &fileInfo) con
 
     ZipPos offset = 0;
     uint32_t length = 0;
-    if (!zipFile_.GetDataOffsetRelative(relativePath, offset, length)) {
+    if (!zipFile_.GetDataOffsetRelative(zipEntry, offset, length)) {
         ABILITYBASE_LOGE("GetDataOffsetRelative failed");
         return false;
     }

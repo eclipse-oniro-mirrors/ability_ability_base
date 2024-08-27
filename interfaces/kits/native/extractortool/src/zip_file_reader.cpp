@@ -22,12 +22,9 @@
 #include "constants.h"
 #include "hitrace_meter.h"
 #include "zip_file_reader_io.h"
-#include "zip_file_reader_mem.h"
 
 namespace OHOS {
 namespace AbilityBase {
-constexpr size_t MEM_MAX_FILE_SIZE = 1u;
-
 std::shared_ptr<ZipFileReader> ZipFileReader::CreateZipFileReader(const std::string &filePath)
 {
     size_t fileSize = GetFileLen(filePath);
@@ -36,13 +33,7 @@ std::shared_ptr<ZipFileReader> ZipFileReader::CreateZipFileReader(const std::str
         return nullptr;
     }
 
-    std::shared_ptr<ZipFileReader> result;
-    if (fileSize <= MEM_MAX_FILE_SIZE) {
-        result = std::make_shared<ZipFileReaderMem>(filePath);
-    } else {
-        result = std::make_shared<ZipFileReaderIo>(filePath);
-    }
-
+    std::shared_ptr<ZipFileReader> result = std::make_shared<ZipFileReaderIo>(filePath);
     result->fileLen_ = fileSize;
     if (result->init()) {
         return result;
