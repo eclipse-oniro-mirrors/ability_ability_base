@@ -28,8 +28,9 @@ namespace {
     static const std::string TJSON =
         "{\"autoFillType\":0,\"depth\":-1,\"enableAutoFill\":true,\"id\":-1,\"isFocus\":false,"
         "\"metadata\":\"\",\"passwordRules\":\"\",\"placeholder\":\"\","
-        "\"rect\":\"{\\\"height\\\":0.0,\\\"left\\\":0.0,\\\"top\\\":0.0,\\\"width\\\":0.0}\",\"tag\":\"\",\"value\":\"\"}";
- } // namespace   
+        "\"rect\":\"{\\\"height\\\":0.0,\\\"left\\\":0.0,\\\"top\\\":0.0,"
+        "\\\"width\\\":0.0}\",\"tag\":\"\",\"value\":\"\"}";
+} // namespace   
 
 class PageNodeInfoTest : public testing::Test {
 public:
