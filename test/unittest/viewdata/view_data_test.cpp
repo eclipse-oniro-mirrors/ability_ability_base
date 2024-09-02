@@ -61,6 +61,7 @@ HWTEST_F(ViewDataTest, FromJsonString_100, TestSize.Level1)
     std::shared_ptr<ViewData> viewdata = std::make_shared<ViewData>();
     EXPECT_TRUE(viewdata != nullptr);
     viewdata->FromJsonString(jsonStr);
+    viewdata->FromJsonString(TJSON);
     std::string ret = viewdata->ToJsonString();
     EXPECT_EQ(ret, TJSON);
 }
