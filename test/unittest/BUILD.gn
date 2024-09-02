@@ -486,6 +486,52 @@ ohos_unittest("view_data_test") {
   ]
 }
 
+ohos_unittest("rect_test") {
+  module_out_path = viewdata_output_path
+  sources = [ "viewdata/rect_test.cpp" ]
+
+  configs = [ ":viewdata_private_config" ]
+
+  deps = [
+    "//third_party/googletest:gtest_main",
+    "//third_party/zlib:shared_libz",
+  ]
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:session_info",
+    "ability_base:string_utils",
+    "ability_base:view_data",
+    "ability_base:want",
+    "ability_base:zuri",
+    "c_utils:utils",
+    "hilog:libhilog",
+  ]
+}
+
+ohos_unittest("page_node_info_test") {
+  module_out_path = viewdata_output_path
+  sources = [ "viewdata/page_node_info_test.cpp" ]
+
+  configs = [ ":viewdata_private_config" ]
+
+  deps = [
+    "//third_party/googletest:gtest_main",
+    "//third_party/zlib:shared_libz",
+  ]
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:session_info",
+    "ability_base:string_utils",
+    "ability_base:view_data",
+    "ability_base:want",
+    "ability_base:zuri",
+    "c_utils:utils",
+    "hilog:libhilog",
+  ]
+}
+
 ######################################################################
 
 group("unittest") {
@@ -514,5 +560,7 @@ group("unittest") {
     ":want_params_wrapper_test",
     ":want_test",
     ":zchar_wrapper_test",
+    ":rect_test",
+    ":page_node_info_test",
   ]
 }
