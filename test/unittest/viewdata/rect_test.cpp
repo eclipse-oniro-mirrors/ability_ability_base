@@ -25,8 +25,7 @@ using namespace testing::ext;
 namespace OHOS {
 namespace AbilityBase {
 namespace {
-    static const std::string TJSON =
-        "{\"height\":0.0,\"left\":0.0,\"top\":0.0,\"width\":0.0}";
+static const std::string TJSON = "{\"height\":0.0,\"left\":0.0,\"top\":0.0,\"width\":0.0}";
 } // namespace
 class RectTest : public testing::Test {
 public:
