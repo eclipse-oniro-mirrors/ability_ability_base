@@ -100,6 +100,12 @@ bool SessionInfo::DoMarshallingTwo(Parcel& parcel) const
         ABILITYBASE_LOGE("Write identityToken failed");
         return false;
     }
+
+    if (!parcel.WriteUint32(parentWindowType)) {
+        ABILITYBASE_LOGE("Write parent window type failed.");
+        return false;
+    }
+
     return true;
 }
 
@@ -276,6 +282,7 @@ SessionInfo* SessionInfo::Unmarshalling(Parcel& parcel)
     }
 
     info->identityToken = parcel.ReadString();
+    info->parentWindowType = parcel.ReadUint32();
     info->persistentId = parcel.ReadInt32();
     info->hostWindowId = parcel.ReadUint32();
     info->realHostWindowId = parcel.ReadInt32();
