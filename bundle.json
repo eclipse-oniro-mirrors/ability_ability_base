@@ -28,12 +28,13 @@
                 "hilog",
                 "hitrace",
                 "ipc",
-                "resource_management",
+                "resource_management"
+            ],
+            "third_party": [
                 "json",
                 "jsoncpp",
                 "zlib"
-            ],
-            "third_party": []
+            ]
         },
         "build": {
             "sub_component": [
