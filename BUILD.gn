@@ -92,7 +92,6 @@ ohos_shared_library("configuration") {
   external_deps = [
     "c_utils:utils",
     "hilog:libhilog",
-    "json:nlohmann_json_static",
   ]
 
   subsystem_name = "ability"
@@ -163,6 +162,7 @@ config("want_public_config") {
     "interfaces/kits/native/uri/include",
     "interfaces/kits/native/want/include",
     "${ability_base_innerapi_path}/log/include",
+    "//third_party/json/include",
   ]
 }
 
@@ -347,7 +347,6 @@ ohos_shared_library("extractortool") {
     "c_utils:utils",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
-    "json:nlohmann_json_static",
   ]
 
   subsystem_name = "ability"
