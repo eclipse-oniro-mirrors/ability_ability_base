@@ -32,6 +32,8 @@ config("base_all_dependent_config") {
 }
 
 ohos_shared_library("base") {
+  branch_protector_ret = "pac_ret"
+
   sources = [
     "interfaces/inner_api/base/src/base.cpp",
     "interfaces/inner_api/base/src/base_object.cpp",
@@ -76,6 +78,8 @@ config("configuration_sdk_config") {
 }
 
 ohos_shared_library("configuration") {
+  branch_protector_ret = "pac_ret"
+
   sources = [
     "interfaces/kits/native/configuration/src/configuration.cpp",
     "interfaces/kits/native/configuration/src/configuration_convertor.cpp",
@@ -118,6 +122,8 @@ config("zuri_all_dependent_config") {
 }
 
 ohos_shared_library("zuri") {
+  branch_protector_ret = "pac_ret"
+
   public_configs = [ ":zuri_config" ]
 
   all_dependent_configs = [ ":zuri_all_dependent_config" ]
@@ -174,6 +180,8 @@ config("want_all_dependent_config") {
 }
 
 ohos_shared_library("want") {
+  branch_protector_ret = "pac_ret"
+
   sources = [
     "interfaces/kits/native/want/src/array_wrapper.cpp",
     "interfaces/kits/native/want/src/element_name.cpp",
@@ -230,6 +238,8 @@ config("view_data_config") {
 }
 
 ohos_shared_library("view_data") {
+  branch_protector_ret = "pac_ret"
+
   sources = [
     "interfaces/kits/native/view_data/src/page_node_info.cpp",
     "interfaces/kits/native/view_data/src/rect.cpp",
@@ -255,6 +265,8 @@ config("session_info_all_dependent_config") {
 }
 
 ohos_shared_library("session_info") {
+  branch_protector_ret = "pac_ret"
+
   sources = [ "interfaces/kits/native/session_info/src/session_info.cpp" ]
 
   all_dependent_configs = [ ":session_info_all_dependent_config" ]
@@ -280,6 +292,8 @@ config("string_utils_config") {
 }
 
 ohos_shared_library("string_utils") {
+  branch_protector_ret = "pac_ret"
+
   if (is_mingw) {
     defines = [ "WINDOWS_PLATFORM" ]
   } else {
@@ -319,6 +333,8 @@ config("exceptions") {
 }
 
 ohos_shared_library("extractortool") {
+  branch_protector_ret = "pac_ret"
+
   sources = [
     "interfaces/kits/native/extractortool/src/extractor.cpp",
     "interfaces/kits/native/extractortool/src/file_mapper.cpp",
@@ -363,6 +379,8 @@ config("ability_extract_resource_manager_config") {
 }
 
 ohos_shared_library("extractresourcemanager") {
+  branch_protector_ret = "pac_ret"
+
   sources = [
     "interfaces/kits/native/extractortool/src/extract_resource_manager.cpp",
   ]
