@@ -15,7 +15,7 @@
 #ifndef OHOS_ABILITY_BASE_USER_OBJECT_WRAPPER_H
 #define OHOS_ABILITY_BASE_USER_OBJECT_WRAPPER_H
 #include <memory>
-#include "base_obj.h"
+#include "base_object.h"
 #include "refbase.h"
 
 namespace OHOS {

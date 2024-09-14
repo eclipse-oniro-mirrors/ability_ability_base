@@ -15,7 +15,7 @@
 #ifndef OHOS_ABILITY_BASE_ZCHAR_WRAPPER_H
 #define OHOS_ABILITY_BASE_ZCHAR_WRAPPER_H
 
-#include "base_obj.h"
+#include "base_object.h"
 #include "refbase.h"
 
 namespace OHOS {
