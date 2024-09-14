@@ -255,6 +255,11 @@ bool SessionInfo::DoMarshallingFive(Parcel& parcel) const
         return false;
     }
 
+    if (!parcel.WriteBool(needClearInNotShowRecent)) {
+        ABILITYBASE_LOGE("Write needClearInNotShowRecent failed");
+        return false;
+    }
+
     if (!parcel.WriteParcelable(&want)) {
         ABILITYBASE_LOGE("Write want failed");
         return false;
@@ -310,6 +315,7 @@ SessionInfo* SessionInfo::Unmarshalling(Parcel& parcel)
     info->displayId = parcel.ReadUint64();
     info->density = parcel.ReadFloat();
     info->orientation = parcel.ReadInt32();
+    info->needClearInNotShowRecent = parcel.ReadBool();
 
     std::unique_ptr<Want> want(parcel.ReadParcelable<Want>());
     if (want != nullptr) {

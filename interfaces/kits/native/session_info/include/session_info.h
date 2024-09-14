@@ -76,6 +76,7 @@ public:
     uint64_t displayId = 0;
     float density = 0.0f;
     int32_t orientation = 0;
+    bool needClearInNotShowRecent = false;
 
 private:
     bool DoMarshallingOne(Parcel& parcel) const;
