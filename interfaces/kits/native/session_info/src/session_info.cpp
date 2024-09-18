@@ -223,6 +223,12 @@ bool SessionInfo::DoMarshallingFive(Parcel& parcel) const
         ABILITYBASE_LOGE("Write isBackTransition failed.");
         return false;
     }
+
+    if (!parcel.WriteBool(needClearInNotShowRecent)) {
+        ABILITYBASE_LOGE("Write needClearInNotShowRecent failed");
+        return false;
+    }
+
     if (!parcel.WriteParcelable(&want)) {
         ABILITYBASE_LOGE("Write want failed");
         return false;
@@ -272,6 +278,7 @@ SessionInfo* SessionInfo::Unmarshalling(Parcel& parcel)
     info->uiExtensionUsage = static_cast<UIExtensionUsage>(parcel.ReadUint32());
     info->isAtomicService = parcel.ReadBool();
     info->isBackTransition = parcel.ReadBool();
+    info->needClearInNotShowRecent = parcel.ReadBool();
 
     std::unique_ptr<Want> want(parcel.ReadParcelable<Want>());
     if (want != nullptr) {
