@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "base_obj.h"
+#include "base_object.h"
 
 #include <cstdio>
 

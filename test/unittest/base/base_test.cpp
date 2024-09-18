@@ -16,7 +16,7 @@
 #include <gtest/gtest.h>
 #include "light_refbase.h"
 #include "base_def.h"
-#include "base_obj.h"
+#include "base_object.h"
 #include "bool_wrapper.h"
 #include "zchar_wrapper.h"
 #include "byte_wrapper.h"
