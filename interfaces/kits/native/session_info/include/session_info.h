@@ -69,6 +69,7 @@ public:
     UIExtensionUsage uiExtensionUsage = UIExtensionUsage::MODAL;
     bool isAtomicService = false;
     bool isBackTransition = false;
+    bool needClearInNotShowRecent = false;
 
 private:
     bool DoMarshallingOne(Parcel& parcel) const;
