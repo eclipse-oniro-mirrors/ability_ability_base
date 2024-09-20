@@ -77,6 +77,7 @@ public:
     float density = 0.0f;
     int32_t orientation = 0;
     bool needClearInNotShowRecent = false;
+    std::string instanceKey = "";
 
 private:
     bool DoMarshallingOne(Parcel& parcel) const;
@@ -84,6 +85,7 @@ private:
     bool DoMarshallingThree(Parcel& parcel) const;
     bool DoMarshallingFour(Parcel& parcel) const;
     bool DoMarshallingFive(Parcel& parcel) const;
+    static SessionInfo* ReadParcelOne(SessionInfo* info, Parcel& parcel);
 };
 } // namespace AAFwk
 } // namespace OHOS

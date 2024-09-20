@@ -102,6 +102,8 @@ const std::string Want::PARAM_BACK_TO_OTHER_MISSION_STACK("ability.params.backTo
 
 const std::string Want::PARAM_APP_AUTO_STARTUP_LAUNCH_REASON("ability.params.appAutoStartupLaunch");
 const std::string Want::PARAM_APP_CLONE_INDEX_KEY("ohos.extra.param.key.appCloneIndex");
+const std::string Want::APP_INSTANCE_KEY("ohos.extra.param.key.appInstance");
+const std::string Want::CREATE_APP_INSTANCE_KEY("ohos.extra.param.key.createAppInstance");
 const std::string Want::PARAM_ATOMIC_SERVICE_PAGE_PATH("ohos.param.atomicservice.pagePath");
 const std::string Want::PARAM_ATOMIC_SERVICE_ROUTER_NAME("ohos.param.atomicservice.routerName");
 const std::string Want::PARAM_ATOMIC_SERVICE_PAGE_SOURCE_FILE("ohos.param.atomicservice.pageSourceFile");
