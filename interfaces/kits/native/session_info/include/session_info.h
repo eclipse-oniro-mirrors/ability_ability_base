@@ -70,6 +70,7 @@ public:
     bool isAtomicService = false;
     bool isBackTransition = false;
     bool needClearInNotShowRecent = false;
+    bool isMinimizedDuringFreeInstall = false;
 
 private:
     bool DoMarshallingOne(Parcel& parcel) const;
