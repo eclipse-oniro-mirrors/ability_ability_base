@@ -78,6 +78,7 @@ public:
     int32_t orientation = 0;
     bool needClearInNotShowRecent = false;
     std::string instanceKey = "";
+    bool isMinimizedDuringFreeInstall = false;
 
 private:
     bool DoMarshallingOne(Parcel& parcel) const;
