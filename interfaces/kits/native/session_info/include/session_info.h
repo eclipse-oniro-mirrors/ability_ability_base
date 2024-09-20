@@ -28,6 +28,7 @@ namespace OHOS {
 namespace AAFwk {
 class AbilityStartSetting;
 class ProcessOptions;
+class StartWindowOption;
 
 class SessionInfo : public Parcelable {
 public:
@@ -56,6 +57,7 @@ public:
     int64_t uiAbilityId = 0;
     std::shared_ptr<AbilityStartSetting> startSetting = nullptr;
     std::shared_ptr<ProcessOptions> processOptions = nullptr;
+    std::shared_ptr<StartWindowOption> startWindowOption = nullptr;
     Want want;
     int32_t userId = -1;
     bool isNewWant = true;

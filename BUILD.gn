@@ -256,6 +256,7 @@ ohos_shared_library("session_info") {
   external_deps = [
     "ability_runtime:ability_start_setting",
     "ability_runtime:process_options",
+    "ability_runtime:start_window_option",
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",
