@@ -22,10 +22,10 @@ namespace OHOS {
 namespace AAFwk {
 class Byte final : public Object, public IByte {
 public:
-    inline Byte(byte value) : value_(value)
+    Byte(byte value) : value_(value)
     {}
 
-    inline ~Byte()
+    ~Byte()
     {}
 
     IINTERFACE_DECL();

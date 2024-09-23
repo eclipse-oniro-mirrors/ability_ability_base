@@ -22,10 +22,10 @@ namespace OHOS {
 namespace AAFwk {
 class Integer final : public Object, public IInteger {
 public:
-    inline Integer(int value) : value_(value)
+    Integer(int value) : value_(value)
     {}
 
-    inline ~Integer()
+    ~Integer()
     {}
 
     IINTERFACE_DECL();

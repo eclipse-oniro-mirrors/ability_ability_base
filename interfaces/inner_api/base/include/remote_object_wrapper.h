@@ -24,9 +24,9 @@ namespace OHOS {
 namespace AAFwk {
 class RemoteObjectWrap final : public Object, public IRemoteObjectWrap {
 public:
-    inline RemoteObjectWrap(sptr<IRemoteObject> remoteObject);
+    RemoteObjectWrap(sptr<IRemoteObject> remoteObject);
 
-    inline ~RemoteObjectWrap()
+    ~RemoteObjectWrap()
     {}
 
     IINTERFACE_DECL();

@@ -22,10 +22,10 @@ namespace OHOS {
 namespace AAFwk {
 class Boolean final : public Object, public IBoolean {
 public:
-    inline Boolean(bool value) : value_(value)
+    Boolean(bool value) : value_(value)
     {}
 
-    inline ~Boolean()
+    ~Boolean()
     {}
 
     IINTERFACE_DECL();

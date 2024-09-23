@@ -22,10 +22,10 @@ namespace OHOS {
 namespace AAFwk {
 class Char final : public Object, public IChar {
 public:
-    inline Char(zchar value) : value_(value)
+    Char(zchar value) : value_(value)
     {}
 
-    inline ~Char()
+    ~Char()
     {}
 
     IINTERFACE_DECL();
@@ -59,11 +59,8 @@ private:
     static zchar GetCharInternal(const unsigned char *cur, /* [in] */
         int &size);                                        /* [in] */
 
-    static constexpr int MIN_CODE_POINT = 0x000000;
     static constexpr int MAX_CODE_POINT = 0x10FFFF;
     static constexpr int MIN_HIGH_SURROGATE = 0xD800;
-    static constexpr int MAX_HIGH_SURROGATE = 0xDBFF;
-    static constexpr int MIN_LOW_SURROGATE = 0xDC00;
     static constexpr int MAX_LOW_SURROGATE = 0xDFFF;
 
     static constexpr int BYTE_COUNT_1 = 1;

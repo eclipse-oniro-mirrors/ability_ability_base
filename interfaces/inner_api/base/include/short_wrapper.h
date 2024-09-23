@@ -22,10 +22,10 @@ namespace OHOS {
 namespace AAFwk {
 class Short final : public Object, public IShort {
 public:
-    inline Short(short value) : value_(value)
+    Short(short value) : value_(value)
     {}
 
-    inline ~Short()
+    ~Short()
     {}
 
     IINTERFACE_DECL();

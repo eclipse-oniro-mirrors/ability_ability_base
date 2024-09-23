@@ -22,10 +22,10 @@ namespace OHOS {
 namespace AAFwk {
 class Double final : public Object, public IDouble {
 public:
-    inline Double(double value) : value_(value)
+    Double(double value) : value_(value)
     {}
 
-    inline ~Double()
+    ~Double()
     {}
 
     IINTERFACE_DECL();

@@ -22,10 +22,10 @@ namespace OHOS {
 namespace AAFwk {
 class Float final : public Object, public IFloat {
 public:
-    inline Float(float value) : value_(value)
+    Float(float value) : value_(value)
     {}
 
-    inline ~Float()
+    ~Float()
     {}
 
     IINTERFACE_DECL();

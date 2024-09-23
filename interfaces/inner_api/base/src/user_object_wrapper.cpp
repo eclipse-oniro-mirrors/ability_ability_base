@@ -54,7 +54,7 @@ std::string UserObject::ToString()
 sptr<IUserObject> UserObject::Box(const std::shared_ptr<UserObjectBase> &value)
 {
     if (value != nullptr) {
-        sptr<IUserObject> object = new (std::nothrow) UserObject(value);
+        sptr<IUserObject> object = sptr<UserObject>::MakeSptr(value);
         return object;
     } else {
         return nullptr;
@@ -92,7 +92,7 @@ sptr<IUserObject> UserObject::Parse(const std::string &str)
         static_cast<UserObjectBase *>(UserObjectBaseLoader::GetInstance().GetUserObjectByName(className));
     if (userObjectBase != nullptr) {
         userObjectBase->Parse(content);
-        sptr<IUserObject> ret = new UserObject(std::shared_ptr<UserObjectBase>(userObjectBase));
+        sptr<IUserObject> ret = sptr<UserObject>::MakeSptr(std::shared_ptr<UserObjectBase>(userObjectBase));
         return ret;
     }
     return nullptr;
@@ -104,26 +104,15 @@ UserObjectBaseLoader &UserObjectBaseLoader::GetInstance(void)
     return gUserObjectBaseLoader;
 }
 
-/**
- * @brief Registered user-defined serialization class.
- * @param objectName The name of the custom class.
- * @param createFun Function object that creates an instance of a custom class.
- */
 void UserObjectBaseLoader::RegisterUserObject(const std::string &objectName, const CreateUserObjectBase &createFun)
 {
-    register_class_list_.emplace(objectName, createFun);
+    registerClassList_.emplace(objectName, createFun);
 }
 
-/**
- * @brief Represents obtaining an instance of an object of a registered serialization class.
- * @param className The name of the custom class.
- *
- * @return Returns an instance of the object, or nullptr on failure.
- */
 UserObjectBase *UserObjectBaseLoader::GetUserObjectByName(const std::string &className)
 {
-    auto iter = register_class_list_.find(className);
-    if (iter != register_class_list_.end()) {
+    auto iter = registerClassList_.find(className);
+    if (iter != registerClassList_.end()) {
         return iter->second();
     } else {
         return nullptr;
