@@ -40,7 +40,7 @@ std::string Long::ToString()
 
 sptr<ILong> Long::Box(long value) /* [in] */
 {
-    sptr<ILong> object = new Long(value);
+    sptr<ILong> object = sptr<Long>::MakeSptr(value);
     return object;
 }
 
@@ -57,7 +57,7 @@ sptr<ILong> Long::Parse(const std::string &str) /* [in] */
     std::size_t idx;
     long value = std::stol(str, &idx);
     if (idx != 0) {
-        object = new Long(value);
+        object = sptr<Long>::MakeSptr(value);
     }
     return object;
 }

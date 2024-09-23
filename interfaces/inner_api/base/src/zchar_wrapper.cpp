@@ -19,7 +19,7 @@ namespace OHOS {
 namespace AAFwk {
 IINTERFACE_IMPL_1(Char, Object, IChar);
 
-ErrCode Char::GetValue(zchar &value) /* [out] */
+ErrCode Char::GetValue(zchar &value)
 {
     VALIDATE_NOT_NULL(&value);
 
@@ -27,7 +27,7 @@ ErrCode Char::GetValue(zchar &value) /* [out] */
     return ERR_OK;
 }
 
-bool Char::Equals(IObject &other) /* [in] */
+bool Char::Equals(IObject &other)
 {
     Char *otherObj = static_cast<Char *>(IChar::Query(&other));
     return otherObj != nullptr && otherObj->value_ == value_;
@@ -44,25 +44,25 @@ std::string Char::ToString()
     return std::string(buf);
 }
 
-sptr<IChar> Char::Box(zchar value) /* [in] */
+sptr<IChar> Char::Box(zchar value)
 {
     sptr<IChar> object = new Char(value);
     return object;
 }
 
-zchar Char::Unbox(IChar *object) /* [in] */
+zchar Char::Unbox(IChar *object)
 {
     zchar value;
     object->GetValue(value);
     return value;
 }
 
-sptr<IChar> Char::Parse(const std::string &str) /* [in] */
+sptr<IChar> Char::Parse(const std::string &str)
 {
     return Box(GetChar(str, 0));
 }
 
-int Char::GetByteSize(zchar c) /* [in] */
+int Char::GetByteSize(zchar c)
 {
     if ((c > MAX_CODE_POINT) || (c >= MIN_HIGH_SURROGATE && c <= MAX_LOW_SURROGATE)) {
         return 0;
@@ -79,9 +79,9 @@ int Char::GetByteSize(zchar c) /* [in] */
     return bsize;
 }
 
-void Char::WriteUTF8Bytes(char *dst, /* [in] */
-    zchar c,                         /* [in] */
-    int size)                        /* [in] */
+void Char::WriteUTF8Bytes(char *dst,
+    zchar c,
+    int size)
 {
     uint32_t uc = static_cast<uint32_t>(c);
     dst += size;
@@ -111,8 +111,8 @@ void Char::WriteUTF8Bytes(char *dst, /* [in] */
     }
 }
 
-zchar Char::GetChar(const std::string &str, /* [in] */
-    int index)                              /* [in] */
+zchar Char::GetChar(const std::string &str,
+    int index)
 {
     if (str.empty() || index < 0) {
         return INVALID_CHAR;
@@ -126,7 +126,7 @@ zchar Char::GetChar(const std::string &str, /* [in] */
         if (bsize == 0 || p + bsize >= end) {
             break;
         }
-        
+
         if (index == 0) {
             return unicode;
         }
@@ -137,8 +137,8 @@ zchar Char::GetChar(const std::string &str, /* [in] */
     return INVALID_CHAR;
 }
 
-zchar Char::GetCharInternal(const unsigned char *cur, /* [in] */
-    int &size)                                        /* [in] */
+zchar Char::GetCharInternal(const unsigned char *cur,
+    int &size)
 {
     if (isascii(*cur) != 0) {
         size = 1;

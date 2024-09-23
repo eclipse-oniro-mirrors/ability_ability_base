@@ -40,7 +40,7 @@ std::string Short::ToString()
 
 sptr<IShort> Short::Box(short value) /* [in] */
 {
-    sptr<IShort> object = new Short(value);
+    sptr<IShort> object = sptr<Short>::MakeSptr(value);
     return object;
 }
 
@@ -57,7 +57,7 @@ sptr<IShort> Short::Parse(const std::string &str) /* [in] */
     std::size_t idx;
     short value = (short)std::stoi(str, &idx);
     if (idx != 0) {
-        object = new Short(value);
+        object = sptr<Short>::MakeSptr(value);
     }
     return object;
 }

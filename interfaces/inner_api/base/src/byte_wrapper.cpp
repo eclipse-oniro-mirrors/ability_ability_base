@@ -40,7 +40,7 @@ std::string Byte::ToString()
 
 sptr<IByte> Byte::Box(byte value) /* [in] */
 {
-    sptr<IByte> object = new Byte(value);
+    sptr<IByte> object = sptr<Byte>::MakeSptr(value);
     return object;
 }
 
@@ -57,7 +57,7 @@ sptr<IByte> Byte::Parse(const std::string &str) /* [in] */
     std::size_t idx;
     byte value = (byte)std::stoi(str, &idx);
     if (idx != 0) {
-        object = new Byte(value);
+        object = sptr<Byte>::MakeSptr(value);
     }
     return object;
 }
