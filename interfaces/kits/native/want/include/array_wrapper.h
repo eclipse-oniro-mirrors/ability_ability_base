@@ -27,7 +27,7 @@ class Array : public Object, public IArray {
 public:
     Array(long size, const InterfaceID &id);
 
-    inline ~Array()
+    ~Array()
     {}
 
     IINTERFACE_DECL();

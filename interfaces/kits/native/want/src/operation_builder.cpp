@@ -26,77 +26,49 @@ OperationBuilder::OperationBuilder()
 OperationBuilder::~OperationBuilder()
 {}
 
-/**
- * @description: Sets a AbilityName in an OperationBuilder.
- * @return Returns this OperationBuilder object containing the AbilityName.
- */
 OperationBuilder &OperationBuilder::WithAbilityName(const std::string &abilityName)
 {
     abilityName_ = abilityName;
     return *this;
 }
 
-/**
- * @description: Sets a BundleName in an OperationBuilder.
- * @return Returns this OperationBuilder object containing the BundleName.
- */
 OperationBuilder &OperationBuilder::WithBundleName(const std::string &bundleName)
 {
     bundleName_ = bundleName;
     return *this;
 }
 
-/**
- * @description: Sets a DeviceId in an OperationBuilder.
- * @return Returns this OperationBuilder object containing the DeviceId.
- */
 OperationBuilder &OperationBuilder::WithDeviceId(const std::string &deviceID)
 {
     deviceId_ = deviceID;
     return *this;
 }
 
-/**
- * @description: Sets a Action in an OperationBuilder.
- * @return Returns this OperationBuilder object containing the Action.
- */
 OperationBuilder &OperationBuilder::WithAction(const std::string &action)
 {
     action_ = action;
     return *this;
 }
 
-/**
- * @description: Sets a Entities in an OperationBuilder.
- * @return Returns this OperationBuilder object containing the Entities.
- */
 OperationBuilder &OperationBuilder::WithEntities(const std::vector<std::string> &entities)
 {
     entities_ = entities;
     return *this;
 }
 
-/**
- * @description: Sets a Flags in an OperationBuilder.
- * @return Returns this OperationBuilder object containing the Flags.
- */
-OperationBuilder &OperationBuilder::WithFlags(unsigned int flags)
+OperationBuilder &OperationBuilder::WithFlags(uint8_t flags)
 {
     flags_ = flags;
     return *this;
 }
 
-/**
- * @description: Sets a Uri in an OperationBuilder.
- * @return Returns this OperationBuilder object containing the Uri.
- */
 OperationBuilder &OperationBuilder::WithUri(const Uri &uri)
 {
     uri_ = uri;
     return *this;
 }
 
-std::shared_ptr<Operation> OperationBuilder::build()
+std::shared_ptr<Operation> OperationBuilder::Build()
 {
     std::shared_ptr<Operation> operation = std::make_shared<Operation>();
     operation->abilityName_ = abilityName_;

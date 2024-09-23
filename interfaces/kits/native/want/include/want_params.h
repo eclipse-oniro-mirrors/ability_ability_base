@@ -33,7 +33,7 @@ extern const char* REMOTE_OBJECT;
 extern const char* TYPE_PROPERTY;
 extern const char* VALUE_PROPERTY;
 
-enum ScreenMode : int32_t {
+enum ScreenMode : int8_t {
     IDLE_SCREEN_MODE = -1,
     JUMP_SCREEN_MODE = 0,
     EMBEDDED_FULL_SCREEN_MODE = 1,
@@ -63,7 +63,7 @@ public:
     WantParams() = default;
     WantParams(const WantParams &wantParams);
     WantParams(WantParams &&other) noexcept;
-    inline ~WantParams()
+    ~WantParams()
     {}
     WantParams &operator=(const WantParams &other);
     WantParams &operator=(WantParams &&other) noexcept;

@@ -38,42 +38,42 @@ public:
 
     bool operator==(const ElementName &element) const;
 
-    inline void SetDeviceID(const std::string &id)
+    void SetDeviceID(const std::string &id)
     {
         deviceId_ = id;
     }
 
-    inline std::string GetDeviceID() const
+    std::string GetDeviceID() const
     {
         return deviceId_;
     }
 
-    inline void SetBundleName(const std::string &name)
+    void SetBundleName(const std::string &name)
     {
         bundleName_ = name;
     }
 
-    inline std::string GetBundleName() const
+    std::string GetBundleName() const
     {
         return bundleName_;
     }
 
-    inline void SetAbilityName(const std::string &name)
+    void SetAbilityName(const std::string &name)
     {
         abilityName_ = name;
     }
 
-    inline std::string GetAbilityName() const
+    std::string GetAbilityName() const
     {
         return abilityName_;
     }
 
-    inline void SetModuleName(const std::string &moduleName)
+    void SetModuleName(const std::string &moduleName)
     {
         moduleName_ = moduleName;
     }
 
-    inline std::string GetModuleName() const
+    std::string GetModuleName() const
     {
         return moduleName_;
     }

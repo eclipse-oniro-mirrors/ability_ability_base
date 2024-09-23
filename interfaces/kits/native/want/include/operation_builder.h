@@ -62,14 +62,14 @@ public:
      * @description: Sets a Flags in an OperationBuilder.
      * @return Returns this OperationBuilder object containing the Flags.
      */
-    OperationBuilder &WithFlags(unsigned int flags);
+    OperationBuilder &WithFlags(uint8_t flags);
 
     /**
      * @description: Sets a Uri in an OperationBuilder.
      * @return Returns this OperationBuilder object containing the Uri.
      */
     OperationBuilder &WithUri(const Uri &uri);
-    std::shared_ptr<Operation> build();
+    std::shared_ptr<Operation> Build();
 
 private:
     std::string abilityName_ = "";
@@ -77,7 +77,7 @@ private:
     std::string bundleName_ = "";
     std::string deviceId_ = "";
     std::vector<std::string> entities_ = {};
-    unsigned int flags_ = 0;
+    uint8_t flags_ = 0;
     Uri uri_;
 };
 }  // namespace AAFwk
