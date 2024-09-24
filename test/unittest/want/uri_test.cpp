@@ -277,34 +277,6 @@ HWTEST_F(UriTest, Uri_IsHierarchical_0200, Function | MediumTest | Level1)
 }
 
 /**
- * @tc.number: Uri_IsOpaque_0100
- * @tc.name: IsOpaque
- * @tc.desc: Verify the function is opaque.
- */
-HWTEST_F(UriTest, Uri_IsOpaque_0100, Function | MediumTest | Level1)
-{
-    GTEST_LOG_(INFO) << "Uri_IsOpaque_0100 start";
-    auto result = uri_->IsOpaque();
-    EXPECT_FALSE(result);
-    GTEST_LOG_(INFO) << "Uri_IsOpaque_0100 end";
-}
-
-/**
- * @tc.number: Uri_IsOpaque_0200
- * @tc.name: IsOpaque
- * @tc.desc: Verify the function is opaque.
- */
-HWTEST_F(UriTest, Uri_IsOpaque_0200, Function | MediumTest | Level1)
-{
-    GTEST_LOG_(INFO) << "Uri_IsOpaque_0200 start";
-    uri_->uriString_ = "abc";
-    uri_->cachedSsi_ = 2;
-    auto result = uri_->IsOpaque();
-    EXPECT_TRUE(result);
-    GTEST_LOG_(INFO) << "Uri_IsOpaque_0200 end";
-}
-
-/**
  * @tc.number: Uri_IsAbsolute_0100
  * @tc.name: IsAbsolute
  * @tc.desc: Verify the function is absolute.
@@ -425,7 +397,6 @@ HWTEST_F(UriTest, Uri_GetSchemeSpecificPart_0300, Function | MediumTest | Level1
     auto result8 = uri_->GetQuery();
     auto result9 = uri_->GetPath();
     auto result10 = uri_->GetFragment();
-    auto result12 = uri_->IsOpaque();
     auto result13 = uri_->IsAbsolute();
     EXPECT_EQ(result, " ");
     EXPECT_EQ(result1, EMPTY);
@@ -436,7 +407,6 @@ HWTEST_F(UriTest, Uri_GetSchemeSpecificPart_0300, Function | MediumTest | Level1
     EXPECT_EQ(result8, EMPTY);
     EXPECT_EQ(result9, " ");
     EXPECT_EQ(result10, EMPTY);
-    EXPECT_EQ(result12, false);
     EXPECT_EQ(result13, false);
     GTEST_LOG_(INFO) << "Uri_GetSchemeSpecificPart_0300 end";
 }

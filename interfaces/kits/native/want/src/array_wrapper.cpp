@@ -53,9 +53,10 @@ ErrCode Array::Get(long index, /* [in] */
 
 ErrCode Array::GetLength(long &size) /* [out] */
 {
-    VALIDATE_NOT_NULL(&size);
-
     size = size_;
+    if (size_ < 0 || size_ > MAX_ARRAY_SIZE) {
+        return ERR_INVALID_VALUE;
+    }
     return ERR_OK;
 }
 
@@ -146,7 +147,7 @@ std::string Array::ToString()
 
 sptr<IArray> Array::ParseString(const std::string &values, long size)
 {
-    sptr<IArray> array = new (std::nothrow) Array(size, g_IID_IString);
+    sptr<IArray> array = sptr<Array>::MakeSptr(size, g_IID_IString);
     if (array != nullptr) {
         auto func = [](const std::string &str) -> sptr<IInterface> { return String::Parse(str); };
         ParseElement(array, func, values, size);
@@ -156,7 +157,7 @@ sptr<IArray> Array::ParseString(const std::string &values, long size)
 
 sptr<IArray> Array::ParseBoolean(const std::string &values, long size)
 {
-    sptr<IArray> array = new (std::nothrow) Array(size, g_IID_IBoolean);
+    sptr<IArray> array = sptr<Array>::MakeSptr(size, g_IID_IBoolean);
     if (array != nullptr) {
         auto func = [](const std::string &str) -> sptr<IInterface> { return Boolean::Parse(str); };
         ParseElement(array, func, values, size);
@@ -166,7 +167,7 @@ sptr<IArray> Array::ParseBoolean(const std::string &values, long size)
 
 sptr<IArray> Array::ParseByte(const std::string &values, long size)
 {
-    sptr<IArray> array = new (std::nothrow) Array(size, g_IID_IByte);
+    sptr<IArray> array = sptr<Array>::MakeSptr(size, g_IID_IByte);
     if (array != nullptr) {
         auto func = [](const std::string &str) -> sptr<IInterface> { return Byte::Parse(str); };
         ParseElement(array, func, values, size);
@@ -176,7 +177,7 @@ sptr<IArray> Array::ParseByte(const std::string &values, long size)
 
 sptr<IArray> Array::ParseShort(const std::string &values, long size)
 {
-    sptr<IArray> array = new (std::nothrow) Array(size, g_IID_IShort);
+    sptr<IArray> array = sptr<Array>::MakeSptr(size, g_IID_IShort);
     if (array != nullptr) {
         auto func = [](const std::string &str) -> sptr<IInterface> { return Short::Parse(str); };
         ParseElement(array, func, values, size);
@@ -186,7 +187,7 @@ sptr<IArray> Array::ParseShort(const std::string &values, long size)
 
 sptr<IArray> Array::ParseInteger(const std::string &values, long size)
 {
-    sptr<IArray> array = new (std::nothrow) Array(size, g_IID_IInteger);
+    sptr<IArray> array = sptr<Array>::MakeSptr(size, g_IID_IInteger);
     if (array != nullptr) {
         auto func = [](const std::string &str) -> sptr<IInterface> { return Integer::Parse(str); };
         ParseElement(array, func, values, size);
@@ -196,7 +197,7 @@ sptr<IArray> Array::ParseInteger(const std::string &values, long size)
 
 sptr<IArray> Array::ParseLong(const std::string &values, long size)
 {
-    sptr<IArray> array = new (std::nothrow) Array(size, g_IID_ILong);
+    sptr<IArray> array = sptr<Array>::MakeSptr(size, g_IID_ILong);
     if (array != nullptr) {
         auto func = [](const std::string &str) -> sptr<IInterface> { return Long::Parse(str); };
         ParseElement(array, func, values, size);
@@ -206,7 +207,7 @@ sptr<IArray> Array::ParseLong(const std::string &values, long size)
 
 sptr<IArray> Array::ParseFloat(const std::string &values, long size)
 {
-    sptr<IArray> array = new (std::nothrow) Array(size, g_IID_IFloat);
+    sptr<IArray> array = sptr<Array>::MakeSptr(size, g_IID_IFloat);
     if (array != nullptr) {
         auto func = [](const std::string &str) -> sptr<IInterface> { return Float::Parse(str); };
         ParseElement(array, func, values, size);
@@ -216,7 +217,7 @@ sptr<IArray> Array::ParseFloat(const std::string &values, long size)
 
 sptr<IArray> Array::ParseDouble(const std::string &values, long size)
 {
-    sptr<IArray> array = new (std::nothrow) Array(size, g_IID_IDouble);
+    sptr<IArray> array = sptr<Array>::MakeSptr(size, g_IID_IDouble);
     if (array != nullptr) {
         auto func = [](const std::string &str) -> sptr<IInterface> { return Double::Parse(str); };
         ParseElement(array, func, values, size);
@@ -225,7 +226,7 @@ sptr<IArray> Array::ParseDouble(const std::string &values, long size)
 }
 sptr<IArray> Array::ParseChar(const std::string &values, long size)
 {
-    sptr<IArray> array = new (std::nothrow) Array(size, g_IID_IChar);
+    sptr<IArray> array = sptr<Array>::MakeSptr(size, g_IID_IChar);
     if (array != nullptr) {
         auto func = [](const std::string &str) -> sptr<IInterface> { return Char::Parse(str); };
         ParseElement(array, func, values, size);
@@ -234,7 +235,7 @@ sptr<IArray> Array::ParseChar(const std::string &values, long size)
 }
 sptr<IArray> Array::ParseArray(const std::string &values, long size)
 {
-    sptr<IArray> array = new (std::nothrow) Array(size, g_IID_IArray);
+    sptr<IArray> array = sptr<Array>::MakeSptr(size, g_IID_IArray);
     if (array != nullptr) {
         auto func = [](const std::string &str) -> sptr<IInterface> { return Array::Parse(str); };
         ParseElement(array, func, values, size);
@@ -244,7 +245,7 @@ sptr<IArray> Array::ParseArray(const std::string &values, long size)
 
 sptr<IArray> Array::ParseWantParams(const std::string &values, long size)
 {
-    sptr<IArray> array = new (std::nothrow) Array(size, g_IID_IWantParams);
+    sptr<IArray> array = sptr<Array>::MakeSptr(size, g_IID_IWantParams);
     if (array != nullptr) {
         auto func = [](const std::string &str) -> sptr<IInterface> { return WantParamWrapper::Parse(str); };
         ParseElement(array, func, values, size);

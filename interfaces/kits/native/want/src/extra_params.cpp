@@ -69,7 +69,6 @@ bool ExtraParams::operator==(const ExtraParams &other) const
                     return false;
                 }
             }
-            return true;
         }
         return true;
     }
@@ -211,21 +210,19 @@ string ExtraParams::GetDescription() const
  */
 bool ExtraParams::Marshalling(Parcel &parcel) const
 {
-    bool ret = true;
     // devType
-    bool ret1 = parcel.WriteStringVector(devType_);
+    bool writeDevType = parcel.WriteStringVector(devType_);
 
     // targetBundleName
-    bool ret2 = parcel.WriteString16(Str8ToStr16(targetBundleName_));
+    bool writeTargetBundleName = parcel.WriteString16(Str8ToStr16(targetBundleName_));
 
     // description
-    bool ret3 = parcel.WriteString16(Str8ToStr16(description_));
+    bool writeDescription = parcel.WriteString16(Str8ToStr16(description_));
 
     // jsonParams
-    bool ret4 = parcel.WriteString16(Str8ToStr16(jsonParams_));
+    bool writeJsonParams = parcel.WriteString16(Str8ToStr16(jsonParams_));
 
-    ret = (ret1 && ret2 && ret3 && ret4) ? true : false;
-    return ret;
+    return writeDevType && writeTargetBundleName && writeDescription && writeJsonParams;
 }
 
 /**
