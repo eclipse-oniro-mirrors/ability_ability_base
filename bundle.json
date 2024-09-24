@@ -53,7 +53,6 @@
                         "double_wrapper.h",
                         "float_wrapper.h",
                         "int_wrapper.h",
-                        "light_refbase.h",
                         "long_wrapper.h",
                         "short_wrapper.h",
                         "string_wrapper.h"

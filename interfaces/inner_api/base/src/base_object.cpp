@@ -19,8 +19,6 @@
 
 #include "securec.h"
 
-#include "light_refbase.h"
-
 namespace OHOS {
 namespace AAFwk {
 const InterfaceID g_IID_IObject = {
@@ -35,7 +33,7 @@ const InterfaceID g_IID_IWeakReferenceSource = {
     0xbc3f5250, 0x34d7, 0x42d2, 0x9b40, {0xf, 0xf, 0xc, 0xe, 0x8, 0x3, 0xf, 0xd, 0x4, 0x0, 0x6, 0x1}
 };
 
-class WeakReferenceImpl final : public LightRefCountBase, public IWeakReference {
+class WeakReferenceImpl final : public RefCounter, public IWeakReference {
 public:
     WeakReferenceImpl(IInterface *object, WeakRefCounter *wkRef) : object_(object), wkRef_(wkRef)
     {}
@@ -60,12 +58,12 @@ private:
 
 void WeakReferenceImpl::IncStrongRef(const void *id)
 {
-    LightRefCountBase::IncStrongRef(id);
+    RefCounter::IncStrongRefCount(id);
 }
 
 void WeakReferenceImpl::DecStrongRef(const void *id)
 {
-    LightRefCountBase::DecStrongRef(id);
+    RefCounter::DecStrongRefCount(id);
 }
 
 IInterface *WeakReferenceImpl::Query(const InterfaceID &iid)
