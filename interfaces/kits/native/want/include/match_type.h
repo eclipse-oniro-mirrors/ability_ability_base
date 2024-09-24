@@ -12,11 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- #include <cstdint>
 
 #ifndef OHOS_ABILITY_BASE_MATCH_TYPE_H
 #define OHOS_ABILITY_BASE_MATCH_TYPE_H
 
+#include <cstdint>
 namespace OHOS {
 namespace AAFwk {
 enum class MatchType : uint8_t {
