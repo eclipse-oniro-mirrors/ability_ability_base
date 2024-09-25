@@ -69,8 +69,8 @@ bool ExtraParams::operator==(const ExtraParams &other) const
                     return false;
                 }
             }
+            return true;
         }
-        return true;
     }
     return false;
 }
