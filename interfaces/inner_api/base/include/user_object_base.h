@@ -21,17 +21,17 @@ namespace OHOS {
 namespace AAFwk {
 class UserObjectBase : public Parcelable {
 public:
-    UserObjectBase(const std::string &className) : class_name_(className)
+    UserObjectBase(const std::string &className) : className_(className)
     {}
     virtual ~UserObjectBase() = default;
 
-    inline void SetClassName(const std::string &className)
+    void SetClassName(const std::string &className)
     {
-        class_name_ = className;
+        className_ = className;
     }
-    inline std::string GetClassName(void)
+    std::string GetClassName(void)
     {
-        return class_name_;
+        return className_;
     }
     /**
      * @brief The current object parameter is converted to a string
@@ -82,7 +82,7 @@ public:
     }
 
 protected:
-    std::string class_name_;
+    std::string className_;
 };
 
 using CreateUserObjectBase = std::function<UserObjectBase *(void)>;
@@ -106,7 +106,7 @@ public:
     UserObjectBase *GetUserObjectByName(const std::string &className);
 
 private:
-    std::unordered_map<std::string, CreateUserObjectBase> register_class_list_;
+    std::unordered_map<std::string, CreateUserObjectBase> registerClassList_;
     UserObjectBaseLoader() = default;
     UserObjectBaseLoader(const UserObjectBaseLoader &) = delete;
     UserObjectBaseLoader &operator=(const UserObjectBaseLoader &) = delete;

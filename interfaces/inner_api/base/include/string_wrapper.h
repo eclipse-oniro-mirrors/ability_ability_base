@@ -22,10 +22,10 @@ namespace OHOS {
 namespace AAFwk {
 class String final : public Object, public IString {
 public:
-    inline String(const std::string &str) : string_(str)
+    String(const std::string &str) : string_(str)
     {}
 
-    inline ~String()
+    ~String()
     {}
 
     IINTERFACE_DECL();
