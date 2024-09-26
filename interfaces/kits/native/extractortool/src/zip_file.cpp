@@ -903,6 +903,10 @@ std::unique_ptr<FileMapper> ZipFile::CreateFileMapper(const std::string &fileNam
         ABILITYBASE_LOGW("Entry is compressed for safe: %{public}s", fileName.c_str());
     }
     std::unique_ptr<FileMapper> fileMapper = std::make_unique<FileMapper>();
+    if (zipFileReader_ == nullptr)  {
+        ABILITYBASE_LOGE("zipFileReader_ is nullptr");
+        return nullptr;
+    }
     auto result = false;
     if (type == FileMapperType::NORMAL_MEM) {
         result = fileMapper->CreateFileMapper(zipFileReader_, fileName, offset, length, compress);
@@ -934,7 +938,10 @@ bool ZipFile::ExtractToBufByName(const std::string &fileName, std::unique_ptr<ui
         ABILITYBASE_LOGE("check coherency local header failed");
         return false;
     }
-
+    if (zipFileReader_ == nullptr)  {
+        ABILITYBASE_LOGE("zipFileReader_ is nullptr");
+        return false;
+    }
     ZipPos offset = GetEntryDataOffset(zipEntry, extraSize);
     uint32_t length = zipEntry.compressedSize;
     auto dataTmp = std::make_unique<uint8_t[]>(length);

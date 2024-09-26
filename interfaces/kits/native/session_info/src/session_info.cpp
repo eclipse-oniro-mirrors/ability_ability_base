@@ -274,7 +274,11 @@ bool SessionInfo::DoMarshallingFive(Parcel& parcel) const
 
 SessionInfo* SessionInfo::Unmarshalling(Parcel& parcel)
 {
-    SessionInfo* info = new SessionInfo();
+    SessionInfo* info = new (std::nothrow) SessionInfo();
+    if (info == nullptr) {
+        ABILITYBASE_LOGE("new SessionInfo failed");
+        return nullptr;
+    }
     if (parcel.ReadBool()) {
         info->sessionToken = (static_cast<MessageParcel*>(&parcel))->ReadRemoteObject();
     }

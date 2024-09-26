@@ -236,6 +236,7 @@ std::string FindNpmPackageInPath(const std::string& npmPath)
 
     auto fileLen = stream.tellg();
     if (fileLen >= PATH_MAX) {
+        stream.close();
         return std::string();
     }
 
