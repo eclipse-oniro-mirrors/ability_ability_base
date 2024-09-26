@@ -22,7 +22,7 @@ namespace AAFwk {
 class WantParams;
 INTERFACE(IWantParams, a75b9db6 - 9813 - 4371 - 8848 - d2966ce6ec68)
 {
-    inline static IWantParams *Query(IInterface * object)
+    static IWantParams *Query(IInterface * object)
     {
         if (object == nullptr) {
             return nullptr;
@@ -34,15 +34,15 @@ INTERFACE(IWantParams, a75b9db6 - 9813 - 4371 - 8848 - d2966ce6ec68)
 };
 class WantParamWrapper final : public Object, public IWantParams {
 public:
-    inline WantParamWrapper(const WantParams &value) : wantParams_(value)
+    WantParamWrapper(const WantParams &value) : wantParams_(value)
     {}
     /**
      * @brief Constructor for move semantics
      */
-    inline WantParamWrapper(WantParams &&value) : wantParams_(std::move(value))
+    WantParamWrapper(WantParams &&value) : wantParams_(std::move(value))
     {}
 
-    inline ~WantParamWrapper()
+    ~WantParamWrapper()
     {}
 
     IINTERFACE_DECL();

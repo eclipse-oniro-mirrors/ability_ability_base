@@ -65,7 +65,7 @@ HWTEST_F(OperationBaseTest, AaFwk_Operation_GetAbilityName_0100, Function | Medi
     GTEST_LOG_(INFO) << "AaFwk_Operation_GetAbilityName_0100 start";
 
     operationbuilder_->WithAbilityName(value);
-    std::shared_ptr<Operation> operation = operationbuilder_->build();
+    std::shared_ptr<Operation> operation = operationbuilder_->Build();
     EXPECT_STREQ(value.c_str(), operation->GetAbilityName().c_str());
 
     GTEST_LOG_(INFO) << "AaFwk_Operation_GetAbilityName_0100 end";
@@ -80,7 +80,7 @@ HWTEST_F(OperationBaseTest, AaFwk_Operation_GetAbilityName_0200, Function | Medi
 {
     std::string value = "";
     operationbuilder_->WithAbilityName(value);
-    std::shared_ptr<Operation> operation = operationbuilder_->build();
+    std::shared_ptr<Operation> operation = operationbuilder_->Build();
 
     EXPECT_STREQ(value.c_str(), operation->GetAbilityName().c_str());
 }
@@ -94,7 +94,7 @@ HWTEST_F(OperationBaseTest, AaFwk_Operation_GetBundleName_0100, Function | Mediu
 {
     std::string value = "value";
     operationbuilder_->WithBundleName(value);
-    std::shared_ptr<Operation> operation = operationbuilder_->build();
+    std::shared_ptr<Operation> operation = operationbuilder_->Build();
     EXPECT_STREQ(value.c_str(), operation->GetBundleName().c_str());
 }
 
@@ -107,7 +107,7 @@ HWTEST_F(OperationBaseTest, AaFwk_Operation_GetBundleName_0200, Function | Mediu
 {
     std::string value = "";
     operationbuilder_->WithBundleName(value);
-    std::shared_ptr<Operation> operation = operationbuilder_->build();
+    std::shared_ptr<Operation> operation = operationbuilder_->Build();
     EXPECT_STREQ(value.c_str(), operation->GetBundleName().c_str());
 }
 
@@ -120,7 +120,7 @@ HWTEST_F(OperationBaseTest, AaFwk_Operation_GetDeviceId_0100, Function | MediumT
 {
     std::string value = "value";
     operationbuilder_->WithDeviceId(value);
-    std::shared_ptr<Operation> operation = operationbuilder_->build();
+    std::shared_ptr<Operation> operation = operationbuilder_->Build();
     EXPECT_STREQ(value.c_str(), operation->GetDeviceId().c_str());
 }
 
@@ -133,7 +133,7 @@ HWTEST_F(OperationBaseTest, AaFwk_Operation_GetDeviceId_0200, Function | MediumT
 {
     std::string value = "";
     operationbuilder_->WithDeviceId(value);
-    std::shared_ptr<Operation> operation = operationbuilder_->build();
+    std::shared_ptr<Operation> operation = operationbuilder_->Build();
     EXPECT_STREQ(value.c_str(), operation->GetDeviceId().c_str());
 }
 
@@ -146,7 +146,7 @@ HWTEST_F(OperationBaseTest, AaFwk_Operation_GetAction_0100, Function | MediumTes
 {
     std::string value = "value";
     operationbuilder_->WithAction(value);
-    std::shared_ptr<Operation> operation = operationbuilder_->build();
+    std::shared_ptr<Operation> operation = operationbuilder_->Build();
     EXPECT_STREQ(value.c_str(), operation->GetAction().c_str());
 }
 
@@ -159,7 +159,7 @@ HWTEST_F(OperationBaseTest, AaFwk_Operation_GetAction_0200, Function | MediumTes
 {
     std::string value = "";
     operationbuilder_->WithAction(value);
-    std::shared_ptr<Operation> operation = operationbuilder_->build();
+    std::shared_ptr<Operation> operation = operationbuilder_->Build();
     EXPECT_STREQ(value.c_str(), operation->GetAction().c_str());
 }
 
@@ -173,7 +173,7 @@ HWTEST_F(OperationBaseTest, AaFwk_Operation_GetEntities_0100, Function | MediumT
     std::vector<std::string> value;
     value.push_back("string1");
     operationbuilder_->WithEntities(value);
-    std::shared_ptr<Operation> operation = operationbuilder_->build();
+    std::shared_ptr<Operation> operation = operationbuilder_->Build();
 
     std::vector<std::string> revValue = operation->GetEntities();
 
@@ -193,7 +193,7 @@ HWTEST_F(OperationBaseTest, AaFwk_Operation_GetEntities_0200, Function | MediumT
 {
     std::vector<std::string> value;
     operationbuilder_->WithEntities(value);
-    std::shared_ptr<Operation> operation = operationbuilder_->build();
+    std::shared_ptr<Operation> operation = operationbuilder_->Build();
     EXPECT_EQ(true, operation->GetEntities().size() == 0);
 }
 
@@ -206,7 +206,7 @@ HWTEST_F(OperationBaseTest, AaFwk_Operation_GetFlags_0100, Function | MediumTest
 {
     unsigned int value = 1;
     operationbuilder_->WithFlags(value);
-    std::shared_ptr<Operation> operation = operationbuilder_->build();
+    std::shared_ptr<Operation> operation = operationbuilder_->Build();
     EXPECT_EQ(value, operation->GetFlags());
 }
 
@@ -219,7 +219,7 @@ HWTEST_F(OperationBaseTest, AaFwk_Operation_GetFlags_0200, Function | MediumTest
 {
     unsigned int value = 0;
     operationbuilder_->WithFlags(value);
-    std::shared_ptr<Operation> operation = operationbuilder_->build();
+    std::shared_ptr<Operation> operation = operationbuilder_->Build();
     EXPECT_EQ(value, operation->GetFlags());
 }
 
@@ -233,7 +233,7 @@ HWTEST_F(OperationBaseTest, AaFwk_Operation_GetUri_0100, Function | MediumTest |
     std::string value = "scheme://authority/path1/path2/path3?id = 1&name = mingming&old#fragment";
     OHOS::Uri uri(value);
     operationbuilder_->WithUri(uri);
-    std::shared_ptr<Operation> operation = operationbuilder_->build();
+    std::shared_ptr<Operation> operation = operationbuilder_->Build();
 
     EXPECT_EQ(uri, operation->GetUri());
 }
@@ -248,7 +248,7 @@ HWTEST_F(OperationBaseTest, AaFwk_Operation_GetUri_0200, Function | MediumTest |
     std::string value = "";
     OHOS::Uri uri(value);
     operationbuilder_->WithUri(uri);
-    std::shared_ptr<Operation> operation = operationbuilder_->build();
+    std::shared_ptr<Operation> operation = operationbuilder_->Build();
     EXPECT_EQ(uri, operation->GetUri());
 }
 
@@ -270,7 +270,7 @@ HWTEST_F(OperationBaseTest, AaFwk_Operation_build_0100, Function | MediumTest | 
     operationbuilder_->WithBundleName(value);
     operationbuilder_->WithAbilityName(value);
 
-    std::shared_ptr<Operation> operation = operationbuilder_->build();
+    std::shared_ptr<Operation> operation = operationbuilder_->Build();
 
     EXPECT_EQ(uri, operation->GetUri());
     EXPECT_STREQ(value.c_str(), operation->GetAction().c_str());
@@ -305,7 +305,7 @@ HWTEST_F(OperationBaseTest, AaFwk_Operation_Marshalling_0100, Function | MediumT
     operationbuilder_->WithBundleName(value);
     operationbuilder_->WithAbilityName(value);
 
-    std::shared_ptr<Operation> operation = operationbuilder_->build();
+    std::shared_ptr<Operation> operation = operationbuilder_->Build();
     Parcel in;
     operation->Marshalling(in);
 
@@ -336,7 +336,7 @@ HWTEST_F(OperationBaseTest, AaFwk_Operation_Operator_0100, Function | MediumTest
     operationbuilder_->WithBundleName(value);
     operationbuilder_->WithAbilityName(value);
 
-    std::shared_ptr<Operation> operation = operationbuilder_->build();
+    std::shared_ptr<Operation> operation = operationbuilder_->Build();
     operation_ = *(operation.get());
 
     EXPECT_EQ(true, operation_ == *(operation.get()));
@@ -350,7 +350,7 @@ HWTEST_F(OperationBaseTest, AaFwk_Operation_Operator_0100, Function | MediumTest
 HWTEST_F(OperationBaseTest, AaFwk_Operation_DumpInfo_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_Operation_DumpInfo_0100 start";
-    std::shared_ptr<Operation> operation = operationbuilder_->build();
+    std::shared_ptr<Operation> operation = operationbuilder_->Build();
     int level = 10;
     operation->entities_.push_back("a");
     operation->entities_.push_back("b");
