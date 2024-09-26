@@ -22,10 +22,10 @@ namespace OHOS {
 namespace AAFwk {
 class Long final : public Object, public ILong {
 public:
-    inline Long(long value) : value_(value)
+    Long(long value) : value_(value)
     {}
 
-    inline ~Long()
+    ~Long()
     {}
 
     IINTERFACE_DECL();

@@ -14,7 +14,6 @@
  */
 
 #include <gtest/gtest.h>
-#include "light_refbase.h"
 #include "base_def.h"
 #include "base_obj.h"
 #include "bool_wrapper.h"

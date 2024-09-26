@@ -14,7 +14,6 @@
  */
 
 #include <gtest/gtest.h>
-#include "light_refbase.h"
 #include "base_def.h"
 #include "base_obj.h"
 #include "bool_wrapper.h"
@@ -53,24 +52,6 @@ void AAFwkBaseTest::SetUp(void)
 
 void AAFwkBaseTest::TearDown(void)
 {}
-
-class LightRefCountBaseTestClass : public LightRefCountBase {
-public:
-    LightRefCountBaseTestClass()
-    {
-        gDestructorCalled_ = false;
-    }
-
-    virtual ~LightRefCountBaseTestClass()
-    {
-        gDestructorCalled_ = true;
-    }
-
-public:
-    static bool gDestructorCalled_;
-};
-
-bool LightRefCountBaseTestClass::gDestructorCalled_ = false;
 
 class RefBaseTestClass : public RefBase {
 public:
@@ -147,23 +128,6 @@ const ClassID CID_ObjectTestClass = {
 bool ObjectTestClass::gDestructorCalled_ = false;
 
 OBJECT_IMPL(ObjectTestClass);
-
-/*
- * Feature: LightRefCountBase
- * Function: IncStrongRef, DecStrongRef and GetRefCount
- * SubFunction: NA
- * FunctionPoints: IncStrongRef, DecStrongRef and GetRefCount
- * EnvConditions: NA
- * CaseDescription: Verify IncStrongRef, DecStrongRef and GetRefCount methods of RefBase.
- */
-HWTEST_F(AAFwkBaseTest, LightRefCountBase_test_001, TestSize.Level1)
-{
-    sptr<LightRefCountBaseTestClass> testObject = new LightRefCountBaseTestClass();
-    EXPECT_FALSE(LightRefCountBaseTestClass::gDestructorCalled_);
-    EXPECT_EQ(testObject->GetRefCount(), 1);
-    testObject = nullptr;
-    EXPECT_TRUE(LightRefCountBaseTestClass::gDestructorCalled_);
-}
 
 /*
  * Feature: RefBase
