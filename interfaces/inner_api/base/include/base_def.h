@@ -22,16 +22,6 @@ namespace OHOS {
 namespace AAFwk {
 #define INTERFACE_INNER struct
 
-#define REFCOUNT_ADD(i)      \
-    if (i) {                 \
-        (i)->IncStrongRef(); \
-    }
-
-#define REFCOUNT_RELEASE(i)  \
-    if (i) {                 \
-        (i)->DecStrongRef(); \
-    }
-
 #define VALIDATE_NOT_NULL(i)      \
     if ((i) == nullptr) {         \
         return ERR_INVALID_VALUE; \
@@ -42,12 +32,6 @@ namespace AAFwk {
 #define INTERFACE(id, x)                 \
     extern const InterfaceID g_IID_##id; \
     INTERFACE_INNER id : public IInterface
-
-#define INTERFACE2(id, pid, x)               \
-    do {                                     \
-        extern const InterfaceID g_IID_##id; \
-        INTERFACE_INNER id : public##pid     \
-    } while (0);
 
 #define CLASS(id, x)                   \
     do {                               \
@@ -99,42 +83,6 @@ namespace AAFwk {
             return g_IID_##InterfaceName;                           \
         }                                                           \
         return SuperclassName::GetInterfaceID(object);              \
-    }
-#endif
-
-#ifndef IINTERFACE_IMPL_2
-#define IINTERFACE_IMPL_2(ClassName, SuperclassName, InterfaceName1, InterfaceName2) \
-    void ClassName::IncStrongRef(const void *id)                                     \
-    {                                                                                \
-        Object::IncStrongRef(id);                                                    \
-    }                                                                                \
-                                                                                     \
-    void ClassName::DecStrongRef(const void *id)                                     \
-    {                                                                                \
-        Object::DecStrongRef(id);                                                    \
-    }                                                                                \
-    IInterface *ClassName::Query(const InterfaceID & iid)                            \
-    {                                                                                \
-        if (iid == g_IID_##InterfaceName1) {                                         \
-            return static_cast<InterfaceName1 *>(this);                              \
-        }                                                                            \
-        if (iid == g_IID_##InterfaceName2) {                                         \
-            return static_cast<InterfaceName2 *>(this);                              \
-        }                                                                            \
-        if (iid == g_IID_IInterface) {                                               \
-            return static_cast<InterfaceName1 *>(this);                              \
-        }                                                                            \
-        return SuperclassName::Query(iid);                                           \
-    }                                                                                \
-    InterfaceID ClassName::GetInterfaceID(IInterface *object)                        \
-    {                                                                                \
-        if (object == static_cast<InterfaceName1 *>(this)) {                         \
-            return g_IID_##InterfaceName1;                                           \
-        }                                                                            \
-        if (object == static_cast<InterfaceName2 *>(this)) {                         \
-            return g_IID_##InterfaceName2;                                           \
-        }                                                                            \
-        return SuperclassName::GetInterfaceID(object);                               \
     }
 #endif
 
