@@ -18,6 +18,7 @@
 #include "ability_base_log_wrapper.h"
 #include "ability_start_setting.h"
 #include "process_options.h"
+#include "start_window_option.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -269,6 +270,11 @@ bool SessionInfo::DoMarshallingFive(Parcel& parcel) const
         ABILITYBASE_LOGE("Write want failed");
         return false;
     }
+
+    if (!parcel.WriteParcelable(startWindowOption.get())) {
+        ABILITYBASE_LOGE("Write startWindowOption failed");
+        return false;
+    }
     return true;
 }
 
@@ -335,6 +341,7 @@ SessionInfo* SessionInfo::ReadParcelOne(SessionInfo* info, Parcel& parcel)
     if (want != nullptr) {
         info->want = *want;
     }
+    info->startWindowOption.reset(parcel.ReadParcelable<StartWindowOption>());
     return info;
 }
 }  // namespace AAFwk
