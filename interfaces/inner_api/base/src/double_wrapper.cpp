@@ -40,7 +40,7 @@ std::string Double::ToString()
 
 sptr<IDouble> Double::Box(double value) /* [in] */
 {
-    sptr<IDouble> object = new Double(value);
+    sptr<IDouble> object = sptr<Double>::MakeSptr(value);
     return object;
 }
 
@@ -57,7 +57,7 @@ sptr<IDouble> Double::Parse(const std::string &str) /* [in] */
     std::size_t idx;
     double value = std::stod(str, &idx);
     if (idx != 0) {
-        object = new Double(value);
+        object = sptr<Double>::MakeSptr(value);
     }
     return object;
 }

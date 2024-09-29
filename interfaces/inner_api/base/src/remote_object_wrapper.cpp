@@ -39,7 +39,7 @@ sptr<IRemoteObject> RemoteObjectWrap::UnBox(IRemoteObjectWrap *object)
 
 sptr<IRemoteObject> RemoteObjectWrap::GetValue()
 {
-    return this->remoteObject_;
+    return remoteObject_;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

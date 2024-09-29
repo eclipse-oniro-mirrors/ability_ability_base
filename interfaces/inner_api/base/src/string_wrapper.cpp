@@ -40,7 +40,7 @@ std::string String::ToString()
 
 sptr<IString> String::Box(const std::string &str) /* [in] */
 {
-    sptr<IString> object = new String(str);
+    sptr<IString> object = sptr<String>::MakeSptr(str);
     return object;
 }
 
@@ -53,7 +53,7 @@ std::string String::Unbox(IString *object) /* [in] */
 
 sptr<IString> String::Parse(const std::string &str) /* [in] */
 {
-    sptr<IString> object = new String(str);
+    sptr<IString> object = sptr<String>::MakeSptr(str);
     return object;
 }
 }  // namespace AAFwk

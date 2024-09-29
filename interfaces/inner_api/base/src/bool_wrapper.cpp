@@ -39,7 +39,7 @@ std::string Boolean::ToString()
 
 sptr<IBoolean> Boolean::Box(bool value) /* [in] */
 {
-    sptr<IBoolean> object = new Boolean(value);
+    sptr<IBoolean> object = sptr<Boolean>::MakeSptr(value);
     return object;
 }
 
@@ -54,9 +54,9 @@ sptr<IBoolean> Boolean::Parse(const std::string &str) /* [in] */
 {
     sptr<IBoolean> object;
     if (str == "true") {
-        object = new Boolean(true);
+        object = sptr<Boolean>::MakeSptr(true);
     } else if (str == "false") {
-        object = new Boolean(false);
+        object = sptr<Boolean>::MakeSptr(false);
     }
     return object;
 }

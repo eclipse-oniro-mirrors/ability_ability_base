@@ -40,7 +40,7 @@ std::string Integer::ToString()
 
 sptr<IInteger> Integer::Box(int value) /* [in] */
 {
-    sptr<IInteger> object = new Integer(value);
+    sptr<IInteger> object = sptr<Integer>::MakeSptr(value);
     return object;
 }
 
@@ -57,7 +57,7 @@ sptr<IInteger> Integer::Parse(const std::string &str) /* [in] */
     std::size_t idx;
     int value = std::stoi(str, &idx);
     if (idx != 0) {
-        object = new Integer(value);
+        object = sptr<Integer>::MakeSptr(value);
     }
     return object;
 }

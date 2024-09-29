@@ -40,7 +40,7 @@ std::string Float::ToString()
 
 sptr<IFloat> Float::Box(float value) /* [in] */
 {
-    sptr<IFloat> object = new Float(value);
+    sptr<IFloat> object = sptr<Float>::MakeSptr(value);
     return object;
 }
 
@@ -57,7 +57,7 @@ sptr<IFloat> Float::Parse(const std::string &str) /* [in] */
     std::size_t idx;
     float value = std::stof(str, &idx);
     if (idx != 0) {
-        object = new Float(value);
+        object = sptr<Float>::MakeSptr(value);
     }
     return object;
 }
