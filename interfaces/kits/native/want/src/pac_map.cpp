@@ -128,7 +128,9 @@ static void GetBaseDataValue(OHOS::AAFwk::IInterface *baseObj, Json::Value &json
 {
     IClassName *data = IClassName::Query(baseObj);
     baseValue val = 0;
-    data->GetValue(val);
+    if (data != nullptr) {
+        data->GetValue(val);
+    }
     json["data"] = val;
     json["type"] = type;
 }
