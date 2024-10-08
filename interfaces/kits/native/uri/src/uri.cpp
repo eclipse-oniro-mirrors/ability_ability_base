@@ -455,15 +455,6 @@ bool Uri::IsHierarchical()
     return (uriString_.at(ssi + 1) == LEFT_SEPARATOR);
 }
 
-bool Uri::IsOpaque()
-{
-    if (uriString_.empty()) {
-        return false;
-    }
-
-    return !IsHierarchical();
-}
-
 bool Uri::IsAbsolute()
 {
     if (uriString_.empty()) {
@@ -485,12 +476,12 @@ bool Uri::IsRelative()
 
 bool Uri::Equals(const Uri& other) const
 {
-    return ToString() == other.ToString();
+    return uriString_ == other.ToString();
 }
 
 int Uri::CompareTo(const Uri& other) const
 {
-    return ToString().compare(other.ToString());
+    return uriString_.compare(other.ToString());
 }
 
 string Uri::ToString() const
@@ -500,7 +491,7 @@ string Uri::ToString() const
 
 bool Uri::operator==(const Uri& other) const
 {
-    return ToString() == other.ToString();
+    return uriString_ == other.ToString();
 }
 
 bool Uri::Marshalling(Parcel& parcel) const

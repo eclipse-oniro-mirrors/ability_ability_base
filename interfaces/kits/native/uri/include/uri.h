@@ -106,14 +106,6 @@ public:
     bool IsHierarchical();
 
     /**
-     * Returns true if this URI is opaque like "mailto:nobody@ohos.com".
-     * The scheme-specific part of an opaque URI cannot start with a '/'.
-     *
-     * @return true if this URI is opaque, false if it's hierarchical.
-     */
-    bool IsOpaque();
-
-    /**
      * Returns true if this URI is absolute, i.e.&nbsp;if it contains an explicit scheme.
      *
      * @return true if this URI is absolute, false if it's relative.

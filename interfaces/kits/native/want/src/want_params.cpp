@@ -301,27 +301,30 @@ bool WantParams::operator==(const WantParams &other)
 
 int WantParams::GetDataType(const sptr<IInterface> iIt)
 {
-    if (iIt != nullptr && IBoolean::Query(iIt) != nullptr) {
+    if (iIt == nullptr) {
+        return VALUE_TYPE_NULL;
+    }
+    if (IBoolean::Query(iIt) != nullptr) {
         return VALUE_TYPE_BOOLEAN;
-    } else if (iIt != nullptr && IByte::Query(iIt) != nullptr) {
+    } else if (IByte::Query(iIt) != nullptr) {
         return VALUE_TYPE_BYTE;
-    } else if (iIt != nullptr && IChar::Query(iIt) != nullptr) {
+    } else if (IChar::Query(iIt) != nullptr) {
         return VALUE_TYPE_CHAR;
-    } else if (iIt != nullptr && IShort::Query(iIt) != nullptr) {
+    } else if (IShort::Query(iIt) != nullptr) {
         return VALUE_TYPE_SHORT;
-    } else if (iIt != nullptr && IInteger::Query(iIt) != nullptr) {
+    } else if (IInteger::Query(iIt) != nullptr) {
         return VALUE_TYPE_INT;
-    } else if (iIt != nullptr && ILong::Query(iIt) != nullptr) {
+    } else if (ILong::Query(iIt) != nullptr) {
         return VALUE_TYPE_LONG;
-    } else if (iIt != nullptr && IFloat::Query(iIt) != nullptr) {
+    } else if (IFloat::Query(iIt) != nullptr) {
         return VALUE_TYPE_FLOAT;
-    } else if (iIt != nullptr && IDouble::Query(iIt) != nullptr) {
+    } else if (IDouble::Query(iIt) != nullptr) {
         return VALUE_TYPE_DOUBLE;
-    } else if (iIt != nullptr && IString::Query(iIt) != nullptr) {
+    } else if (IString::Query(iIt) != nullptr) {
         return VALUE_TYPE_STRING;
-    } else if (iIt != nullptr && IArray::Query(iIt) != nullptr) {
+    } else if (IArray::Query(iIt) != nullptr) {
         return VALUE_TYPE_ARRAY;
-    } else if (iIt != nullptr && IWantParams::Query(iIt) != nullptr) {
+    } else if (IWantParams::Query(iIt) != nullptr) {
         return VALUE_TYPE_WANTPARAMS;
     }
 

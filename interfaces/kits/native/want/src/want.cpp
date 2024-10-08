@@ -1337,8 +1337,6 @@ Want *Want::ParseUri(const std::string &uri)
             pos = uri.find(";", begin);
         }
         pickerWant->SetElement(pickerElement);
-        if (want->GetBundle().empty()) {
-        }
     }
     if (ret) {
         want->SetElement(element);
