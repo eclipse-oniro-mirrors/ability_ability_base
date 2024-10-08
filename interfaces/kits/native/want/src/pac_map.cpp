@@ -1507,7 +1507,7 @@ bool PacMap::ParseJson(Json::Value &data, PacMapList &mapList)
     Json::Value item;
     for (size_t i = 0; i < keyList.size(); i++) {
         item = data[keyList[i]];
-        if (!item.isNull() && JudgeType(item)) {
+        if (!item.isNull() && item.isObject() && JudgeType(item)) {
             ParseJsonItem(mapList, keyList[i], item);
         }
     }
