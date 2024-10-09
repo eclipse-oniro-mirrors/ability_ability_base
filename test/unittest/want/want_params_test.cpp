@@ -920,7 +920,7 @@ HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_CompareInterface_1002, Function | 
 {
     const std::string value = "I5{2,3,5,7,11}";
     sptr<IInterface> interfaceObj = WantParams::GetInterfaceByType(WantParams::VALUE_TYPE_ARRAY, value);
-    bool result = WantParams::CompareInterface(interfaceObj, interfaceObj, 22);
+    bool result = WantParams::CompareInterface(interfaceObj, interfaceObj, 102);
     EXPECT_TRUE(result);
 }
 
