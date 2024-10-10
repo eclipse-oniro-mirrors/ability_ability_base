@@ -81,6 +81,7 @@ public:
     bool needClearInNotShowRecent = false;
     std::string instanceKey = "";
     bool isMinimizedDuringFreeInstall = false;
+    bool isFromIcon = false;
 
 private:
     bool DoMarshallingOne(Parcel& parcel) const;
