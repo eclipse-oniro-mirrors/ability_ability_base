@@ -24,6 +24,7 @@ namespace GlobalConfigurationKey {
     /* For the time being, there is no uniform standard */
     /* Must be synchronized with the keystore(SystemConfigurationKeyStore)in the configuration */
     constexpr const char* SYSTEM_LANGUAGE = "ohos.system.language";
+    constexpr const char* IS_PREFERRED_LANGUAGE = "ohos.system.isPreferredLanguage";
     constexpr const char* SYSTEM_HOUR = "ohos.system.hour";
     constexpr const char* SYSTEM_COLORMODE = "ohos.system.colorMode";
     constexpr const char* INPUT_POINTER_DEVICE = "input.pointer.device";
