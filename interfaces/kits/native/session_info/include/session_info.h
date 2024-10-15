@@ -43,6 +43,7 @@ public:
     std::string identityToken;
     int32_t persistentId = 0;
     uint32_t hostWindowId = 0;
+    uint32_t parentWindowType = 1;
     int32_t realHostWindowId = 0;
     // Status of the UIAbility invoked by the StartABilityByCall
     CallToState state = CallToState::UNKNOW;
