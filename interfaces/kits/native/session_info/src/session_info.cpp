@@ -119,6 +119,11 @@ bool SessionInfo::DoMarshallingThree(Parcel& parcel) const
         return false;
     }
 
+    if (!parcel.WriteInt32(realHostWindowId)) {
+        ABILITYBASE_LOGE("Write real host window id failed");
+        return false;
+    }
+
     if (!parcel.WriteUint32(static_cast<uint32_t>(state))) {
         ABILITYBASE_LOGE("Write state failed");
         return false;
@@ -263,6 +268,7 @@ SessionInfo* SessionInfo::Unmarshalling(Parcel& parcel)
     info->parentWindowType = parcel.ReadUint32();
     info->persistentId = parcel.ReadInt32();
     info->hostWindowId = parcel.ReadUint32();
+    info->realHostWindowId = parcel.ReadInt32();
     info->state = static_cast<CallToState>(parcel.ReadUint32());
     info->resultCode = parcel.ReadInt32();
     info->requestCode = parcel.ReadInt32();
