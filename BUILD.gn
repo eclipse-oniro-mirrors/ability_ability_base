@@ -86,8 +86,8 @@ ohos_shared_library("configuration") {
     "c_utils:utils",
     "hilog:libhilog",
     "json:nlohmann_json_static",
-    "resource_management:global_resmgr",
   ]
+  public_external_deps = [ "resource_management:global_resmgr" ]
 
   subsystem_name = "ability"
   innerapi_tags = [ "platformsdk" ]

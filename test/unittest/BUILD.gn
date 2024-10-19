@@ -445,6 +445,7 @@ ohos_unittest("extractor_test") {
     "ability_base:string_utils",
     "c_utils:utils",
     "hilog:libhilog",
+    "resource_management:global_resmgr",
   ]
 }
 
