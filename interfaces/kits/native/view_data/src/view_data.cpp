@@ -67,7 +67,7 @@ void ViewData::FromJsonString(const std::string& jsonStr)
             }
         }
     }
-    if (jsonObject.contains(VIEW_DATA_PAGE_RECT)) {
+    if (jsonObject.contains(VIEW_DATA_PAGE_RECT) && jsonObject[VIEW_DATA_PAGE_RECT].is_string()) {
         pageRect.FromJsonString(jsonObject[VIEW_DATA_PAGE_RECT]);
     }
 }
