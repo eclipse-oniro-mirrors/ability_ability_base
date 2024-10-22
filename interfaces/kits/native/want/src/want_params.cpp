@@ -115,6 +115,9 @@ UnsupportedData &UnsupportedData::operator=(UnsupportedData &&other)
 
 std::string WantParams::GetStringByType(const sptr<IInterface> iIt, int typeId)
 {
+    if (GetDataType(iIt) != typeId) {
+        return "";
+    }
     if (typeId == VALUE_TYPE_BOOLEAN) {
         return static_cast<Boolean *>(IBoolean::Query(iIt))->ToString();
     } else if (typeId == VALUE_TYPE_BYTE) {
@@ -357,6 +360,10 @@ sptr<IInterface> WantParams::GetInterfaceByType(int typeId, const std::string &v
 
 bool WantParams::CompareInterface(const sptr<IInterface> iIt1, const sptr<IInterface> iIt2, int typeId)
 {
+    auto typeId1 = GetDataType(iIt1);
+    if (typeId1 != GetDataType(iIt2) || typeId1 != typeId) {
+        return false;
+    }
     bool flag = true;
     switch (typeId) {
         case VALUE_TYPE_BOOLEAN:
