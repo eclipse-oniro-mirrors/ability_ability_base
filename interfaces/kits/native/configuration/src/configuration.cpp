@@ -68,6 +68,7 @@ bool Configuration::MakeTheKey(std::string &getKey, int id, const std::string &p
         OHOS::AAFwk::GlobalConfigurationKey::DEVICE_TYPE,
         OHOS::AAFwk::GlobalConfigurationKey::THEME,
         OHOS::AAFwk::GlobalConfigurationKey::THEME_ID,
+        OHOS::AAFwk::GlobalConfigurationKey::THEME_ICON,
         OHOS::AAFwk::GlobalConfigurationKey::COLORMODE_IS_SET_BY_SA,
         OHOS::AAFwk::GlobalConfigurationKey::COLORMODE_IS_SET_BY_APP,
         OHOS::AAFwk::GlobalConfigurationKey::SYSTEM_FONT_SIZE_SCALE,
