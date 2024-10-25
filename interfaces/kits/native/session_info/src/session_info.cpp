@@ -238,6 +238,11 @@ bool SessionInfo::DoMarshallingFive(Parcel& parcel) const
         return false;
     }
 
+    if (!parcel.WriteBool(isFromIcon)) {
+        ABILITYBASE_LOGE("Write isFromIcon failed");
+        return false;
+    }
+
     if (!parcel.WriteParcelable(&want)) {
         ABILITYBASE_LOGE("Write want failed");
         return false;
@@ -290,6 +295,7 @@ SessionInfo* SessionInfo::Unmarshalling(Parcel& parcel)
     info->isAtomicService = parcel.ReadBool();
     info->isBackTransition = parcel.ReadBool();
     info->needClearInNotShowRecent = parcel.ReadBool();
+    info->isFromIcon = parcel.ReadBool();
 
     std::unique_ptr<Want> want(parcel.ReadParcelable<Want>());
     if (want != nullptr) {

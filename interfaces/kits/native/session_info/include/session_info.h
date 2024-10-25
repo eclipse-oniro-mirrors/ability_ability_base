@@ -73,6 +73,7 @@ public:
     bool isBackTransition = false;
     bool needClearInNotShowRecent = false;
     bool isMinimizedDuringFreeInstall = false;
+    bool isFromIcon = false;
 
 private:
     bool DoMarshallingOne(Parcel& parcel) const;
