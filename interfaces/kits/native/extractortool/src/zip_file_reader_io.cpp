@@ -56,10 +56,10 @@ bool ZipFileReaderIo::ReadBuffer(uint8_t *dst, size_t startPos, size_t bufferSiz
         if (nread <= 0) {
             break;
         }
-        startPos += (size_t)nread;
+        startPos += static_cast<size_t>(nread);
         dst += nread;
-        if (remainSize > nread) {
-            remainSize -= (size_t)nread;
+        if (remainSize > static_cast<size_t>(nread)) {
+            remainSize -= static_cast<size_t>(nread);
         } else {
             remainSize = 0;
         }
