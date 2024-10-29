@@ -25,6 +25,7 @@ group("fuzztest") {
     "wantfirst_fuzzer:fuzztest",
     "wantfourth_fuzzer:fuzztest",
     "wantparamsfirst_fuzzer:fuzztest",
+    "wantparamsfour_fuzzer:fuzztest",
     "wantparamssecond_fuzzer:fuzztest",
     "wantparamsthird_fuzzer:fuzztest",
     "wantsecond_fuzzer:fuzztest",
