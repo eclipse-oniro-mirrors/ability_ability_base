@@ -110,6 +110,8 @@ const std::string Want::PARAM_ATOMIC_SERVICE_PAGE_SOURCE_FILE("ohos.param.atomic
 const std::string Want::PARAM_ATOMIC_SERVICE_BUILD_FUNCTION("ohos.param.atomicservice.buildFunction");
 const std::string Want::PARAM_ATOMIC_SERVICE_SUB_PACKAGE_NAME("ohos.param.atomicservice.subpackageName");
 
+const std::string Want::PARAM_APP_KEEP_ALIVE_ENABLED("ohos.param.app.keepAliveEnabled");
+
 /**
  * @description:Default construcotr of Want class, which is used to initialzie flags and URI.
  * @param None

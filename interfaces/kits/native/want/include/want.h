@@ -903,6 +903,9 @@ public:
     static const std::string PARAM_ATOMIC_SERVICE_BUILD_FUNCTION;
     static const std::string PARAM_ATOMIC_SERVICE_SUB_PACKAGE_NAME;
 
+    // keep-alive
+    static const std::string PARAM_APP_KEEP_ALIVE_ENABLED;
+
 private:
     WantParams parameters_;
     Operation operation_;
