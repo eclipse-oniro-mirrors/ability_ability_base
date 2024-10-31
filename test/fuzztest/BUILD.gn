@@ -18,7 +18,9 @@ group("fuzztest") {
   testonly = true
 
   deps = [
+    "arraywrapperfifth_fuzzer:fuzztest",
     "arraywrapperfirst_fuzzer:fuzztest",
+    "arraywrapperfouth_fuzzer:fuzztest",
     "arraywrappersecond_fuzzer:fuzztest",
     "arraywrapperthird_fuzzer:fuzztest",
     "wantfifth_fuzzer:fuzztest",
