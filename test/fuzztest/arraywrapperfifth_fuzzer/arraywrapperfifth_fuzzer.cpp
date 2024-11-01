@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "arraywrapperthird_fuzzer.h"
+#include "arraywrapperfifth_fuzzer.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -24,6 +24,7 @@
 #undef private
 #include "securec.h"
 #include "string_wrapper.h"
+#include "want_params_wrapper.h"
 
 using namespace OHOS::AAFwk;
 
@@ -31,42 +32,40 @@ namespace OHOS {
 namespace {
 constexpr size_t FOO_MAX_LEN = 1024;
 constexpr size_t U32_AT_SIZE = 4;
-constexpr char LEFT_BRACE_STRING = '{';
-}
-uint32_t GetU32Data(const char* ptr)
-{
-    // convert fuzz input data to an integer
-    return (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | ptr[3];
 }
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
-    long longSize = 0;
+    long longSize = (long)(size);
     InterfaceID id;
     std::shared_ptr<Array> array = std::make_shared<Array>(longSize, id);
-    std::string values(data, size);
-    array->ParseDouble(values, longSize);
-    array->ParseChar(values, longSize);
-    array->ParseArray(values, longSize);
-    array->ParseWantParams(values, longSize);
-    IArray* arrayptr = nullptr;
-    std::function<sptr<IInterface>(std::string)> func;
-    array->ParseElement(arrayptr, func, values, longSize);
-    std::string errorString(data, longSize);
-    array->Parse(errorString);
-    errorString.insert(errorString.begin(), String::SIGNATURE);
-    array->Parse(errorString);
-    errorString.insert(errorString.begin(), LEFT_BRACE_STRING);
-    array->Parse(errorString);
-    long lengthSize = (long)(size);
-    array->ParseElement(arrayptr, func, values, lengthSize);
-    std::shared_ptr<Array> otherArray = std::make_shared<Array>(longSize, id);
-    sptr<IInterface> stringValue = String::Box(values);
+    std::string value(data, size);
+    sptr<IInterface> stringValue = String::Box(value);
     for (size_t i = 0; i < longSize; i++) {
-        otherArray->Set(i, stringValue);
+        array->Set(i, stringValue);
     }
-    array->IsStringArray(otherArray.get());
-    std::function<void(IInterface*)> function;
-    array->ForEach(otherArray.get(), function);
+    array->ToString();
+    array->typeId_ = g_IID_IString;
+    array->ToString();
+    array->typeId_ = g_IID_IBoolean;
+    array->ToString();
+    array->typeId_ = g_IID_IByte;
+    array->ToString();
+    array->typeId_ = g_IID_IShort;
+    array->ToString();
+    array->typeId_ = g_IID_IInteger;
+    array->ToString();
+    array->typeId_ = g_IID_ILong;
+    array->ToString();
+    array->typeId_ = g_IID_IFloat;
+    array->ToString();
+    array->typeId_ = g_IID_IDouble;
+    array->ToString();
+    array->typeId_ = g_IID_IArray;
+    array->ToString();
+    array->typeId_ = g_IID_IChar;
+    array->ToString();
+    array->typeId_ = g_IID_IWantParams;
+    array->ToString();
     return true;
 }
 }
