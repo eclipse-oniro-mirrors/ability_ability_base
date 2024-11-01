@@ -24,6 +24,7 @@ group("fuzztest") {
     "arraywrappersecond_fuzzer:fuzztest",
     "arraywrapperthird_fuzzer:fuzztest",
     "longwrapper_fuzzer:fuzztest",
+    "wanteighth_fuzzer:fuzztest",
     "wantfifth_fuzzer:fuzztest",
     "wantfirst_fuzzer:fuzztest",
     "wantfourth_fuzzer:fuzztest",
