@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,17 +13,16 @@
  * limitations under the License.
  */
 
-#include "arraywrapperthird_fuzzer.h"
+#include "wantseventh_fuzzer.h"
 
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
 
 #define private public
-#include "array_wrapper.h"
+#include "want.h"
 #undef private
 #include "securec.h"
-#include "string_wrapper.h"
 
 using namespace OHOS::AAFwk;
 
@@ -31,7 +30,7 @@ namespace OHOS {
 namespace {
 constexpr size_t FOO_MAX_LEN = 1024;
 constexpr size_t U32_AT_SIZE = 4;
-constexpr char LEFT_BRACE_STRING = '{';
+constexpr uint8_t ENABLE = 2;
 }
 uint32_t GetU32Data(const char* ptr)
 {
@@ -40,33 +39,39 @@ uint32_t GetU32Data(const char* ptr)
 }
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
-    long longSize = 0;
-    InterfaceID id;
-    std::shared_ptr<Array> array = std::make_shared<Array>(longSize, id);
-    std::string values(data, size);
-    array->ParseDouble(values, longSize);
-    array->ParseChar(values, longSize);
-    array->ParseArray(values, longSize);
-    array->ParseWantParams(values, longSize);
-    IArray* arrayptr = nullptr;
-    std::function<sptr<IInterface>(std::string)> func;
-    array->ParseElement(arrayptr, func, values, longSize);
-    std::string errorString(data, longSize);
-    array->Parse(errorString);
-    errorString.insert(errorString.begin(), String::SIGNATURE);
-    array->Parse(errorString);
-    errorString.insert(errorString.begin(), LEFT_BRACE_STRING);
-    array->Parse(errorString);
-    long lengthSize = (long)(size);
-    array->ParseElement(arrayptr, func, values, lengthSize);
-    std::shared_ptr<Array> otherArray = std::make_shared<Array>(longSize, id);
-    sptr<IInterface> stringValue = String::Box(values);
-    for (size_t i = 0; i < longSize; i++) {
-        otherArray->Set(i, stringValue);
-    }
-    array->IsStringArray(otherArray.get());
-    std::function<void(IInterface*)> function;
-    array->ForEach(otherArray.get(), function);
+    std::shared_ptr<Want> want = std::make_shared<Want>();
+    unsigned int flags = static_cast<unsigned int>(GetU32Data(data));
+    want->AddFlags(flags);
+    want->GetFlags();
+    std::string bundleName(data, size);
+    std::string abilityName(data, size);
+    want->SetElementName(bundleName, abilityName);
+    want->GetElement();
+    want->GetEntities();
+    want->GetBundle();
+    std::string type(data, size);
+    want->SetType(type);
+    want->GetType();
+    std::string action(data, size);
+    want->SetAction(action);
+    want->GetAction();
+    WantParams wantparams;
+    want->SetParams(wantparams);
+    want->GetParams();
+    std::string key(data, size);
+    bool state = *data % ENABLE;
+    want->SetParam(key, state);
+    want->GetBoolParam(key, state);
+    int iValue = static_cast<int>(GetU32Data(data));
+    want->GetIntParam(key, iValue);
+    want->SetParam(key, iValue);
+    long lValue = static_cast<long>(GetU32Data(data));
+    want->GetLongParam(key, lValue);
+    want->SetParam(key, lValue);
+    long long llValue = static_cast<long long>(GetU32Data(data));
+    want->SetParam(key, llValue);
+    want->GetStringParam(key);
+    want->GetStringArrayParam(key);
     return true;
 }
 }
@@ -85,7 +90,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
 
-    char* ch = (char *)malloc(size + 1);
+    char* ch = reinterpret_cast<char *>(malloc(size + 1));
     if (ch == nullptr) {
         std::cout << "malloc failed." << std::endl;
         return 0;
