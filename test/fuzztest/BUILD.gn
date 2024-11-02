@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Copyright (c) 2022-2024 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -26,13 +26,16 @@ group("fuzztest") {
     "intwrapper_fuzzer:fuzztest",
     "longwrapper_fuzzer:fuzztest",
     "stringwrapper_fuzzer:fuzztest",
+    "wanteighth_fuzzer:fuzztest",
     "wantfifth_fuzzer:fuzztest",
     "wantfirst_fuzzer:fuzztest",
     "wantfourth_fuzzer:fuzztest",
     "wantparamsfirst_fuzzer:fuzztest",
+    "wantparamsfour_fuzzer:fuzztest",
     "wantparamssecond_fuzzer:fuzztest",
     "wantparamsthird_fuzzer:fuzztest",
     "wantsecond_fuzzer:fuzztest",
+    "wantseventh_fuzzer:fuzztest",
     "wantsixth_fuzzer:fuzztest",
     "wantthird_fuzzer:fuzztest",
   ]
