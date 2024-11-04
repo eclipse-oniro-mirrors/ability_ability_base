@@ -39,6 +39,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     intObj.ToString();
     sptr<IInteger> intPtr = Integer::Box(intValue);
     Integer::Unbox(intPtr);
+    Integer::Parse(std::to_string(intValue));
     return true;
 }
 }
