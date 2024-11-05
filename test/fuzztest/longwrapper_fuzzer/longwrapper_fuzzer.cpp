@@ -42,6 +42,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     longObj.ToString();
     sptr<ILong> longPtr = Long::Box(longValue);
     Long::Unbox(longPtr);
+    Long::Parse(std::to_string(longValue));
     return true;
 }
 }
