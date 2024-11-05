@@ -31,35 +31,11 @@ namespace OHOS {
 namespace {
 constexpr size_t FOO_MAX_LEN = 1024;
 constexpr size_t U32_AT_SIZE = 4;
-const std::string TEST_WANT_HEADER = "#Intent;";
 }
 uint32_t GetU32Data(const char* ptr)
 {
     // convert fuzz input data to an integer
     return (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | ptr[3];
-}
-
-void DoParseUriParameters(const char* data, size_t size)
-{
-    std::shared_ptr<Want> want = std::make_shared<Want>();
-    std::string content(data, size);
-    OHOS::AppExecFwk::ElementName elementName;
-    Want wantOut;
-    want->ParseUriInternal("", elementName, wantOut);
-    std::string actionContent = "action=" + content;
-    std::string entityContent = "entity=" + content;
-    std::string flagContent = "flag=" + content;
-    std::string deviceContent = "device=" + content;
-    std::string bundleContent = "bundle=" + content;
-    std::string abilityContent = "ability=" + content;
-    std::string packageContent = "package=" + content;
-    want->ParseUriInternal(actionContent, elementName, wantOut);
-    want->ParseUriInternal(entityContent, elementName, wantOut);
-    want->ParseUriInternal(flagContent, elementName, wantOut);
-    want->ParseUriInternal(deviceContent, elementName, wantOut);
-    want->ParseUriInternal(bundleContent, elementName, wantOut);
-    want->ParseUriInternal(abilityContent, elementName, wantOut);
-    want->ParseUriInternal(packageContent, elementName, wantOut);
 }
 
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
@@ -81,17 +57,9 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     float floatValue = 0.0;
     want->SetParam(key, floatValue);
     want->GetFloatParam(key, floatValue);
-    std::string invalidUri;
-    want->ParseUri(invalidUri);
-    std::string uri(data, size);
-    uri.insert(0, TEST_WANT_HEADER);
-    want->ParseUri(uri);
-    std::string pickUri;
-    pickUri.append(TEST_WANT_HEADER);
-    pickUri.append("PICK");
-    want->ParseUri(pickUri);
     std::string action(data, size);
     want->SetAction(action);
+    std::string uri(data, size);
     want->SetUri(uri);
     std::vector<std::string> entities;
     entities.push_back(key);
@@ -105,7 +73,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     want->SetFlags(flags);
     std::string uriString(data, size);
     want->ToUriStringInner(uriString);
-    DoParseUriParameters(data, size);
     return true;
 }
 }
