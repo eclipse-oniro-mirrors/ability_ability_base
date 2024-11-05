@@ -112,6 +112,8 @@ const std::string Want::PARAM_ATOMIC_SERVICE_SUB_PACKAGE_NAME("ohos.param.atomic
 
 const std::string Want::PARAM_APP_KEEP_ALIVE_ENABLED("ohos.param.app.keepAliveEnabled");
 
+const std::string Want::PARAMS_NEED_CHECK_CALLER_IS_EXIST("ohos.ability.param.needCheckCallerIsExist");
+
 /**
  * @description:Default construcotr of Want class, which is used to initialzie flags and URI.
  * @param None
