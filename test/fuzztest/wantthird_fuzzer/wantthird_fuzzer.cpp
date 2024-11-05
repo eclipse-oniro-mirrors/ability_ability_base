@@ -36,6 +36,257 @@ uint32_t GetU32Data(const char* ptr)
     // convert fuzz input data to an integer
     return (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | ptr[3];
 }
+
+void DoReadFromJsonFirst(std::shared_ptr<Want> want)
+{
+    nlohmann::json noBundleName = "{"
+        "\"deviceId\": \"teset_deviceId\""
+    "}";
+
+    nlohmann::json noAbilityName = "{"
+        "\"deviceId\": \"teset_deviceId\","
+        "\"bundleName\": \"teset_bundleName\""
+    "}";
+
+    nlohmann::json noUri = "{"
+        "\"deviceId\": \"teset_deviceId\","
+        "\"bundleName\": \"teset_bundleName\","
+        "\"abilityName\": \"teset_abilityName\""
+    "}";
+
+    nlohmann::json noType = "{"
+        "\"deviceId\": \"teset_deviceId\","
+        "\"bundleName\": \"teset_bundleName\","
+        "\"abilityName\": \"teset_abilityName\","
+        "\"uri\": \"teset_uri\""
+    "}";
+
+    nlohmann::json noFlags = "{"
+        "\"deviceId\": \"teset_deviceId\","
+        "\"bundleName\": \"teset_bundleName\","
+        "\"abilityName\": \"teset_abilityName\","
+        "\"uri\": \"teset_uri\","
+        "\"type\": \"teset_type\""
+    "}";
+
+    nlohmann::json noAction = "{"
+        "\"deviceId\": \"teset_deviceId\","
+        "\"bundleName\": \"teset_bundleName\","
+        "\"abilityName\": \"teset_abilityName\","
+        "\"uri\": \"teset_uri\","
+        "\"type\": \"teset_type\","
+        "\"flags\": \"teset_flags\""
+    "}";
+    if (want != nullptr) {
+        want->ReadFromJson(noBundleName);
+        want->ReadFromJson(noAbilityName);
+        want->ReadFromJson(noUri);
+        want->ReadFromJson(noType);
+        want->ReadFromJson(noFlags);
+        want->ReadFromJson(noAction);
+    }
+}
+
+void DoReadFromJsonSecond(std::shared_ptr<Want> want)
+{
+    nlohmann::json noParameters = "{"
+        "\"deviceId\": \"teset_deviceId\","
+        "\"bundleName\": \"teset_bundleName\","
+        "\"abilityName\": \"teset_abilityName\","
+        "\"uri\": \"teset_uri\","
+        "\"type\": \"teset_type\","
+        "\"flags\": \"teset_flags\","
+        "\"action\": \"teset_action\","
+        "\"parameters\": \"teset_parameters\""
+    "}";
+    nlohmann::json noEntities = "{"
+        "\"deviceId\": \"teset_deviceId\","
+        "\"bundleName\": \"teset_bundleName\","
+        "\"abilityName\": \"teset_abilityName\","
+        "\"uri\": \"teset_uri\","
+        "\"type\": \"teset_type\","
+        "\"flags\": \"teset_flags\","
+        "\"action\": \"teset_action\","
+        "\"parameters\": \"teset_parameters\""
+    "}";
+    nlohmann::json noStringDeviceId = "{"
+        "\"deviceId\": {},"
+        "\"bundleName\": \"teset_bundleName\","
+        "\"abilityName\": \"teset_abilityName\","
+        "\"uri\": \"teset_uri\","
+        "\"type\": \"teset_type\","
+        "\"flags\": \"teset_flags\","
+        "\"action\": \"teset_action\","
+        "\"parameters\": \"teset_parameters\","
+        "\"entities\": \"teset_entities\""
+    "}";
+    nlohmann::json noStringBundleName = "{"
+        "\"deviceId\": \"teset_deviceId\","
+        "\"bundleName\": {},"
+        "\"abilityName\": \"teset_abilityName\","
+        "\"uri\": \"teset_uri\","
+        "\"type\": \"teset_type\","
+        "\"flags\": \"teset_flags\","
+        "\"action\": \"teset_action\","
+        "\"parameters\": \"teset_parameters\","
+        "\"entities\": \"teset_entities\""
+    "}";
+    if (want != nullptr) {
+        want->ReadFromJson(noParameters);
+        want->ReadFromJson(noEntities);
+        want->ReadFromJson(noStringDeviceId);
+        want->ReadFromJson(noStringBundleName);
+    }
+}
+
+void DoReadFromJsonThird(std::shared_ptr<Want> want)
+{
+    nlohmann::json noStringAbilityName = "{"
+        "\"deviceId\": \"teset_deviceId\","
+        "\"bundleName\": \"teset_bundleName\","
+        "\"abilityName\": {},"
+        "\"uri\": \"teset_uri\","
+        "\"type\": \"teset_type\","
+        "\"flags\": \"teset_flags\","
+        "\"action\": \"teset_action\","
+        "\"parameters\": \"teset_parameters\","
+        "\"entities\": \"teset_entities\""
+    "}";
+
+    nlohmann::json noStringUri = "{"
+        "\"deviceId\": \"teset_deviceId\","
+        "\"bundleName\": \"teset_bundleName\","
+        "\"abilityName\": \"teset_abilityName\","
+        "\"uri\": {},"
+        "\"type\": \"teset_type\","
+        "\"flags\": \"teset_flags\","
+        "\"action\": \"teset_action\","
+        "\"parameters\": \"teset_parameters\","
+        "\"entities\": \"teset_entities\""
+    "}";
+
+    nlohmann::json noStringType = "{"
+        "\"deviceId\": \"teset_deviceId\","
+        "\"bundleName\": \"teset_bundleName\","
+        "\"abilityName\": \"teset_abilityName\","
+        "\"uri\": \"teset_uri\","
+        "\"type\": {},"
+        "\"flags\": \"teset_flags\","
+        "\"action\": \"teset_action\","
+        "\"parameters\": \"teset_parameters\","
+        "\"entities\": \"teset_entities\""
+    "}";
+
+    if (want != nullptr) {
+        want->ReadFromJson(noStringAbilityName);
+        want->ReadFromJson(noStringUri);
+        want->ReadFromJson(noStringType);
+    }
+}
+
+void DoReadFromJsonFourth(std::shared_ptr<Want> want)
+{
+    nlohmann::json noStringFlags = "{"
+        "\"deviceId\": \"teset_deviceId\","
+        "\"bundleName\": \"teset_bundleName\","
+        "\"abilityName\": \"teset_abilityName\","
+        "\"uri\": \"teset_uri\","
+        "\"type\": \"teset_type\","
+        "\"flags\": {},"
+        "\"action\": \"teset_action\","
+        "\"parameters\": \"teset_parameters\","
+        "\"entities\": \"teset_entities\""
+    "}";
+
+    nlohmann::json noStringAction = "{"
+        "\"deviceId\": \"teset_deviceId\","
+        "\"bundleName\": \"teset_bundleName\","
+        "\"abilityName\": \"teset_abilityName\","
+        "\"uri\": \"teset_uri\","
+        "\"type\": \"teset_type\","
+        "\"flags\": \"teset_flags\","
+        "\"action\": {},"
+        "\"parameters\": \"teset_parameters\","
+        "\"entities\": \"teset_entities\""
+    "}";
+
+    nlohmann::json noStringParameters = "{"
+        "\"deviceId\": \"teset_deviceId\","
+        "\"bundleName\": \"teset_bundleName\","
+        "\"abilityName\": \"teset_abilityName\","
+        "\"uri\": \"teset_uri\","
+        "\"type\": \"teset_type\","
+        "\"flags\": \"teset_flags\","
+        "\"action\": \"teset_action\","
+        "\"parameters\": {},"
+        "\"entities\": \"teset_entities\""
+    "}";
+
+    if (want != nullptr) {
+        want->ReadFromJson(noStringFlags);
+        want->ReadFromJson(noStringAction);
+        want->ReadFromJson(noStringParameters);
+    }
+}
+
+void DoReadFromJsonFifth(std::shared_ptr<Want> want)
+{
+    nlohmann::json nullEntities = "{"
+        "\"deviceId\": \"teset_deviceId\","
+        "\"bundleName\": \"teset_bundleName\","
+        "\"abilityName\": \"teset_abilityName\","
+        "\"uri\": \"teset_uri\","
+        "\"type\": \"teset_type\","
+        "\"flags\": \"teset_flags\","
+        "\"action\": \"teset_action\","
+        "\"parameters\": \"teset_parameters\","
+        "\"entities\": "
+    "}";
+
+    nlohmann::json arraryEntitiesItemNotString = "{"
+        "\"deviceId\": \"teset_deviceId\","
+        "\"bundleName\": \"teset_bundleName\","
+        "\"abilityName\": \"teset_abilityName\","
+        "\"uri\": \"teset_uri\","
+        "\"type\": \"teset_type\","
+        "\"flags\": \"teset_flags\","
+        "\"action\": \"teset_action\","
+        "\"parameters\": \"teset_parameters\","
+        "\"entities\": ["
+            "{},"
+        "]"
+    "}";
+
+    nlohmann::json stringJson = "{"
+        "\"deviceId\": \"teset_deviceId\","
+        "\"bundleName\": \"teset_bundleName\","
+        "\"abilityName\": \"teset_abilityName\","
+        "\"uri\": \"teset_uri\","
+        "\"type\": \"teset_type\","
+        "\"flags\": \"teset_flags\","
+        "\"action\": \"teset_action\","
+        "\"parameters\": \"teset_parameters\","
+        "\"entities\": ["
+            "\"entities\""
+        "]"
+    "}";
+
+    if (want != nullptr) {
+        want->ReadFromJson(nullEntities);
+        want->ReadFromJson(arraryEntitiesItemNotString);
+        want->ReadFromJson(stringJson);
+    }
+}
+
+void DoReadFromJson(std::shared_ptr<Want> want)
+{
+    DoReadFromJsonFirst(want);
+    DoReadFromJsonSecond(want);
+    DoReadFromJsonThird(want);
+    DoReadFromJsonFourth(want);
+    DoReadFromJsonFifth(want);
+}
+
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
     std::shared_ptr<Want> want = std::make_shared<Want>();
@@ -68,6 +319,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     want->DumpInfo(level);
     nlohmann::json wantJson;
     want->ReadFromJson(wantJson);
+    DoReadFromJson(want);
     return true;
 }
 }
