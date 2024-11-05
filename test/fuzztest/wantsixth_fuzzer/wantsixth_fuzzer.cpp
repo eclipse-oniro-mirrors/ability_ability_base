@@ -36,6 +36,48 @@ uint32_t GetU32Data(const char* ptr)
     // convert fuzz input data to an integer
     return (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | ptr[3];
 }
+
+void DoGetTypeArrayParam()
+{
+    std::shared_ptr<Want> WantIn = std::make_shared<Want>();
+    std::vector<bool> boolArrayValue = {true, false, true};
+    WantIn->SetParam(std::string("bool_arraykey"), boolArrayValue);
+
+    std::vector<byte> byteArrayValue = {'?', 'a', '\\'};
+    WantIn->SetParam(std::string("byte_arraykey"), byteArrayValue);
+
+    std::vector<zchar> charArrayValue = {U'e', U'l', U'l', U'o'};
+    WantIn->SetParam(std::string("char_arraykey"), charArrayValue);
+
+    std::vector<int> intArrayValue = {-10, 0, 10};
+    WantIn->SetParam(std::string("int_arraykey"), intArrayValue);
+
+    std::vector<double> doubleArrayValue = {-1000.1, 0.1, 1000.1};
+    WantIn->SetParam(std::string("double_arraykey"), doubleArrayValue);
+
+    std::vector<float> floatArrayValue = {-100.1, 0.1, 100.1};
+    WantIn->SetParam(std::string("float_arraykey"), floatArrayValue);
+
+    std::vector<long> longArrayValue = {-100, 0, 100};
+    WantIn->SetParam(std::string("long_arraykey"), longArrayValue);
+
+    std::vector<std::string> stringArrayValue = {"stringtest1", "string@test2", "string@!#test2"};
+    WantIn->SetParam(std::string("string_arraykey"), stringArrayValue);
+
+    std::vector<short> shortArrayValue = {-1, 0, 1};
+    WantIn->SetParam(std::string("short_arraykey"), shortArrayValue);
+
+    WantIn->GetBoolArrayParam(std::string("bool_arraykey"));
+    WantIn->GetByteArrayParam(std::string("byte_arraykey"));
+    WantIn->GetCharArrayParam(std::string("char_arraykey"));
+    WantIn->GetIntArrayParam(std::string("int_arraykey"));
+    WantIn->GetDoubleArrayParam(std::string("double_arraykey"));
+    WantIn->GetFloatArrayParam(std::string("float_arraykey"));
+    WantIn->GetLongArrayParam(std::string("long_arraykey"));
+    WantIn->GetShortArrayParam(std::string("short_arraykey"));
+    WantIn->GetStringArrayParam(std::string("string_arraykey"));
+}
+
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
     std::shared_ptr<Want> want = std::make_shared<Want>();
@@ -54,6 +96,11 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     want->GetShortArrayParam(key);
     std::vector<std::string> stringVector;
     want->SetParam(key, stringVector);
+    Want wantSource;
+    Want wantDest(wantSource);
+    wantDest = wantSource;
+    want->GetBoolArrayParam(key);
+    DoGetTypeArrayParam();
     return true;
 }
 }
