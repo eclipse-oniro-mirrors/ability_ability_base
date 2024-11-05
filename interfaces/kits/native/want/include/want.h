@@ -871,6 +871,7 @@ public:
     static const std::string PARAM_RESV_CALLER_APP_IDENTIFIER;
     static const std::string PARAM_RESV_CALLER_UID;
     static const std::string PARAM_RESV_CALLER_PID;
+    static const std::string PARAM_RESV_CALLER_APP_CLONE_INDEX;
     static const std::string PARAM_RESV_FOR_RESULT;
     static const std::string PARAM_RESV_CALL_TO_FOREGROUND;
     static const std::string PARAM_RESV_START_RECENT;
