@@ -55,6 +55,14 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     zchar charValue = U'\0';
     want->SetParam(key, charValue);
     want->GetCharParam(key, charValue);
+    Parcel parcel;
+    want->Marshalling(parcel);
+    want->ReadFromParcel(parcel);
+    auto wantPtr = want->Unmarshalling(parcel);
+    if (wantPtr) {
+        delete wantPtr;
+        wantPtr = nullptr;
+    }
     return true;
 }
 }

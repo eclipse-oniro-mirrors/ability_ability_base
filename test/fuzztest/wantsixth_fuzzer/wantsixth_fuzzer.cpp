@@ -74,6 +74,7 @@ void DoGetTypeArrayParam()
     WantIn->GetDoubleArrayParam(std::string("double_arraykey"));
     WantIn->GetFloatArrayParam(std::string("float_arraykey"));
     WantIn->GetLongArrayParam(std::string("long_arraykey"));
+    WantIn->GetLongArrayParam(std::string("string_arraykey"));
     WantIn->GetShortArrayParam(std::string("short_arraykey"));
     WantIn->GetStringArrayParam(std::string("string_arraykey"));
 }

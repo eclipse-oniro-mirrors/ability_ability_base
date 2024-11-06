@@ -39,8 +39,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     Want wantEqual;
     want->IsEquals(wantEqual);
     std::string uri(data, size);
-    want->ParseUri(uri);
-    want->WantParseUri(data);
     want->GetUriString();
     want->SetUri(uri);
     want->GetUri();
@@ -58,10 +56,13 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     want->RemoveParam(key);
     want->ClearWant(&wantEqual);
     std::string content(data, size);
-    want->ParseFlag(content, wantEqual);
     want->ToJson();
     want->ToString();
-    want->FromString(content);
+    auto wantPtr = want->FromString(content);
+    if (wantPtr) {
+        delete wantPtr;
+        wantPtr = nullptr;
+    }
     want->CloseAllFd();
     want->RemoveAllFd();
     want->DupAllFd();
