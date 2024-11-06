@@ -906,6 +906,8 @@ public:
     // keep-alive
     static const std::string PARAM_APP_KEEP_ALIVE_ENABLED;
 
+    static const std::string PARAMS_NEED_CHECK_CALLER_IS_EXIST;
+
 private:
     WantParams parameters_;
     Operation operation_;
