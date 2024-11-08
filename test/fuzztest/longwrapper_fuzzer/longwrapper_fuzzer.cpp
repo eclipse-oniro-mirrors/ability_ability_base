@@ -36,7 +36,7 @@ uint32_t GetU32Data(const char* ptr)
 }
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
-    long longValue = static_cast<long>(size);
+    long longValue = static_cast<long>(GetU32Data(data));
     Long longObj(longValue);
     longObj.GetValue(longValue);
     longObj.ToString();
