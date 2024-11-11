@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+# Copyright (c) 2021-2024 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -33,6 +33,7 @@ ohos_unittest("base_object_test") {
   external_deps = [
     "ability_base:base",
     "c_utils:utils",
+    "ipc:ipc_core",
   ]
 }
 
@@ -61,6 +62,7 @@ ohos_unittest("bool_wrapper_test") {
   external_deps = [
     "ability_base:base",
     "c_utils:utils",
+    "ipc:ipc_core",
   ]
 }
 
@@ -75,6 +77,7 @@ ohos_unittest("byte_wrapper_test") {
   external_deps = [
     "ability_base:base",
     "c_utils:utils",
+    "ipc:ipc_core",
   ]
 }
 
@@ -89,6 +92,7 @@ ohos_unittest("double_wrapper_test") {
   external_deps = [
     "ability_base:base",
     "c_utils:utils",
+    "ipc:ipc_core",
   ]
 }
 
@@ -103,6 +107,7 @@ ohos_unittest("float_wrapper_test") {
   external_deps = [
     "ability_base:base",
     "c_utils:utils",
+    "ipc:ipc_core",
   ]
 }
 
@@ -117,6 +122,7 @@ ohos_unittest("int_wrapper_test") {
   external_deps = [
     "ability_base:base",
     "c_utils:utils",
+    "ipc:ipc_core",
   ]
 }
 
@@ -131,6 +137,7 @@ ohos_unittest("long_wrapper_test") {
   external_deps = [
     "ability_base:base",
     "c_utils:utils",
+    "ipc:ipc_core",
   ]
 }
 
@@ -206,6 +213,7 @@ ohos_unittest("skills_test") {
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "hilog:libhilog",
+    "ipc:ipc_core",
   ]
 }
 
@@ -269,6 +277,7 @@ ohos_unittest("want_test") {
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "hilog:libhilog",
+    "ipc:ipc_core",
   ]
 }
 
@@ -330,6 +339,7 @@ ohos_unittest("array_wrapper_test") {
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "ipc:ipc_core",
   ]
 }
 
@@ -350,6 +360,7 @@ ohos_unittest("zchar_wrapper_test") {
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "ipc:ipc_core",
   ]
 }
 
@@ -370,6 +381,7 @@ ohos_unittest("short_wrapper_test") {
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "ipc:ipc_core",
   ]
 }
 
@@ -390,6 +402,7 @@ ohos_unittest("string_wrapper_test") {
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "ipc:ipc_core",
   ]
 }
 
@@ -410,6 +423,7 @@ ohos_unittest("user_object_wrapper_test") {
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "ipc:ipc_core",
   ]
 }
 
@@ -484,6 +498,8 @@ ohos_unittest("view_data_test") {
     "ability_base:zuri",
     "c_utils:utils",
     "hilog:libhilog",
+    "ipc:ipc_core",
+    "json:nlohmann_json_static",
   ]
 }
 
@@ -507,6 +523,8 @@ ohos_unittest("rect_test") {
     "ability_base:zuri",
     "c_utils:utils",
     "hilog:libhilog",
+    "ipc:ipc_core",
+    "json:nlohmann_json_static",
   ]
 }
 
@@ -530,6 +548,8 @@ ohos_unittest("page_node_info_test") {
     "ability_base:zuri",
     "c_utils:utils",
     "hilog:libhilog",
+    "ipc:ipc_core",
+    "json:nlohmann_json_static",
   ]
 }
 
