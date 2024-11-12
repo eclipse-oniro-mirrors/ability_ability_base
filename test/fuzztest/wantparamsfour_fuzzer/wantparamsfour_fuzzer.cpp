@@ -41,7 +41,6 @@ using namespace OHOS::AAFwk;
 
 namespace OHOS {
 namespace {
-constexpr size_t FOO_MAX_LEN = 1024;
 constexpr size_t U32_AT_SIZE = 4;
 constexpr size_t BOOLEAN_TO_STRING = 10;
 constexpr int32_t ARRAY_SIZE = 5;
@@ -214,7 +213,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     }
 
     /* Validate the length of size */
-    if (size > OHOS::FOO_MAX_LEN || size < OHOS::U32_AT_SIZE) {
+    if (size < OHOS::U32_AT_SIZE) {
         return 0;
     }
 
