@@ -22,6 +22,8 @@
 
 namespace OHOS {
 namespace AAFwk {
+constexpr int MAX_SUPPOPRT_WINDOW_MODES_SIZE = 10;
+
 bool SessionInfo::Marshalling(Parcel& parcel) const
 {
     if (!DoMarshallingOne(parcel)) {
@@ -253,6 +255,11 @@ bool SessionInfo::DoMarshallingFive(Parcel& parcel) const
         ABILITYBASE_LOGE("Write startWindowOption failed");
         return false;
     }
+
+    parcel.WriteInt32(supportWindowModes.size());
+    for (auto windowMode : supportWindowModes) {
+        parcel.WriteInt32(static_cast<int32_t>(windowMode));
+    }
     return true;
 }
 
@@ -308,6 +315,12 @@ SessionInfo* SessionInfo::Unmarshalling(Parcel& parcel)
         info->want = *want;
     }
     info->startWindowOption.reset(parcel.ReadParcelable<StartWindowOption>());
+    auto size = parcel.ReadInt32();
+    if (size <= MAX_SUPPOPRT_WINDOW_MODES_SIZE) {
+        for (int i = 0; i < size; i++) {
+            info->supportWindowModes.emplace_back(AppExecFwk::SupportWindowMode(parcel.ReadInt32()));
+        }
+    }
     return info;
 }
 }  // namespace AAFwk
