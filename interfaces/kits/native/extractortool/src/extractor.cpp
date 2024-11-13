@@ -39,6 +39,10 @@ Extractor::~Extractor()
 
 bool Extractor::Init()
 {
+    if (initial_) {
+        ABILITYBASE_LOGD("already init");
+        return true;
+    }
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (!zipFile_.Open()) {
         ABILITYBASE_LOGD("open zip file failed");
@@ -185,6 +189,10 @@ bool Extractor::IsStageModel()
 bool Extractor::ExtractToBufByName(const std::string &fileName, std::unique_ptr<uint8_t[]> &dataPtr,
     size_t &len) const
 {
+    if (!initial_) {
+        ABILITYBASE_LOGW("not init");
+        return false;
+    }
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::string relativePath = GetRelativePath(fileName);
     return zipFile_.ExtractToBufByName(relativePath, dataPtr, len);

@@ -16,6 +16,7 @@
 #ifndef OHOS_ABILITY_BASE_EXTRACTOR_H
 #define OHOS_ABILITY_BASE_EXTRACTOR_H
 
+#include <atomic>
 #include <memory>
 #include <mutex>
 #include <optional>
@@ -100,7 +101,7 @@ public:
     }
 private:
     ZipFile zipFile_;
-    bool initial_ = false;
+    std::atomic_bool initial_ = false;
     std::string hapPath_;
     std::optional<bool> isStageModel_;
 };
