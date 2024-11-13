@@ -19,6 +19,7 @@
 #include <typeinfo>
 #include <unistd.h>
 
+#include "ability_info.h"
 #include "iremote_object.h"
 #include "parcel.h"
 #include "session_info_constants.h"
@@ -58,6 +59,7 @@ public:
     std::shared_ptr<AbilityStartSetting> startSetting = nullptr;
     std::shared_ptr<ProcessOptions> processOptions = nullptr;
     std::shared_ptr<StartWindowOption> startWindowOption = nullptr;
+    std::vector<AppExecFwk::SupportWindowMode> supportWindowModes;
     Want want;
     int32_t userId = -1;
     bool isNewWant = true;
