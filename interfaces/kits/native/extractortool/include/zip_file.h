@@ -16,6 +16,7 @@
 #ifndef OHOS_ABILITY_BASE_ZIP_FILE_H
 #define OHOS_ABILITY_BASE_ZIP_FILE_H
 
+#include <atomic>
 #include <memory>
 #include <mutex>
 #include <set>
@@ -308,7 +309,8 @@ private:
     ZipPos fileStartPos_ = 0;
     // this zip content length in the zip file.
     ZipPos fileLength_ = 0;
-    bool isOpen_ = false;
+    std::atomic_bool isOpen_ = false;
+    std::mutex openMutex_;
     CacheMode cacheMode_ = CacheMode::CACHE_CASE;
 };
 }  // namespace AbilityBase

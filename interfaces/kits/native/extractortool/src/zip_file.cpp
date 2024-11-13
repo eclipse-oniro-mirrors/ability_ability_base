@@ -239,6 +239,7 @@ bool ZipFile::ParseAllEntries()
 
 bool ZipFile::Open()
 {
+    std::lock_guard lock(openMutex_);
     if (isOpen_) {
         ABILITYBASE_LOGE("opened");
         return true;
