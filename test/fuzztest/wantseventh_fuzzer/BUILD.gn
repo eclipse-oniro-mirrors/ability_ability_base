@@ -41,6 +41,7 @@ ohos_fuzztest("WantSeventhFuzzTest") {
   external_deps = [
     "c_utils:utils",
     "ipc:ipc_core",
+    "json:nlohmann_json_static",
   ]
 }
 
