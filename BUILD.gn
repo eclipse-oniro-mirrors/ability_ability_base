@@ -257,6 +257,7 @@ ohos_shared_library("session_info") {
     "ability_runtime:ability_start_setting",
     "ability_runtime:process_options",
     "ability_runtime:start_window_option",
+    "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",
