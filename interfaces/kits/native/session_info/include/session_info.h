@@ -84,6 +84,7 @@ public:
     std::string instanceKey = "";
     bool isMinimizedDuringFreeInstall = false;
     bool isFromIcon = false;
+    int32_t tmpSpecifiedId = 0;
 
 private:
     bool DoMarshallingOne(Parcel& parcel) const;
