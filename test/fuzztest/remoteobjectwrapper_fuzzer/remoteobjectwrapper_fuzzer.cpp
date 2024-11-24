@@ -33,6 +33,7 @@ constexpr size_t U32_AT_SIZE = 4;
 
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
+    (void)data;
     sptr<IRemoteObject> remoteObject;
     std::shared_ptr<RemoteObjectWrap> remoteObjectWrap = std::make_shared<RemoteObjectWrap>(remoteObject);
     remoteObjectWrap->Equals(*remoteObjectWrap);
