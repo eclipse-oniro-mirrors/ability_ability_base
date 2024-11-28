@@ -281,7 +281,6 @@ bool SessionInfo::DoMarshallingFive(Parcel& parcel) const
         ABILITYBASE_LOGE("Write tmpSpecifiedId failed");
         return false;
     }
-
     return true;
 }
 
