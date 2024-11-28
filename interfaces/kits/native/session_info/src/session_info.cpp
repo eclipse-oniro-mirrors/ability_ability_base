@@ -285,7 +285,7 @@ bool SessionInfo::DoMarshallingFive(Parcel& parcel) const
 }
 
 bool SessionInfo::DoMarshallingSix(Parcel& parcel) const
-{    
+{
     if (!parcel.WriteInt32(isDensityFollowHost)) {
         ABILITYBASE_LOGE("Write isDensityFollowHost failed");
         return false;
