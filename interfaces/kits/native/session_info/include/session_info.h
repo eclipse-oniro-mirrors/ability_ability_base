@@ -93,6 +93,7 @@ private:
     bool DoMarshallingThree(Parcel& parcel) const;
     bool DoMarshallingFour(Parcel& parcel) const;
     bool DoMarshallingFive(Parcel& parcel) const;
+    bool DoMarshallingSix(Parcel& parcel) const;
     static SessionInfo* ReadParcelOne(SessionInfo* info, Parcel& parcel);
 };
 } // namespace AAFwk

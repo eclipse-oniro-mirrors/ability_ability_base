@@ -42,7 +42,11 @@ bool SessionInfo::Marshalling(Parcel& parcel) const
         return false;
     }
 
-    return DoMarshallingFive(parcel);
+    if (!DoMarshallingFive(parcel)) {
+        return false;
+    }
+
+    return DoMarshallingSix(parcel);
 }
 
 bool SessionInfo::DoMarshallingOne(Parcel& parcel) const
@@ -278,6 +282,11 @@ bool SessionInfo::DoMarshallingFive(Parcel& parcel) const
         return false;
     }
 
+    return true;
+}
+
+bool SessionInfo::DoMarshallingSix(Parcel& parcel) const
+{    
     if (!parcel.WriteInt32(isDensityFollowHost)) {
         ABILITYBASE_LOGE("Write isDensityFollowHost failed");
         return false;
