@@ -85,6 +85,7 @@ public:
     bool isMinimizedDuringFreeInstall = false;
     bool isFromIcon = false;
     int32_t tmpSpecifiedId = 0;
+    bool isDensityFollowHost = false;
 
 private:
     bool DoMarshallingOne(Parcel& parcel) const;
