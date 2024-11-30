@@ -85,6 +85,7 @@ public:
     bool isMinimizedDuringFreeInstall = false;
     bool isFromIcon = false;
     int32_t tmpSpecifiedId = 0;
+    bool isDensityFollowHost = false;
 
 private:
     bool DoMarshallingOne(Parcel& parcel) const;
@@ -92,6 +93,7 @@ private:
     bool DoMarshallingThree(Parcel& parcel) const;
     bool DoMarshallingFour(Parcel& parcel) const;
     bool DoMarshallingFive(Parcel& parcel) const;
+    bool DoMarshallingSix(Parcel& parcel) const;
     static SessionInfo* ReadParcelOne(SessionInfo* info, Parcel& parcel);
 };
 } // namespace AAFwk

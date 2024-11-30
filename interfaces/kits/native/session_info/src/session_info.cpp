@@ -42,7 +42,11 @@ bool SessionInfo::Marshalling(Parcel& parcel) const
         return false;
     }
 
-    return DoMarshallingFive(parcel);
+    if (!DoMarshallingFive(parcel)) {
+        return false;
+    }
+
+    return DoMarshallingSix(parcel);
 }
 
 bool SessionInfo::DoMarshallingOne(Parcel& parcel) const
@@ -277,6 +281,15 @@ bool SessionInfo::DoMarshallingFive(Parcel& parcel) const
         ABILITYBASE_LOGE("Write tmpSpecifiedId failed");
         return false;
     }
+    return true;
+}
+
+bool SessionInfo::DoMarshallingSix(Parcel& parcel) const
+{
+    if (!parcel.WriteInt32(isDensityFollowHost)) {
+        ABILITYBASE_LOGE("Write isDensityFollowHost failed");
+        return false;
+    }
 
     if (!parcel.WriteParcelable(&want)) {
         ABILITYBASE_LOGE("Write want failed");
@@ -355,6 +368,7 @@ SessionInfo* SessionInfo::ReadParcelOne(SessionInfo* info, Parcel& parcel)
     info->instanceKey = parcel.ReadString();
     info->isFromIcon = parcel.ReadBool();
     info->tmpSpecifiedId = parcel.ReadInt32();
+    info->isDensityFollowHost = parcel.ReadBool();
 
     std::unique_ptr<Want> want(parcel.ReadParcelable<Want>());
     if (want != nullptr) {
