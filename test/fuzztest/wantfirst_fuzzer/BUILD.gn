@@ -35,13 +35,13 @@ ohos_fuzztest("WantFirstFuzzTest") {
     "${ability_base_path}:base",
     "${ability_base_path}:want",
     "${ability_base_path}:zuri",
-    "//third_party/jsoncpp:jsoncpp",
   ]
 
   external_deps = [
     "c_utils:utils",
     "ipc:ipc_core",
     "json:nlohmann_json_static",
+    "jsoncpp:jsoncpp",
   ]
 }
 

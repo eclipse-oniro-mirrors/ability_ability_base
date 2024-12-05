@@ -28,11 +28,12 @@ ohos_unittest("base_object_test") {
 
   configs = [ ":base_private_config" ]
 
-  deps = [ "//third_party/googletest:gtest_main" ]
+  deps = []
 
   external_deps = [
     "ability_base:base",
     "c_utils:utils",
+    "googletest:gtest_main",
     "ipc:ipc_core",
   ]
 }
@@ -43,11 +44,12 @@ ohos_unittest("base_test") {
 
   configs = [ ":base_private_config" ]
 
-  deps = [ "//third_party/googletest:gtest_main" ]
+  deps = []
 
   external_deps = [
     "ability_base:base",
     "c_utils:utils",
+    "googletest:gtest_main",
   ]
 }
 
@@ -57,11 +59,12 @@ ohos_unittest("bool_wrapper_test") {
 
   configs = [ ":base_private_config" ]
 
-  deps = [ "//third_party/googletest:gtest_main" ]
+  deps = []
 
   external_deps = [
     "ability_base:base",
     "c_utils:utils",
+    "googletest:gtest_main",
     "ipc:ipc_core",
   ]
 }
@@ -72,11 +75,12 @@ ohos_unittest("byte_wrapper_test") {
 
   configs = [ ":base_private_config" ]
 
-  deps = [ "//third_party/googletest:gtest_main" ]
+  deps = []
 
   external_deps = [
     "ability_base:base",
     "c_utils:utils",
+    "googletest:gtest_main",
     "ipc:ipc_core",
   ]
 }
@@ -87,11 +91,12 @@ ohos_unittest("double_wrapper_test") {
 
   configs = [ ":base_private_config" ]
 
-  deps = [ "//third_party/googletest:gtest_main" ]
+  deps = []
 
   external_deps = [
     "ability_base:base",
     "c_utils:utils",
+    "googletest:gtest_main",
     "ipc:ipc_core",
   ]
 }
@@ -102,11 +107,12 @@ ohos_unittest("float_wrapper_test") {
 
   configs = [ ":base_private_config" ]
 
-  deps = [ "//third_party/googletest:gtest_main" ]
+  deps = []
 
   external_deps = [
     "ability_base:base",
     "c_utils:utils",
+    "googletest:gtest_main",
     "ipc:ipc_core",
   ]
 }
@@ -117,11 +123,12 @@ ohos_unittest("int_wrapper_test") {
 
   configs = [ ":base_private_config" ]
 
-  deps = [ "//third_party/googletest:gtest_main" ]
+  deps = []
 
   external_deps = [
     "ability_base:base",
     "c_utils:utils",
+    "googletest:gtest_main",
     "ipc:ipc_core",
   ]
 }
@@ -132,11 +139,12 @@ ohos_unittest("long_wrapper_test") {
 
   configs = [ ":base_private_config" ]
 
-  deps = [ "//third_party/googletest:gtest_main" ]
+  deps = []
 
   external_deps = [
     "ability_base:base",
     "c_utils:utils",
+    "googletest:gtest_main",
     "ipc:ipc_core",
   ]
 }
@@ -162,7 +170,7 @@ ohos_unittest("operation_test") {
     "${ability_base_path}:want_public_config",
   ]
 
-  deps = [ "//third_party/googletest:gtest_main" ]
+  deps = []
 
   external_deps = [
     "ability_base:base",
@@ -170,6 +178,7 @@ ohos_unittest("operation_test") {
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "googletest:gtest_main",
   ]
 }
 
@@ -182,15 +191,13 @@ ohos_unittest("patterns_matcher_test") {
     "${ability_base_path}:want_public_config",
   ]
 
-  deps = [
-    "${ability_base_path}:base",
-    "//third_party/googletest:gtest_main",
-  ]
+  deps = [ "${ability_base_path}:base" ]
 
   external_deps = [
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "googletest:gtest_main",
     "hilog:libhilog",
   ]
 }
@@ -204,7 +211,7 @@ ohos_unittest("skills_test") {
     "${ability_base_path}:want_public_config",
   ]
 
-  deps = [ "//third_party/googletest:gtest_main" ]
+  deps = []
 
   external_deps = [
     "ability_base:base",
@@ -212,6 +219,7 @@ ohos_unittest("skills_test") {
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "googletest:gtest_main",
     "hilog:libhilog",
     "ipc:ipc_core",
   ]
@@ -229,12 +237,12 @@ ohos_unittest("want_params_test") {
   deps = [
     "${ability_base_path}:base",
     "${ability_base_path}:want",
-    "//third_party/googletest:gtest_main",
   ]
 
   external_deps = [
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "googletest:gtest_main",
     "hilog:libhilog",
     "ipc:ipc_core",
   ]
@@ -246,7 +254,7 @@ ohos_unittest("want_params_wrapper_test") {
 
   configs = [ ":module_private_want_param_wrapper_config" ]
 
-  deps = [ "//third_party/googletest:gtest_main" ]
+  deps = []
 
   external_deps = [
     "ability_base:base",
@@ -254,6 +262,7 @@ ohos_unittest("want_params_wrapper_test") {
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "googletest:gtest_main",
     "hilog:libhilog",
     "ipc:ipc_core",
   ]
@@ -268,7 +277,7 @@ ohos_unittest("want_test") {
     "${ability_base_path}:want_public_config",
   ]
 
-  deps = [ "//third_party/googletest:gtest_main" ]
+  deps = []
 
   external_deps = [
     "ability_base:base",
@@ -276,6 +285,7 @@ ohos_unittest("want_test") {
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "googletest:gtest_main",
     "hilog:libhilog",
     "ipc:ipc_core",
   ]
@@ -290,7 +300,7 @@ ohos_unittest("uri_test") {
     "${ability_base_path}:want_public_config",
   ]
 
-  deps = [ "//third_party/googletest:gtest_main" ]
+  deps = []
 
   external_deps = [
     "ability_base:base",
@@ -298,6 +308,7 @@ ohos_unittest("uri_test") {
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "googletest:gtest_main",
     "hilog:libhilog",
   ]
 }
@@ -311,7 +322,7 @@ ohos_unittest("extra_params_test") {
     "${ability_base_path}:want_public_config",
   ]
 
-  deps = [ "//third_party/googletest:gtest_main" ]
+  deps = []
 
   external_deps = [
     "ability_base:base",
@@ -319,6 +330,7 @@ ohos_unittest("extra_params_test") {
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "googletest:gtest_main",
   ]
 }
 
@@ -331,7 +343,7 @@ ohos_unittest("array_wrapper_test") {
     "${ability_base_path}:want_public_config",
   ]
 
-  deps = [ "//third_party/googletest:gtest_main" ]
+  deps = []
 
   external_deps = [
     "ability_base:base",
@@ -339,6 +351,7 @@ ohos_unittest("array_wrapper_test") {
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "googletest:gtest_main",
     "ipc:ipc_core",
   ]
 }
@@ -352,7 +365,7 @@ ohos_unittest("zchar_wrapper_test") {
     "${ability_base_path}:want_public_config",
   ]
 
-  deps = [ "//third_party/googletest:gtest_main" ]
+  deps = []
 
   external_deps = [
     "ability_base:base",
@@ -360,6 +373,7 @@ ohos_unittest("zchar_wrapper_test") {
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "googletest:gtest_main",
     "ipc:ipc_core",
   ]
 }
@@ -373,7 +387,7 @@ ohos_unittest("short_wrapper_test") {
     "${ability_base_path}:want_public_config",
   ]
 
-  deps = [ "//third_party/googletest:gtest_main" ]
+  deps = []
 
   external_deps = [
     "ability_base:base",
@@ -381,6 +395,7 @@ ohos_unittest("short_wrapper_test") {
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "googletest:gtest_main",
     "ipc:ipc_core",
   ]
 }
@@ -394,7 +409,7 @@ ohos_unittest("string_wrapper_test") {
     "${ability_base_path}:want_public_config",
   ]
 
-  deps = [ "//third_party/googletest:gtest_main" ]
+  deps = []
 
   external_deps = [
     "ability_base:base",
@@ -402,6 +417,7 @@ ohos_unittest("string_wrapper_test") {
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "googletest:gtest_main",
     "ipc:ipc_core",
   ]
 }
@@ -415,7 +431,7 @@ ohos_unittest("user_object_wrapper_test") {
     "${ability_base_path}:want_public_config",
   ]
 
-  deps = [ "//third_party/googletest:gtest_main" ]
+  deps = []
 
   external_deps = [
     "ability_base:base",
@@ -423,6 +439,7 @@ ohos_unittest("user_object_wrapper_test") {
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "googletest:gtest_main",
     "ipc:ipc_core",
   ]
 }
@@ -433,11 +450,8 @@ extractor_output_path = "ability_base/extractor_test"
 ######################################################################
 config("extractor_private_config") {
   visibility = [ ":*" ]
-  include_dirs = [
-    "{ability_base_path}/interfaces/kits/native/extractor/include",
-    "//third_party/zlib/contrib/minizip",
-    "//third_party/zlib",
-  ]
+  include_dirs =
+      [ "{ability_base_path}/interfaces/kits/native/extractor/include" ]
 
   defines = [ "ABILITYBASE_LOG_TAG = \"ExtractorTest\"" ]
 }
@@ -448,18 +462,18 @@ ohos_unittest("extractor_test") {
 
   configs = [ ":extractor_private_config" ]
 
-  deps = [
-    "//third_party/googletest:gtest_main",
-    "//third_party/zlib:shared_libz",
-  ]
+  deps = []
 
   external_deps = [
     "ability_base:extractortool",
     "ability_base:extractresourcemanager",
     "ability_base:string_utils",
     "c_utils:utils",
+    "googletest:gtest_main",
     "hilog:libhilog",
     "resource_management:global_resmgr",
+    "zlib:libz",
+    "zlib:shared_libz",
   ]
 }
 
@@ -469,11 +483,8 @@ viewdata_output_path = "ability_base/view_data_test"
 ######################################################################
 config("viewdata_private_config") {
   visibility = [ ":*" ]
-  include_dirs = [
-    "{ability_base_path}/interfaces/kits/native/view_data/include",
-    "//third_party/zlib/contrib/minizip",
-    "//third_party/zlib",
-  ]
+  include_dirs =
+      [ "{ability_base_path}/interfaces/kits/native/view_data/include" ]
 
   defines = [ "ABILITYBASE_LOG_TAG = \"ViewDataTest\"" ]
 }
@@ -484,10 +495,7 @@ ohos_unittest("view_data_test") {
 
   configs = [ ":viewdata_private_config" ]
 
-  deps = [
-    "//third_party/googletest:gtest_main",
-    "//third_party/zlib:shared_libz",
-  ]
+  deps = []
 
   external_deps = [
     "ability_base:base",
@@ -498,9 +506,12 @@ ohos_unittest("view_data_test") {
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "googletest:gtest_main",
     "hilog:libhilog",
     "ipc:ipc_core",
     "json:nlohmann_json_static",
+    "zlib:libz",
+    "zlib:shared_libz",
   ]
 }
 
@@ -510,10 +521,7 @@ ohos_unittest("rect_test") {
 
   configs = [ ":viewdata_private_config" ]
 
-  deps = [
-    "//third_party/googletest:gtest_main",
-    "//third_party/zlib:shared_libz",
-  ]
+  deps = []
 
   external_deps = [
     "ability_base:base",
@@ -524,9 +532,12 @@ ohos_unittest("rect_test") {
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "googletest:gtest_main",
     "hilog:libhilog",
     "ipc:ipc_core",
     "json:nlohmann_json_static",
+    "zlib:libz",
+    "zlib:shared_libz",
   ]
 }
 
@@ -536,10 +547,7 @@ ohos_unittest("page_node_info_test") {
 
   configs = [ ":viewdata_private_config" ]
 
-  deps = [
-    "//third_party/googletest:gtest_main",
-    "//third_party/zlib:shared_libz",
-  ]
+  deps = []
 
   external_deps = [
     "ability_base:base",
@@ -550,9 +558,12 @@ ohos_unittest("page_node_info_test") {
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "googletest:gtest_main",
     "hilog:libhilog",
     "ipc:ipc_core",
     "json:nlohmann_json_static",
+    "zlib:libz",
+    "zlib:shared_libz",
   ]
 }
 
