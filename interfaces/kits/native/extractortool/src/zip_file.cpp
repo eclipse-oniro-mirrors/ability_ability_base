@@ -357,7 +357,7 @@ bool ZipFile::IsDirExist(const std::string &dir)
         return true;
     }
     if (dir.find(WRONG_FILE_SEPARATOR) != std::string::npos) {
-        ABILITYBASE_LOGW("Wrong format");
+        ABILITYBASE_LOGD("Wrong format");
         return false;
     }
 
