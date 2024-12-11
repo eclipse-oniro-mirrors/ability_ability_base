@@ -157,10 +157,7 @@ config("want_public_config") {
 }
 
 config("want_all_dependent_config") {
-  include_dirs = [
-    "${ability_base_kits_native_path}/want/include",
-    "//third_party/json/include",
-  ]
+  include_dirs = [ "${ability_base_kits_native_path}/want/include" ]
 }
 
 ohos_shared_library("want") {
@@ -192,9 +189,10 @@ ohos_shared_library("want") {
     "hilog:libhilog",
     "ipc:ipc_core",
     "ipc:ipc_single",
-    "json:nlohmann_json_static",
     "jsoncpp:jsoncpp",
   ]
+
+  public_external_deps = [ "json:nlohmann_json_static" ]
 
   configs = [ ":want_config" ]
   public_configs += [ ":want_public_config" ]
