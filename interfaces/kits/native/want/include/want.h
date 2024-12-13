@@ -89,6 +89,10 @@ public:
      */
     static constexpr unsigned int FLAG_ABILITY_PREPARE_CONTINUATION = 0x00001000;
     /**
+     * Support collaborative request lifecycle callback in distributed scheduling systems.
+     */
+    static constexpr unsigned int FLAG_ABILITY_ON_COLLABORATE = 0x00002000;
+    /**
      * Returns the result to the source ability slice.
      */
     static constexpr unsigned int FLAG_ABILITYSLICE_FORWARD_RESULT = 0x04000000;
