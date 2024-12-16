@@ -33,6 +33,7 @@ namespace GlobalConfigurationKey {
     constexpr const char* COLORMODE_IS_SET_BY_SA = "ohos.system.colorMode.isSetBySa";
     constexpr const char* THEME = "ohos.application.theme";
     constexpr const char* THEME_ID = "ohos.application.themeId";
+    constexpr const char* SYSTEM_FONT_ID = "ohos.system.fontId";
     constexpr const char* SYSTEM_FONT_SIZE_SCALE = "ohos.system.fontSizeScale";
     constexpr const char* SYSTEM_FONT_WEIGHT_SCALE = "ohos.system.fontWeightScale";
     constexpr const char* SYSTEM_MCC = "ohos.system.mcc";
