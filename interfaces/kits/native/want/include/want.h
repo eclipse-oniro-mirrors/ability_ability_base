@@ -895,6 +895,8 @@ public:
 
     // app clone index
     static const std::string PARAM_APP_CLONE_INDEX_KEY;
+    static const std::string APP_INSTANCE_KEY;
+    static const std::string CREATE_APP_INSTANCE_KEY;
 
     static const std::string PARAM_ATOMIC_SERVICE_PAGE_PATH;
     static const std::string PARAM_ATOMIC_SERVICE_ROUTER_NAME;
