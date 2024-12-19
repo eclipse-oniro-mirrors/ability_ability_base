@@ -893,6 +893,7 @@ public:
 
     // parameter key
     static const std::string PARAM_BACK_TO_OTHER_MISSION_STACK;
+    static const std::string PARM_LAUNCH_REASON_MESSAGE;
 
     // application auto startup launch reason
     static const std::string PARAM_APP_AUTO_STARTUP_LAUNCH_REASON;
