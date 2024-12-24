@@ -39,7 +39,8 @@
         },
         "build": {
             "sub_component": [
-                "//foundation/ability/ability_base:base_innerkits_target"
+                "//foundation/ability/ability_base:base_innerkits_target",
+                "//foundation/ability/ability_base:ability_base_want"
             ],
             "inner_kits": [
                 {
