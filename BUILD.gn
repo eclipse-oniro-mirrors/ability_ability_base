@@ -379,6 +379,56 @@ ohos_shared_library("extractresourcemanager") {
   part_name = "ability_base"
 }
 
+################################### cwant ########################################
+config("ability_base_ndk_config") {
+  include_dirs = [
+    "${ability_base_innerapi_path}/log/include",
+    "${ability_base_kits_native_path}",
+    "${ability_base_ndk_path}/common",
+    "${ability_base_ndk_path}/cwant/include",
+  ]
+
+  if (target_cpu == "arm") {
+    cflags = [ "-DBINDER_IPC_32BIT" ]
+  }
+}
+
+ohos_shared_library("ability_base_want") {
+  sanitize = {
+    integer_overflow = true
+    ubsan = true
+    boundary_sanitize = true
+    cfi = true
+    cfi_cross_dso = true
+    cfi_vcall_icall_only = true
+    debug = false
+  }
+  branch_protector_ret = "pac_ret"
+
+  public_configs = [ ":ability_base_ndk_config" ]
+
+  sources = [
+    "interfaces/kits/c/cwant/src/want.cpp",
+    "interfaces/kits/c/cwant/src/want_manager.cpp",
+  ]
+
+  deps = [
+    ":base",
+    ":want",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+  ]
+
+  output_extension = "so"
+  innerapi_tags = [ "ndk" ]
+  install_images = [ "system" ]
+  subsystem_name = "ability"
+  part_name = "ability_base"
+}
+
 group("base_innerkits_target") {
   deps = [
     ":base",
