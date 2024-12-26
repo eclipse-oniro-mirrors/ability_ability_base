@@ -18,7 +18,7 @@
 #include <fstream>
 #include <regex>
 #include <vector>
-
+#include <climits>
 #include "constants.h"
 
 #ifdef WINDOWS_PLATFORM
