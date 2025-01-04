@@ -84,7 +84,7 @@ public:
     std::string instanceKey = "";
     bool isMinimizedDuringFreeInstall = false;
     bool isFromIcon = false;
-    int32_t tmpSpecifiedId = 0;
+    int32_t requestId = 0;
     bool isDensityFollowHost = false;
 
 private:

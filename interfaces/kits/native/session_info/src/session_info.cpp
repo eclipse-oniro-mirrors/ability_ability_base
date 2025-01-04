@@ -277,8 +277,8 @@ bool SessionInfo::DoMarshallingFive(Parcel& parcel) const
         return false;
     }
 
-    if (!parcel.WriteInt32(tmpSpecifiedId)) {
-        ABILITYBASE_LOGE("Write tmpSpecifiedId failed");
+    if (!parcel.WriteInt32(requestId)) {
+        ABILITYBASE_LOGE("Write requestId failed");
         return false;
     }
     return true;
@@ -367,7 +367,7 @@ SessionInfo* SessionInfo::ReadParcelOne(SessionInfo* info, Parcel& parcel)
     info->needClearInNotShowRecent = parcel.ReadBool();
     info->instanceKey = parcel.ReadString();
     info->isFromIcon = parcel.ReadBool();
-    info->tmpSpecifiedId = parcel.ReadInt32();
+    info->requestId = parcel.ReadInt32();
     info->isDensityFollowHost = parcel.ReadBool();
 
     std::unique_ptr<Want> want(parcel.ReadParcelable<Want>());
