@@ -112,7 +112,7 @@ AbilityBase_ErrorCode OH_AbilityBase_GetWantCharParam(AbilityBase_Want* want, co
 
 AbilityBase_ErrorCode OH_AbilityBase_AddWantFd(AbilityBase_Want* want, const char* key, int32_t fd)
 {
-    if (want == nullptr) {
+    if (want == nullptr || key == nullptr) {
         ABILITYBASE_LOGE("null want");
         return ABILITY_BASE_ERROR_CODE_PARAM_INVALID;
     }
