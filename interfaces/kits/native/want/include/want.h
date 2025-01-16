@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -867,6 +867,10 @@ public:
     static const std::string PARAM_RESV_WINDOW_TOP;
     static const std::string PARAM_RESV_WINDOW_WIDTH;
     static const std::string PARAM_RESV_WINDOW_HEIGHT;
+    static const std::string PARAM_RESV_MIN_WINDOW_WIDTH;
+    static const std::string PARAM_RESV_MIN_WINDOW_HEIGHT;
+    static const std::string PARAM_RESV_MAX_WINDOW_WIDTH;
+    static const std::string PARAM_RESV_MAX_WINDOW_HEIGHT;
     static const std::string PARAM_RESV_CALLER_TOKEN;
     static const std::string PARAM_RESV_CALLER_BUNDLE_NAME;
     static const std::string PARAM_RESV_CALLER_ABILITY_NAME;
