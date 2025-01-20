@@ -15,6 +15,8 @@
 
 #include "float_wrapper.h"
 
+#include "ability_base_log_wrapper.h"
+
 namespace OHOS {
 namespace AAFwk {
 IINTERFACE_IMPL_1(Float, Object, IFloat);
@@ -55,9 +57,13 @@ sptr<IFloat> Float::Parse(const std::string &str) /* [in] */
 {
     sptr<IFloat> object;
     std::size_t idx;
-    float value = std::stof(str, &idx);
-    if (idx != 0) {
-        object = new Float(value);
+    try {
+        float value = std::stof(str, &idx);
+        if (idx != 0) {
+            object = sptr<Float>::MakeSptr(value);
+        }
+    } catch (...) {
+        ABILITYBASE_LOGE("failed to convert to float: %{public}s", str.c_str());
     }
     return object;
 }
