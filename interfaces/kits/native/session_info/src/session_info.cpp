@@ -291,6 +291,11 @@ bool SessionInfo::DoMarshallingSix(Parcel& parcel) const
         return false;
     }
 
+    if (!parcel.WriteString(specifiedFlag)) {
+        ABILITYBASE_LOGE("Write specifiedFlag failed");
+        return false;
+    }
+
     if (!parcel.WriteParcelable(&want)) {
         ABILITYBASE_LOGE("Write want failed");
         return false;
@@ -369,6 +374,7 @@ SessionInfo* SessionInfo::ReadParcelOne(SessionInfo* info, Parcel& parcel)
     info->isFromIcon = parcel.ReadBool();
     info->requestId = parcel.ReadInt32();
     info->isDensityFollowHost = parcel.ReadBool();
+    info->specifiedFlag = parcel.ReadString();
 
     std::unique_ptr<Want> want(parcel.ReadParcelable<Want>());
     if (want != nullptr) {
