@@ -21,7 +21,14 @@ config("base_config") {
 
 config("base_public_config") {
   visibility = [ ":*" ]
-  include_dirs = [ "interfaces/inner_api/base/include" ]
+  include_dirs = [
+    "interfaces/inner_api/base/include",
+    "${ability_base_innerapi_path}/log/include",
+  ]
+}
+
+config("base_exceptions_config") {
+  cflags_cc = [ "-fexceptions" ]
 }
 
 ohos_shared_library("base") {
@@ -42,11 +49,15 @@ ohos_shared_library("base") {
     "interfaces/inner_api/base/src/user_object_wrapper.cpp",
     "interfaces/inner_api/base/src/zchar_wrapper.cpp",
   ]
-  configs = [ ":base_config" ]
+  configs = [
+    ":base_config",
+    ":base_exceptions_config",
+  ]
   public_configs = [ ":base_public_config" ]
 
   external_deps = [
     "c_utils:utils",
+    "hilog:libhilog",
     "ipc:ipc_core",
   ]
 
