@@ -491,5 +491,22 @@ HWTEST_F(ExtractorTest, SetGlobalObject_001, TestSize.Level1)
     ers->SetGlobalObject(resourceManager);
     EXPECT_EQ(ers->GetGlobalObject(), nullptr);
 }
+
+/*
+ * Feature: ExtractResourceManager
+ * Function: UnzipData
+ * SubFunction: NA
+ * EnvConditions: NA
+ * CaseDescription: Create ExtractResourceManager, call UnzipData function.
+ */
+HWTEST_F(ExtractorTest, UnzipData_001, TestSize.Level1)
+{
+    std::shared_ptr<Extractor> extractor1 = std::make_shared<Extractor>(testPath_);
+    extractor1->Init();
+    std::unique_ptr<FileMapper> fileMapper = std::make_unique<FileMapper>();
+    std::unique_ptr<uint8_t[]> data;
+    size_t len = 0;
+    EXPECT_FALSE(extractor1->UnzipData(std::move(fileMapper), data, len));
+}
 }  // namespace AbilityBase
 }  // namespace OHOS
