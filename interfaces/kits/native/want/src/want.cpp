@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -76,6 +76,10 @@ const std::string Want::PARAM_RESV_WINDOW_LEFT("ohos.aafwk.param.windowLeft");
 const std::string Want::PARAM_RESV_WINDOW_TOP("ohos.aafwk.param.windowTop");
 const std::string Want::PARAM_RESV_WINDOW_WIDTH("ohos.aafwk.param.windowWidth");
 const std::string Want::PARAM_RESV_WINDOW_HEIGHT("ohos.aafwk.param.windowHeight");
+const std::string Want::PARAM_RESV_MIN_WINDOW_WIDTH("ohos.aafwk.param.minWindowWidth");
+const std::string Want::PARAM_RESV_MIN_WINDOW_HEIGHT("ohos.aafwk.param.minWindowHeight");
+const std::string Want::PARAM_RESV_MAX_WINDOW_WIDTH("ohos.aafwk.param.maxWindowWidth");
+const std::string Want::PARAM_RESV_MAX_WINDOW_HEIGHT("ohos.aafwk.param.maxWindowHeight");
 const std::string Want::PARAM_RESV_CALLER_TOKEN("ohos.aafwk.param.callerToken");
 const std::string Want::PARAM_RESV_CALLER_BUNDLE_NAME("ohos.aafwk.param.callerBundleName");
 const std::string Want::PARAM_RESV_CALLER_ABILITY_NAME("ohos.aafwk.param.callerAbilityName");
