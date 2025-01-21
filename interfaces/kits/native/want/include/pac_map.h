@@ -482,8 +482,6 @@ public:
      */
     virtual bool FromString(const std::string &str) override;
 
-    ErrCode GetValue(PacMap &value);
-
     virtual bool Equals(IObject &other) override;
 
     static sptr<IPacMap> Parse(const std::string &str);
