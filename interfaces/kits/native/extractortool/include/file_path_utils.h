@@ -32,7 +32,7 @@ namespace AbilityBase {
     std::string FindNpmPackageInPath(const std::string& npmPath);
     std::string FindNpmPackageInTopLevel(
         const std::string& moduleInstallPath, const std::string& npmPackage, size_t start = 0);
-    std::string FindNpmPackage(const std::string& curJsModulePath, const std::string& npmPackage);
+    std::string FindNpmPackage(const std::string& curJsModulePath, const std::string& npmPackageString);
     std::string ParseOhmUri(const std::string& originBundleName, const std::string& curJsModulePath,
         const std::string& newJsModuleUri);
     std::string NormalizeUri(

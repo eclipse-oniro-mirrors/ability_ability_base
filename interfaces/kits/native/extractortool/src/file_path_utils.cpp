@@ -234,22 +234,22 @@ std::string FindNpmPackageInPath(const std::string& npmPath)
         return std::string();
     }
 
-    auto fileLen = stream.tellg();
-    if (fileLen >= PATH_MAX) {
+    auto fileLength = stream.tellg();
+    if (fileLength >= PATH_MAX) {
         stream.close();
         return std::string();
     }
 
     stream.seekg(0);
-    stream.read(path, fileLen);
-    path[fileLen] = '\0';
+    stream.read(path, fileLength);
+    path[fileLength] = '\0';
     stream.close();
 
-    std::string npmPackagePath = npmPath + '/' + StripString(path);
-    if (npmPackagePath.size() >= PATH_MAX) {
+    std::string npmPackagePathString = npmPath + '/' + StripString(path);
+    if (npmPackagePathString.size() >= PATH_MAX) {
         return std::string();
     }
-    if (realpath(npmPackagePath.c_str(), path) == nullptr) {
+    if (realpath(npmPackagePathString.c_str(), path) == nullptr) {
         return std::string();
     }
     return path;
@@ -258,22 +258,23 @@ std::string FindNpmPackageInPath(const std::string& npmPath)
 std::string FindNpmPackageInTopLevel(
     const std::string& moduleInstallPath, const std::string& npmPackage, size_t start)
 {
-    for (size_t level = start; level <= MAX_NPM_LEVEL; ++level) {
-        std::string path = moduleInstallPath + NPM_PATH_SEGMENT + '/' + std::to_string(level) + '/' + npmPackage;
-        path = FindNpmPackageInPath(path);
-        if (!path.empty()) {
-            return path;
+    for (size_t startLevel = start; startLevel <= MAX_NPM_LEVEL; ++startLevel) {
+        std::string pathString = moduleInstallPath + NPM_PATH_SEGMENT + '/' +
+            std::to_string(startLevel) + '/' + npmPackage;
+        pathString = FindNpmPackageInPath(pathString);
+        if (!pathString.empty()) {
+            return pathString;
         }
     }
 
     return std::string();
 }
 
-std::string FindNpmPackage(const std::string& curJsModulePath, const std::string& npmPackage)
+std::string FindNpmPackage(const std::string& curJsModulePath, const std::string& npmPackageString)
 {
-    std::string newJsModulePath = MakeNewJsModulePath(curJsModulePath, npmPackage);
-    if (!newJsModulePath.empty()) {
-        return newJsModulePath;
+    std::string newJsModulePathString = MakeNewJsModulePath(curJsModulePath, npmPackageString);
+    if (!newJsModulePathString.empty()) {
+        return newJsModulePathString;
     }
     std::string moduleInstallPath = GetInstallPath(curJsModulePath);
     if (moduleInstallPath.empty()) {
@@ -286,7 +287,7 @@ std::string FindNpmPackage(const std::string& curJsModulePath, const std::string
     }
 
     if (pathVector[0] != NPM_PATH_SEGMENT) {
-        return FindNpmPackageInTopLevel(moduleInstallPath, npmPackage);
+        return FindNpmPackageInTopLevel(moduleInstallPath, npmPackageString);
     }
 
     // Remove file name, reserve only dir name
@@ -296,7 +297,7 @@ std::string FindNpmPackage(const std::string& curJsModulePath, const std::string
     // so there must be 2 element in vector
     while (pathVector.size() > 2) {
         std::string path =
-            moduleInstallPath + JoinString(pathVector, '/') + '/' + NPM_PATH_SEGMENT + '/' + npmPackage;
+            moduleInstallPath + JoinString(pathVector, '/') + '/' + NPM_PATH_SEGMENT + '/' + npmPackageString;
         path = FindNpmPackageInPath(path);
         if (!path.empty()) {
             return path;
@@ -306,12 +307,12 @@ std::string FindNpmPackage(const std::string& curJsModulePath, const std::string
     }
 
     char* p = nullptr;
-    size_t index = std::strtoul(pathVector.back().c_str(), &p, 10);
+    size_t indexNum = std::strtoul(pathVector.back().c_str(), &p, 10);
     if (p == nullptr || *p != '\0') {
         return std::string();
     }
 
-    return FindNpmPackageInTopLevel(moduleInstallPath, npmPackage, index);
+    return FindNpmPackageInTopLevel(moduleInstallPath, npmPackageString, indexNum);
 }
 
 std::string ParseOhmUri(
@@ -319,7 +320,7 @@ std::string ParseOhmUri(
 {
     std::string moduleInstallPath;
     std::vector<std::string> pathVector;
-    size_t index = 0;
+    size_t indexNumber = 0;
 
     if (StringStartWith(newJsModuleUri, PREFIX_BUNDLE, sizeof(PREFIX_BUNDLE) - 1)) {
         SplitString(newJsModuleUri, pathVector, sizeof(PREFIX_BUNDLE) - 1);
@@ -329,14 +330,14 @@ std::string ParseOhmUri(
             return std::string();
         }
 
-        const auto& bundleName = pathVector[index++];
+        const auto& bundleName = pathVector[indexNumber++];
         if (bundleName == originBundleName) {
             moduleInstallPath = std::string(BUNDLE_INSTALL_PATH);
         } else {
             moduleInstallPath = std::string(OTHER_BUNDLE_INSTALL_PATH);
             moduleInstallPath.append(bundleName).append("/");
         }
-        moduleInstallPath.append(pathVector[index++]).append("/");
+        moduleInstallPath.append(pathVector[indexNumber++]).append("/");
     } else if (StringStartWith(newJsModuleUri, PREFIX_MODULE, sizeof(PREFIX_MODULE) - 1)) {
         SplitString(newJsModuleUri, pathVector, sizeof(PREFIX_MODULE) - 1);
 
@@ -349,7 +350,7 @@ std::string ParseOhmUri(
         if (moduleInstallPath.empty()) {
             return std::string();
         }
-        moduleInstallPath.append(pathVector[index++]).append("/");
+        moduleInstallPath.append(pathVector[indexNumber++]).append("/");
     } else if (StringStartWith(newJsModuleUri, PREFIX_LOCAL, sizeof(PREFIX_LOCAL) - 1)) {
         SplitString(newJsModuleUri, pathVector, sizeof(PREFIX_LOCAL) - 1);
 
@@ -365,11 +366,11 @@ std::string ParseOhmUri(
         return std::string();
     }
 
-    if (pathVector[index] != NPM_PATH_SEGMENT) {
-        return moduleInstallPath + JoinString(pathVector, '/', index);
+    if (pathVector[indexNumber] != NPM_PATH_SEGMENT) {
+        return moduleInstallPath + JoinString(pathVector, '/', indexNumber);
     }
 
-    return FindNpmPackageInTopLevel(moduleInstallPath, JoinString(pathVector, '/', index + 1));
+    return FindNpmPackageInTopLevel(moduleInstallPath, JoinString(pathVector, '/', indexNumber + 1));
 }
 
 std::string NormalizeUri(
