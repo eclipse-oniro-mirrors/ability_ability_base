@@ -127,48 +127,6 @@ public:
     std::vector<std::string>::iterator ActionsIterator();
 
     /**
-     * @brief Obtains the iterator of Authorities.
-     *
-     * @return iterator of Authorities.
-     */
-    std::vector<std::string>::iterator AuthoritiesIterator();
-
-    /**
-     * @brief Obtains the iterator of Entities.
-     *
-     * @return iterator of Entities.
-     */
-    std::vector<std::string>::iterator EntitiesIterator();
-
-    /**
-     * @brief Obtains the iterator of Paths.
-     *
-     * @return iterator of Paths.
-     */
-    std::vector<std::string>::iterator PathsIterator();
-
-    /**
-     * @brief Obtains the iterator of Schemes parts.
-     *
-     * @return iterator of Schemes parts.
-     */
-    std::vector<std::string>::iterator SchemeSpecificPartsIterator();
-
-    /**
-     * @brief Obtains the iterator of Schemes.
-     *
-     * @return iterator of Schemes.
-     */
-    std::vector<std::string>::iterator SchemesIterator();
-
-    /**
-     * @brief Obtains the iterator of Types.
-     *
-     * @return iterator of Types.
-     */
-    std::vector<std::string>::iterator TypesIterator();
-
-    /**
      * @brief Obtains the specified authority.
      *
      * @param authorityId Id of the specified authority.
