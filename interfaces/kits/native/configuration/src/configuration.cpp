@@ -306,5 +306,24 @@ bool Configuration::Marshalling(Parcel &parcel) const
     parcel.WriteStringVector(values);
     return true;
 }
+
+void Configuration::FilterDuplicates(const Configuration &other)
+{
+    if (other.GetItemSize() == 0) {
+        return;
+    }
+    std::vector<std::string> otherk;
+    other.GetAllKey(otherk);
+
+    std::lock_guard<std::recursive_mutex> lock(configParameterMutex_);
+    for (const auto &iter : otherk) {
+        auto myItem = GetValue(iter);
+        auto otherItem = other.GetValue(iter);
+        // myItem possible empty
+        if (!otherItem.empty() && !myItem.empty()) {
+            configParameter_.erase(iter);
+        }
+    }
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
