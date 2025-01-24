@@ -15,6 +15,8 @@
 
 #include "long_wrapper.h"
 
+#include "ability_base_log_wrapper.h"
+
 namespace OHOS {
 namespace AAFwk {
 IINTERFACE_IMPL_1(Long, Object, ILong);
@@ -55,9 +57,13 @@ sptr<ILong> Long::Parse(const std::string &str) /* [in] */
 {
     sptr<ILong> object;
     std::size_t idx;
-    long value = std::stol(str, &idx);
-    if (idx != 0) {
-        object = sptr<Long>::MakeSptr(value);
+    try {
+        long value = std::stol(str, &idx);
+        if (idx != 0) {
+            object = sptr<Long>::MakeSptr(value);
+        }
+    } catch (...) {
+        ABILITYBASE_LOGE("failed to convert to long: %{public}s", str.c_str());
     }
     return object;
 }

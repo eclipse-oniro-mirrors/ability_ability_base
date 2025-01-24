@@ -15,6 +15,8 @@
 
 #include "byte_wrapper.h"
 
+#include "ability_base_log_wrapper.h"
+
 namespace OHOS {
 namespace AAFwk {
 IINTERFACE_IMPL_1(Byte, Object, IByte);
@@ -55,9 +57,13 @@ sptr<IByte> Byte::Parse(const std::string &str) /* [in] */
 {
     sptr<IByte> object;
     std::size_t idx;
-    byte value = (byte)std::stoi(str, &idx);
-    if (idx != 0) {
-        object = sptr<Byte>::MakeSptr(value);
+    try {
+        byte value = (byte)std::stoi(str, &idx);
+        if (idx != 0) {
+            object = sptr<Byte>::MakeSptr(value);
+        }
+    } catch (...) {
+        ABILITYBASE_LOGE("failed to convert to int: %{public}s", str.c_str());
     }
     return object;
 }

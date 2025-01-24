@@ -15,6 +15,7 @@
 
 #include "array_wrapper.h"
 #include <cstdint>
+#include "ability_base_log_wrapper.h"
 #include "bool_wrapper.h"
 #include "zchar_wrapper.h"
 #include "byte_wrapper.h"
@@ -270,8 +271,14 @@ sptr<IArray> Array::Parse(const std::string &arrayStr) /* [in] */
     if (arrayStr[arrayStr.length() - 1] != '}') {
         return nullptr;
     }
+    long size = 0;
+    try {
+        size = std::stol(arrayStr.substr(1, idx - 1));
+    } catch (...) {
+        ABILITYBASE_LOGE("failed to convert to long: %{public}s", arrayStr.substr(1, idx - 1).c_str());
+        return nullptr;
+    }
 
-    long size = std::stol(arrayStr.substr(1, idx - 1));
     idx += 1;
     std::string values = arrayStr.substr(idx, arrayStr.length() - 1 - idx);
 

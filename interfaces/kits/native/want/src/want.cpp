@@ -1747,8 +1747,12 @@ bool Want::ParseFlag(const std::string &content, Want &want)
             }
         }
         int base = 16;  // hex string
-        unsigned int flag = std::stoul(contentLower, nullptr, base);
-        want.SetFlags(flag);
+        try {
+            unsigned int flag = std::stoul(contentLower, nullptr, base);
+            want.SetFlags(flag);
+        } catch (...) {
+            ABILITYBASE_LOGE("failed to convert to long: %{public}s", contentLower.c_str());
+        }
     }
     return true;
 }

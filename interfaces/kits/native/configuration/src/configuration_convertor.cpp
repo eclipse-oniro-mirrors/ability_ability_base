@@ -15,6 +15,7 @@
 
 #include "configuration_convertor.h"
 
+#include "ability_base_log_wrapper.h"
 #include "configuration.h"
 
 namespace OHOS::AppExecFwk {
@@ -135,7 +136,13 @@ int32_t ConvertDisplayId(std::string displayId)
         return -1;
     }
 
-    return std::stoi(displayId);
+    int32_t id = -1;
+    try {
+        id = std::stoi(displayId);
+    } catch (...) {
+        ABILITYBASE_LOGE("failed to convert to int: %{public}s", displayId.c_str());
+    }
+    return id;
 }
 
 Global::Resource::InputDevice ConvertHasPointerDevice(std::string hasPointerDevice)

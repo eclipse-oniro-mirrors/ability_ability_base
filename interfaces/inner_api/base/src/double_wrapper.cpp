@@ -15,6 +15,8 @@
 
 #include "double_wrapper.h"
 
+#include "ability_base_log_wrapper.h"
+
 namespace OHOS {
 namespace AAFwk {
 IINTERFACE_IMPL_1(Double, Object, IDouble);
@@ -55,9 +57,13 @@ sptr<IDouble> Double::Parse(const std::string &str) /* [in] */
 {
     sptr<IDouble> object;
     std::size_t idx;
-    double value = std::stod(str, &idx);
-    if (idx != 0) {
-        object = sptr<Double>::MakeSptr(value);
+    try {
+        double value = std::stod(str, &idx);
+        if (idx != 0) {
+            object = sptr<Double>::MakeSptr(value);
+        }
+    } catch (...) {
+        ABILITYBASE_LOGE("failed to convert to double: %{public}s", str.c_str());
     }
     return object;
 }
