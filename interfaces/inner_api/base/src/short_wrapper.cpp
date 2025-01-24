@@ -15,6 +15,8 @@
 
 #include "short_wrapper.h"
 
+#include "ability_base_log_wrapper.h"
+
 namespace OHOS {
 namespace AAFwk {
 IINTERFACE_IMPL_1(Short, Object, IShort);
@@ -55,9 +57,13 @@ sptr<IShort> Short::Parse(const std::string &str) /* [in] */
 {
     sptr<IShort> object;
     std::size_t idx;
-    short value = (short)std::stoi(str, &idx);
-    if (idx != 0) {
-        object = sptr<Short>::MakeSptr(value);
+    try {
+        short value = (short)std::stoi(str, &idx);
+        if (idx != 0) {
+            object = sptr<Short>::MakeSptr(value);
+        }
+    } catch (...) {
+        ABILITYBASE_LOGE("failed to convert to short: %{public}s", str.c_str());
     }
     return object;
 }

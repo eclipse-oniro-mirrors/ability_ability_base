@@ -15,6 +15,8 @@
 
 #include "int_wrapper.h"
 
+#include "ability_base_log_wrapper.h"
+
 namespace OHOS {
 namespace AAFwk {
 IINTERFACE_IMPL_1(Integer, Object, IInteger);
@@ -55,9 +57,13 @@ sptr<IInteger> Integer::Parse(const std::string &str) /* [in] */
 {
     sptr<IInteger> object;
     std::size_t idx;
-    int value = std::stoi(str, &idx);
-    if (idx != 0) {
-        object = sptr<Integer>::MakeSptr(value);
+    try {
+        int value = std::stoi(str, &idx);
+        if (idx != 0) {
+            object = sptr<Integer>::MakeSptr(value);
+        }
+    } catch (...) {
+        ABILITYBASE_LOGE("failed to convert to int: %{public}s", str.c_str());
     }
     return object;
 }
