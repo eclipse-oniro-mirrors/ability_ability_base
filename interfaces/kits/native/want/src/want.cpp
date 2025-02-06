@@ -1752,6 +1752,7 @@ bool Want::ParseFlag(const std::string &content, Want &want)
             want.SetFlags(flag);
         } catch (...) {
             ABILITYBASE_LOGE("failed to convert to long: %{public}s", contentLower.c_str());
+            return false;
         }
     }
     return true;
