@@ -85,5 +85,27 @@ HWTEST_F(AAfWKLongWrapperTest, LongWrapperTest_Parse_001, TestSize.Level1)
   long result = longValue.Unbox(longValue.Parse(longValue.ToString()));
   EXPECT_EQ(1410065409, result);
 }
+
+/**
+ * @tc.number: LongWrapperTest_Parse_003
+ * @tc.name: Parse
+ * @tc.desc:
+ */
+HWTEST_F(AAfWKLongWrapperTest, LongWrapperTest_Parse_003, TestSize.Level1)
+{
+    sptr<ILong> result = Long::Parse("");
+    EXPECT_EQ(result, nullptr);
+}
+
+/**
+ * @tc.number: LongWrapperTest_Parse_004
+ * @tc.name: Parse
+ * @tc.desc:
+ */
+HWTEST_F(AAfWKLongWrapperTest, LongWrapperTest_Parse_004, TestSize.Level1)
+{
+    sptr<ILong> result = Long::Parse("abc123");
+    EXPECT_EQ(result, nullptr);
+}
 }
 }

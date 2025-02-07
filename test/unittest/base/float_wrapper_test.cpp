@@ -98,5 +98,27 @@ HWTEST_F(AAfWKFloatWrapperTest, FloatWrapperTest_Parse_002, TestSize.Level1)
     float result = ft.Unbox(ft.Parse(ft.ToString()));
     EXPECT_EQ(0.0, result);
 }
+
+/**
+ * @tc.number: FloatWrapperTest_Parse_003
+ * @tc.name: Parse
+ * @tc.desc:
+ */
+HWTEST_F(AAfWKFloatWrapperTest, FloatWrapperTest_Parse_003, TestSize.Level1)
+{
+    sptr<IFloat> result = Float::Parse("");
+    EXPECT_EQ(result, nullptr);
+}
+
+/**
+ * @tc.number: FloatWrapperTest_Parse_004
+ * @tc.name: Parse
+ * @tc.desc:
+ */
+HWTEST_F(AAfWKFloatWrapperTest, FloatWrapperTest_Parse_004, TestSize.Level1)
+{
+    sptr<IFloat> result = Float::Parse("abc123");
+    EXPECT_EQ(result, nullptr);
+}
 }
 }

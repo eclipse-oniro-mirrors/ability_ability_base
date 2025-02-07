@@ -98,5 +98,27 @@ HWTEST_F(AAfWKDoubleWrapperTest, DoubleWrapperTest_Parse_002, TestSize.Level1)
     double result = db.Unbox(db.Parse(db.ToString()));
     EXPECT_EQ(3.14, result);
 }
+
+/**
+ * @tc.number: DoubleWrapperTest_Parse_003
+ * @tc.name: Parse
+ * @tc.desc:
+ */
+HWTEST_F(AAfWKDoubleWrapperTest, DoubleWrapperTest_Parse_003, TestSize.Level1)
+{
+    sptr<IDouble> result = Double::Parse("");
+    EXPECT_EQ(result, nullptr);
+}
+
+/**
+ * @tc.number: DoubleWrapperTest_Parse_004
+ * @tc.name: Parse
+ * @tc.desc:
+ */
+HWTEST_F(AAfWKDoubleWrapperTest, DoubleWrapperTest_Parse_004, TestSize.Level1)
+{
+    sptr<IDouble> result = Double::Parse("abc123");
+    EXPECT_EQ(result, nullptr);
+}
 }
 }

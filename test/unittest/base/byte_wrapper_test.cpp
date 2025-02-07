@@ -98,5 +98,27 @@ HWTEST_F(AAfWKByteWrapperTest, ByteWrapperTest_Parse_002, TestSize.Level1)
     byte result = by.Unbox(by.Parse("0x01"));
     EXPECT_EQ('\0', result);
 }
+
+/**
+ * @tc.number: ByteWrapperTest_Parse_003
+ * @tc.name: Parse
+ * @tc.desc:
+ */
+HWTEST_F(AAfWKByteWrapperTest, ByteWrapperTest_Parse_003, TestSize.Level1)
+{
+    sptr<IByte> result = Byte::Parse("");
+    EXPECT_EQ(result, nullptr);
+}
+
+/**
+ * @tc.number: ByteWrapperTest_Parse_004
+ * @tc.name: Parse
+ * @tc.desc:
+ */
+HWTEST_F(AAfWKByteWrapperTest, ByteWrapperTest_Parse_004, TestSize.Level1)
+{
+    sptr<IByte> result = Byte::Parse("abc123");
+    EXPECT_EQ(result, nullptr);
+}
 }
 }
