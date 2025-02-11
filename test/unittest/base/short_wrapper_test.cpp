@@ -99,5 +99,27 @@ HWTEST_F(AAfWKShortWrapperTest, ShortWrapperTest_Parse_001, TestSize.Level1)
     short result = shortValue.Unbox(shortValue.Parse(shortValue.ToString()));
     EXPECT_EQ(0, result);
 }
+
+/**
+ * @tc.number: ShortWrapperTest_Parse_003
+ * @tc.name: Parse
+ * @tc.desc:
+ */
+HWTEST_F(AAfWKShortWrapperTest, ShortWrapperTest_Parse_003, TestSize.Level1)
+{
+    sptr<IShort> result = Short::Parse("");
+    EXPECT_EQ(result, nullptr);
+}
+
+/**
+ * @tc.number: ShortWrapperTest_Parse_004
+ * @tc.name: Parse
+ * @tc.desc:
+ */
+HWTEST_F(AAfWKShortWrapperTest, ShortWrapperTest_Parse_004, TestSize.Level1)
+{
+    sptr<IShort> result = Short::Parse("abc123");
+    EXPECT_EQ(result, nullptr);
+}
 }
 }

@@ -85,5 +85,27 @@ HWTEST_F(AAfWKIntWrapperTest, IntWrapperTest_Parse_001, TestSize.Level1)
   int result = intValue.Unbox(intValue.Parse(intValue.ToString()));
   EXPECT_EQ(1, result);
 }
+
+/**
+ * @tc.number: IntWrapperTest_Parse_003
+ * @tc.name: Parse
+ * @tc.desc:
+ */
+HWTEST_F(AAfWKIntWrapperTest, IntWrapperTest_Parse_003, TestSize.Level1)
+{
+    sptr<IInteger> result = Integer::Parse("");
+    EXPECT_EQ(result, nullptr);
+}
+
+/**
+ * @tc.number: IntWrapperTest_Parse_004
+ * @tc.name: Parse
+ * @tc.desc:
+ */
+HWTEST_F(AAfWKIntWrapperTest, IntWrapperTest_Parse_004, TestSize.Level1)
+{
+    sptr<IInteger> result = Integer::Parse("abc123");
+    EXPECT_EQ(result, nullptr);
+}
 }
 }

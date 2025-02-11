@@ -14,10 +14,17 @@
  */
 
 #include <gtest/gtest.h>
+#include <cstdint>
 
 #define private public
 #include "want_params_wrapper.h"
 #undef protected
+#include "byte_wrapper.h"
+#include "double_wrapper.h"
+#include "float_wrapper.h"
+#include "int_wrapper.h"
+#include "long_wrapper.h"
+#include "short_wrapper.h"
 #include "string_wrapper.h"
 
 using namespace testing::ext;
@@ -336,4 +343,118 @@ HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_1800, Function | MediumTes
     auto wantParams = WantParamWrapper::Unbox(wantParamsPtr);
 
     EXPECT_EQ(wantParams_ == wantParams, true);
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_1900
+ * @tc.name: ParseWantParams
+ * @tc.desc: Verify the "ParseWantParams" function.
+ */
+HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_1900, Function | MediumTest | Level1)
+{
+    std::string testStr = "{\"byteTest1\":{\"2\":\"\"},\"byteTest2\":{\"2\":\"127\"},\"byteTest3\":{\"2\":\"abc123\"},"
+        "\"doubleTest1\":{\"8\":\"\"},\"doubleTest2\":{\"8\":\"3.14\"},\"doubleTest3\":{\"8\":\"abc123\"},"
+        "\"floatTest1\":{\"7\":\"\"},\"floatTest2\":{\"7\":\"3.14\"},\"floatTest3\":{\"7\":\"abc123\"},"
+        "\"intTest1\":{\"5\":\"\"},\"intTest2\":{\"5\":\"2147483647\"},\"intTest3\":{\"5\":\"abc123\"},"
+        "\"longTest1\":{\"6\":\"\"},\"longTest2\":{\"6\":\"2147483647\"},\"longTest3\":{\"6\":\"abc123\"},"
+        "\"shortTest1\":{\"4\":\"\"},\"shortTest2\":{\"4\":\"32767\"},\"shortTest3\":{\"4\":\"abc123\"}}";
+    WantParams wantParams = WantParamWrapper::ParseWantParams(testStr);
+
+    auto byteTest1Value = wantParams.GetParam("byteTest1");
+    EXPECT_EQ(byteTest1Value, nullptr);
+    auto byteTest2Value = wantParams.GetParam("byteTest2");
+    EXPECT_NE(byteTest2Value, nullptr);
+    IByte *iByte = IByte::Query(byteTest2Value);
+    EXPECT_NE(iByte, nullptr);
+    byte byteVal = Byte::Unbox(iByte);
+    EXPECT_EQ(byteVal, INT8_MAX);
+    auto byteTest3Value = wantParams.GetParam("byteTest3");
+    EXPECT_EQ(byteTest3Value, nullptr);
+
+    auto shortTest1Value = wantParams.GetParam("shortTest1");
+    EXPECT_EQ(shortTest1Value, nullptr);
+    auto shortTest2Value = wantParams.GetParam("shortTest2");
+    EXPECT_NE(shortTest2Value, nullptr);
+    IShort *iShort = IShort::Query(shortTest2Value);
+    EXPECT_NE(iShort, nullptr);
+    short shortVal = Short::Unbox(iShort);
+    EXPECT_EQ(shortVal, INT16_MAX);
+    auto shortTest3Value = wantParams.GetParam("shortTest3");
+    EXPECT_EQ(shortTest3Value, nullptr);
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_2000
+ * @tc.name: ParseWantParams
+ * @tc.desc: Verify the "ParseWantParams" function.
+ */
+HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_2000, Function | MediumTest | Level1)
+{
+    std::string testStr = "{\"byteTest1\":{\"2\":\"\"},\"byteTest2\":{\"2\":\"127\"},\"byteTest3\":{\"2\":\"abc123\"},"
+        "\"doubleTest1\":{\"8\":\"\"},\"doubleTest2\":{\"8\":\"3.14\"},\"doubleTest3\":{\"8\":\"abc123\"},"
+        "\"floatTest1\":{\"7\":\"\"},\"floatTest2\":{\"7\":\"3.14\"},\"floatTest3\":{\"7\":\"abc123\"},"
+        "\"intTest1\":{\"5\":\"\"},\"intTest2\":{\"5\":\"2147483647\"},\"intTest3\":{\"5\":\"abc123\"},"
+        "\"longTest1\":{\"6\":\"\"},\"longTest2\":{\"6\":\"2147483647\"},\"longTest3\":{\"6\":\"abc123\"},"
+        "\"shortTest1\":{\"4\":\"\"},\"shortTest2\":{\"4\":\"32767\"},\"shortTest3\":{\"4\":\"abc123\"}}";
+    WantParams wantParams = WantParamWrapper::ParseWantParams(testStr);
+
+    auto doubleTest1Value = wantParams.GetParam("doubleTest1");
+    EXPECT_EQ(doubleTest1Value, nullptr);
+    auto doubleTest2Value = wantParams.GetParam("doubleTest2");
+    EXPECT_NE(doubleTest2Value, nullptr);
+    IDouble *iDouble = IDouble::Query(doubleTest2Value);
+    EXPECT_NE(iDouble, nullptr);
+    double doubleVal = Double::Unbox(iDouble);
+    EXPECT_FLOAT_EQ(doubleVal, 3.14f);
+    auto doubleTest3Value = wantParams.GetParam("doubleTest3");
+    EXPECT_EQ(doubleTest3Value, nullptr);
+
+    auto floatTest1Value = wantParams.GetParam("floatTest1");
+    EXPECT_EQ(floatTest1Value, nullptr);
+    auto floatTest2Value = wantParams.GetParam("floatTest2");
+    EXPECT_NE(floatTest2Value, nullptr);
+    IFloat *iFloat = IFloat::Query(floatTest2Value);
+    EXPECT_NE(iFloat, nullptr);
+    float floatVal = Float::Unbox(iFloat);
+    EXPECT_FLOAT_EQ(floatVal, 3.14f);
+    auto floatTest3Value = wantParams.GetParam("floatTest3");
+    EXPECT_EQ(floatTest3Value, nullptr);
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_2100
+ * @tc.name: ParseWantParams
+ * @tc.desc: Verify the "ParseWantParams" function.
+ */
+HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_2100, Function | MediumTest | Level1)
+{
+    std::string testStr = "{\"byteTest1\":{\"2\":\"\"},\"byteTest2\":{\"2\":\"127\"},\"byteTest3\":{\"2\":\"abc123\"},"
+        "\"doubleTest1\":{\"8\":\"\"},\"doubleTest2\":{\"8\":\"3.14\"},\"doubleTest3\":{\"8\":\"abc123\"},"
+        "\"floatTest1\":{\"7\":\"\"},\"floatTest2\":{\"7\":\"3.14\"},\"floatTest3\":{\"7\":\"abc123\"},"
+        "\"intTest1\":{\"5\":\"\"},\"intTest2\":{\"5\":\"2147483647\"},\"intTest3\":{\"5\":\"abc123\"},"
+        "\"longTest1\":{\"6\":\"\"},\"longTest2\":{\"6\":\"2147483647\"},\"longTest3\":{\"6\":\"abc123\"},"
+        "\"shortTest1\":{\"4\":\"\"},\"shortTest2\":{\"4\":\"32767\"},\"shortTest3\":{\"4\":\"abc123\"}}";
+    WantParams wantParams = WantParamWrapper::ParseWantParams(testStr);
+
+    auto intTest1Value = wantParams.GetParam("intTest1");
+    EXPECT_EQ(intTest1Value, nullptr);
+    auto intTest2Value = wantParams.GetParam("intTest2");
+    EXPECT_NE(intTest2Value, nullptr);
+    IInteger *iInteger = IInteger::Query(intTest2Value);
+    EXPECT_NE(iInteger, nullptr);
+    int intVal = Integer::Unbox(iInteger);
+    EXPECT_EQ(intVal, INT32_MAX);
+    auto intTest3Value = wantParams.GetParam("intTest3");
+    EXPECT_EQ(intTest3Value, nullptr);
+
+    auto longTest1Value = wantParams.GetParam("longTest1");
+    EXPECT_EQ(longTest1Value, nullptr);
+    auto longTest2Value = wantParams.GetParam("longTest2");
+    EXPECT_NE(longTest2Value, nullptr);
+    ILong *iLong = ILong::Query(longTest2Value);
+    EXPECT_NE(iLong, nullptr);
+    long longVal = Long::Unbox(iLong);
+    EXPECT_EQ(longVal, INT32_MAX);
+    auto longTest3Value = wantParams.GetParam("longTest3");
+    EXPECT_EQ(longTest3Value, nullptr);
 }
