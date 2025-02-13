@@ -39,11 +39,20 @@
         },
         "build": {
             "sub_component": [
-                "//foundation/ability/ability_base:base_innerkits_target",
-                "//foundation/ability/ability_base:ability_base_want"
+                "//foundation/ability/ability_base:base_innerkits_target"
             ],
             "inner_kits": [
-                {
+              {
+                "header": {
+                  "header_base": "//foundation/ability/ability_base/interfaces/kits/c/cwant/include",
+                  "header_files": [
+                    "want_manager.h",
+                    "want.h"
+                  ]
+                },
+                "name": "//foundation/ability/ability_base:ability_base_want"
+            },
+            {
                     "header": {
                       "header_base": "//foundation/ability/ability_base/interfaces/inner_api/base/include/",
                       "header_files": [
