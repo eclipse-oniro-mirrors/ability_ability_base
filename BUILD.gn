@@ -464,6 +464,7 @@ ohos_shared_library("ability_base_want") {
 
 group("base_innerkits_target") {
   deps = [
+    ":ability_base_want",
     ":base",
     ":configuration",
     ":extractortool",
