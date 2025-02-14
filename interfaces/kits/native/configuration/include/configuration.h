@@ -176,6 +176,15 @@ public:
      */
     static Configuration *Unmarshalling(Parcel &parcel);
 
+    /**
+     * @brief remove the difference item between the current and the passed in object.
+     *
+     * @param other Comparisons obj
+     *
+     * @return void
+     */
+    void FilterDuplicates(const Configuration &other);
+
 private:
 
     /**
