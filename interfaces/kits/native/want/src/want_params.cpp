@@ -84,6 +84,11 @@ UnsupportedData &UnsupportedData::operator=(const UnsupportedData &other)
     key = other.key;
     type = other.type;
     size = other.size;
+    if (buffer != nullptr) {
+        ABILITYBASE_LOGI("clean buffer");
+        delete[] buffer;
+        buffer = nullptr;
+    }
     buffer = new uint8_t[size];
     if (memcpy_s(buffer, size, other.buffer, size) != EOK) {
         ABILITYBASE_LOGE("memcpy failed");
