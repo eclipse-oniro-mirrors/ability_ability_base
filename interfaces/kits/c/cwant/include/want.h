@@ -161,6 +161,26 @@ AbilityBase_ErrorCode OH_AbilityBase_AddWantFd(AbilityBase_Want* want, const cha
  */
 AbilityBase_ErrorCode OH_AbilityBase_GetWantFd(AbilityBase_Want* want, const char* key, int32_t* fd);
 
+AbilityBase_ErrorCode OH_AbilityBase_SetWantUri(AbilityBase_Want* want, const char* uri);
+
+AbilityBase_ErrorCode OH_AbilityBase_GetWantUri(AbilityBase_Want* want, const char* uri, size_t uriSize);
+
+AbilityBase_ErrorCode OH_AbilityBase_SetWantFlag(AbilityBase_Want* want, int32_t flag);
+
+AbilityBase_ErrorCode OH_AbilityBase_GetWantFlag(AbilityBase_Want* want, int32_t* flag);
+
+AbilityBase_ErrorCode OH_AbilityBase_SetWantInt32Param(AbilityBase_Want* want, const char* key, int32_t value);
+
+AbilityBase_ErrorCode OH_AbilityBase_GetWantInt32Param(AbilityBase_Want* want, const char* key, int32_t* value);
+
+AbilityBase_ErrorCode OH_AbilityBase_SetWantBoolParam(AbilityBase_Want* want, const char* key, bool value);
+
+AbilityBase_ErrorCode OH_AbilityBase_GetWantBoolParam(AbilityBase_Want* want, const char* key, bool* value);
+
+AbilityBase_ErrorCode OH_AbilityBase_SetWantDoubleParam(AbilityBase_Want* want, const char* key, double value);
+
+AbilityBase_ErrorCode OH_AbilityBase_GetWantDoubleParam(AbilityBase_Want* want, const char* key, double* value);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif
