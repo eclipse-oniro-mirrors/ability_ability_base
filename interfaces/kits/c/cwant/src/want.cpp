@@ -150,7 +150,7 @@ AbilityBase_ErrorCode OH_AbilityBase_SetWantUri(AbilityBase_Want* want, const ch
     return ABILITY_BASE_ERROR_CODE_NO_ERROR;
 }
 
-AbilityBase_ErrorCode OH_AbilityBase_GetWantUri(AbilityBase_Want* want, const char* uri, size_t uriSize)
+AbilityBase_ErrorCode OH_AbilityBase_GetWantUri(AbilityBase_Want* want, char* uri, size_t uriSize)
 {
     if (want == nullptr || uri == nullptr) {
         ABILITYBASE_LOGE("null arg");
@@ -166,26 +166,6 @@ AbilityBase_ErrorCode OH_AbilityBase_GetWantUri(AbilityBase_Want* want, const ch
         ABILITYBASE_LOGE("strcpy_s err");
         return ABILITY_BASE_ERROR_CODE_PARAM_INVALID;
     }
-    return ABILITY_BASE_ERROR_CODE_NO_ERROR;
-}
-
-AbilityBase_ErrorCode OH_AbilityBase_SetWantFlag(AbilityBase_Want* want, int32_t flag)
-{
-    if (want == nullptr) {
-        ABILITYBASE_LOGE("null arg");
-        return ABILITY_BASE_ERROR_CODE_PARAM_INVALID;
-    }
-    want->flag = flag;
-    return ABILITY_BASE_ERROR_CODE_NO_ERROR;
-}
-
-AbilityBase_ErrorCode OH_AbilityBase_GetWantFlag(AbilityBase_Want* want, int32_t* flag)
-{
-    if (want == nullptr || flag == nullptr) {
-        ABILITYBASE_LOGE("null arg");
-        return ABILITY_BASE_ERROR_CODE_PARAM_INVALID;
-    }
-    *flag = want->flag;
     return ABILITY_BASE_ERROR_CODE_NO_ERROR;
 }
 

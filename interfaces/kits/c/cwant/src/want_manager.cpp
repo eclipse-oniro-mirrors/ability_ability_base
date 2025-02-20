@@ -18,6 +18,8 @@
 #include <map>
 #include <string>
 #include "ability_base_log_wrapper.h"
+#include "bool_wrapper.h"
+#include "double_wrapper.h"
 #include "int_wrapper.h"
 #include "string_wrapper.h"
 #include "want_params_wrapper.h"
@@ -31,14 +33,30 @@ namespace AAFwk {
     want.SetElementName("", cwant.element.bundleName, cwant.element.abilityName, cwant.element.moduleName);
     WantParams wantParams;
     wantParams.SetParam(Want::PARAM_MODULE_NAME, String::Box(cwant.element.moduleName));
+    want.SetUri(cwant.uri);
     for (auto it : cwant.params) {
-        ABILITYBASE_LOGI("params key: %{public}s, value: %{public}s",
+        ABILITYBASE_LOGD("params key: %{public}s, value: %{public}s",
             it.first.c_str(), it.second.c_str());
         wantParams.SetParam(it.first, String::Box(it.second));
     }
 
+    for (auto it : cwant.intParams) {
+        ABILITYBASE_LOGD("int key: %{public}s, value: %{public}d", it.first.c_str(), it.second);
+        wantParams.SetParam(it.first, Integer::Box(it.second));
+    }
+
+    for (auto it : cwant.boolParams) {
+        ABILITYBASE_LOGD("bool key: %{public}s, value: %{public}d", it.first.c_str(), it.second);
+        wantParams.SetParam(it.first, Boolean::Box(it.second));
+    }
+
+    for (auto it : cwant.doubleParams) {
+        ABILITYBASE_LOGD("bool key: %{public}s, value: %{public}f", it.first.c_str(), it.second);
+        wantParams.SetParam(it.first, Double::Box(it.second));
+    }
+
     for (auto it : cwant.fds) {
-        ABILITYBASE_LOGI("fd key: %{public}s, value: %{public}d", it.first.c_str(), it.second);
+        ABILITYBASE_LOGD("fd key: %{public}s, value: %{public}d", it.first.c_str(), it.second);
         WantParams wp;
         wp.SetParam(TYPE_PROPERTY, String::Box(FD));
         int32_t new_fd = isDup ? dup(it.second) : it.second;
