@@ -568,12 +568,52 @@ ohos_unittest("page_node_info_test") {
 }
 
 ######################################################################
+base_configuration_output_path = "ability_base/base_configuration_test"
+
+######################################################################
+config("configuration_private_config") {
+  visibility = [ ":*" ]
+  include_dirs =
+      [ "${ability_base_path}/interfaces/kits/native/configuration/include" ]
+
+  defines = [ "ABILITYBASE_LOG_TAG = \"BaseConfigurationTest\"" ]
+}
+
+ohos_unittest("base_configuration_test") {
+  module_out_path = base_configuration_output_path
+
+  sources = [ "configuration/base_configuration_test.cpp" ]
+
+  configs = [ ":configuration_private_config" ]
+  deps = []
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:configuration",
+    "ability_base:session_info",
+    "ability_base:string_utils",
+    "ability_base:view_data",
+    "ability_base:want",
+    "ability_base:zuri",
+    "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
+    "googletest:gtest_main",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "json:nlohmann_json_static",
+    "zlib:libz",
+    "zlib:shared_libz",
+  ]
+}
+
+######################################################################
 
 group("unittest") {
   testonly = true
   deps = [
     #":base_test",
     ":array_wrapper_test",
+    ":base_configuration_test",
     ":base_object_test",
     ":bool_wrapper_test",
     ":byte_wrapper_test",
