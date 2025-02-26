@@ -1537,6 +1537,9 @@ bool WantParams::ReadFromParcel(Parcel &parcel, int depth)
 WantParams *WantParams::Unmarshalling(Parcel &parcel, int depth)
 {
     WantParams *wantParams = new (std::nothrow) WantParams();
+    if (wantParams == nullptr) {
+        return nullptr;
+    }
     if (!wantParams->ReadFromParcel(parcel, depth)) {
         delete wantParams;
         wantParams = nullptr;
