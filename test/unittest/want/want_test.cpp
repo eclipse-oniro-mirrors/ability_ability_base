@@ -4123,5 +4123,33 @@ HWTEST_F(WantBaseTest, ParseURI_test_001, TestSize.Level1)
     element.ClearElement(nullptr);
     GTEST_LOG_(INFO) << "ParseURI_test_001 end";
 }
+
+/**
+ * @tc.number: Want_test_001
+ * @tc.name: FdandEts
+ * @tc.desc: FdandEts.
+ * @tc.require: issueI648W6
+ */
+HWTEST_F(WantBaseTest, Fd_test_001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "Fd_test_001 start";
+
+    std::shared_ptr<Want> want1 = std::make_shared<Want>();
+    if (want1 == nullptr) {
+        return;
+    }
+    want1->CloseAllFd();
+    want1->RemoveAllFd();
+    want1->DupAllFd();
+    EXPECT_EQ(-1, want1->Flags_ConvertEts2Native(10));
+    EXPECT_EQ(0x00000001, want1->Flags_ConvertEts2Native(1));
+    EXPECT_EQ(1, want1->Flags_ConvertNative2Ets(0x00000002));
+    EXPECT_EQ(-1, want1->Flags_ConvertNative2Ets(0x00000007));
+    EXPECT_EQ("", want1->Action_ConvertEts2Native(-1));
+    EXPECT_EQ("ohos.want.action.home", want1->Action_ConvertEts2Native(0));
+    EXPECT_EQ(1, want1->Action_ConvertNative2Ets("ohos.want.action.dial"));
+    EXPECT_EQ(-1, want1->Action_ConvertNative2Ets("ohos"));
+    GTEST_LOG_(INFO) << "Fd_test_001 end";
+}
 }  // namespace AAFwk
 }  // namespace OHOS
