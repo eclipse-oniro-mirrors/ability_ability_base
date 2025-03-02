@@ -16,7 +16,6 @@
 #include "configuration_convertor.h"
 
 #include "configuration.h"
-
 namespace OHOS::AppExecFwk {
 constexpr float DPI_BASE = 160.0;
 
@@ -253,5 +252,55 @@ std::string GetDensityStr(Global::Resource::ScreenDensity density)
 std::string GetDensityStr(float density)
 {
     return GetDensityStr(ConvertDensity(density));
+}
+
+Global::Resource::ColorMode DarkMode_ConvertSts2Native(const int32_t index)
+{
+    return static_cast<Global::Resource::ColorMode>(index - 1);
+}
+int32_t DarkMode_ConvertNative2Sts(const Global::Resource::ColorMode nativeValue)
+{
+    return nativeValue + 1;
+}
+
+// enum Direction {
+//     DIRECTION_NOT_SET = -1,
+//     DIRECTION_VERTICAL = 0,
+//     DIRECTION_HORIZONTAL = 1
+//   }
+Global::Resource::Direction Direction_ConvertSts2Native(const int32_t index)
+{
+    return static_cast<Global::Resource::Direction>(index - 1);
+}
+int32_t Direction_ConvertNative2Sts(const Global::Resource::Direction nativeValue)
+{
+    return nativeValue + 1;
+}
+
+//  enum ScreenDensity {
+//     SCREEN_DENSITY_NOT_SET = 0,
+//     SCREEN_DENSITY_SDPI = 120,
+//     SCREEN_DENSITY_MDPI = 160,
+//     SCREEN_DENSITY_LDPI = 240,
+//     SCREEN_DENSITY_XLDPI = 320,
+//     SCREEN_DENSITY_XXLDPI = 480,
+//     SCREEN_DENSITY_XXXLDPI = 640
+//   }
+static constexpr std::array<int, 7> ScreenDensityArray = {0, 120, 160, 240, 320, 480, 640};
+Global::Resource::ScreenDensity ScreenDensity_ConvertSts2Native(const int32_t index)
+{
+    if (index < 0 || index >= ScreenDensityArray.size()) {
+        return Global::Resource::ScreenDensity::SCREEN_DENSITY_NOT_SET;
+    }
+    return static_cast<Global::Resource::ScreenDensity>(ScreenDensityArray[index]);
+}
+int32_t ScreenDensity_ConvertNative2Sts(const Global::Resource::ScreenDensity nativeValue)
+{
+    for (int32_t index = 0; index < ScreenDensityArray.size(); index++) {
+        if (nativeValue == ScreenDensityArray[index]) {
+            return index;
+        }
+    }
+    return 0;
 }
 } // namespace OHOS::AppExecFwk
