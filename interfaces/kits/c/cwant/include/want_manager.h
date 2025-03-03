@@ -23,6 +23,11 @@ struct AbilityBase_Want {
     AbilityBase_Element element;
     std::map<std::string, std::string> params;
     std::map<std::string, int32_t> fds;
+    std::map<std::string, int32_t> intParams;
+    std::map<std::string, bool> boolParams;
+    std::map<std::string, double> doubleParams;
+    std::string uri = "";
+    int32_t flag = 0;
 };
 
 namespace OHOS {

@@ -25,6 +25,11 @@ struct AbilityBase_Want {
     AbilityBase_Element element;
     std::map<std::string, std::string> params;
     std::map<std::string, int32_t> fds;
+    std::map<std::string, int32_t> intParams;
+    std::map<std::string, bool> boolParams;
+    std::map<std::string, double> doubleParams;
+    std::string uri = "";
+    int32_t flag = 0;
 };
 
 AbilityBase_Want* OH_AbilityBase_CreateWant(AbilityBase_Element element)
@@ -132,5 +137,109 @@ AbilityBase_ErrorCode OH_AbilityBase_GetWantFd(AbilityBase_Want* want, const cha
         return ABILITY_BASE_ERROR_CODE_PARAM_INVALID;
     }
     *fd = it->second;
+    return ABILITY_BASE_ERROR_CODE_NO_ERROR;
+}
+
+AbilityBase_ErrorCode OH_AbilityBase_SetWantUri(AbilityBase_Want* want, const char* uri)
+{
+    if (want == nullptr || uri == nullptr) {
+        ABILITYBASE_LOGE("null arg");
+        return ABILITY_BASE_ERROR_CODE_PARAM_INVALID;
+    }
+    want->uri = std::string(uri);
+    return ABILITY_BASE_ERROR_CODE_NO_ERROR;
+}
+
+AbilityBase_ErrorCode OH_AbilityBase_GetWantUri(AbilityBase_Want* want, char* uri, size_t uriSize)
+{
+    if (want == nullptr || uri == nullptr) {
+        ABILITYBASE_LOGE("null arg");
+        return ABILITY_BASE_ERROR_CODE_PARAM_INVALID;
+    }
+    const std::string foundValue = want->uri;
+    if (foundValue.size() >= uriSize) {
+        ABILITYBASE_LOGE("no enough buffer");
+        return ABILITY_BASE_ERROR_CODE_PARAM_INVALID;
+    }
+
+    if (strcpy_s(uri, uriSize, foundValue.c_str()) != EOK) {
+        ABILITYBASE_LOGE("strcpy_s err");
+        return ABILITY_BASE_ERROR_CODE_PARAM_INVALID;
+    }
+    return ABILITY_BASE_ERROR_CODE_NO_ERROR;
+}
+
+AbilityBase_ErrorCode OH_AbilityBase_SetWantInt32Param(AbilityBase_Want* want, const char* key, int32_t value)
+{
+    if (want == nullptr || key == nullptr) {
+        ABILITYBASE_LOGE("null arg");
+        return ABILITY_BASE_ERROR_CODE_PARAM_INVALID;
+    }
+    want->intParams[std::string(key)] = value;
+    return ABILITY_BASE_ERROR_CODE_NO_ERROR;
+}
+
+AbilityBase_ErrorCode OH_AbilityBase_GetWantInt32Param(AbilityBase_Want* want, const char* key, int32_t* value)
+{
+    if (want == nullptr || key == nullptr || value == nullptr) {
+        ABILITYBASE_LOGE("null arg");
+        return ABILITY_BASE_ERROR_CODE_PARAM_INVALID;
+    }
+    auto it = want->intParams.find(key);
+    if (it == want->intParams.end()) {
+        ABILITYBASE_LOGE("not found key: %{public}s", key);
+        return ABILITY_BASE_ERROR_CODE_PARAM_INVALID;
+    }
+    *value = it->second;
+    return ABILITY_BASE_ERROR_CODE_NO_ERROR;
+}
+
+AbilityBase_ErrorCode OH_AbilityBase_SetWantBoolParam(AbilityBase_Want* want, const char* key, bool value)
+{
+    if (want == nullptr || key == nullptr) {
+        ABILITYBASE_LOGE("null arg");
+        return ABILITY_BASE_ERROR_CODE_PARAM_INVALID;
+    }
+    want->boolParams[std::string(key)] = value;
+    return ABILITY_BASE_ERROR_CODE_NO_ERROR;
+}
+
+AbilityBase_ErrorCode OH_AbilityBase_GetWantBoolParam(AbilityBase_Want* want, const char* key, bool* value)
+{
+    if (want == nullptr || key == nullptr || value == nullptr) {
+        ABILITYBASE_LOGE("null arg");
+        return ABILITY_BASE_ERROR_CODE_PARAM_INVALID;
+    }
+    auto it = want->boolParams.find(key);
+    if (it == want->boolParams.end()) {
+        ABILITYBASE_LOGE("not found key: %{public}s", key);
+        return ABILITY_BASE_ERROR_CODE_PARAM_INVALID;
+    }
+    *value = it->second;
+    return ABILITY_BASE_ERROR_CODE_NO_ERROR;
+}
+
+AbilityBase_ErrorCode OH_AbilityBase_SetWantDoubleParam(AbilityBase_Want* want, const char* key, double value)
+{
+    if (want == nullptr || key == nullptr) {
+        ABILITYBASE_LOGE("null arg");
+        return ABILITY_BASE_ERROR_CODE_PARAM_INVALID;
+    }
+    want->doubleParams[std::string(key)] = value;
+    return ABILITY_BASE_ERROR_CODE_NO_ERROR;
+}
+
+AbilityBase_ErrorCode OH_AbilityBase_GetWantDoubleParam(AbilityBase_Want* want, const char* key, double* value)
+{
+    if (want == nullptr || key == nullptr || value == nullptr) {
+        ABILITYBASE_LOGE("null arg");
+        return ABILITY_BASE_ERROR_CODE_PARAM_INVALID;
+    }
+    auto it = want->doubleParams.find(key);
+    if (it == want->doubleParams.end()) {
+        ABILITYBASE_LOGE("not found key: %{public}s", key);
+        return ABILITY_BASE_ERROR_CODE_PARAM_INVALID;
+    }
+    *value = it->second;
     return ABILITY_BASE_ERROR_CODE_NO_ERROR;
 }
