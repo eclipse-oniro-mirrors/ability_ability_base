@@ -15,7 +15,7 @@ import("//build/test.gni")
 import("//foundation/ability/ability_base/ability_base.gni")
 
 ######################################################################
-base_output_path = "aafwk/base_test"
+base_output_path = "ability_base/ability_base/base_test"
 
 ######################################################################
 config("base_private_config") {
@@ -150,7 +150,7 @@ ohos_unittest("long_wrapper_test") {
 }
 
 ######################################################################
-want_output_path = "ability_base/want_test"
+want_output_path = "ability_base/ability_base/want_test"
 
 ######################################################################
 config("want_private_config") {
@@ -470,7 +470,7 @@ ohos_unittest("cwant_test") {
 }
 
 ######################################################################
-extractor_output_path = "ability_base/extractor_test"
+extractor_output_path = "ability_base/ability_base/extractor_test"
 
 ######################################################################
 config("extractor_private_config") {
@@ -503,7 +503,7 @@ ohos_unittest("extractor_test") {
 }
 
 ######################################################################
-viewdata_output_path = "ability_base/view_data_test"
+viewdata_output_path = "ability_base/ability_base/view_data_test"
 
 ######################################################################
 config("viewdata_private_config") {
@@ -593,7 +593,8 @@ ohos_unittest("page_node_info_test") {
 }
 
 ######################################################################
-base_configuration_output_path = "ability_base/base_configuration_test"
+base_configuration_output_path =
+    "ability_base/ability_base/base_configuration_test"
 
 ######################################################################
 config("configuration_private_config") {
