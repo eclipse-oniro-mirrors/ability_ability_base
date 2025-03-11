@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -388,6 +388,39 @@ HWTEST_F(ArrayWrapperBaseTest, AaFwk_Array_Wrapper_IsWantParamsArray_0100, Funct
   sptr<IArray> arr = new Array(index, typeId);
   bool result = Array::IsWantParamsArray(arr);
   EXPECT_EQ(result, false);
+}
+
+/**
+ * @tc.number: AaFwk_Array_Wrapper_Parse_0100
+ * @tc.name: Parse test
+ * @tc.desc:
+ */
+HWTEST_F(ArrayWrapperBaseTest, AaFwk_Array_Wrapper_Parse_0100, Function | MediumTest | Level1)
+{
+    std::function<sptr<IArray>(const std::string)> arrFunction = [](const std::string& arrayStr) -> sptr<IArray> {
+        long index = 5;
+        InterfaceID typeId;
+        sptr<Array> arr = new Array(index, typeId);
+        if (arr) {
+            return arr->Parse(arrayStr);
+        } else {
+            return nullptr;
+        }
+    };
+    EXPECT_EQ(arrFunction("Test"), nullptr);
+    EXPECT_EQ(arrFunction("{Test"), nullptr);
+    EXPECT_EQ(arrFunction("{Test}"), nullptr);
+    EXPECT_NE(arrFunction("C3{1,2,3}"), nullptr);
+    EXPECT_NE(arrFunction("T3{1,2,3}"), nullptr);
+    EXPECT_NE(arrFunction("Z3{1,2,3}"), nullptr);
+    EXPECT_NE(arrFunction("B3{1,2,3}"), nullptr);
+    EXPECT_NE(arrFunction("S3{1,2,3}"), nullptr);
+    EXPECT_NE(arrFunction("I3{1,2,3}"), nullptr);
+    EXPECT_NE(arrFunction("J3{1,2,3}"), nullptr);
+    EXPECT_NE(arrFunction("F3{1,2,3}"), nullptr);
+    EXPECT_NE(arrFunction("D3{1,2,3}"), nullptr);
+    EXPECT_NE(arrFunction("[3{1,2,3}"), nullptr);
+    EXPECT_NE(arrFunction("W3{1,2,3}"), nullptr);
 }
 }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -130,6 +130,37 @@ HWTEST_F(ExtraParamsBaseTest, AppExecFwk_ExtraParams_Unmarshalling_0100, Functio
     extraParams.Unmarshalling(parcel);
     string result = extraParams.GetTargetBundleName();
     EXPECT_EQ(result, targetBundleName);
+}
+
+/**
+ * @tc.number: AppExecFwk_ExtraParams_OperatorEqual_0100
+ * @tc.name: OperatorEqual
+ * @tc.desc: 
+ */
+HWTEST_F(ExtraParamsBaseTest, AppExecFwk_ExtraParams_OperatorEqual_0100, Function | MediumTest | Level1)
+{
+    ExtraParams extraParams;
+    ExtraParams other(extraParams);
+    EXPECT_FALSE(extraParams == other);
+
+    std::vector<string> devType;
+    devType.push_back("SetDevType");
+    extraParams.SetDevType(devType);
+    other.SetDevType(devType);
+    EXPECT_TRUE(extraParams == other);
+
+    devType.push_back("SetDevType");
+    other.SetDevType(devType);
+    EXPECT_FALSE(extraParams == other);
+    
+    devType.clear();
+    devType.push_back("SetDevTypeOther");
+    other.SetDevType(devType);
+    EXPECT_FALSE(extraParams == other);
+
+    string targetBundleName = "TargetBundleName";
+    other.SetTargetBundleName(targetBundleName);
+    EXPECT_FALSE(extraParams == other);
 }
 }
 }
