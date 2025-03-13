@@ -141,7 +141,7 @@ std::unique_ptr<FileMapper> Extractor::GetData(const std::string &fileName) cons
     return zipFile_.CreateFileMapper(relativePath, FileMapperType::NORMAL_MEM);
 }
 
-std::shared_ptr<FileMapper> Extractor::GetSafeData(const std::string &fileName)
+std::unique_ptr<FileMapper> Extractor::GetSafeData(const std::string &fileName)
 {
     std::string relativePath = GetRelativePath(fileName);
     if (!StringEndWith(relativePath, EXT_NAME_ABC, sizeof(EXT_NAME_ABC) - 1)) {
