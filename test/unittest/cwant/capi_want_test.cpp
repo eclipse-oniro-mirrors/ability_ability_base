@@ -114,6 +114,8 @@ HWTEST_F(CWantTest, OH_AbilityBase_SetWantUri_001, TestSize.Level0)
     errCode = OH_AbilityBase_SetWantUri(nullptr, nullptr);
     ASSERT_EQ(errCode, ABILITY_BASE_ERROR_CODE_PARAM_INVALID);
     char outUri[50];
+    errCode = OH_AbilityBase_GetWantUri(nullptr, outUri, sizeof(outUri));
+    errCode = OH_AbilityBase_GetWantUri(want, nullptr, sizeof(outUri));
     errCode = OH_AbilityBase_GetWantUri(want, outUri, sizeof(outUri));
     ASSERT_EQ(errCode, ABILITY_BASE_ERROR_CODE_NO_ERROR);
     ASSERT_STREQ(uri, outUri);
@@ -142,6 +144,8 @@ HWTEST_F(CWantTest, OH_AbilityBase_SetWantInt32Param_001, TestSize.Level0)
     errCode = OH_AbilityBase_SetWantInt32Param(want, key, value);
     ASSERT_EQ(errCode, ABILITY_BASE_ERROR_CODE_NO_ERROR);
     int32_t outValue = 0;
+    errCode = OH_AbilityBase_GetWantInt32Param(nullptr, key, &outValue);
+    errCode = OH_AbilityBase_GetWantInt32Param(want, nullptr, &outValue);
     errCode = OH_AbilityBase_GetWantInt32Param(want, key, &outValue);
     ASSERT_EQ(outValue, value);
     errCode = OH_AbilityBase_GetWantInt32Param(want, "notFoundKey", &outValue);
@@ -167,9 +171,13 @@ HWTEST_F(CWantTest, OH_AbilityBase_SetWantBoolParam_001, TestSize.Level0)
     errCode = OH_AbilityBase_SetWantBoolParam(want, key, value);
     ASSERT_EQ(errCode, ABILITY_BASE_ERROR_CODE_NO_ERROR);
 
+    errCode = OH_AbilityBase_SetWantBoolParam(nullptr, key, value);
+    errCode = OH_AbilityBase_SetWantBoolParam(want, nullptr, value);
     errCode = OH_AbilityBase_SetWantBoolParam(want, key, value);
     ASSERT_EQ(errCode, ABILITY_BASE_ERROR_CODE_NO_ERROR);
     bool outValue = false;
+    errCode = OH_AbilityBase_GetWantBoolParam(nullptr, key, &outValue);
+    errCode = OH_AbilityBase_GetWantBoolParam(want, nullptr, &outValue);
     errCode = OH_AbilityBase_GetWantBoolParam(want, key, &outValue);
     ASSERT_EQ(outValue, value);
     errCode = OH_AbilityBase_GetWantBoolParam(want, "notFoundKey", &outValue);
@@ -192,10 +200,14 @@ HWTEST_F(CWantTest, OH_AbilityBase_SetWantDoubleParam_001, TestSize.Level0)
 
     const char * key = "boolKey";
     double value = 3.14f;
+    errCode = OH_AbilityBase_SetWantDoubleParam(nullptr, key, value);
+    errCode = OH_AbilityBase_SetWantDoubleParam(want, nullptr, value);
     errCode = OH_AbilityBase_SetWantDoubleParam(want, key, value);
     ASSERT_EQ(errCode, ABILITY_BASE_ERROR_CODE_NO_ERROR);
 
     double outValue = 0.00;
+    errCode = OH_AbilityBase_GetWantDoubleParam(nullptr, key, &outValue);
+    errCode = OH_AbilityBase_GetWantDoubleParam(want, nullptr, &outValue);
     errCode = OH_AbilityBase_GetWantDoubleParam(want, key, &outValue);
     ASSERT_EQ(outValue, value);
     errCode = OH_AbilityBase_GetWantDoubleParam(want, "notFoundKey", &outValue);
