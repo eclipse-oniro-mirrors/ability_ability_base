@@ -310,6 +310,11 @@ bool SessionInfo::DoMarshallingSix(Parcel& parcel) const
     for (auto windowMode : supportWindowModes) {
         parcel.WriteInt32(static_cast<int32_t>(windowMode));
     }
+
+    if (!parcel.WriteInt32(reuseDelegatorWindow)) {
+        ABILITYBASE_LOGE("Write reuseDelegatorWindow failed");
+        return false;
+    }
     return true;
 }
 
@@ -375,6 +380,7 @@ SessionInfo* SessionInfo::ReadParcelOne(SessionInfo* info, Parcel& parcel)
     info->requestId = parcel.ReadInt32();
     info->isDensityFollowHost = parcel.ReadBool();
     info->specifiedFlag = parcel.ReadString();
+    info->reuseDelegatorWindow = parcel.ReadBool();
 
     std::unique_ptr<Want> want(parcel.ReadParcelable<Want>());
     if (want != nullptr) {
