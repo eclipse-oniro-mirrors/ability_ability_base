@@ -45,6 +45,10 @@ public:
     size_t GetDataLen();
     std::string GetFileName();
     int32_t GetOffset();
+    void SetAutoReleaseMem(bool autoRelease)
+    {
+        autoReleaseMem_ = autoRelease;
+    }
 private:
     std::string fileName_;
     bool isCompressed = false;
@@ -56,7 +60,7 @@ private:
     uint8_t* basePtr_ = nullptr;
     uint8_t* usePtr_ = nullptr;
     size_t baseLen_ = 0;
-    FileMapperType type_ = FileMapperType::NORMAL_MEM;
+    bool autoReleaseMem_ = false;
 };
 }  // namespace AbilityBase
 }  // namespace OHOS
