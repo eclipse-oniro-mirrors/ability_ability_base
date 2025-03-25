@@ -71,10 +71,10 @@ HWTEST_F(CWantTest, OH_AbilityBase_SetWantElement_001, TestSize.Level0)
     AbilityBase_Element outElement;
     errCode = OH_AbilityBase_GetWantElement(want, &outElement);
     ASSERT_EQ(errCode, ABILITY_BASE_ERROR_CODE_NO_ERROR);
-    ReleaseElementMemory(element);
     ASSERT_STREQ(outElement.bundleName, "testBundleName");
     ASSERT_STREQ(outElement.moduleName, "testModuleName");
     ASSERT_STREQ(outElement.abilityName, "testAbilityName");
+    ReleaseElementMemory(element);
 }
 
 /**
