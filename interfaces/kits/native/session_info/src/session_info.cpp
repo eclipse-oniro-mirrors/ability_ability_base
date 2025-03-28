@@ -296,6 +296,11 @@ bool SessionInfo::DoMarshallingSix(Parcel& parcel) const
         return false;
     }
 
+    if (!parcel.WriteInt32(reuseDelegatorWindow)) {
+        ABILITYBASE_LOGE("Write reuseDelegatorWindow failed");
+        return false;
+    }
+
     if (!parcel.WriteParcelable(&want)) {
         ABILITYBASE_LOGE("Write want failed");
         return false;
@@ -311,10 +316,6 @@ bool SessionInfo::DoMarshallingSix(Parcel& parcel) const
         parcel.WriteInt32(static_cast<int32_t>(windowMode));
     }
 
-    if (!parcel.WriteInt32(reuseDelegatorWindow)) {
-        ABILITYBASE_LOGE("Write reuseDelegatorWindow failed");
-        return false;
-    }
     return true;
 }
 
