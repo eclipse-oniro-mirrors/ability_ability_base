@@ -315,7 +315,6 @@ bool SessionInfo::DoMarshallingSix(Parcel& parcel) const
     for (auto windowMode : supportWindowModes) {
         parcel.WriteInt32(static_cast<int32_t>(windowMode));
     }
-
     return true;
 }
 
