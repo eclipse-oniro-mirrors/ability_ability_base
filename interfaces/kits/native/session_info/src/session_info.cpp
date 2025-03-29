@@ -296,7 +296,7 @@ bool SessionInfo::DoMarshallingSix(Parcel& parcel) const
         return false;
     }
 
-    if (!parcel.WriteInt32(reuseDelegatorWindow)) {
+    if (!parcel.WriteBool(reuseDelegatorWindow)) {
         ABILITYBASE_LOGE("Write reuseDelegatorWindow failed");
         return false;
     }
