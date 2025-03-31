@@ -87,6 +87,7 @@ public:
     int32_t requestId = 0;
     bool isDensityFollowHost = false;
     std::string specifiedFlag = "";
+    bool reuseDelegatorWindow = false;
 
 private:
     bool DoMarshallingOne(Parcel& parcel) const;
