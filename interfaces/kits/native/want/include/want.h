@@ -917,6 +917,7 @@ public:
     static const std::string PARAM_APP_KEEP_ALIVE_ENABLED;
 
     static const std::string PARAMS_REAL_CALLER_KEY;
+    static const std::string DESTINATION_PLUGIN_ABILITY;
 
 private:
     WantParams parameters_;
