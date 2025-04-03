@@ -836,6 +836,11 @@ public:
     void DupAllFd();
 
     void SetEntities(const std::vector<std::string> &entities);
+    static int32_t Flags_ConvertSts2Native(const int32_t index);
+    static int32_t Flags_ConvertNative2Sts(const int32_t nativeValue);
+    static std::string Action_ConvertSts2Native(const int32_t index);
+    static int32_t Action_ConvertNative2Sts(const std::string nativeValue);
+
 public:
     // action definition
     static const std::string ACTION_PLAY;
@@ -955,6 +960,69 @@ private:
     bool ReadEntities(Parcel &parcel);
     bool ReadElement(Parcel &parcel);
     bool ReadParameters(Parcel &parcel);
+    //     enum Flags {
+    //     FLAG_AUTH_READ_URI_PERMISSION = 0x00000001,
+    //     FLAG_AUTH_WRITE_URI_PERMISSION = 0x00000002,
+    //     FLAG_AUTH_PERSISTABLE_URI_PERMISSION = 0x00000040,
+    //     FLAG_INSTALL_ON_DEMAND = 0x00000800,
+    //     FLAG_START_WITHOUT_TIPS = 0x40000000
+    //   }
+    static constexpr std::array<int, 5> FlagsArray_ = {0x00000001, 0x00000002, 0x00000040, 0x00000800, 0x40000000};
+ /*
+    enum Action {
+        ACTION_HOME = 'ohos.want.action.home',
+        ACTION_DIAL = 'ohos.want.action.dial',
+        ACTION_SEARCH = 'ohos.want.action.search',
+        ACTION_WIRELESS_SETTINGS = 'ohos.settings.wireless',
+        ACTION_MANAGE_APPLICATIONS_SETTINGS = 'ohos.settings.manage.applications',
+        ACTION_APPLICATION_DETAILS_SETTINGS = 'ohos.settings.application.details',
+        ACTION_SET_ALARM = 'ohos.want.action.setAlarm',
+        ACTION_SHOW_ALARMS = 'ohos.want.action.showAlarms',
+        ACTION_SNOOZE_ALARM = 'ohos.want.action.snoozeAlarm',
+        ACTION_DISMISS_ALARM = 'ohos.want.action.dismissAlarm',
+        ACTION_DISMISS_TIMER = 'ohos.want.action.dismissTimer',
+        ACTION_SEND_SMS = 'ohos.want.action.sendSms',
+        ACTION_CHOOSE = 'ohos.want.action.choose',
+        ACTION_IMAGE_CAPTURE = 'ohos.want.action.imageCapture',
+        ACTION_VIDEO_CAPTURE = 'ohos.want.action.videoCapture',
+        ACTION_SELECT = 'ohos.want.action.select',
+        ACTION_SEND_DATA = 'ohos.want.action.sendData',
+        ACTION_SEND_MULTIPLE_DATA = 'ohos.want.action.sendMultipleData',
+        ACTION_SCAN_MEDIA_FILE = 'ohos.want.action.scanMediaFile',
+        ACTION_VIEW_DATA = 'ohos.want.action.viewData',
+        ACTION_EDIT_DATA = 'ohos.want.action.editData',
+        INTENT_PARAMS_INTENT = 'ability.want.params.INTENT',
+        INTENT_PARAMS_TITLE = 'ability.want.params.TITLE',
+        ACTION_FILE_SELECT = 'ohos.action.fileSelect',
+        PARAMS_STREAM = 'ability.params.stream',
+        ACTION_APP_ACCOUNT_OAUTH = 'ohos.account.appAccount.action.oauth'
+    }*/
+    static constexpr std::array<const char *, 26> ActionArray_ = {"ohos.want.action.home",
+    "ohos.want.action.dial",
+    "ohos.want.action.search",
+    "ohos.settings.wireless",
+    "ohos.settings.manage.applications",
+    "ohos.settings.application.details",
+    "ohos.want.action.setAlarm",
+    "ohos.want.action.showAlarms",
+    "ohos.want.action.snoozeAlarm",
+    "ohos.want.action.dismissAlarm",
+    "ohos.want.action.dismissTimer",
+    "ohos.want.action.sendSms",
+    "ohos.want.action.choose",
+    "ohos.want.action.imageCapture",
+    "ohos.want.action.videoCapture",
+    "ohos.want.action.select",
+    "ohos.want.action.sendData",
+    "ohos.want.action.sendMultipleData",
+    "ohos.want.action.scanMediaFile",
+    "ohos.want.action.viewData",
+    "ohos.want.action.editData",
+    "ability.want.params.INTENT",
+    "ability.want.params.TITLE",
+    "ohos.action.fileSelect",
+    "ability.params.stream",
+    "ohos.account.appAccount.action.oauth"};
 };
 }  // namespace AAFwk
 }  // namespace OHOS
