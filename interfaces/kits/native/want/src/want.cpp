@@ -1337,6 +1337,11 @@ Want *Want::ParseUri(const std::string &uri)
     }
     if (inPicker) {
         sptr<Want> pickerWant = new (std::nothrow) Want();
+        if (pickerWant == nullptr) {
+            delete want;
+            want = nullptr;
+            return nullptr;
+        }
         ElementName pickerElement;
         while (pos != std::string::npos) {
             content = uri.substr(begin, pos - begin);
