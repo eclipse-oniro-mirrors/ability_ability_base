@@ -182,6 +182,7 @@ config("want_all_dependent_config") {
 }
 
 ohos_shared_library("want") {
+  use_exceptions = true
   branch_protector_ret = "pac_ret"
 
   sources = [
