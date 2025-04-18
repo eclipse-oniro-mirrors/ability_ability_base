@@ -1668,7 +1668,14 @@ bool PacMap::ParseJsonItemArrayInteger(PacMapList &mapList, const std::string &k
  */
 bool PacMap::IsNumber(const std::string &str)
 {
-    return std::regex_match(str, NUMBER_REGEX);
+    try {
+        if (std::regex_match(str, NUMBER_REGEX)) {
+            return true;
+        }
+        return false;
+    } catch (const std::regex_error& e) {
+        return false;
+    }
 }
 
 bool PacMap::ParseJsonItemArrayLong(PacMapList &mapList, const std::string &key, Json::Value &item)
