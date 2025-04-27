@@ -150,8 +150,7 @@ zchar Char::GetCharInternal(const unsigned char *cur,
     zchar mask = 0x40;
     zchar ignoreMask = 0xFFFFFF80;
     unsigned int num2Read = 1;
-    for (num2Read = 1, mask = 0x40, ignoreMask = 0xFFFFFF80; (firstChar & mask);
-         num2Read++, ignoreMask |= mask, mask >>= 1) {
+    for (; (firstChar & mask); num2Read++, ignoreMask |= mask, mask >>= 1) {
         result = (result << BYTE_SHIFT) + (*cur++ & 0x3F);
     }
     ignoreMask |= mask;
