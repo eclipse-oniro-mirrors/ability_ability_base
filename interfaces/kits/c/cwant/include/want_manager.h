@@ -36,6 +36,8 @@ class CWantManager {
 public:
     [[maybe_unused]] static AbilityBase_ErrorCode TransformToWant(AbilityBase_Want cwant, bool isDup,
         Want &want);
+    [[maybe_unused]] static AbilityBase_ErrorCode TransformToCWantWithoutElement(
+        Want want, bool isDup, AbilityBase_Want &cwant);
 };
 }
 }
