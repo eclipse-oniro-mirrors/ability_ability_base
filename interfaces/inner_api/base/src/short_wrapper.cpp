@@ -48,7 +48,10 @@ sptr<IShort> Short::Box(short value) /* [in] */
 
 short Short::Unbox(IShort *object) /* [in] */
 {
-    short value;
+    short value = 0;
+    if (object == nullptr) {
+        return value;
+    }
     object->GetValue(value);
     return value;
 }

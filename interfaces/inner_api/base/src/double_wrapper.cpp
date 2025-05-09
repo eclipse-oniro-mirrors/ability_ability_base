@@ -48,7 +48,10 @@ sptr<IDouble> Double::Box(double value) /* [in] */
 
 double Double::Unbox(IDouble *object) /* [in] */
 {
-    double value;
+    double value = 0;
+    if (object == nullptr) {
+        return value;
+    }
     object->GetValue(value);
     return value;
 }

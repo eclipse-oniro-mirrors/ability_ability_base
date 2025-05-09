@@ -34,6 +34,9 @@ sptr<IRemoteObjectWrap> RemoteObjectWrap::Box(sptr<IRemoteObject> remoteObject)
 
 sptr<IRemoteObject> RemoteObjectWrap::UnBox(IRemoteObjectWrap *object)
 {
+    if (object == nullptr) {
+        return nullptr;
+    }
     return object->GetValue();
 }
 

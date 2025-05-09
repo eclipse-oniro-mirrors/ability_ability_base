@@ -47,6 +47,9 @@ sptr<IString> String::Box(const std::string &str) /* [in] */
 std::string String::Unbox(IString *object) /* [in] */
 {
     std::string str;
+    if (object == nullptr) {
+        return str;
+    }
     object->GetString(str);
     return str;
 }
