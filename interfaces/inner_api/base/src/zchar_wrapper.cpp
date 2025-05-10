@@ -52,7 +52,10 @@ sptr<IChar> Char::Box(zchar value)
 
 zchar Char::Unbox(IChar *object)
 {
-    zchar value;
+    zchar value = u'\0';
+    if (object == nullptr) {
+        return value;
+    }
     object->GetValue(value);
     return value;
 }
@@ -121,9 +124,11 @@ zchar Char::GetChar(const std::string &str,
     int bsize;
     const char *p = str.c_str();
     const char *end = p + str.length() + 1;
+    int size = str.length();
+    int now = 0;
     while (*p && p < end) {
         zchar unicode = GetCharInternal((unsigned char *)p, bsize);
-        if (bsize == 0 || p + bsize >= end) {
+        if (bsize == 0 || now + bsize >= size) {
             break;
         }
 
@@ -131,6 +136,7 @@ zchar Char::GetChar(const std::string &str,
             return unicode;
         }
         p += bsize;
+        now += bsize;
         index -= 1;
     }
 

@@ -48,7 +48,10 @@ sptr<IByte> Byte::Box(byte value) /* [in] */
 
 byte Byte::Unbox(IByte *object) /* [in] */
 {
-    byte value;
+    byte value = 0;
+    if (object == nullptr) {
+        return value;
+    }
     object->GetValue(value);
     return value;
 }

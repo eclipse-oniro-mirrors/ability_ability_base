@@ -48,7 +48,10 @@ sptr<IFloat> Float::Box(float value) /* [in] */
 
 float Float::Unbox(IFloat *object) /* [in] */
 {
-    float value;
+    float value = 0;
+    if (object == nullptr) {
+        return value;
+    }
     object->GetValue(value);
     return value;
 }

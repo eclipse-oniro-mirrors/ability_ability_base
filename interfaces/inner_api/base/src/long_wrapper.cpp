@@ -48,7 +48,10 @@ sptr<ILong> Long::Box(long value) /* [in] */
 
 long Long::Unbox(ILong *object) /* [in] */
 {
-    long value;
+    long value = 0;
+    if (object == nullptr) {
+        return value;
+    }
     object->GetValue(value);
     return value;
 }

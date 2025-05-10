@@ -48,7 +48,10 @@ sptr<IInteger> Integer::Box(int value) /* [in] */
 
 int Integer::Unbox(IInteger *object) /* [in] */
 {
-    int value;
+    int value = 0;
+    if (object == nullptr) {
+        return value;
+    }
     object->GetValue(value);
     return value;
 }

@@ -46,6 +46,9 @@ sptr<IBoolean> Boolean::Box(bool value) /* [in] */
 bool Boolean::Unbox(IBoolean *object) /* [in] */
 {
     bool value = false;
+    if (object == nullptr) {
+        return value;
+    }
     object->GetValue(value);
     return value;
 }
