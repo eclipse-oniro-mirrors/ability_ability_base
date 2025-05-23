@@ -43,6 +43,8 @@ namespace GlobalConfigurationKey {
     constexpr const char* APPLICATION_FONT = "ohos.application.font";
     constexpr const char* APP_FONT_SIZE_SCALE = "ohos.app.fontSizeScale";
     constexpr const char* APP_FONT_MAX_SCALE = "ohos.app.fontMaxScale";
+    // Used to notify arkui smart gesture switch
+    constexpr const char* SYSTEM_SMART_GESTURE_SWITCH = "ohos.system.smartGesture";
 
 } // namespace GlobalConfigurationKey
 } // namespace AAFwk

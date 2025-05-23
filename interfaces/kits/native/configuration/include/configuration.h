@@ -46,6 +46,8 @@ namespace ConfigurationInner {
     constexpr const char* IS_SET_BY_SA = "isSetBySa";
     constexpr const char* IS_APP_FONT_FOLLOW_SYSTEM = "followSystem";
     constexpr const char* SYSTEM_DEFAULT_FONTSIZE_SCALE = "1.0";
+    constexpr const char* SMART_GESTURE_AUTO = "auto";
+    constexpr const char* SMART_GESTURE_DISABLE = "disable";
 };
 
 class Configuration final: public Parcelable {
