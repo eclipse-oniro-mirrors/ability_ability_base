@@ -315,6 +315,11 @@ bool SessionInfo::DoMarshallingSix(Parcel& parcel) const
     for (auto windowMode : supportWindowModes) {
         parcel.WriteInt32(static_cast<int32_t>(windowMode));
     }
+
+    if (!parcel.WriteBool(isMoveMissionToFront)) {
+        ABILITYBASE_LOGE("Write isMoveMissionToFront failed.");
+        return false;
+    }
     return true;
 }
 
@@ -381,6 +386,7 @@ SessionInfo* SessionInfo::ReadParcelOne(SessionInfo* info, Parcel& parcel)
     info->isDensityFollowHost = parcel.ReadBool();
     info->specifiedFlag = parcel.ReadString();
     info->reuseDelegatorWindow = parcel.ReadBool();
+    info->isMoveMissionToFront = parcel.ReadBool();
 
     std::unique_ptr<Want> want(parcel.ReadParcelable<Want>());
     if (want != nullptr) {
