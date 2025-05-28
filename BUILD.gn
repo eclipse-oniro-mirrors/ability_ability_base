@@ -214,7 +214,10 @@ ohos_shared_library("want") {
     "jsoncpp:jsoncpp",
   ]
 
-  public_external_deps = [ "json:nlohmann_json_static" ]
+  public_external_deps = [
+    "ipc:ipc_core",
+    "json:nlohmann_json_static",
+  ]
 
   configs = [
     ":want_config",
@@ -285,7 +288,7 @@ ohos_shared_library("session_info") {
     "hilog:libhilog",
     "ipc:ipc_core",
   ]
-
+  public_external_deps = [ "bundle_framework:appexecfwk_base" ]
   subsystem_name = "ability"
   innerapi_tags = [ "platformsdk_indirect" ]
   part_name = "ability_base"
