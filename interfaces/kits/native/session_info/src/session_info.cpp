@@ -301,6 +301,11 @@ bool SessionInfo::DoMarshallingSix(Parcel& parcel) const
         return false;
     }
 
+    if (!parcel.WriteBool(isMoveMissionToFront)) {
+        ABILITYBASE_LOGE("Write isMoveMissionToFront failed.");
+        return false;
+    }
+
     if (!parcel.WriteParcelable(&want)) {
         ABILITYBASE_LOGE("Write want failed");
         return false;
@@ -314,11 +319,6 @@ bool SessionInfo::DoMarshallingSix(Parcel& parcel) const
     parcel.WriteInt32(supportWindowModes.size());
     for (auto windowMode : supportWindowModes) {
         parcel.WriteInt32(static_cast<int32_t>(windowMode));
-    }
-
-    if (!parcel.WriteBool(isMoveMissionToFront)) {
-        ABILITYBASE_LOGE("Write isMoveMissionToFront failed.");
-        return false;
     }
     return true;
 }
