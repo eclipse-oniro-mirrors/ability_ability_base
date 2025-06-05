@@ -121,6 +121,7 @@ const std::string Want::PARAM_APP_KEEP_ALIVE_ENABLED("ohos.param.app.keepAliveEn
 const std::string Want::PARAMS_REAL_CALLER_KEY("ohos.ability.param.realCallerKey");
 const std::string Want::DESTINATION_PLUGIN_ABILITY("ohos.params.pluginAbility");
 const std::string Want::START_ABILITY_WITH_WAIT_OBSERVER_ID_KEY("ohos.ability.param.startWithWaitKey");
+const std::string Want::ATOMIC_SERVICE_SHARE_ROUTER("ohos.params.atomicservice.shareRouter");
 
 /**
  * @description:Default construcotr of Want class, which is used to initialzie flags and URI.
