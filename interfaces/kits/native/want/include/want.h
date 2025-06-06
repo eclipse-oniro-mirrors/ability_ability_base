@@ -920,6 +920,8 @@ public:
     static const std::string DESTINATION_PLUGIN_ABILITY;
     static const std::string START_ABILITY_WITH_WAIT_OBSERVER_ID_KEY;
     static const std::string ATOMIC_SERVICE_SHARE_ROUTER;
+    // unified data key
+    static const std::string PARAM_ABILITY_UNIFIED_DATA_KEY;
 
 private:
     WantParams parameters_;
