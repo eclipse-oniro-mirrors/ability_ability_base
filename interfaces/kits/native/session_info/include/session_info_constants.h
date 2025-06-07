@@ -29,7 +29,8 @@ enum class CallToState : uint32_t {
 enum class UIExtensionUsage : uint32_t {
     MODAL = 0,
     EMBEDDED,
-    CONSTRAINED_EMBEDDED
+    CONSTRAINED_EMBEDDED,
+    PRE_VIEW_EMBEDDED
 };
 } // namespace AAFwk
 } // namespace OHOS
