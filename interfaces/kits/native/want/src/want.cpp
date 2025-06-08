@@ -2247,5 +2247,45 @@ void Want::SetEntities(const std::vector<std::string> &entities)
 {
     operation_.SetEntities(entities);
 }
+
+int32_t Want::Flags_ConvertEts2Native(const int32_t index)
+{
+    if (index < 0 || index >= FlagsArray_.size()) {
+        ABILITYBASE_LOGE("Flags_ConvertEts2Native failed index:%{public}d", index);
+        return 0;
+    }
+    return FlagsArray_[index];
+}
+
+int32_t Want::Flags_ConvertNative2Ets(const int32_t nativeValue)
+{
+    for (int index = 0; index < FlagsArray_.size(); index++) {
+        if (nativeValue == FlagsArray_[index]) {
+            return index;
+        }
+    }
+    ABILITYBASE_LOGE("Flags_ConvertNative2Ets failed nativeValue:%{public}d", nativeValue);
+    return -1;
+}
+
+std::string Want::Action_ConvertEts2Native(const int32_t index)
+{
+    if (index < 0 || index >= ActionArray_.size()) {
+        ABILITYBASE_LOGE("Action_ConvertEts2Native failed index:%{public}d", index);
+        return "";
+    }
+    return ActionArray_[index];
+}
+
+int32_t Want::Action_ConvertNative2Ets(const std::string nativeValue)
+{
+    for (int32_t index = 0; index < ActionArray_.size(); index++) {
+        if (nativeValue == ActionArray_[index]) {
+            return index;
+        }
+    }
+    ABILITYBASE_LOGE("Action_ConvertEts2Native failed nativeValue:%{public}s", nativeValue.c_str());
+    return -1;
+}
 }  // namespace AAFwk
 }  // namespace OHOS

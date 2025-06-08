@@ -43,5 +43,16 @@ std::string GetDirectionStr(int32_t height, int32_t width);
 std::string GetDirectionStr(int32_t orientation);
 
 std::string GetDensityStr(float density);
+
+//Ets_onvert
+Global::Resource::ColorMode DarkMode_ConvertEts2Native(const int32_t index);
+int32_t DarkMode_ConvertNative2Ets(const Global::Resource::ColorMode nativeValue);
+
+Global::Resource::Direction Direction_ConvertEts2Native(const int32_t index);
+int32_t Direction_ConvertNative2Ets(const Global::Resource::Direction nativeValue);
+
+Global::Resource::ScreenDensity ScreenDensity_ConvertEts2Native(const int32_t index);
+int32_t ScreenDensity_ConvertNative2Ets(const Global::Resource::ScreenDensity nativeValue);
+
 } // namespace OHOS::AppExecFwk
 #endif  // OHOS_ABILITY_BASE_CONFIGURATION_CONVERTOR_H
