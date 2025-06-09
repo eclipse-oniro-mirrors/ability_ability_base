@@ -444,6 +444,32 @@ ohos_unittest("user_object_wrapper_test") {
   ]
 }
 
+ohos_unittest("cwant_manager_test") {
+  module_out_path = want_output_path
+  sources = [ "cwant/capi_want_manager_test.cpp" ]
+
+  configs = []
+
+  include_dirs = [
+    "${ability_base_innerapi_path}/log/include",
+    "${ability_base_kits_native_path}",
+    "${ability_base_ndk_path}/common",
+    "${ability_base_ndk_path}/cwant/include",
+    "${ability_base_path}:want_public_config",
+  ]
+
+  deps = []
+
+  external_deps = [
+    "ability_base:ability_base_want",
+    "ability_base:base",
+    "ability_base:want",
+    "c_utils:utils",
+    "hilog:libhilog",
+    "ipc:ipc_single",
+  ]
+}
+
 ohos_unittest("cwant_test") {
   module_out_path = want_output_path
   sources = [ "cwant/capi_want_test.cpp" ]
@@ -644,6 +670,7 @@ group("unittest") {
     ":bool_wrapper_test",
     ":byte_wrapper_test",
     ":cwant_test",
+    ":cwant_manager_test",
     ":double_wrapper_test",
     ":extra_params_test",
     ":extractor_test",

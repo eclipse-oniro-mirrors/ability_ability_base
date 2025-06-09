@@ -213,3 +213,81 @@ HWTEST_F(CWantTest, OH_AbilityBase_SetWantDoubleParam_001, TestSize.Level0)
     errCode = OH_AbilityBase_GetWantDoubleParam(want, "notFoundKey", &outValue);
     ASSERT_EQ(errCode, ABILITY_BASE_ERROR_CODE_PARAM_INVALID);
 }
+
+/**
+ * @tc.number:OH_AbilityBase_SetWantStrParam_001
+ * @tc.desc: Function test OH_AbilityBase_SetWantStrParam_001
+ * @tc.type: FUNC
+ */
+HWTEST_F(CWantTest, OH_AbilityBase_SetWantStrParam_001, TestSize.Level0)
+{
+    AbilityBase_Element element;
+    initElementWithDynamicMemory(element);
+
+    AbilityBase_Want* want = OH_AbilityBase_CreateWant(element);
+    AbilityBase_ErrorCode errCode = OH_AbilityBase_SetWantElement(want, element);
+    ASSERT_EQ(errCode, ABILITY_BASE_ERROR_CODE_NO_ERROR);
+
+    const char * strKey = "strKey";
+    const char * strValue = "strValue";
+    errCode = OH_AbilityBase_SetWantCharParam(nullptr, strKey, strValue);
+    ASSERT_EQ(errCode, ABILITY_BASE_ERROR_CODE_PARAM_INVALID);
+
+    errCode = OH_AbilityBase_SetWantCharParam(want, nullptr, strValue);
+    ASSERT_EQ(errCode, ABILITY_BASE_ERROR_CODE_PARAM_INVALID);
+
+    errCode = OH_AbilityBase_SetWantCharParam(want, strKey, strValue);
+    ASSERT_EQ(errCode, ABILITY_BASE_ERROR_CODE_NO_ERROR);
+
+    char outStr[50];
+    char outStr1[1];
+    errCode = OH_AbilityBase_GetWantCharParam(nullptr, strKey, outStr, sizeof(outStr));
+    ASSERT_EQ(errCode, ABILITY_BASE_ERROR_CODE_PARAM_INVALID);
+
+    errCode = OH_AbilityBase_GetWantCharParam(want, nullptr, outStr, sizeof(outStr));
+    ASSERT_EQ(errCode, ABILITY_BASE_ERROR_CODE_PARAM_INVALID);
+    
+    errCode = OH_AbilityBase_GetWantCharParam(want, strKey, outStr, sizeof(outStr1));
+    ASSERT_EQ(errCode, ABILITY_BASE_ERROR_CODE_PARAM_INVALID);
+
+    errCode = OH_AbilityBase_GetWantCharParam(want, strKey, outStr, sizeof(outStr));
+    ASSERT_EQ(errCode, ABILITY_BASE_ERROR_CODE_NO_ERROR);
+}
+
+
+/**
+ * @tc.number:OH_AbilityBase_SetWantFdParam_001
+ * @tc.desc: Function test OH_AbilityBase_SetWantFdParam_001
+ * @tc.type: FUNC
+ */
+HWTEST_F(CWantTest, OH_AbilityBase_SetWantFdParam_001, TestSize.Level0)
+{
+    AbilityBase_Element element;
+    initElementWithDynamicMemory(element);
+
+    AbilityBase_Want* want = OH_AbilityBase_CreateWant(element);
+    AbilityBase_ErrorCode errCode = OH_AbilityBase_SetWantElement(want, element);
+    ASSERT_EQ(errCode, ABILITY_BASE_ERROR_CODE_NO_ERROR);
+
+    const char * fdKey = "fdKey";
+    int32_t fdvalue = 1;
+    errCode = OH_AbilityBase_AddWantFd(nullptr, fdKey, fdvalue);
+    ASSERT_EQ(errCode, ABILITY_BASE_ERROR_CODE_PARAM_INVALID);
+
+    errCode = OH_AbilityBase_AddWantFd(want, nullptr, fdvalue);
+    ASSERT_EQ(errCode, ABILITY_BASE_ERROR_CODE_PARAM_INVALID);
+
+    errCode = OH_AbilityBase_AddWantFd(want, fdKey, fdvalue);
+    ASSERT_EQ(errCode, ABILITY_BASE_ERROR_CODE_NO_ERROR);
+
+    int32_t fdvalue1;
+    errCode = OH_AbilityBase_GetWantFd(nullptr, fdKey, &fdvalue1);
+    ASSERT_EQ(errCode, ABILITY_BASE_ERROR_CODE_PARAM_INVALID);
+
+    errCode = OH_AbilityBase_GetWantFd(want, nullptr, &fdvalue1);
+    ASSERT_EQ(errCode, ABILITY_BASE_ERROR_CODE_PARAM_INVALID);
+
+    errCode = OH_AbilityBase_GetWantFd(want, fdKey, &fdvalue1);
+    ASSERT_EQ(errCode, ABILITY_BASE_ERROR_CODE_NO_ERROR);
+}
+
