@@ -88,7 +88,6 @@ public:
     bool isDensityFollowHost = false;
     std::string specifiedFlag = "";
     bool reuseDelegatorWindow = false;
-    bool isMoveMissionToFront = false;
 
 private:
     bool DoMarshallingOne(Parcel& parcel) const;
