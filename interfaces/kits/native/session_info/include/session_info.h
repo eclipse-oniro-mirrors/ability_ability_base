@@ -89,6 +89,7 @@ public:
     std::string specifiedFlag = "";
     bool reuseDelegatorWindow = false;
     bool isMoveMissionToFront = false;
+    bool hideStartWindow = false;
 
 private:
     bool DoMarshallingOne(Parcel& parcel) const;
