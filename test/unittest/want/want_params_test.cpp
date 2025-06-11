@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -1254,6 +1254,436 @@ HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_DupAllFd_1000, Function | MediumTe
         std::shared_ptr<WantParams> wantParamsOut_(WantParams::Unmarshalling(in));
         EXPECT_EQ(valueStr, String::Unbox(IString::Query(wantParamsOut_->GetParam(keyStr))));
     }
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_FromJson_0100
+ * @tc.name: FromJson
+ * @tc.desc:
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_FromJson_0100, Function | MediumTest | Level1)
+{
+    WantParams params;
+    nlohmann::json js;
+    js["strKey"] = "hello";
+
+    params.FromJson(js);
+
+    EXPECT_EQ(params.GetStringParam("strKey"), "hello");
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_ToJson_0100
+ * @tc.name: ToJson
+ * @tc.desc:
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_ToJson_0100, Function | MediumTest | Level1)
+{
+    WantParams params;
+    params.SetParam("intKey", OHOS::AAFwk::Integer::Box(123456));
+    params.SetParam("strKey", OHOS::AAFwk::String::Box("aaaaa"));
+
+    nlohmann::json js;
+    params.ToJson(js);
+
+    EXPECT_TRUE(js.contains("intKey"));
+    EXPECT_TRUE(js.contains("strKey"));
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_InnerWrapWantParamsByte_0100
+ * @tc.name: InnerWrapWantParamsByte
+ * @tc.desc:
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_InnerWrapWantParamsByte_0100, Function | MediumTest | Level1)
+{
+    WantParams params;
+    params.SetParam("byteKey", OHOS::AAFwk::Byte::Box(66)); // 66 = 'B'
+    nlohmann::json js;
+    params.InnerWrapWantParamsByte(js, "byteKey");
+    ASSERT_TRUE(js.contains("byteKey"));
+    EXPECT_EQ(js["byteKey"], 66);
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_InnerWrapWantParamsChar_0100
+ * @tc.name: InnerWrapWantParamsChar
+ * @tc.desc:
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_InnerWrapWantParamsChar_0100, Function | MediumTest | Level1)
+{
+    WantParams params;
+    params.SetParam("charKey", OHOS::AAFwk::Char::Box('A'));
+
+    nlohmann::json js;
+    params.InnerWrapWantParamsChar(js, "charKey");
+
+    ASSERT_TRUE(js.contains("charKey"));
+    EXPECT_EQ(js["charKey"], "A");
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_InnerWrapWantParamsShort_0100
+ * @tc.name: InnerWrapWantParamsShort
+ * @tc.desc:
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_InnerWrapWantParamsShort_0100, Function | MediumTest | Level1)
+{
+    WantParams params;
+    params.SetParam("shortKey", OHOS::AAFwk::Short::Box(12345));
+
+    nlohmann::json js;
+    params.InnerWrapWantParamsShort(js, "shortKey");
+
+    ASSERT_TRUE(js.contains("shortKey"));
+    EXPECT_EQ(js["shortKey"], 12345);
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_InnerWrapWantParamsBool_0100
+ * @tc.name: InnerWrapWantParamsBool
+ * @tc.desc:
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_InnerWrapWantParamsBool_0100, Function | MediumTest | Level1)
+{
+    WantParams params;
+    params.SetParam("boolKey", OHOS::AAFwk::Boolean::Box(true));
+
+    nlohmann::json js;
+    params.InnerWrapWantParamsBool(js, "boolKey");
+
+    ASSERT_TRUE(js.contains("boolKey"));
+    EXPECT_EQ(js["boolKey"], true);
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_InnerWrapWantParamsString_0100
+ * @tc.name: InnerWrapWantParamsString
+ * @tc.desc:
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_InnerWrapWantParamsString_0100, Function | MediumTest | Level1)
+{
+    WantParams params;
+    params.SetParam("strKey", OHOS::AAFwk::String::Box("OpenHarmony"));
+
+    nlohmann::json js;
+    params.InnerWrapWantParamsString(js, "strKey");
+
+    ASSERT_TRUE(js.contains("strKey"));
+    EXPECT_EQ(js["strKey"], "OpenHarmony");
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_InnerWrapWantParamsInt32_0100
+ * @tc.name: InnerWrapWantParamsInt32
+ * @tc.desc:
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_InnerWrapWantParamsInt32_0100, Function | MediumTest | Level1)
+{
+    WantParams params;
+    params.SetParam("int32Key", OHOS::AAFwk::Integer::Box(123456));
+    nlohmann::json js;
+    params.InnerWrapWantParamsInt32(js, "int32Key");
+    ASSERT_TRUE(js.contains("int32Key"));
+    EXPECT_EQ(js["int32Key"], 123456);
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_InnerWrapWantParamsInt64_0100
+ * @tc.name: InnerWrapWantParamsInt64
+ * @tc.desc:
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_InnerWrapWantParamsInt64_0100, Function | MediumTest | Level1)
+{
+    WantParams params;
+    long value = 12345678;
+    params.SetParam("int64Key", OHOS::AAFwk::Long::Box(value));
+    nlohmann::json js;
+    params.InnerWrapWantParamsInt64(js, "int64Key");
+    ASSERT_TRUE(js.contains("int64Key"));
+    EXPECT_EQ(js["int64Key"], 12345678);
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_InnerWrapWantParamsFloat_0100
+ * @tc.name: InnerWrapWantParamsFloat
+ * @tc.desc:
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_InnerWrapWantParamsFloat_0100, Function | MediumTest | Level1)
+{
+    WantParams params;
+    params.SetParam("floatKey", OHOS::AAFwk::Float::Box(3.14f));
+    nlohmann::json js;
+    params.InnerWrapWantParamsFloat(js, "floatKey");
+    ASSERT_TRUE(js.contains("floatKey"));
+    EXPECT_FLOAT_EQ(js["floatKey"], 3.14f);
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_InnerWrapWantParamsDouble_0100
+ * @tc.name: InnerWrapWantParamsDouble
+ * @tc.desc:
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_InnerWrapWantParamsDouble_0100, Function | MediumTest | Level1)
+{
+    WantParams params;
+    class DoubleInterface : public IInterface {
+    public:
+        explicit DoubleInterface(double v) : value(v) {}
+        double value;
+    };
+    params.SetParam("doubleKey", OHOS::AAFwk::Double::Box(6.28));
+    nlohmann::json js;
+    params.InnerWrapWantParamsDouble(js, "doubleKey");
+    ASSERT_TRUE(js.contains("doubleKey"));
+    EXPECT_DOUBLE_EQ(js["doubleKey"], 6.28);
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_InnerWrapWantParamsWantParams_0100
+ * @tc.name: InnerWrapWantParamsWantParams
+ * @tc.desc:
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_InnerWrapWantParamsWantParams_0100, Function | MediumTest | Level1)
+{
+    WantParams params;
+    WantParams inner;
+    inner.SetParam("innerKey", nullptr);
+    params.SetParam("wantParamsKey", AAFwk::WantParamWrapper::Box(inner));
+    nlohmann::json js;
+    params.InnerWrapWantParamsWantParams(js, "wantParamsKey");
+    ASSERT_TRUE(js.contains("wantParamsKey"));
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_InnerWrapWantParamsArrayString_0100
+ * @tc.name: InnerWrapWantParamsArrayString
+ * @tc.desc:
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_InnerWrapWantParamsArrayString_0100, Function | MediumTest | Level1)
+{
+    WantParams params;
+    sptr<IArray> ao = new Array(3, g_IID_IString);
+    ao->Set(0, OHOS::AAFwk::String::Box("a"));
+    ao->Set(1, OHOS::AAFwk::String::Box("b"));
+    ao->Set(2, OHOS::AAFwk::String::Box("c"));
+    nlohmann::json js;
+    params.InnerWrapWantParamsArrayString(js, "arrKey", ao);
+    ASSERT_TRUE(js.contains("arrKey"));
+    EXPECT_EQ(js["arrKey"].size(), 3);
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_InnerWrapWantParamsArrayBool_0100
+ * @tc.name: InnerWrapWantParamsArrayBool
+ * @tc.desc:
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_InnerWrapWantParamsArrayBool_0100, Function | MediumTest | Level1)
+{
+    WantParams params;
+    sptr<IArray> ao = new Array(3, g_IID_IBoolean);
+    ao->Set(0, OHOS::AAFwk::Boolean::Box(true));
+    ao->Set(1, OHOS::AAFwk::Boolean::Box(false));
+    ao->Set(2, OHOS::AAFwk::Boolean::Box(true));
+    nlohmann::json js;
+    params.InnerWrapWantParamsArrayBool(js, "arrKey", ao);
+    ASSERT_TRUE(js.contains("arrKey"));
+    EXPECT_EQ(js["arrKey"].size(), 3);
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_InnerWrapWantParamsArrayShort_0100
+ * @tc.name: InnerWrapWantParamsArrayShort
+ * @tc.desc:
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_InnerWrapWantParamsArrayShort_0100, Function | MediumTest | Level1)
+{
+    WantParams params;
+    sptr<IArray> ao = new Array(3, g_IID_IShort);
+    ao->Set(0, OHOS::AAFwk::Short::Box(1));
+    ao->Set(1, OHOS::AAFwk::Short::Box(2));
+    ao->Set(2, OHOS::AAFwk::Short::Box(3));
+    nlohmann::json js;
+    params.InnerWrapWantParamsArrayShort(js, "arrKey", ao);
+    ASSERT_TRUE(js.contains("arrKey"));
+    EXPECT_EQ(js["arrKey"].size(), 3);
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_InnerWrapWantParamsArrayByte_0100
+ * @tc.name: InnerWrapWantParamsArrayByte
+ * @tc.desc:
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_InnerWrapWantParamsArrayByte_0100, Function | MediumTest | Level1)
+{
+    WantParams params;
+    sptr<IArray> ao = new Array(3, g_IID_IByte);
+    ao->Set(0, OHOS::AAFwk::Byte::Box(1));
+    ao->Set(1, OHOS::AAFwk::Byte::Box(2));
+    ao->Set(2, OHOS::AAFwk::Byte::Box(3));
+    nlohmann::json js;
+    params.InnerWrapWantParamsArrayByte(js, "arrKey", ao);
+    ASSERT_TRUE(js.contains("arrKey"));
+    EXPECT_EQ(js["arrKey"].size(), 3);
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_InnerWrapWantParamsArrayInt32_0100
+ * @tc.name: InnerWrapWantParamsArrayInt32
+ * @tc.desc:
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_InnerWrapWantParamsArrayInt32_0100, Function | MediumTest | Level1)
+{
+    WantParams params;
+    sptr<IArray> ao = new Array(3, g_IID_IInteger);
+    ao->Set(0, OHOS::AAFwk::Integer::Box(10));
+    ao->Set(1, OHOS::AAFwk::Integer::Box(20));
+    ao->Set(2, OHOS::AAFwk::Integer::Box(30));
+    nlohmann::json js;
+    params.InnerWrapWantParamsArrayInt32(js, "arrKey", ao);
+    ASSERT_TRUE(js.contains("arrKey"));
+    EXPECT_EQ(js["arrKey"].size(), 3);
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_InnerWrapWantParamsArrayInt64_0100
+ * @tc.name: InnerWrapWantParamsArrayInt64
+ * @tc.desc:
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_InnerWrapWantParamsArrayInt64_0100, Function | MediumTest | Level1)
+{
+    WantParams params;
+    sptr<IArray> ao = new Array(3, g_IID_ILong);
+    ao->Set(0, OHOS::AAFwk::Long::Box(100));
+    ao->Set(1, OHOS::AAFwk::Long::Box(200));
+    ao->Set(2, OHOS::AAFwk::Long::Box(300));
+    nlohmann::json js;
+    params.InnerWrapWantParamsArrayInt64(js, "arrKey", ao);
+    ASSERT_TRUE(js.contains("arrKey"));
+    EXPECT_EQ(js["arrKey"].size(), 3);
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_InnerWrapWantParamsArrayFloat_0100
+ * @tc.name: InnerWrapWantParamsArrayFloat
+ * @tc.desc:
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_InnerWrapWantParamsArrayFloat_0100, Function | MediumTest | Level1)
+{
+    WantParams params;
+    sptr<IArray> ao = new Array(3, g_IID_IFloat);
+    ao->Set(0, OHOS::AAFwk::Float::Box(1.1f));
+    ao->Set(1, OHOS::AAFwk::Float::Box(2.2f));
+    ao->Set(2, OHOS::AAFwk::Float::Box(3.3f));
+    nlohmann::json js;
+    params.InnerWrapWantParamsArrayFloat(js, "arrKey", ao);
+    ASSERT_TRUE(js.contains("arrKey"));
+    EXPECT_EQ(js["arrKey"].size(), 3);
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_InnerWrapWantParamsArrayWantParams_0100
+ * @tc.name: InnerWrapWantParamsArrayWantParams
+ * @tc.desc:
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_InnerWrapWantParamsArrayWantParams_0100, Function | MediumTest | Level1)
+{
+    WantParams params;
+    WantParams wp1, wp2;
+    wp1.SetParam("k1", nullptr);
+    wp2.SetParam("k2", nullptr);
+    sptr<IArray> wantParamsArray = new Array(2, g_IID_IWantParams);
+    wantParamsArray->Set(0, AAFwk::WantParamWrapper::Box(wp1));
+    wantParamsArray->Set(1, AAFwk::WantParamWrapper::Box(wp2));
+    nlohmann::json js;
+    params.InnerWrapWantParamsArrayWantParams(js, "arrKey", wantParamsArray);
+    ASSERT_TRUE(js.contains("arrKey"));
+    EXPECT_EQ(js["arrKey"].size(), 2);
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_InnerWrapWantParamsArrayChar_0100
+ * @tc.name: InnerWrapWantParamsArrayChar
+ * @tc.desc:
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_InnerWrapWantParamsArrayChar_0100, Function | MediumTest | Level1)
+{
+    WantParams params;
+    sptr<IArray> ao = new Array(3, g_IID_IChar);
+    ao->Set(0, OHOS::AAFwk::Char::Box('x'));
+    ao->Set(1, OHOS::AAFwk::Char::Box('y'));
+    ao->Set(2, OHOS::AAFwk::Char::Box('z'));
+    nlohmann::json js;
+    params.InnerWrapWantParamsArrayChar(js, "arrKey", ao);
+    ASSERT_TRUE(js.contains("arrKey"));
+    EXPECT_EQ(js["arrKey"].size(), 3);
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_InnerWrapWantParamsArrayDouble_0100
+ * @tc.name: InnerWrapWantParamsArrayDouble
+ * @tc.desc:
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_InnerWrapWantParamsArrayDouble_0100, Function | MediumTest | Level1)
+{
+    WantParams params;
+    sptr<IArray> ao = new Array(3, g_IID_IDouble);
+    ao->Set(0, OHOS::AAFwk::Double::Box(1.11));
+    ao->Set(1, OHOS::AAFwk::Double::Box(2.22));
+    ao->Set(2, OHOS::AAFwk::Double::Box(3.33));
+    nlohmann::json js;
+    params.InnerWrapWantParamsArrayDouble(js, "arrKey", ao);
+    ASSERT_TRUE(js.contains("arrKey"));
+    EXPECT_EQ(js["arrKey"].size(), 3);
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_InnerWrapWantParamsArray_0100
+ * @tc.name: InnerWrapWantParamsArray
+ * @tc.desc:
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_InnerWrapWantParamsArray_0100, Function | MediumTest | Level1)
+{
+    WantParams params;
+    sptr<IArray> ao = new Array(3, g_IID_IString);
+    ao->Set(0, OHOS::AAFwk::String::Box("a"));
+    ao->Set(1, OHOS::AAFwk::String::Box("b"));
+    ao->Set(2, OHOS::AAFwk::String::Box("c"));
+    nlohmann::json js;
+    params.InnerWrapWantParamsArray(js, "arrKey", ao);
+    ASSERT_TRUE(js.contains("arrKey"));
+    EXPECT_EQ(js["arrKey"].size(), 3);
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_from_json_0100
+ * @tc.name: from_json
+ * @tc.desc:
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_from_json_0100, Function | MediumTest | Level1)
+{
+    nlohmann::json js;
+    js["intKey"] = 123;
+    js["strKey"] = "OpenHarmony";
+    WantParams params;
+    from_json(js, params);
+    EXPECT_EQ(params.GetIntParam("intKey", 0), 123);
+    EXPECT_EQ(params.GetStringParam("strKey"), "OpenHarmony");
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_to_json_0100
+ * @tc.name: to_json
+ * @tc.desc:
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_to_json_0100, Function | MediumTest | Level1)
+{
+    WantParams params;
+    params.SetParam("strKey", OHOS::AAFwk::String::Box("OpenHarmony"));
+    nlohmann::json js;
+    to_json(js, params);
+    ASSERT_TRUE(js.contains("strKey"));
+    EXPECT_EQ(js["strKey"], "OpenHarmony");
 }
 }
 }
