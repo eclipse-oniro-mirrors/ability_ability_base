@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -47,6 +47,7 @@ public:
     uint32_t hostWindowId = 0;
     int32_t realHostWindowId = 0;
     uint32_t parentWindowType = 1;
+    bool hideStartWindow = false;
     // Status of the UIAbility invoked by the StartABilityByCall
     CallToState state = CallToState::UNKNOW;
     // Returned resultCode of terminateSelfWithResult
@@ -89,7 +90,6 @@ public:
     std::string specifiedFlag = "";
     bool reuseDelegatorWindow = false;
     bool isMoveMissionToFront = false;
-    bool hideStartWindow = false;
 
 private:
     bool DoMarshallingOne(Parcel& parcel) const;
@@ -99,6 +99,7 @@ private:
     bool DoMarshallingFive(Parcel& parcel) const;
     bool DoMarshallingSix(Parcel& parcel) const;
     static SessionInfo* ReadParcelOne(SessionInfo* info, Parcel& parcel);
+    static SessionInfo* ReadParcelTwo(SessionInfo* info, Parcel& parcel);
 };
 } // namespace AAFwk
 } // namespace OHOS

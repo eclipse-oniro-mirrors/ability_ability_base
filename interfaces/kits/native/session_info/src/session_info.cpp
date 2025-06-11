@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -110,6 +110,11 @@ bool SessionInfo::DoMarshallingTwo(Parcel& parcel) const
 
     if (!parcel.WriteUint32(parentWindowType)) {
         ABILITYBASE_LOGE("Write parent window type failed.");
+        return false;
+    }
+
+    if (!parcel.WriteBool(hideStartWindow)) {
+        ABILITYBASE_LOGE("Write hideStartWindow failed.");
         return false;
     }
 
@@ -345,13 +350,16 @@ SessionInfo* SessionInfo::Unmarshalling(Parcel& parcel)
     if (parcel.ReadBool()) {
         info->parentToken = (static_cast<MessageParcel*>(&parcel))->ReadRemoteObject();
     }
-    return ReadParcelOne(info, parcel);
+    ReadParcelOne(info, parcel);
+    ReadParcelTwo(info, parcel);
+    return info;
 }
 
 SessionInfo* SessionInfo::ReadParcelOne(SessionInfo* info, Parcel& parcel)
 {
     info->identityToken = parcel.ReadString();
     info->parentWindowType = parcel.ReadUint32();
+    info->hideStartWindow = parcel.ReadBool();
     info->persistentId = parcel.ReadInt32();
     info->hostWindowId = parcel.ReadUint32();
     info->realHostWindowId = parcel.ReadInt32();
@@ -392,6 +400,12 @@ SessionInfo* SessionInfo::ReadParcelOne(SessionInfo* info, Parcel& parcel)
     if (want != nullptr) {
         info->want = *want;
     }
+
+    return info;
+}
+
+SessionInfo* SessionInfo::ReadParcelTwo(SessionInfo* info, Parcel& parcel)
+{
     info->startWindowOption.reset(parcel.ReadParcelable<StartWindowOption>());
     auto size = parcel.ReadInt32();
     if (size <= MAX_SUPPOPRT_WINDOW_MODES_SIZE) {
