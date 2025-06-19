@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2024-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 #include <fstream>
 #include <gtest/gtest.h>
 #include <iostream>
+
 #include "page_node_info.h"
 #include "session_info.h"
 
@@ -26,10 +27,9 @@ namespace OHOS {
 namespace AbilityBase {
 namespace {
     static const std::string TJSON =
-        "{\"autoFillType\":0,\"depth\":-1,\"enableAutoFill\":true,\"id\":-1,\"isFocus\":false,"
-        "\"metadata\":\"\",\"passwordRules\":\"\",\"placeholder\":\"\","
-        "\"rect\":\"{\\\"height\\\":0.0,\\\"left\\\":0.0,\\\"top\\\":0.0,"
-        "\\\"width\\\":0.0}\",\"tag\":\"\",\"value\":\"\"}";
+        "{\"id\":-1,\"depth\":-1,\"autoFillType\":0,\"tag\":\"\",\"value\":\"\",\"placeholder\":\"\","
+        "\"passwordRules\":\"\",\"metadata\":\"\",\"enableAutoFill\":true,"
+        "\"rect\":\"{\\\"left\\\":0,\\\"top\\\":0,\\\"width\\\":0,\\\"height\\\":0}\",\"isFocus\":false}";
 } // namespace
 class PageNodeInfoTest : public testing::Test {
 public:

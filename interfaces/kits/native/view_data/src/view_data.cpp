@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,7 +16,7 @@
 #include "view_data.h"
 
 #include "ability_base_log_wrapper.h"
-#include "nlohmann/json.hpp"
+#include "cJSON.h"
 
 namespace OHOS {
 namespace AbilityBase {
@@ -32,64 +32,91 @@ constexpr const char* VIEW_DATA_OTHER_ACCOUNT = "isOtherAccount";
 
 void ViewData::FromJsonString(const std::string& jsonStr)
 {
-    nlohmann::json jsonObject = nlohmann::json::parse(jsonStr, nullptr, false);
-    if (jsonObject.is_discarded()) {
+    cJSON *jsonObject = cJSON_Parse(jsonStr.c_str());
+    if (jsonObject == nullptr) {
         ABILITYBASE_LOGE("json parse failed");
         return;
     }
-    if (jsonObject.contains(VIEW_DATA_BUNDLE_NAME) && jsonObject[VIEW_DATA_BUNDLE_NAME].is_string()) {
-        bundleName = jsonObject.at(VIEW_DATA_BUNDLE_NAME).get<std::string>();
+    cJSON *bundleNameItem = cJSON_GetObjectItem(jsonObject, VIEW_DATA_BUNDLE_NAME);
+    if (bundleNameItem != nullptr && cJSON_IsString(bundleNameItem)) {
+        bundleName = bundleNameItem->valuestring;
     }
-    if (jsonObject.contains(VIEW_DATA_MODULE_NAME) && jsonObject[VIEW_DATA_MODULE_NAME].is_string()) {
-        moduleName = jsonObject.at(VIEW_DATA_MODULE_NAME).get<std::string>();
+    cJSON *moduleNameItem = cJSON_GetObjectItem(jsonObject, VIEW_DATA_MODULE_NAME);
+    if (moduleNameItem != nullptr && cJSON_IsString(moduleNameItem)) {
+        moduleName = moduleNameItem->valuestring;
     }
-    if (jsonObject.contains(VIEW_DATA_ABILITY_NAME) && jsonObject[VIEW_DATA_ABILITY_NAME].is_string()) {
-        abilityName = jsonObject.at(VIEW_DATA_ABILITY_NAME).get<std::string>();
+    cJSON *abilityNameItem = cJSON_GetObjectItem(jsonObject, VIEW_DATA_ABILITY_NAME);
+    if (abilityNameItem != nullptr && cJSON_IsString(abilityNameItem)) {
+        abilityName = abilityNameItem->valuestring;
     }
-    if (jsonObject.contains(VIEW_DATA_PAGE_URL) && jsonObject[VIEW_DATA_PAGE_URL].is_string()) {
-        pageUrl = jsonObject.at(VIEW_DATA_PAGE_URL).get<std::string>();
+    cJSON *pageUrlItem = cJSON_GetObjectItem(jsonObject, VIEW_DATA_PAGE_URL);
+    if (pageUrlItem != nullptr && cJSON_IsString(pageUrlItem)) {
+        pageUrl = pageUrlItem->valuestring;
     }
-    if (jsonObject.contains(VIEW_DATA_USER_SELECTED) && jsonObject[VIEW_DATA_USER_SELECTED].is_boolean()) {
-        isUserSelected = jsonObject.at(VIEW_DATA_USER_SELECTED).get<bool>();
+    cJSON *userSelectedItem = cJSON_GetObjectItem(jsonObject, VIEW_DATA_USER_SELECTED);
+    if (userSelectedItem != nullptr && cJSON_IsBool(userSelectedItem)) {
+        isUserSelected = userSelectedItem->type == cJSON_True ? true : false;
     }
-    if (jsonObject.contains(VIEW_DATA_OTHER_ACCOUNT) && jsonObject[VIEW_DATA_OTHER_ACCOUNT].is_boolean()) {
-        isOtherAccount = jsonObject.at(VIEW_DATA_OTHER_ACCOUNT).get<bool>();
+    cJSON *otherAccountItem = cJSON_GetObjectItem(jsonObject, VIEW_DATA_OTHER_ACCOUNT);
+    if (otherAccountItem != nullptr && cJSON_IsBool(otherAccountItem)) {
+        isOtherAccount = otherAccountItem->type == cJSON_True ? true : false;
     }
-    if (jsonObject.contains(VIEW_DATA_NODES) && jsonObject[VIEW_DATA_NODES].is_array()) {
+    cJSON *nodesItem = cJSON_GetObjectItem(jsonObject, VIEW_DATA_NODES);
+    if (nodesItem != nullptr && cJSON_IsArray(nodesItem)) {
         nodes.clear();
-        auto size = jsonObject[VIEW_DATA_NODES].size() > NODES_SIZE_LIMIT ? NODES_SIZE_LIMIT :
-            jsonObject[VIEW_DATA_NODES].size();
-        for (size_t i = 0; i < size; i++) {
-            if (jsonObject[VIEW_DATA_NODES][i].is_string()) {
+        int size = cJSON_GetArraySize(nodesItem);
+        if (size > (int)NODES_SIZE_LIMIT) {
+            size = (int)NODES_SIZE_LIMIT;
+        }
+        for (int i = 0; i < size; i++) {
+            cJSON *nodeItem = cJSON_GetArrayItem(nodesItem, i);
+            if (nodeItem != nullptr && cJSON_IsString(nodeItem)) {
                 PageNodeInfo pageNodeInfo;
-                pageNodeInfo.FromJsonString(jsonObject[VIEW_DATA_NODES][i]);
+                std::string pageNodeInfoStr = nodeItem->valuestring;
+                pageNodeInfo.FromJsonString(pageNodeInfoStr);
                 nodes.emplace_back(pageNodeInfo);
             }
         }
     }
-    if (jsonObject.contains(VIEW_DATA_PAGE_RECT) && jsonObject[VIEW_DATA_PAGE_RECT].is_string()) {
-        pageRect.FromJsonString(jsonObject[VIEW_DATA_PAGE_RECT]);
+    cJSON *pageRectItem = cJSON_GetObjectItem(jsonObject, VIEW_DATA_PAGE_RECT);
+    if (pageRectItem != nullptr && cJSON_IsString(pageRectItem)) {
+        std::string pageRectStr = pageRectItem->valuestring;
+        pageRect.FromJsonString(pageRectStr);
     }
+    cJSON_Delete(jsonObject);
 }
 
 std::string ViewData::ToJsonString() const
 {
-    nlohmann::json jsonNodes = nlohmann::json::array();
+    cJSON *jsonObject = cJSON_CreateObject();
+    if (jsonObject == nullptr) {
+        return "";
+    }
+    cJSON *jsonNodes = cJSON_CreateArray();
+    if (jsonNodes == nullptr) {
+        cJSON_Delete(jsonObject);
+        return "";
+    }
     auto size = nodes.size() > NODES_SIZE_LIMIT ? NODES_SIZE_LIMIT : nodes.size();
     for (size_t i = 0; i < size; i++) {
-        jsonNodes.emplace_back(nodes[i].ToJsonString());
+        cJSON_AddItemToArray(jsonNodes, cJSON_CreateString(nodes[i].ToJsonString().c_str()));
     }
-    nlohmann::json jsonObject {
-        {VIEW_DATA_BUNDLE_NAME, bundleName},
-        {VIEW_DATA_MODULE_NAME, moduleName},
-        {VIEW_DATA_ABILITY_NAME, abilityName},
-        {VIEW_DATA_PAGE_URL, pageUrl},
-        {VIEW_DATA_NODES, jsonNodes},
-        {VIEW_DATA_USER_SELECTED, isUserSelected},
-        {VIEW_DATA_OTHER_ACCOUNT, isOtherAccount},
-        {VIEW_DATA_PAGE_RECT, pageRect.ToJsonString()}
-    };
-    return jsonObject.dump();
+    cJSON_AddStringToObject(jsonObject, VIEW_DATA_BUNDLE_NAME, bundleName.c_str());
+    cJSON_AddStringToObject(jsonObject, VIEW_DATA_MODULE_NAME, moduleName.c_str());
+    cJSON_AddStringToObject(jsonObject, VIEW_DATA_ABILITY_NAME, abilityName.c_str());
+    cJSON_AddStringToObject(jsonObject, VIEW_DATA_PAGE_URL, pageUrl.c_str());
+    cJSON_AddItemToObject(jsonObject, VIEW_DATA_NODES, jsonNodes);
+    cJSON_AddBoolToObject(jsonObject, VIEW_DATA_USER_SELECTED, isUserSelected);
+    cJSON_AddBoolToObject(jsonObject, VIEW_DATA_OTHER_ACCOUNT, isOtherAccount);
+    cJSON_AddStringToObject(jsonObject, VIEW_DATA_PAGE_RECT, pageRect.ToJsonString().c_str());
+    char *str = cJSON_PrintUnformatted(jsonObject);
+    cJSON_Delete(jsonObject);
+    if (str == nullptr) {
+        return "";
+    }
+    std::string jsonStr(str);
+    cJSON_free(str);
+    return jsonStr;
 }
 }  // namespace AbilityBase
 }  // namespace OHOS

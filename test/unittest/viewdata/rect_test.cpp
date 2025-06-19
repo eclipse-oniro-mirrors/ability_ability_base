@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2024-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 #include <fstream>
 #include <gtest/gtest.h>
 #include <iostream>
+
 #include "rect.h"
 #include "session_info.h"
 
@@ -25,7 +26,7 @@ using namespace testing::ext;
 namespace OHOS {
 namespace AbilityBase {
 namespace {
-static const std::string tJson = "{\"height\":0.0,\"left\":0.0,\"top\":0.0,\"width\":0.0}";
+static const std::string T_JSON = "{\"left\":0,\"top\":0,\"width\":0,\"height\":0}";
 } // namespace
 class RectTest : public testing::Test {
 public:
@@ -58,9 +59,9 @@ HWTEST_F(RectTest, FromJsonString_100, TestSize.Level1)
     std::shared_ptr<Rect> rect = std::make_shared<Rect>();
     EXPECT_TRUE(rect != nullptr);
     rect->FromJsonString(jsonStr);
-    rect->FromJsonString(tJson);
+    rect->FromJsonString(T_JSON);
     std::string ret = rect->ToJsonString();
-    EXPECT_EQ(ret, tJson);
+    EXPECT_EQ(ret, T_JSON);
 }
 
 /**
