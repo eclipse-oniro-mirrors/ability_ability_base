@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,7 +18,6 @@
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>
-#include <json/json.h>
 #include <memory>
 #include <regex>
 #include <sstream>
@@ -26,6 +25,7 @@
 
 #include "bool_wrapper.h"
 #include "byte_wrapper.h"
+#include "cJSON.h"
 #include "double_wrapper.h"
 #include "float_wrapper.h"
 #include "int_wrapper.h"
@@ -124,65 +124,80 @@ const std::regex NUMBER_REGEX("^[-+]?([0-9]+)([.]([0-9]+))?$");
     } while (0);
 
 template<typename IClassName, typename baseValue>
-static void GetBaseDataValue(OHOS::AAFwk::IInterface *baseObj, Json::Value &json, int type)
+static void GetBaseDataValue(OHOS::AAFwk::IInterface *baseObj, cJSON *&json, int type)
 {
+    if (json == nullptr) {
+        return;
+    }
     IClassName *data = IClassName::Query(baseObj);
     baseValue val = 0;
     if (data != nullptr) {
         data->GetValue(val);
     }
-    json["data"] = val;
-    json["type"] = type;
+    cJSON_AddNumberToObject(json, "data", static_cast<double>(val));
+    cJSON_AddNumberToObject(json, "type", static_cast<double>(type));
 }
-#define GET_BASE_DATA_VALUE(id, it, value, json, type)        \
-    do {                                                      \
-        I##id *data = I##id::Query((it)->second.GetRefPtr()); \
-        value val = 0;                                        \
-        data->GetValue(val);                                  \
-        (json)["data"] = val;                                 \
-        (json)["type"] = type;                                \
-    } while (0);
 
 template<typename RawType>
 static std::string RawTypeToString(const RawType value, unsigned int precisionAfterPoint);
 
 template<typename IClassName, typename ClassName, typename baseValue>
-static void GetBaseFloatDoubleDataValue(OHOS::AAFwk::IInterface *baseObj, Json::Value &json, int type, int precision)
+static void GetBaseFloatDoubleDataValue(OHOS::AAFwk::IInterface *baseObj, cJSON *&json, int type, int precision)
 {
+    if (json == nullptr) {
+        return;
+    }
     IClassName *data = IClassName::Query(baseObj);
     if (data != nullptr) {
         baseValue val = ClassName::Unbox(data);
-        json["data"] = RawTypeToString<baseValue>(val, precision);
-        json["type"] = type;
+        std::string value = RawTypeToString<baseValue>(val, precision);
+        cJSON_AddStringToObject(json, "data", value.c_str());
+        cJSON_AddNumberToObject(json, "type", static_cast<double>(type));
     }
 }
-#define GET_BASE_FLOAT_DOUBLE_DATA_VALUE(iid, id, it, value, precision, json, type) \
-    do {                                                                            \
-        iid *data = iid::Query((it)->second);                                       \
-        if (data != nullptr) {                                                      \
-            value val = id::Unbox(data);                                            \
-            (json)["data"] = RawTypeToString<value>(val, precision);                \
-            (json)["type"] = type;                                                  \
-        }                                                                           \
-    } while (0);
 
-#define GET_BASE_STRING_DATA_VALUE(id, it, value, json, type) \
-    do {                                                      \
-        I##id *data = I##id::Query((it)->second.GetRefPtr()); \
-        value val;                                            \
-        data->GetString(val);                                 \
-        (json)["data"] = val;                                 \
-        (json)["type"] = type;                                \
-    } while (0);
+static void GetBaseBoolDataValue(OHOS::AAFwk::IInterface *baseObj, cJSON *&json, int type)
+{
+    if (json == nullptr) {
+        return;
+    }
+    IBoolean *data = IBoolean::Query(baseObj);
+    bool val = false;
+    if (data != nullptr) {
+        data->GetValue(val);
+    }
+    cJSON_AddNumberToObject(json, "type", static_cast<double>(type));
+    cJSON_AddBoolToObject(json, "data", val);
+}
 
-#define GET_BASE_LONG_DATA_VALUE(id, it, value, json, type)   \
-    do {                                                      \
-        I##id *data = I##id::Query((it)->second.GetRefPtr()); \
-        value val = 0;                                        \
-        data->GetValue(val);                                  \
-        (json)["data"] = std::to_string(val);                 \
-        (json)["type"] = type;                                \
-    } while (0);
+static void GetBaseStringDataValue(OHOS::AAFwk::IInterface *baseObj, cJSON *&json, int type)
+{
+    if (json == nullptr) {
+        return;
+    }
+    IString *data = IString::Query(baseObj);
+    std::string val;
+    if (data != nullptr) {
+        data->GetString(val);
+    }
+    cJSON_AddNumberToObject(json, "type", static_cast<double>(type));
+    cJSON_AddStringToObject(json, "data", val.c_str());
+}
+
+static void GetBaseLongDataValue(OHOS::AAFwk::IInterface *baseObj, cJSON *&json, int type)
+{
+    if (json == nullptr) {
+        return;
+    }
+    ILong *data = ILong::Query(baseObj);
+    long val = 0;
+    if (data != nullptr) {
+        data->GetValue(val);
+    }
+    std::string value = std::to_string(val);
+    cJSON_AddStringToObject(json, "data", value.c_str());
+    cJSON_AddNumberToObject(json, "type", static_cast<double>(type));
+}
 
 template<typename IClassName, typename ClassName, typename valueType>
 static void PacmapGetArrayVal(OHOS::AAFwk::IInterface *ao, std::vector<valueType> &array)
@@ -202,23 +217,6 @@ static void PacmapGetArrayVal(OHOS::AAFwk::IInterface *ao, std::vector<valueType
         Array::ForEach(IArray::Query(ao), func);
     }
 }
-#define PAC_MAP_GET_ARRAY_VAL(idInterface, id, ao, array)                  \
-    do {                                                                   \
-        if ((ao) == nullptr) {                                             \
-            return false;                                                  \
-        }                                                                  \
-        if (IArray::Query((it)->second.GetRefPtr()) != nullptr) {          \
-            auto func = [ & ](AAFwk::IInterface * object) {                \
-                if (object != nullptr) {                                   \
-                    idInterface *value = idInterface::Query(object);       \
-                    if (value != nullptr) {                                \
-                        (array).emplace_back(id::Unbox(value));            \
-                    }                                                      \
-                }                                                          \
-            };                                                             \
-            Array::ForEach(IArray::Query((it)->second.GetRefPtr()), func); \
-        }                                                                  \
-    } while (0);
 
 using namespace OHOS::AAFwk;
 IINTERFACE_IMPL_1(PacMap, Object, IPacMap);
@@ -1183,46 +1181,62 @@ std::string PacMap::ToString()
 
 std::string PacMap::MapListToString(const PacMapList &mapList) const
 {
-    Json::Value root;
-    Json::Value dataObject;
-
-    ToJson(mapList, dataObject);
-    root["pacmap"] = dataObject;
-
-    std::ostringstream os;
-    Json::StreamWriterBuilder builder;
-    builder.settings_["indentation"] = "";
-    std::unique_ptr<Json::StreamWriter> jsonWriter(builder.newStreamWriter());
-    if (jsonWriter != nullptr) {
-        jsonWriter->write(root, &os);
-        return os.str();
-    } else {
-        return std::string("");
+    cJSON *root = cJSON_CreateObject();
+    if (root == nullptr) {
+        return "";
     }
+    cJSON *dataObject = nullptr;
+    if (mapList.size() == 0 || !ToJson(mapList, dataObject)) {
+        cJSON_AddNullToObject(root, "pacmap");
+    } else {
+        cJSON_AddItemToObject(root, "pacmap", dataObject);
+    }
+
+    char *str = cJSON_PrintUnformatted(root);
+    cJSON_Delete(root);
+    if (str == nullptr) {
+        return "";
+    }
+    std::string jsonStr(str);
+    cJSON_free(str);
+
+    return jsonStr;
 }
 
-bool PacMap::ToJson(const PacMapList &mapList, Json::Value &dataObject) const
+bool PacMap::ToJson(const PacMapList &mapList, cJSON *&dataObject) const
 {
+    dataObject = cJSON_CreateObject();
+    if (dataObject == nullptr) {
+        return false;
+    }
     for (auto it = mapList.begin(); it != mapList.end(); it++) {
-        Json::Value item;
+        cJSON *item = cJSON_CreateObject();
+        if (item == nullptr) {
+            cJSON_Delete(dataObject);
+            return false;
+        }
         bool isOK = false;
         if (IPacMap::Query(it->second.GetRefPtr()) != nullptr) {
             PacMap *pacmap = static_cast<PacMap *>(IPacMap::Query(it->second.GetRefPtr()));
             if (pacmap == nullptr) {
                 continue;
             }
-            Json::Value item2;
+            cJSON *item2 = nullptr;
             isOK = pacmap->ToJson(pacmap->dataList_, item2);
             if (isOK) {
-                item["type"] = PACMAP_DATA_PACMAP;
-                item["data"] = item2;
+                cJSON_AddNumberToObject(item, "type", static_cast<double>(PACMAP_DATA_PACMAP));
+                cJSON_AddItemToObject(item, "data", item2);
+            } else {
+                cJSON_Delete(item2);
             }
         } else {
             isOK = GetBaseJsonValue(it, item);
         }
         if (isOK) {
-            dataObject[it->first] = item;
+            cJSON_AddItemToObject(dataObject, it->first.c_str(), item);
         } else {
+            cJSON_Delete(dataObject);
+            cJSON_Delete(item);
             return false;
         }
     }
@@ -1249,7 +1263,7 @@ static std::string RawTypeToString(const RawType value, unsigned int precisionAf
     return res.substr(0, splitLen);
 }
 
-bool PacMap::GetBaseJsonValue(PacMapList::const_iterator &it, Json::Value &json) const
+bool PacMap::GetBaseJsonValue(PacMapList::const_iterator &it, cJSON *&json) const
 {
     // base data  : short
     if (IShort::Query(it->second.GetRefPtr()) != nullptr) {
@@ -1258,13 +1272,13 @@ bool PacMap::GetBaseJsonValue(PacMapList::const_iterator &it, Json::Value &json)
         GetBaseDataValue<IInteger, int>(it->second.GetRefPtr(), json, PACMAP_DATA_INTEGER);
     } else if (ILong::Query(it->second.GetRefPtr()) != nullptr) {
         // long:string
-        GET_BASE_LONG_DATA_VALUE(Long, it, long, json, PACMAP_DATA_LONG)
+        GetBaseLongDataValue(it->second.GetRefPtr(), json, PACMAP_DATA_LONG);
     } else if (IChar::Query(it->second.GetRefPtr()) != nullptr) {
         GetBaseDataValue<IChar, zchar>(it->second.GetRefPtr(), json, PACMAP_DATA_CHAR);
     } else if (IByte::Query(it->second.GetRefPtr()) != nullptr) {
         GetBaseDataValue<IByte, byte>(it->second.GetRefPtr(), json, PACMAP_DATA_BYTE);
     } else if (IBoolean::Query(it->second.GetRefPtr()) != nullptr) {
-        GetBaseDataValue<IBoolean, bool>(it->second.GetRefPtr(), json, PACMAP_DATA_BOOLEAN);
+        GetBaseBoolDataValue(it->second.GetRefPtr(), json, PACMAP_DATA_BOOLEAN);
     } else if (IFloat::Query(it->second.GetRefPtr()) != nullptr) {
         // base long:string
         GetBaseFloatDoubleDataValue<IFloat, Float, float>(
@@ -1274,7 +1288,7 @@ bool PacMap::GetBaseJsonValue(PacMapList::const_iterator &it, Json::Value &json)
         GetBaseFloatDoubleDataValue<IDouble, Double, double>(
             it->second.GetRefPtr(), json, PACMAP_DATA_DOUBLE, DOUBLE_PRECISION);
     } else if (IString::Query(it->second.GetRefPtr()) != nullptr) {
-        GET_BASE_STRING_DATA_VALUE(String, it, std::string, json, PACMAP_DATA_STRING)
+        GetBaseStringDataValue(it->second.GetRefPtr(), json, PACMAP_DATA_STRING);
     } else if (IArray::Query(it->second.GetRefPtr()) != nullptr) {
         // array data
         return GetArrayJsonValue(it, json);
@@ -1288,109 +1302,187 @@ bool PacMap::GetBaseJsonValue(PacMapList::const_iterator &it, Json::Value &json)
     return true;
 }
 
-// Base data: short
-bool PacMap::ToJsonArrayShort(std::vector<short> &array, Json::Value &item, int type) const
+// for short / int / byte
+template<typename T>
+static bool PacmapToJsonArrayNumber(std::vector<T> &array, cJSON *&item, int type)
 {
     ABILITYBASE_LOGD("start");
     if (array.size() > 0) {
-        for (size_t i = 0; i < array.size(); i++) {
-            item["data"].append(array[i]);
+        item = cJSON_CreateObject();
+        if (item == nullptr) {
+            return false;
         }
-        item["type"] = type;
+        cJSON *datasItem = cJSON_CreateArray();
+        if (datasItem == nullptr) {
+            cJSON_Delete(item);
+            return false;
+        }
+        for (size_t i = 0; i < array.size(); i++) {
+            cJSON *dataItem = cJSON_CreateNumber(static_cast<double>(array[i]));
+            if (dataItem == nullptr) {
+                cJSON_Delete(item);
+                cJSON_Delete(datasItem);
+                return false;
+            }
+            cJSON_AddItemToArray(datasItem, dataItem);
+        }
+        cJSON_AddItemToObject(item, "data", datasItem);
+        cJSON_AddNumberToObject(item, "type", static_cast<double>(type));
         return true;
     }
     return false;
+}
+
+// for float / double
+template<typename T>
+static bool PacmapToJsonArrayFloatOrDouble(std::vector<T> &array, cJSON *&item, int type, int precision)
+{
+    ABILITYBASE_LOGD("start");
+    if (array.size() > 0) {
+        if (precision != FLOAT_PRECISION && precision != DOUBLE_PRECISION) {
+            return false;
+        }
+        item = cJSON_CreateObject();
+        if (item == nullptr) {
+            return false;
+        }
+        cJSON *datasItem = cJSON_CreateArray();
+        if (datasItem == nullptr) {
+            cJSON_Delete(item);
+            return false;
+        }
+        for (size_t i = 0; i < array.size(); i++) {
+            std::string data = RawTypeToString<T>(array[i], precision);
+            cJSON *dataItem = cJSON_CreateString(data.c_str());
+            if (dataItem == nullptr) {
+                cJSON_Delete(item);
+                cJSON_Delete(datasItem);
+                return false;
+            }
+            cJSON_AddItemToArray(datasItem, dataItem);
+        }
+        cJSON_AddItemToObject(item, "data", datasItem);
+        cJSON_AddNumberToObject(item, "type", static_cast<double>(type));
+        return true;
+    }
+    return false;
+}
+
+// Base data: short
+bool PacMap::ToJsonArrayShort(std::vector<short> &array, cJSON *&item, int type) const
+{
+    return PacmapToJsonArrayNumber(array, item, type);
 }
 // Base data: Integer
-bool PacMap::ToJsonArrayInt(std::vector<int> &array, Json::Value &item, int type) const
+bool PacMap::ToJsonArrayInt(std::vector<int> &array, cJSON *&item, int type) const
+{
+    return PacmapToJsonArrayNumber(array, item, type);
+}
+// Base data: long:sting
+bool PacMap::ToJsonArrayLong(std::vector<long> &array, cJSON *&item, int type) const
 {
     ABILITYBASE_LOGD("start");
     if (array.size() > 0) {
-        for (size_t i = 0; i < array.size(); i++) {
-            item["data"].append(array[i]);
+        item = cJSON_CreateObject();
+        if (item == nullptr) {
+            return false;
         }
-        item["type"] = type;
-        return true;
-    }
-    return false;
-}
-// Base data: long:sting
-bool PacMap::ToJsonArrayLong(std::vector<long> &array, Json::Value &item, int type) const
-{
-    if (array.size() > 0) {
-        for (size_t i = 0; i < array.size(); i++) {
-            item["data"].append(std::to_string(array[i]));
+        cJSON *datasItem = cJSON_CreateArray();
+        if (datasItem == nullptr) {
+            cJSON_Delete(item);
+            return false;
         }
-        item["type"] = type;
+        for (size_t i = 0; i < array.size(); i++) {
+            cJSON *dataItem = cJSON_CreateString(std::to_string(array[i]).c_str());
+            if (dataItem == nullptr) {
+                cJSON_Delete(item);
+                cJSON_Delete(datasItem);
+                return false;
+            }
+            cJSON_AddItemToArray(datasItem, dataItem);
+        }
+        cJSON_AddItemToObject(item, "data", datasItem);
+        cJSON_AddNumberToObject(item, "type", static_cast<double>(type));
         return true;
     }
     return false;
 }
 
 // Base data: byte
-bool PacMap::ToJsonArrayByte(std::vector<byte> &array, Json::Value &item, int type) const
+bool PacMap::ToJsonArrayByte(std::vector<byte> &array, cJSON *&item, int type) const
+{
+    return PacmapToJsonArrayNumber(array, item, type);
+}
+// Base data: bool
+bool PacMap::ToJsonArrayBoolean(std::vector<bool> &array, cJSON *&item, int type) const
 {
     ABILITYBASE_LOGD("start");
     if (array.size() > 0) {
-        for (size_t i = 0; i < array.size(); i++) {
-            item["data"].append(array[i]);
+        item = cJSON_CreateObject();
+        if (item == nullptr) {
+            return false;
         }
-        item["type"] = type;
-        return true;
-    }
-    return false;
-}
-// Base data: bool
-bool PacMap::ToJsonArrayBoolean(std::vector<bool> &array, Json::Value &item, int type) const
-{
-    if (array.size() > 0) {
-        for (size_t i = 0; i < array.size(); i++) {
-            item["data"].append((int)array[i]);
+        cJSON *datasItem = cJSON_CreateArray();
+        if (datasItem == nullptr) {
+            cJSON_Delete(item);
+            return false;
         }
-        item["type"] = type;
+        for (size_t i = 0; i < array.size(); i++) {
+            cJSON *dataItem = cJSON_CreateBool(array[i]);
+            if (dataItem == nullptr) {
+                cJSON_Delete(item);
+                cJSON_Delete(datasItem);
+                return false;
+            }
+            cJSON_AddItemToArray(datasItem, dataItem);
+        }
+        cJSON_AddItemToObject(item, "data", datasItem);
+        cJSON_AddNumberToObject(item, "type", static_cast<double>(type));
         return true;
     }
     return false;
 }
 // Base data: Float to string
-bool PacMap::ToJsonArrayFloat(std::vector<float> &array, Json::Value &item, int type) const
+bool PacMap::ToJsonArrayFloat(std::vector<float> &array, cJSON *&item, int type) const
 {
-    if (array.size() > 0) {
-        for (size_t i = 0; i < array.size(); i++) {
-            item["data"].append(RawTypeToString<float>(array[i], FLOAT_PRECISION));
-        }
-        item["type"] = type;
-        return true;
-    }
-    return false;
+    return PacmapToJsonArrayFloatOrDouble(array, item, type, FLOAT_PRECISION);
 }
 // Base data: Double to string
-bool PacMap::ToJsonArrayDouble(std::vector<double> &array, Json::Value &item, int type) const
+bool PacMap::ToJsonArrayDouble(std::vector<double> &array, cJSON *&item, int type) const
 {
-    if (array.size() > 0) {
-        for (size_t i = 0; i < array.size(); i++) {
-            item["data"].append(RawTypeToString<double>(array[i], DOUBLE_PRECISION));
-        }
-        item["type"] = type;
-        return true;
-    }
-    return false;
+    return PacmapToJsonArrayFloatOrDouble(array, item, type, DOUBLE_PRECISION);
 }
 // Base data: string
-bool PacMap::ToJsonArrayString(std::vector<std::string> &array, Json::Value &item, int type) const
+bool PacMap::ToJsonArrayString(std::vector<std::string> &array, cJSON *&item, int type) const
 {
     ABILITYBASE_LOGD("start");
     if (array.size() > 0) {
-        for (size_t i = 0; i < array.size(); i++) {
-            item["data"].append(array[i]);
+        item = cJSON_CreateObject();
+        if (item == nullptr) {
+            return false;
         }
-        item["type"] = type;
+        cJSON *datasItem = cJSON_CreateArray();
+        if (datasItem == nullptr) {
+            cJSON_Delete(item);
+            return false;
+        }
+        for (size_t i = 0; i < array.size(); i++) {
+            cJSON *dataItem = cJSON_CreateString(array[i].c_str());
+            if (dataItem == nullptr) {
+                cJSON_Delete(item);
+                cJSON_Delete(datasItem);
+                return false;
+            }
+            cJSON_AddItemToArray(datasItem, dataItem);
+        }
+        cJSON_AddItemToObject(item, "data", datasItem);
+        cJSON_AddNumberToObject(item, "type", static_cast<double>(type));
         return true;
     }
     return false;
 }
 
-bool PacMap::GetArrayJsonValue(PacMapList::const_iterator &it, Json::Value &json) const
+bool PacMap::GetArrayJsonValue(PacMapList::const_iterator &it, cJSON *&json) const
 {
     if (IArray::Query(it->second.GetRefPtr()) == nullptr) {
         return false;
@@ -1438,19 +1530,20 @@ bool PacMap::GetArrayJsonValue(PacMapList::const_iterator &it, Json::Value &json
     }
     return true;
 }
-bool PacMap::GetUserObjectJsonValue(PacMapList::const_iterator &it, Json::Value &json) const
+bool PacMap::GetUserObjectJsonValue(PacMapList::const_iterator &it, cJSON *&json) const
 {
     std::shared_ptr<UserObjectBase> myObjectBase = UserObject::Unbox(IUserObject::Query(it->second.GetRefPtr()));
     if (myObjectBase == nullptr) {
         return false;
     }
-
+    json = cJSON_CreateObject();
+    if (json == nullptr) {
+        return false;
+    }
     std::string userObjectString = myObjectBase->ToString();
-    Json::Value objectData;
-
-    json["type"] = PACMAP_DATA_USEROBJECT;
-    json["class"] = myObjectBase->GetClassName();
-    json["data"] = userObjectString;
+    cJSON_AddNumberToObject(json, "type", static_cast<double>(PACMAP_DATA_USEROBJECT));
+    cJSON_AddStringToObject(json, "class", myObjectBase->GetClassName().c_str());
+    cJSON_AddStringToObject(json, "data", userObjectString.c_str());
     return true;
 }
 
@@ -1471,114 +1564,143 @@ bool PacMap::StringToMapList(const std::string &str, PacMapList &mapList)
         return false;
     }
 
-    JSONCPP_STRING err;
-    Json::Value root;
-
-    const int rawJsonLength = static_cast<int>(str.length());
-    Json::CharReaderBuilder builder;
-    std::unique_ptr<Json::CharReader> jsonReader(builder.newCharReader());
-    if (!jsonReader->parse(str.c_str(), str.c_str() + rawJsonLength, &root, &err)) {
-        jsonReader.reset();
+    cJSON *root = cJSON_Parse(str.c_str());
+    if (root == nullptr) {
+        return false;
+    }
+    if (!cJSON_IsObject(root)) {
+        cJSON_Delete(root);
         return false;
     }
 
-    if (!root.isObject() && !root.isNull()) {
+    cJSON *pacmapItem = cJSON_GetObjectItem(root, "pacmap");
+    if (pacmapItem == nullptr) {
+        cJSON_Delete(root);
         return false;
     }
-
-    if (!root.isMember("pacmap")) {
-        return false;
-    }
-
-    Json::Value dataObject = root["pacmap"];
-    if (dataObject.isNull()) {
+    if (cJSON_IsNull(pacmapItem)) {
+        cJSON_Delete(root);
         return true;
     }
-    return ParseJson(dataObject, mapList);
+    bool ret = ParseJson(pacmapItem, mapList);
+    cJSON_Delete(root);
+    return ret;
 }
 
-bool PacMap::ParseJson(Json::Value &data, PacMapList &mapList)
+bool PacMap::ParseJson(const cJSON *data, PacMapList &mapList)
 {
-    if (data.isNull() || !data.isObject()) {
+    if (data == nullptr || !cJSON_IsObject(data)) {
         return false;
     }
-    Json::Value::Members keyList = data.getMemberNames();
-    if (keyList.size() == 0) {
-        return false;
-    }
-    Json::Value item;
-    for (size_t i = 0; i < keyList.size(); i++) {
-        item = data[keyList[i]];
-        if (!item.isNull() && item.isObject() && JudgeType(item)) {
-            ParseJsonItem(mapList, keyList[i], item);
+    cJSON *childItem = data->child;
+    while (childItem != nullptr) {
+        std::string key = childItem->string == nullptr ? "" : childItem->string;
+        if (cJSON_IsObject(childItem) && JudgeType(childItem)) {
+            if (!ParseJsonItem(mapList, key, childItem)) {
+                return false;
+            }
         }
+        childItem = childItem->next;
     }
     return true;
 }
 
-bool PacMap::JudgeType(Json::Value &item)
+bool PacMap::JudgeType(cJSON *item)
 {
-    if (item["type"].isInt()) {
-        switch (item["type"].asInt()) {
+    cJSON *typeItem = cJSON_GetObjectItem(item, "type");
+    if (typeItem != nullptr && cJSON_IsNumber(typeItem)) {
+        cJSON *dataItem = cJSON_GetObjectItem(item, "data");
+        int type = static_cast<int>(typeItem->valuedouble);
+        switch (type) {
             case PACMAP_DATA_SHORT:
-                return item["data"].isInt();
             case PACMAP_DATA_INTEGER:
-                return item["data"].isInt();
-            case PACMAP_DATA_LONG:
-                return item["data"].isString();
             case PACMAP_DATA_CHAR:
-                return item["data"].isInt();
             case PACMAP_DATA_BYTE:
-                return item["data"].isInt();
-            case PACMAP_DATA_BOOLEAN:
-                return item["data"].isBool() || item["data"].isInt();
+                return dataItem != nullptr && cJSON_IsNumber(dataItem);
+            case PACMAP_DATA_LONG:
             case PACMAP_DATA_FLOAT:
-                return item["data"].isString();
             case PACMAP_DATA_DOUBLE:
-                return item["data"].isString();
             case PACMAP_DATA_STRING:
-                return item["data"].isString();
-            case PACMAP_DATA_USEROBJECT:
-                return item["data"].isString() && item["class"].isString();
+                return dataItem != nullptr && cJSON_IsString(dataItem);
+            case PACMAP_DATA_BOOLEAN:
+                return dataItem != nullptr && cJSON_IsBool(dataItem);
+            case PACMAP_DATA_USEROBJECT: {
+                    cJSON *classItem = cJSON_GetObjectItem(item, "class");
+                    return dataItem != nullptr && cJSON_IsString(dataItem) &&
+                        classItem != nullptr && cJSON_IsString(classItem);
+                }
             case PACMAP_DATA_PACMAP:
                 return true;
             default:
-                return item["data"].isArray();
+                return dataItem != nullptr && cJSON_IsArray(dataItem);
         }
     }
     return false;
 }
 
-bool PacMap::ParseJsonItem(PacMapList &mapList, const std::string &key, Json::Value &item)
+bool PacMap::ParseJsonItem(PacMapList &mapList, const std::string &key, const cJSON *item)
 {
     // base data, object data, arry data
-    switch (item["type"].asInt()) {
+    cJSON *typeItem = cJSON_GetObjectItem(item, "type");
+    cJSON *dataItem = cJSON_GetObjectItem(item, "data");
+    if (typeItem == nullptr || !cJSON_IsNumber(typeItem)) {
+        return false;
+    }
+    int type = static_cast<int>(typeItem->valuedouble);
+    switch (type) {
         case PACMAP_DATA_SHORT:
-            InnerPutShortValue(mapList, key, item["data"].asInt());
+            if (dataItem == nullptr || !cJSON_IsNumber(dataItem)) {
+                return false;
+            }
+            InnerPutShortValue(mapList, key, static_cast<short>(dataItem->valuedouble));
             break;
         case PACMAP_DATA_INTEGER:
-            InnerPutIntValue(mapList, key, item["data"].asInt());
+            if (dataItem == nullptr || !cJSON_IsNumber(dataItem)) {
+                return false;
+            }
+            InnerPutIntValue(mapList, key, static_cast<int>(dataItem->valuedouble));
             break;
         case PACMAP_DATA_LONG:
-            InnerPutLongValue(mapList, key, std::atol(item["data"].asString().c_str()));
+            if (dataItem == nullptr || !cJSON_IsString(dataItem)) {
+                return false;
+            }
+            InnerPutLongValue(mapList, key, std::atol(dataItem->valuestring));
             break;
         case PACMAP_DATA_CHAR:
-            InnerPutCharValue(mapList, key, item["data"].asInt());
+            if (dataItem == nullptr || !cJSON_IsNumber(dataItem)) {
+                return false;
+            }
+            InnerPutCharValue(mapList, key, static_cast<char>(dataItem->valuedouble));
             break;
         case PACMAP_DATA_BYTE:
-            InnerPutByteValue(mapList, key, item["data"].asInt());
+            if (dataItem == nullptr || !cJSON_IsNumber(dataItem)) {
+                return false;
+            }
+            InnerPutByteValue(mapList, key, static_cast<AAFwk::byte>(dataItem->valuedouble));
             break;
         case PACMAP_DATA_BOOLEAN:
-            InnerPutBooleanValue(mapList, key, item["data"].asBool());
+            if (dataItem == nullptr || !cJSON_IsBool(dataItem)) {
+                return false;
+            }
+            InnerPutBooleanValue(mapList, key, dataItem->type == cJSON_True ? true : false);
             break;
         case PACMAP_DATA_FLOAT:
-            InnerPutFloatValue(mapList, key, std::atof(item["data"].asString().c_str()));
+            if (dataItem == nullptr || !cJSON_IsString(dataItem)) {
+                return false;
+            }
+            InnerPutFloatValue(mapList, key, std::atof(dataItem->valuestring));
             break;
         case PACMAP_DATA_DOUBLE:
-            InnerPutDoubleValue(mapList, key, std::atof(item["data"].asString().c_str()));
+            if (dataItem == nullptr || !cJSON_IsString(dataItem)) {
+                return false;
+            }
+            InnerPutDoubleValue(mapList, key, std::atof(dataItem->valuestring));
             break;
         case PACMAP_DATA_STRING:
-            InnerPutStringValue(mapList, key, item["data"].asString());
+            if (dataItem == nullptr || !cJSON_IsString(dataItem)) {
+                return false;
+            }
+            InnerPutStringValue(mapList, key, std::string(dataItem->valuestring));
             break;
         case PACMAP_DATA_USEROBJECT:
             InnerPutObjectValue(mapList, key, item);
@@ -1592,9 +1714,14 @@ bool PacMap::ParseJsonItem(PacMapList &mapList, const std::string &key, Json::Va
     return true;
 }
 
-bool PacMap::ParseJsonItemArray(PacMapList &mapList, const std::string &key, Json::Value &item)
+bool PacMap::ParseJsonItemArray(PacMapList &mapList, const std::string &key, const cJSON *item)
 {
-    switch (item["type"].asInt()) {
+    cJSON *typeItem = cJSON_GetObjectItem(item, "type");
+    if (typeItem == nullptr || !cJSON_IsNumber(typeItem)) {
+        return false;
+    }
+    int type = static_cast<int>(typeItem->valuedouble);
+    switch (type) {
         case PACMAP_DATA_ARRAY_SHORT:
             return ParseJsonItemArrayShort(mapList, key, item);
         case PACMAP_DATA_ARRAY_INTEGER:
@@ -1618,45 +1745,53 @@ bool PacMap::ParseJsonItemArray(PacMapList &mapList, const std::string &key, Jso
     }
 }
 
-bool PacMap::ParseJsonItemArrayShort(PacMapList &mapList, const std::string &key, Json::Value &item)
+bool PacMap::ParseJsonItemArrayShort(PacMapList &mapList, const std::string &key, const cJSON *item)
 {
-    Json::Value arrayValue = item["data"];
-    if (arrayValue.isNull()) {
+    cJSON *datasItem = cJSON_GetObjectItem(item, "data");
+    if (datasItem == nullptr) {
         return true;
     }
-
-    if (arrayValue.size() < 0 || arrayValue.size() > MAX_ARRAY_ALLOW_SIZE) {
+    if (!cJSON_IsArray(datasItem)) {
         return false;
     }
-
+    int size = cJSON_GetArraySize(datasItem);
+    if (size < 0 || size > MAX_ARRAY_ALLOW_SIZE) {
+        return false;
+    }
     std::vector<short> shortList;
-    for (Json::ArrayIndex i = 0; i < arrayValue.size(); i++) {
-        if (!arrayValue[i].isInt()) {
+    for (int i = 0; i < size; i++) {
+        cJSON *dataItem = cJSON_GetArrayItem(datasItem, i);
+        if (dataItem == nullptr || !cJSON_IsNumber(dataItem)) {
             return false;
         }
-        shortList.push_back(arrayValue[i].asInt());
+        short data = static_cast<short>(dataItem->valuedouble);
+        shortList.push_back(data);
     }
     InnerPutShortValueArray(mapList, key, shortList);
     return true;
 }
 
-bool PacMap::ParseJsonItemArrayInteger(PacMapList &mapList, const std::string &key, Json::Value &item)
+bool PacMap::ParseJsonItemArrayInteger(PacMapList &mapList, const std::string &key, const cJSON *item)
 {
-    Json::Value arrayValue = item["data"];
-    if (arrayValue.isNull()) {
+    cJSON *datasItem = cJSON_GetObjectItem(item, "data");
+    if (datasItem == nullptr) {
         return true;
     }
-
-    if (arrayValue.size() < 0 || arrayValue.size() > MAX_ARRAY_ALLOW_SIZE) {
+    if (!cJSON_IsArray(datasItem)) {
         return false;
     }
-
+    int size = cJSON_GetArraySize(datasItem);
+    if (size < 0 || size > MAX_ARRAY_ALLOW_SIZE) {
+        return false;
+    }
     std::vector<int> intList;
-    for (Json::ArrayIndex i = 0; i < arrayValue.size(); i++) {
-        if (!arrayValue[i].isInt()) {
+    for (int i = 0; i < size; i++) {
+        cJSON *dataItem = cJSON_GetArrayItem(datasItem, i);
+        if (dataItem == nullptr || !cJSON_IsNumber(dataItem)) {
             return false;
         }
-        intList.push_back(arrayValue[i].asInt());
+        int data = static_cast<int>(dataItem->valuedouble);
+        intList.push_back(data);
     }
     InnerPutIntValueArray(mapList, key, intList);
     return true;
@@ -1678,165 +1813,204 @@ bool PacMap::IsNumber(const std::string &str)
     }
 }
 
-bool PacMap::ParseJsonItemArrayLong(PacMapList &mapList, const std::string &key, Json::Value &item)
+bool PacMap::ParseJsonItemArrayLong(PacMapList &mapList, const std::string &key, const cJSON *item)
 {
-    Json::Value arrayValue = item["data"];
-
-    if (arrayValue.isNull()) {
+    cJSON *datasItem = cJSON_GetObjectItem(item, "data");
+    if (datasItem == nullptr) {
         return true;
     }
-
-    if (arrayValue.size() < 0 || arrayValue.size() > MAX_ARRAY_ALLOW_SIZE) {
+    if (!cJSON_IsArray(datasItem)) {
         return false;
     }
-
+    int size = cJSON_GetArraySize(datasItem);
+    if (size < 0 || size > MAX_ARRAY_ALLOW_SIZE) {
+        return false;
+    }
     std::vector<long> longList;
-    for (Json::ArrayIndex i = 0; i < arrayValue.size(); i++) {
-        if (!arrayValue[i].isString() || !IsNumber(arrayValue[i].asString())) {
+    for (int i = 0; i < size; i++) {
+        cJSON *dataItem = cJSON_GetArrayItem(datasItem, i);
+        if (dataItem == nullptr || !cJSON_IsString(dataItem)) {
             return false;
         }
-        long longVal = std::atol(arrayValue[i].asString().c_str());
-        longList.push_back(longVal);
+        std::string data = dataItem->valuestring;
+        if (!IsNumber(data)) {
+            return false;
+        }
+        long longValue = std::atol(data.c_str());
+        longList.push_back(longValue);
     }
     InnerPutLongValueArray(mapList, key, longList);
     return true;
 }
 
-bool PacMap::ParseJsonItemArrayChar(PacMapList &mapList, const std::string &key, Json::Value &item)
+bool PacMap::ParseJsonItemArrayChar(PacMapList &mapList, const std::string &key, const cJSON *item)
 {
-    Json::Value arrayValue = item["data"];
-    if (arrayValue.isNull()) {
+    cJSON *datasItem = cJSON_GetObjectItem(item, "data");
+    if (datasItem == nullptr) {
         return true;
     }
-
-    if (arrayValue.size() < 0 || arrayValue.size() > MAX_ARRAY_ALLOW_SIZE) {
+    if (!cJSON_IsArray(datasItem)) {
         return false;
     }
-
+    int size = cJSON_GetArraySize(datasItem);
+    if (size < 0 || size > MAX_ARRAY_ALLOW_SIZE) {
+        return false;
+    }
     std::vector<char> charList;
-    for (Json::ArrayIndex i = 0; i < arrayValue.size(); i++) {
-        if (!arrayValue[i].isInt()) {
+    for (int i = 0; i < size; i++) {
+        cJSON *dataItem = cJSON_GetArrayItem(datasItem, i);
+        if (dataItem == nullptr || !cJSON_IsNumber(dataItem)) {
             return false;
         }
-        charList.push_back(arrayValue[i].asInt());
+        char data = static_cast<char>(dataItem->valuedouble);
+        charList.push_back(data);
     }
     InnerPutCharValueArray(mapList, key, charList);
     return true;
 }
 
-bool PacMap::ParseJsonItemArrayByte(PacMapList &mapList, const std::string &key, Json::Value &item)
+bool PacMap::ParseJsonItemArrayByte(PacMapList &mapList, const std::string &key, const cJSON *item)
 {
-    Json::Value arrayValue = item["data"];
-    if (arrayValue.isNull()) {
+    cJSON *datasItem = cJSON_GetObjectItem(item, "data");
+    if (datasItem == nullptr) {
         return true;
     }
-
-    if (arrayValue.size() < 0 || arrayValue.size() > MAX_ARRAY_ALLOW_SIZE) {
+    if (!cJSON_IsArray(datasItem)) {
         return false;
     }
-
+    int size = cJSON_GetArraySize(datasItem);
+    if (size < 0 || size > MAX_ARRAY_ALLOW_SIZE) {
+        return false;
+    }
     std::vector<AAFwk::byte> byteList;
-    for (Json::ArrayIndex i = 0; i < arrayValue.size(); i++) {
-        if (!arrayValue[i].isInt()) {
+    for (int i = 0; i < size; i++) {
+        cJSON *dataItem = cJSON_GetArrayItem(datasItem, i);
+        if (dataItem == nullptr || !cJSON_IsNumber(dataItem)) {
             return false;
         }
-        byteList.push_back(arrayValue[i].asInt());
+        AAFwk::byte data = static_cast<AAFwk::byte>(dataItem->valuedouble);
+        byteList.push_back(data);
     }
     InnerPutByteValueArray(mapList, key, byteList);
     return true;
 }
 
-bool PacMap::ParseJsonItemArrayBoolean(PacMapList &mapList, const std::string &key, Json::Value &item)
+bool PacMap::ParseJsonItemArrayBoolean(PacMapList &mapList, const std::string &key, const cJSON *item)
 {
-    Json::Value arrayValue = item["data"];
-    if (arrayValue.isNull()) {
+    cJSON *datasItem = cJSON_GetObjectItem(item, "data");
+    if (datasItem == nullptr) {
         return true;
     }
-
-    if (arrayValue.size() < 0 || arrayValue.size() > MAX_ARRAY_ALLOW_SIZE) {
+    if (!cJSON_IsArray(datasItem)) {
         return false;
     }
-
+    int size = cJSON_GetArraySize(datasItem);
+    if (size < 0 || size > MAX_ARRAY_ALLOW_SIZE) {
+        return false;
+    }
     std::vector<bool> boolList;
-    for (Json::ArrayIndex i = 0; i < arrayValue.size(); i++) {
-        if (!arrayValue[i].isBool() && !arrayValue[i].isInt()) {
+    for (int i = 0; i < size; i++) {
+        cJSON *dataItem = cJSON_GetArrayItem(datasItem, i);
+        if (dataItem == nullptr) {
             return false;
         }
-        boolList.push_back(arrayValue[i].asBool());
+        bool data = false;
+        if (cJSON_IsBool(dataItem)) {
+            data = dataItem->type == cJSON_True ? true : false;
+        } else {
+            return false;
+        }
+        boolList.push_back(data);
     }
     InnerPutBooleanValueArray(mapList, key, boolList);
     return true;
 }
 
-bool PacMap::ParseJsonItemArrayFloat(PacMapList &mapList, const std::string &key, Json::Value &item)
+bool PacMap::ParseJsonItemArrayFloat(PacMapList &mapList, const std::string &key, const cJSON *item)
 {
-    Json::Value arrayValue = item["data"];
-    if (arrayValue.isNull()) {
+    cJSON *datasItem = cJSON_GetObjectItem(item, "data");
+    if (datasItem == nullptr) {
         return true;
     }
-
-    if (arrayValue.size() < 0 || arrayValue.size() > MAX_ARRAY_ALLOW_SIZE) {
+    if (!cJSON_IsArray(datasItem)) {
         return false;
     }
-
+    int size = cJSON_GetArraySize(datasItem);
+    if (size < 0 || size > MAX_ARRAY_ALLOW_SIZE) {
+        return false;
+    }
     std::vector<float> floatList;
-    for (Json::ArrayIndex i = 0; i < arrayValue.size(); i++) {
-        if (!arrayValue[i].isString()) {
+    for (int i = 0; i < size; i++) {
+        cJSON *dataItem = cJSON_GetArrayItem(datasItem, i);
+        if (dataItem == nullptr || !cJSON_IsString(dataItem)) {
             return false;
         }
-        floatList.push_back(std::atof(arrayValue[i].asString().c_str()));
+        std::string data = dataItem->valuestring;
+        floatList.push_back(std::atof(data.c_str()));
     }
     InnerPutFloatValueArray(mapList, key, floatList);
     return true;
 }
 
-bool PacMap::ParseJsonItemArrayDouble(PacMapList &mapList, const std::string &key, Json::Value &item)
+bool PacMap::ParseJsonItemArrayDouble(PacMapList &mapList, const std::string &key, const cJSON *item)
 {
-    Json::Value arrayValue = item["data"];
-    if (arrayValue.isNull()) {
+    cJSON *datasItem = cJSON_GetObjectItem(item, "data");
+    if (datasItem == nullptr) {
         return true;
     }
-
-    if (arrayValue.size() < 0 || arrayValue.size() > MAX_ARRAY_ALLOW_SIZE) {
+    if (!cJSON_IsArray(datasItem)) {
         return false;
     }
-
+    int size = cJSON_GetArraySize(datasItem);
+    if (size < 0 || size > MAX_ARRAY_ALLOW_SIZE) {
+        return false;
+    }
     std::vector<double> doubleList;
-    for (Json::ArrayIndex i = 0; i < arrayValue.size(); i++) {
-        if (!arrayValue[i].isString()) {
+    for (int i = 0; i < size; i++) {
+        cJSON *dataItem = cJSON_GetArrayItem(datasItem, i);
+        if (dataItem == nullptr || !cJSON_IsString(dataItem)) {
             return false;
         }
-        doubleList.push_back(std::atof(arrayValue[i].asString().c_str()));
+        std::string data = dataItem->valuestring;
+        doubleList.push_back(std::atof(data.c_str()));
     }
     InnerPutDoubleValueArray(mapList, key, doubleList);
     return true;
 }
 
-bool PacMap::ParseJsonItemArrayString(PacMapList &mapList, const std::string &key, Json::Value &item)
+bool PacMap::ParseJsonItemArrayString(PacMapList &mapList, const std::string &key, const cJSON *item)
 {
-    Json::Value arrayValue = item["data"];
-    if (arrayValue.isNull()) {
+    cJSON *datasItem = cJSON_GetObjectItem(item, "data");
+    if (datasItem == nullptr) {
         return true;
     }
-
-    if (arrayValue.size() < 0 || arrayValue.size() > MAX_ARRAY_ALLOW_SIZE) {
+    if (!cJSON_IsArray(datasItem)) {
         return false;
     }
-
+    int size = cJSON_GetArraySize(datasItem);
+    if (size < 0 || size > MAX_ARRAY_ALLOW_SIZE) {
+        return false;
+    }
     std::vector<std::string> stringList;
-    for (Json::ArrayIndex i = 0; i < arrayValue.size(); i++) {
-        if (!arrayValue[i].isString()) {
+    for (int i = 0; i < size; i++) {
+        cJSON *dataItem = cJSON_GetArrayItem(datasItem, i);
+        if (dataItem == nullptr || !cJSON_IsString(dataItem)) {
             return false;
         }
-        stringList.push_back(arrayValue[i].asString());
+        std::string data = dataItem->valuestring;
+        stringList.push_back(data);
     }
     InnerPutStringValueArray(mapList, key, stringList);
     return true;
 }
 
-bool PacMap::InnerPutObjectValue(PacMapList &mapList, const std::string &key, Json::Value &item)
+bool PacMap::InnerPutObjectValue(PacMapList &mapList, const std::string &key, const cJSON *item)
 {
-    std::string className = item["class"].asString();
+    cJSON *classItem = cJSON_GetObjectItem(item, "class");
+    if (classItem == nullptr || !cJSON_IsString(classItem)) {
+        return false;
+    }
+    std::string className = classItem->valuestring;
     if (className.empty()) {
         return false;
     }
@@ -1846,7 +2020,11 @@ bool PacMap::InnerPutObjectValue(PacMapList &mapList, const std::string &key, Js
         return false;
     }
 
-    std::string userObjectString = item["data"].asString();
+    cJSON *dataItem = cJSON_GetObjectItem(item, "data");
+    if (dataItem == nullptr || !cJSON_IsString(dataItem)) {
+        return false;
+    }
+    std::string userObjectString = dataItem->valuestring;
     if (!userObjectString.empty()) {
         userObjectIns->Parse(userObjectString);
     }
@@ -1856,19 +2034,19 @@ bool PacMap::InnerPutObjectValue(PacMapList &mapList, const std::string &key, Js
     return true;
 }
 
-bool PacMap::InnerPutPacMapValue(PacMapList &mapList, const std::string &key, Json::Value &item)
+bool PacMap::InnerPutPacMapValue(PacMapList &mapList, const std::string &key, const cJSON *item)
 {
-    Json::Value value = item["data"];
-
-    if (value.isNull()) {
+    cJSON *dataItem = cJSON_GetObjectItem(item, "data");
+    if (dataItem == nullptr) {
         return false;
     }
+
     PacMap *p = new (std::nothrow) PacMap();
     if (p == nullptr) {
         return false;
     }
     sptr<IPacMap> sp = p;
-    if (p->ParseJson(value, p->dataList_)) {
+    if (p->ParseJson(dataItem, p->dataList_)) {
         mapList.emplace(key, sp);
         return true;
     }
