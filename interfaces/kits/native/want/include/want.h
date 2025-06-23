@@ -20,13 +20,12 @@
 #include <vector>
 #include <algorithm>
 
-#include "cJSON.h"
-#include "element_name.h"
-#include "nlohmann/json.hpp"
-#include "operation.h"
-#include "parcel.h"
 #include "uri.h"
 #include "want_params.h"
+#include "element_name.h"
+#include "operation.h"
+#include "parcel.h"
+#include "nlohmann/json.hpp"
 
 using Operation = OHOS::AAFwk::Operation;
 
@@ -955,8 +954,8 @@ private:
     static bool CheckAndSetParameters(Want &want, const std::string &key, std::string &prop, const std::string &value);
     Uri GetLowerCaseScheme(const Uri &uri);
     void ToUriStringInner(std::string &uriString) const;
-    cJSON *ToJson() const;
-    bool ReadFromJson(cJSON *wantJson);
+    nlohmann::json ToJson() const;
+    bool ReadFromJson(nlohmann::json &wantJson);
     void UriStringAppendParam(std::string &uriString) const;
     bool WriteUri(Parcel &parcel) const;
     bool WriteEntities(Parcel &parcel) const;
