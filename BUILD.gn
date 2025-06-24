@@ -209,7 +209,6 @@ ohos_shared_library("want") {
   external_deps = [
     "c_utils:utils",
     "hilog:libhilog",
-    "ipc:ipc_core",
     "ipc:ipc_single",
   ]
 
@@ -290,7 +289,7 @@ ohos_shared_library("session_info") {
     "ipc:ipc_core",
     "window_manager:window_animation_utils",
   ]
-  public_external_deps = [ "bundle_framework:appexecfwk_base" ]
+
   subsystem_name = "ability"
   innerapi_tags = [ "platformsdk_indirect" ]
   part_name = "ability_base"
