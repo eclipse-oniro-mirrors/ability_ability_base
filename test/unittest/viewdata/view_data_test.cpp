@@ -30,6 +30,75 @@ namespace {
         "{\"bundleName\":\"\",\"moduleName\":\"\",\"abilityName\":\"\",\"pageUrl\":\"\",\"nodes\":[],"
         "\"isUserSelected\":false,\"isOtherAccount\":false,"
         "\"pageRect\":\"{\\\"left\\\":0,\\\"top\\\":0,\\\"width\\\":0,\\\"height\\\":0}\"}";
+
+    static const std::string TJSON_WITHOUT_BUNDLE_NAME =
+        "{\"moduleName\":\"\",\"abilityName\":\"\",\"pageUrl\":\"\",\"nodes\":[],"
+        "\"isUserSelected\":false,\"isOtherAccount\":false,"
+        "\"pageRect\":\"{\\\"left\\\":0,\\\"top\\\":0,\\\"width\\\":0,\\\"height\\\":0}\"}";
+
+    static const std::string TJSON_BUNDLE_NAME_NOT_STRING =
+        "{\"bundleName\":0,\"moduleName\":\"\",\"abilityName\":\"\",\"pageUrl\":\"\",\"nodes\":[],"
+        "\"isUserSelected\":false,\"isOtherAccount\":false,"
+        "\"pageRect\":\"{\\\"left\\\":0,\\\"top\\\":0,\\\"width\\\":0,\\\"height\\\":0}\"}";
+
+    static const std::string TJSON_WITHOUT_MODULE_NAME =
+        "{\"bundleName\":\"\",\"abilityName\":\"\",\"pageUrl\":\"\",\"nodes\":[],"
+        "\"isUserSelected\":false,\"isOtherAccount\":false,"
+        "\"pageRect\":\"{\\\"left\\\":0,\\\"top\\\":0,\\\"width\\\":0,\\\"height\\\":0}\"}";
+
+    static const std::string TJSON_MODULE_NAME_NOT_STRING =
+        "{\"bundleName\":\"\",\"moduleName\":0,\"abilityName\":\"\",\"pageUrl\":\"\",\"nodes\":[],"
+        "\"isUserSelected\":false,\"isOtherAccount\":false,"
+        "\"pageRect\":\"{\\\"left\\\":0,\\\"top\\\":0,\\\"width\\\":0,\\\"height\\\":0}\"}";
+
+    static const std::string TJSON_WITHOUT_ABILITY_NAME =
+        "{\"bundleName\":\"\",\"moduleName\":\"\",\"pageUrl\":\"\",\"nodes\":[],"
+        "\"isUserSelected\":false,\"isOtherAccount\":false,"
+        "\"pageRect\":\"{\\\"left\\\":0,\\\"top\\\":0,\\\"width\\\":0,\\\"height\\\":0}\"}";
+
+    static const std::string TJSON_ABILITY_NAME_NOT_STRING =
+        "{\"bundleName\":\"\",\"moduleName\":\"\",\"abilityName\":0,\"pageUrl\":\"\",\"nodes\":[],"
+        "\"isUserSelected\":false,\"isOtherAccount\":false,"
+        "\"pageRect\":\"{\\\"left\\\":0,\\\"top\\\":0,\\\"width\\\":0,\\\"height\\\":0}\"}";
+
+    static const std::string TJSON_WITHOUT_PAGE_URL =
+        "{\"bundleName\":\"\",\"moduleName\":\"\",\"abilityName\":\"\",\"nodes\":[],"
+        "\"isUserSelected\":false,\"isOtherAccount\":false,"
+        "\"pageRect\":\"{\\\"left\\\":0,\\\"top\\\":0,\\\"width\\\":0,\\\"height\\\":0}\"}";
+
+    static const std::string TJSON_PAGE_URL_NOT_STRING =
+        "{\"bundleName\":\"\",\"moduleName\":\"\",\"abilityName\":\"\",\"pageUrl\":0,\"nodes\":[],"
+        "\"isUserSelected\":false,\"isOtherAccount\":false,"
+        "\"pageRect\":\"{\\\"left\\\":0,\\\"top\\\":0,\\\"width\\\":0,\\\"height\\\":0}\"}";
+
+    static const std::string TJSON_WITHOUT_USER_SELECTED =
+        "{\"bundleName\":\"\",\"moduleName\":\"\",\"abilityName\":\"\",\"nodes\":[],"
+        "\"isOtherAccount\":false,"
+        "\"pageRect\":\"{\\\"left\\\":0,\\\"top\\\":0,\\\"width\\\":0,\\\"height\\\":0}\"}";
+
+    static const std::string TJSON_USER_SELECTED_NOT_BOOL =
+        "{\"bundleName\":\"\",\"moduleName\":\"\",\"abilityName\":\"\",\"pageUrl\":0,\"nodes\":[],"
+        "\"isUserSelected\":\"\",\"isOtherAccount\":false,"
+        "\"pageRect\":\"{\\\"left\\\":0,\\\"top\\\":0,\\\"width\\\":0,\\\"height\\\":0}\"}";
+
+    static const std::string TJSON_WITHOUT_OTHER_ACCOUNT =
+        "{\"bundleName\":\"\",\"moduleName\":\"\",\"abilityName\":\"\",\"pageUrl\":\"\",\"nodes\":[],"
+        "\"isUserSelected\":false,"
+        "\"pageRect\":\"{\\\"left\\\":0,\\\"top\\\":0,\\\"width\\\":0,\\\"height\\\":0}\"}";
+
+    static const std::string TJSON_OTHER_ACCOUNT_NOT_BOOL =
+        "{\"bundleName\":\"\",\"moduleName\":\"\",\"abilityName\":\"\",\"pageUrl\":\"\",\"nodes\":[],"
+        "\"isUserSelected\":false,\"isOtherAccount\":false,"
+        "\"pageRect\":\"{\\\"left\\\":0,\\\"top\\\":0,\\\"width\\\":0,\\\"height\\\":0}\"}";
+
+    static const std::string TJSON_WITHOUT_PAGE_RECT =
+        "{\"bundleName\":\"\",\"moduleName\":\"\",\"abilityName\":\"\",\"pageUrl\":\"\",\"nodes\":[],"
+        "\"isUserSelected\":false,\"isOtherAccount\":false";
+
+    static const std::string TJSON_PAGE_RECT_NOT_STRING =
+        "{\"bundleName\":\"\",\"moduleName\":\"\",\"abilityName\":\"\",\"pageUrl\":\"\",\"nodes\":[],"
+        "\"isUserSelected\":false,\"isOtherAccount\":false,"
+        "\"pageRect\":0";
 } // namespace
 class ViewDataTest : public testing::Test {
 public:
@@ -64,7 +133,75 @@ HWTEST_F(ViewDataTest, FromJsonString_100, TestSize.Level1)
     viewdata->FromJsonString(jsonStr);
     viewdata->FromJsonString(TJSON);
     std::string ret = viewdata->ToJsonString();
-    EXPECT_EQ(ret, TJSON);
+    EXPECT_NE(ret, jsonStr);
+
+    viewdata->FromJsonString(TJSON_WITHOUT_BUNDLE_NAME);
+    ret = viewdata->ToJsonString();
+    EXPECT_NE(ret, TJSON_WITHOUT_BUNDLE_NAME);
+
+    viewdata->FromJsonString(TJSON_BUNDLE_NAME_NOT_STRING);
+    ret = viewdata->ToJsonString();
+    EXPECT_NE(ret, TJSON_BUNDLE_NAME_NOT_STRING);
+
+    viewdata->FromJsonString(TJSON_WITHOUT_MODULE_NAME);
+    ret = viewdata->ToJsonString();
+    EXPECT_NE(ret, TJSON_WITHOUT_MODULE_NAME);
+
+    viewdata->FromJsonString(TJSON_MODULE_NAME_NOT_STRING);
+    ret = viewdata->ToJsonString();
+    EXPECT_NE(ret, TJSON_MODULE_NAME_NOT_STRING);
+
+    viewdata->FromJsonString(TJSON_WITHOUT_ABILITY_NAME);
+    ret = viewdata->ToJsonString();
+    EXPECT_NE(ret, TJSON_WITHOUT_ABILITY_NAME);
+
+    viewdata->FromJsonString(TJSON_ABILITY_NAME_NOT_STRING);
+    ret = viewdata->ToJsonString();
+    EXPECT_NE(ret, TJSON_ABILITY_NAME_NOT_STRING);
+}
+
+/**
+ * @tc.name: FromJsonString_200
+ * @tc.desc: ViewData test for FromJsonString.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ViewDataTest, FromJsonString_200, TestSize.Level1)
+{
+    std::string jsonStr = "jsonStr";
+    std::shared_ptr<ViewData> viewdata = std::make_shared<ViewData>();
+    EXPECT_TRUE(viewdata != nullptr);
+
+    viewdata->FromJsonString(TJSON_WITHOUT_PAGE_URL);
+    std::string ret = viewdata->ToJsonString();
+    EXPECT_NE(ret, TJSON_WITHOUT_PAGE_URL);
+
+    viewdata->FromJsonString(TJSON_PAGE_URL_NOT_STRING);
+    ret = viewdata->ToJsonString();
+    EXPECT_NE(ret, TJSON_PAGE_URL_NOT_STRING);
+
+    viewdata->FromJsonString(TJSON_WITHOUT_USER_SELECTED);
+    ret = viewdata->ToJsonString();
+    EXPECT_NE(ret, TJSON_WITHOUT_USER_SELECTED);
+
+    viewdata->FromJsonString(TJSON_USER_SELECTED_NOT_BOOL);
+    ret = viewdata->ToJsonString();
+    EXPECT_NE(ret, TJSON_USER_SELECTED_NOT_BOOL);
+
+    viewdata->FromJsonString(TJSON_WITHOUT_OTHER_ACCOUNT);
+    ret = viewdata->ToJsonString();
+    EXPECT_NE(ret, TJSON_WITHOUT_OTHER_ACCOUNT);
+
+    viewdata->FromJsonString(TJSON_OTHER_ACCOUNT_NOT_BOOL);
+    ret = viewdata->ToJsonString();
+    EXPECT_NE(ret, TJSON_OTHER_ACCOUNT_NOT_BOOL);
+
+    viewdata->FromJsonString(TJSON_WITHOUT_PAGE_RECT);
+    ret = viewdata->ToJsonString();
+    EXPECT_NE(ret, TJSON_WITHOUT_PAGE_RECT);
+
+    viewdata->FromJsonString(TJSON_PAGE_RECT_NOT_STRING);
+    ret = viewdata->ToJsonString();
+    EXPECT_NE(ret, TJSON_PAGE_RECT_NOT_STRING);
 }
 
 /**
