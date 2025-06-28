@@ -17,8 +17,10 @@
 
 #include "ability_base_log_wrapper.h"
 #include "ability_start_setting.h"
+#include "js_window_animation_utils.h"
 #include "process_options.h"
 #include "start_window_option.h"
+#include "wm_animation_common.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -320,6 +322,16 @@ bool SessionInfo::DoMarshallingSix(Parcel& parcel) const
     for (auto windowMode : supportWindowModes) {
         parcel.WriteInt32(static_cast<int32_t>(windowMode));
     }
+
+    if (!parcel.WriteParcelable(animationOptions.get())) {
+        ABILITYBASE_LOGE("Write animationOptions failed");
+        return false;
+    }
+
+    if (!parcel.WriteParcelable(animationSystemOptions.get())) {
+        ABILITYBASE_LOGE("Write animationSystemOptions failed");
+        return false;
+    }
     return true;
 }
 
@@ -407,6 +419,8 @@ SessionInfo* SessionInfo::ReadParcelTwo(SessionInfo* info, Parcel& parcel)
             info->supportWindowModes.emplace_back(AppExecFwk::SupportWindowMode(parcel.ReadInt32()));
         }
     }
+    info->animationOptions.reset(parcel.ReadParcelable<Rosen::StartAnimationOptions>());
+    info->animationSystemOptions.reset(parcel.ReadParcelable<Rosen::StartAnimationSystemOptions>());
     return info;
 }
 }  // namespace AAFwk

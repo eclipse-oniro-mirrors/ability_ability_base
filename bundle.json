@@ -33,7 +33,8 @@
                 "cJSON",
                 "json",
                 "jsoncpp",
-                "zlib"
+                "zlib",
+                "window_manager"
             ],
             "third_party": []
         },

@@ -26,6 +26,11 @@
 #include "want.h"
 
 namespace OHOS {
+namespace Rosen {
+struct StartAnimationOptions;
+struct StartAnimationSystemOptions;
+}
+
 namespace AAFwk {
 class AbilityStartSetting;
 class ProcessOptions;
@@ -89,6 +94,8 @@ public:
     bool isDensityFollowHost = false;
     std::string specifiedFlag = "";
     bool reuseDelegatorWindow = false;
+    std::shared_ptr<Rosen::StartAnimationOptions> animationOptions = nullptr;
+    std::shared_ptr<Rosen::StartAnimationSystemOptions> animationSystemOptions = nullptr;
 
 private:
     bool DoMarshallingOne(Parcel& parcel) const;

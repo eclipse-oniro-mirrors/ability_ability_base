@@ -528,6 +528,25 @@ ohos_unittest("extractor_test") {
   ]
 }
 
+ohos_unittest("session_info_test") {
+  module_out_path = "ability_base/ability_base/session_info_test"
+  sources = [ "session_info/session_info_test.cpp" ]
+
+  configs = []
+
+  deps = []
+
+  external_deps = [
+    "ability_base:session_info",
+    "ability_base:want",
+    "c_utils:utils",
+    "googletest:gtest_main",
+    "hilog:libhilog",
+    "zlib:libz",
+    "zlib:shared_libz",
+  ]
+}
+
 ######################################################################
 viewdata_output_path = "ability_base/ability_base/view_data_test"
 
@@ -677,6 +696,7 @@ group("unittest") {
     ":page_node_info_test",
     ":patterns_matcher_test",
     ":rect_test",
+    ":session_info_test",
     ":short_wrapper_test",
     ":skills_test",
     ":string_wrapper_test",
