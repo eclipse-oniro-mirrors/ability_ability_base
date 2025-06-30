@@ -288,6 +288,7 @@ ohos_shared_library("session_info") {
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "window_manager:window_animation_utils",
   ]
   public_external_deps = [ "bundle_framework:appexecfwk_base" ]
   subsystem_name = "ability"
