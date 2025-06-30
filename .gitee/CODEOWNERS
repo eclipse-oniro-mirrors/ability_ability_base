@@ -1,0 +1,7 @@
+[AAFWK ABILITY]
+interfaces/ @aafwk_ability
+test/ @aafwk_ability
+ability_base.gni @aafwk_ability
+BUILD.gn @aafwk_ability
+bundle.json @aafwk_ability
+OAT.XML @aafwk_ability
