@@ -308,6 +308,17 @@ bool SessionInfo::DoMarshallingSix(Parcel& parcel) const
         return false;
     }
 
+    if (!parcel.WriteParcelable(animationOptions.get())) {
+        ABILITYBASE_LOGE("Write animationOptions failed");
+        return false;
+    }
+
+    if (!parcel.WriteParcelable(animationSystemOptions.get())) {
+        ABILITYBASE_LOGE("Write animationSystemOptions failed");
+        return false;
+    }
+
+    // other params need place before want
     if (!parcel.WriteParcelable(&want)) {
         ABILITYBASE_LOGE("Write want failed");
         return false;
@@ -321,16 +332,6 @@ bool SessionInfo::DoMarshallingSix(Parcel& parcel) const
     parcel.WriteInt32(supportWindowModes.size());
     for (auto windowMode : supportWindowModes) {
         parcel.WriteInt32(static_cast<int32_t>(windowMode));
-    }
-
-    if (!parcel.WriteParcelable(animationOptions.get())) {
-        ABILITYBASE_LOGE("Write animationOptions failed");
-        return false;
-    }
-
-    if (!parcel.WriteParcelable(animationSystemOptions.get())) {
-        ABILITYBASE_LOGE("Write animationSystemOptions failed");
-        return false;
     }
     return true;
 }
@@ -401,6 +402,8 @@ SessionInfo* SessionInfo::ReadParcelOne(SessionInfo* info, Parcel& parcel)
     info->isDensityFollowHost = parcel.ReadBool();
     info->specifiedFlag = parcel.ReadString();
     info->reuseDelegatorWindow = parcel.ReadBool();
+    info->animationOptions.reset(parcel.ReadParcelable<Rosen::StartAnimationOptions>());
+    info->animationSystemOptions.reset(parcel.ReadParcelable<Rosen::StartAnimationSystemOptions>());
 
     std::unique_ptr<Want> want(parcel.ReadParcelable<Want>());
     if (want != nullptr) {
@@ -419,8 +422,6 @@ SessionInfo* SessionInfo::ReadParcelTwo(SessionInfo* info, Parcel& parcel)
             info->supportWindowModes.emplace_back(AppExecFwk::SupportWindowMode(parcel.ReadInt32()));
         }
     }
-    info->animationOptions.reset(parcel.ReadParcelable<Rosen::StartAnimationOptions>());
-    info->animationSystemOptions.reset(parcel.ReadParcelable<Rosen::StartAnimationSystemOptions>());
     return info;
 }
 }  // namespace AAFwk
