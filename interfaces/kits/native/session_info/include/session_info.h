@@ -94,6 +94,7 @@ public:
     bool isDensityFollowHost = false;
     std::string specifiedFlag = "";
     bool reuseDelegatorWindow = false;
+    int32_t scenarios = 0;
     std::shared_ptr<Rosen::StartAnimationOptions> animationOptions = nullptr;
     std::shared_ptr<Rosen::StartAnimationSystemOptions> animationSystemOptions = nullptr;
 

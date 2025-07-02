@@ -23,7 +23,7 @@ using namespace testing;
 using namespace testing::ext;
 
 namespace OHOS {
-namespace AppExecFwk {
+namespace AAFwk {
 class SessionInfoTest : public testing::Test {
 public:
     static void SetUpTestCase();
@@ -50,7 +50,7 @@ void SessionInfoTest::TearDown()
 
 HWTEST_F(SessionInfoTest, SessionInfo_Marshalling_001, TestSize.Level1)
 {
-    AAFwk::SessionInfo sessionInfo;
+    SessionInfo sessionInfo;
     Parcel parcel;
     ASSERT_TRUE(sessionInfo.Marshalling(parcel));
 }
@@ -58,8 +58,15 @@ HWTEST_F(SessionInfoTest, SessionInfo_Marshalling_001, TestSize.Level1)
 HWTEST_F(SessionInfoTest, SessionInfo_Unmarshalling_001, TestSize.Level1)
 {
     Parcel parcel;
-    AAFwk::SessionInfo* info = AAFwk::SessionInfo::Unmarshalling(parcel);
+    SessionInfo* info = SessionInfo::Unmarshalling(parcel);
     ASSERT_TRUE(info != nullptr);
 }
-} // namespace AppExecFwk
+
+HWTEST_F(SessionInfoTest, SessionInfo_DoMarshallingSix_001, TestSize.Level1)
+{
+    SessionInfo sessionInfo;
+    Parcel parcel;
+    ASSERT_TRUE(sessionInfo.DoMarshallingSix(parcel));
+}
+} // namespace AAFwk
 } // namespace OHOS

@@ -308,6 +308,11 @@ bool SessionInfo::DoMarshallingSix(Parcel& parcel) const
         return false;
     }
 
+    if (!parcel.WriteInt32(scenarios)) {
+        ABILITYBASE_LOGE("Write scenarios failed");
+        return false;
+    }
+
     if (!parcel.WriteParcelable(animationOptions.get())) {
         ABILITYBASE_LOGE("Write animationOptions failed");
         return false;
@@ -402,6 +407,7 @@ SessionInfo* SessionInfo::ReadParcelOne(SessionInfo* info, Parcel& parcel)
     info->isDensityFollowHost = parcel.ReadBool();
     info->specifiedFlag = parcel.ReadString();
     info->reuseDelegatorWindow = parcel.ReadBool();
+    info->scenarios = parcel.ReadInt32();
     info->animationOptions.reset(parcel.ReadParcelable<Rosen::StartAnimationOptions>());
     info->animationSystemOptions.reset(parcel.ReadParcelable<Rosen::StartAnimationSystemOptions>());
 
