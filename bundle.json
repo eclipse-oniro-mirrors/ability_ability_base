@@ -30,7 +30,6 @@
                 "hitrace",
                 "ipc",
                 "resource_management",
-                "cJSON",
                 "json",
                 "jsoncpp",
                 "zlib",
