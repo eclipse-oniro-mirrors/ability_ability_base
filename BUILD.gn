@@ -209,12 +209,12 @@ ohos_shared_library("want") {
   external_deps = [
     "c_utils:utils",
     "hilog:libhilog",
+    "ipc:ipc_core",
     "ipc:ipc_single",
   ]
 
   public_external_deps = [
     "cJSON:cjson",
-    "ipc:ipc_core",
     "jsoncpp:jsoncpp",
     "json:nlohmann_json_static",
   ]
