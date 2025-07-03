@@ -27,8 +27,7 @@
 
 namespace OHOS {
 namespace Rosen {
-struct StartAnimationOptions;
-struct StartAnimationSystemOptions;
+struct WindowCreateParams;
 }
 
 namespace AAFwk {
@@ -95,8 +94,7 @@ public:
     std::string specifiedFlag = "";
     bool reuseDelegatorWindow = false;
     int32_t scenarios = 0;
-    std::shared_ptr<Rosen::StartAnimationOptions> animationOptions = nullptr;
-    std::shared_ptr<Rosen::StartAnimationSystemOptions> animationSystemOptions = nullptr;
+    std::shared_ptr<Rosen::WindowCreateParams> windowCreateParams = nullptr;
 
 private:
     bool DoMarshallingOne(Parcel& parcel) const;
