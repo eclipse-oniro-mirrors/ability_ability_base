@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,7 +16,7 @@
 #include "rect.h"
 
 #include "ability_base_log_wrapper.h"
-#include "cJSON.h"
+#include "nlohmann/json.hpp"
 
 namespace OHOS {
 namespace AbilityBase {
@@ -27,48 +27,34 @@ constexpr const char* VIEW_DATA_RECT_HEIGHT = "height";
 
 void Rect::FromJsonString(const std::string& jsonStr)
 {
-    cJSON *jsonObject = cJSON_Parse(jsonStr.c_str());
-    if (jsonObject == nullptr) {
+    nlohmann::json jsonObject = nlohmann::json::parse(jsonStr, nullptr, false);
+    if (jsonObject.is_discarded()) {
         ABILITYBASE_LOGE("json parse failed");
         return;
     }
-    cJSON *rectLeftItem = cJSON_GetObjectItem(jsonObject, VIEW_DATA_RECT_LEFT);
-    if (rectLeftItem != nullptr && cJSON_IsNumber(rectLeftItem)) {
-        left = static_cast<float>(rectLeftItem->valuedouble);
+    if (jsonObject.contains(VIEW_DATA_RECT_LEFT) && jsonObject[VIEW_DATA_RECT_LEFT].is_number_float()) {
+        left = jsonObject.at(VIEW_DATA_RECT_LEFT).get<float>();
     }
-    cJSON *rectTopItem = cJSON_GetObjectItem(jsonObject, VIEW_DATA_RECT_TOP);
-    if (rectTopItem != nullptr && cJSON_IsNumber(rectTopItem)) {
-        top = static_cast<float>(rectTopItem->valuedouble);
+    if (jsonObject.contains(VIEW_DATA_RECT_TOP) && jsonObject[VIEW_DATA_RECT_TOP].is_number_float()) {
+        top = jsonObject.at(VIEW_DATA_RECT_TOP).get<float>();
     }
-    cJSON *rectWidthItem = cJSON_GetObjectItem(jsonObject, VIEW_DATA_RECT_WIDTH);
-    if (rectWidthItem != nullptr && cJSON_IsNumber(rectWidthItem)) {
-        width = static_cast<float>(rectWidthItem->valuedouble);
+    if (jsonObject.contains(VIEW_DATA_RECT_WIDTH) && jsonObject[VIEW_DATA_RECT_WIDTH].is_number_float()) {
+        width = jsonObject.at(VIEW_DATA_RECT_WIDTH).get<float>();
     }
-    cJSON *rectHeightItem = cJSON_GetObjectItem(jsonObject, VIEW_DATA_RECT_HEIGHT);
-    if (rectHeightItem != nullptr && cJSON_IsNumber(rectHeightItem)) {
-        height = static_cast<float>(rectHeightItem->valuedouble);
+    if (jsonObject.contains(VIEW_DATA_RECT_HEIGHT) && jsonObject[VIEW_DATA_RECT_HEIGHT].is_number_float()) {
+        height = jsonObject.at(VIEW_DATA_RECT_HEIGHT).get<float>();
     }
-    cJSON_Delete(jsonObject);
 }
 
 std::string Rect::ToJsonString() const
 {
-    cJSON *jsonObject = cJSON_CreateObject();
-    if (jsonObject == nullptr) {
-        return "";
-    }
-    cJSON_AddNumberToObject(jsonObject, VIEW_DATA_RECT_LEFT, static_cast<double>(left));
-    cJSON_AddNumberToObject(jsonObject, VIEW_DATA_RECT_TOP, static_cast<double>(top));
-    cJSON_AddNumberToObject(jsonObject, VIEW_DATA_RECT_WIDTH, static_cast<double>(width));
-    cJSON_AddNumberToObject(jsonObject, VIEW_DATA_RECT_HEIGHT, static_cast<double>(height));
-    char *str = cJSON_PrintUnformatted(jsonObject);
-    cJSON_Delete(jsonObject);
-    if (str == nullptr) {
-        return "";
-    }
-    std::string jsonStr(str);
-    cJSON_free(str);
-    return jsonStr;
+    nlohmann::json jsonObject {
+        {VIEW_DATA_RECT_LEFT, left},
+        {VIEW_DATA_RECT_TOP, top},
+        {VIEW_DATA_RECT_WIDTH, width},
+        {VIEW_DATA_RECT_HEIGHT, height}
+    };
+    return jsonObject.dump();
 }
 }  // namespace AbilityBase
 }  // namespace OHOS

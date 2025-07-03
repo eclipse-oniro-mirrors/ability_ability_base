@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2025 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,9 +16,9 @@
 #include "configuration.h"
 
 #include <mutex>
+#include <nlohmann/json.hpp>
 
 #include "ability_base_log_wrapper.h"
-#include "cJSON.h"
 #include "string_ex.h"
 
 namespace OHOS {
@@ -26,6 +26,7 @@ namespace AppExecFwk {
 namespace {
 constexpr int CYCLE_LIMIT = 1000;
 }
+using json = nlohmann::json;
 Configuration::Configuration()
 {}
 
@@ -234,30 +235,11 @@ int Configuration::RemoveItem(const std::string &key)
     return RemoveItem(defaultDisplayId_, key);
 }
 
-std::string Configuration::GetName() const
+const std::string Configuration::GetName() const
 {
     std::lock_guard<std::recursive_mutex> lock(configParameterMutex_);
-    cJSON *jsonArray = cJSON_CreateArray();
-    if (jsonArray == nullptr) {
-        return "";
-    }
-    for (const auto &config : configParameter_) {
-        cJSON *jsonObject = cJSON_CreateObject();
-        if (jsonObject == nullptr) {
-            cJSON_Delete(jsonArray);
-            return "";
-        }
-        cJSON_AddStringToObject(jsonObject, config.first.c_str(), config.second.c_str());
-        cJSON_AddItemToArray(jsonArray, jsonObject);
-    }
-    char *str = cJSON_PrintUnformatted(jsonArray);
-    cJSON_Delete(jsonArray);
-    if (str == nullptr) {
-        return "";
-    }
-    std::string jsonStr(str);
-    cJSON_free(str);
-    return jsonStr;
+    json configArray(configParameter_);
+    return configArray.dump();
 }
 
 bool Configuration::ReadFromParcel(Parcel &parcel)

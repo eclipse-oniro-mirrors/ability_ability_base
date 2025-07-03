@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2025 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,15 +23,12 @@
 #include <memory>
 #include <mutex>
 #include <set>
-#include <sstream>
-
+#include "securec.h"
+#include "json/json.h"
+#include "parcel.h"
 #include "base_def.h"
 #include "base_obj.h"
 #include "base_interfaces.h"
-#include "cJSON.h"
-#include "json/json.h"
-#include "parcel.h"
-#include "securec.h"
 
 // json key define
 // base:   0x00000001 ~ 0x000000FF
@@ -494,31 +491,31 @@ public:
 private:
     PacMapList dataList_;
     std::mutex mapLock_;
-    bool GetBaseJsonValue(PacMapList::const_iterator &it, cJSON *&json) const;
-    bool GetArrayJsonValue(PacMapList::const_iterator &it, cJSON *&json) const;
-    bool GetUserObjectJsonValue(PacMapList::const_iterator &it, cJSON *&json) const;
+    bool GetBaseJsonValue(PacMapList::const_iterator &it, Json::Value &json) const;
+    bool GetArrayJsonValue(PacMapList::const_iterator &it, Json::Value &json) const;
+    bool GetUserObjectJsonValue(PacMapList::const_iterator &it, Json::Value &json) const;
     void ShallowCopyData(PacMapList &desPacMap, const PacMapList &srcPacMap);
     void RemoveData(PacMapList &srcPacMap, const std::string &key);
     bool EqualPacMapData(const PacMapList &leftPacMapList, const PacMapList &rightPacMapList);
     bool ReadFromParcel(Parcel &parcel);
 
-    bool ParseJson(const cJSON *data, PacMapList &mapList);
-    bool ParseJsonItem(PacMapList &mapList, const std::string &key, const cJSON *item);
-    bool ParseJsonItemArray(PacMapList &mapList, const std::string &key, const cJSON *item);
-    bool ParseJsonItemArrayShort(PacMapList &mapList, const std::string &key, const cJSON *item);
-    bool ParseJsonItemArrayInteger(PacMapList &mapList, const std::string &key, const cJSON *item);
-    bool ParseJsonItemArrayLong(PacMapList &mapList, const std::string &key, const cJSON *item);
-    bool ParseJsonItemArrayChar(PacMapList &mapList, const std::string &key, const cJSON *item);
-    bool ParseJsonItemArrayByte(PacMapList &mapList, const std::string &key, const cJSON *item);
-    bool ParseJsonItemArrayBoolean(PacMapList &mapList, const std::string &key, const cJSON *item);
-    bool ParseJsonItemArrayFloat(PacMapList &mapList, const std::string &key, const cJSON *item);
-    bool ParseJsonItemArrayDouble(PacMapList &mapList, const std::string &key, const cJSON *item);
-    bool ParseJsonItemArrayString(PacMapList &mapList, const std::string &key, const cJSON *item);
+    bool ParseJson(Json::Value &data, PacMapList &mapList);
+    bool ParseJsonItem(PacMapList &mapList, const std::string &key, Json::Value &item);
+    bool ParseJsonItemArray(PacMapList &mapList, const std::string &key, Json::Value &item);
+    bool ParseJsonItemArrayShort(PacMapList &mapList, const std::string &key, Json::Value &item);
+    bool ParseJsonItemArrayInteger(PacMapList &mapList, const std::string &key, Json::Value &item);
+    bool ParseJsonItemArrayLong(PacMapList &mapList, const std::string &key, Json::Value &item);
+    bool ParseJsonItemArrayChar(PacMapList &mapList, const std::string &key, Json::Value &item);
+    bool ParseJsonItemArrayByte(PacMapList &mapList, const std::string &key, Json::Value &item);
+    bool ParseJsonItemArrayBoolean(PacMapList &mapList, const std::string &key, Json::Value &item);
+    bool ParseJsonItemArrayFloat(PacMapList &mapList, const std::string &key, Json::Value &item);
+    bool ParseJsonItemArrayDouble(PacMapList &mapList, const std::string &key, Json::Value &item);
+    bool ParseJsonItemArrayString(PacMapList &mapList, const std::string &key, Json::Value &item);
 
-    bool InnerPutObjectValue(PacMapList &mapList, const std::string &key, const cJSON *item);
-    bool InnerPutPacMapValue(PacMapList &mapList, const std::string &key, const cJSON *item);
+    bool InnerPutObjectValue(PacMapList &mapList, const std::string &key, Json::Value &item);
+    bool InnerPutPacMapValue(PacMapList &mapList, const std::string &key, Json::Value &item);
 
-    bool ToJson(const PacMapList &mapList, cJSON *&dataObject) const;
+    bool ToJson(const PacMapList &mapList, Json::Value &dataObject) const;
 
     std::string MapListToString(const PacMapList &mapList) const;
     bool StringToMapList(const std::string &str, PacMapList &mapList);
@@ -546,18 +543,18 @@ private:
     void InnerPutStringValueArray(PacMapList &mapList, const std::string &key, const std::vector<std::string> &value);
 
     // char data:none
-    bool ToJsonArrayShort(std::vector<short> &array, cJSON *&item, int type) const;
-    bool ToJsonArrayInt(std::vector<int> &array, cJSON *&item, int type) const;
-    bool ToJsonArrayLong(std::vector<long> &array, cJSON *&item, int type) const;
-    bool ToJsonArrayByte(std::vector<byte> &array, cJSON *&item, int type) const;
-    bool ToJsonArrayBoolean(std::vector<bool> &array, cJSON *&item, int type) const;
-    bool ToJsonArrayFloat(std::vector<float> &array, cJSON *&item, int type) const;
-    bool ToJsonArrayDouble(std::vector<double> &array, cJSON *&item, int type) const;
-    bool ToJsonArrayString(std::vector<std::string> &array, cJSON *&item, int type) const;
+    bool ToJsonArrayShort(std::vector<short> &array, Json::Value &item, int type) const;
+    bool ToJsonArrayInt(std::vector<int> &array, Json::Value &item, int type) const;
+    bool ToJsonArrayLong(std::vector<long> &array, Json::Value &item, int type) const;
+    bool ToJsonArrayByte(std::vector<byte> &array, Json::Value &item, int type) const;
+    bool ToJsonArrayBoolean(std::vector<bool> &array, Json::Value &item, int type) const;
+    bool ToJsonArrayFloat(std::vector<float> &array, Json::Value &item, int type) const;
+    bool ToJsonArrayDouble(std::vector<double> &array, Json::Value &item, int type) const;
+    bool ToJsonArrayString(std::vector<std::string> &array, Json::Value &item, int type) const;
 
     bool IsNumber(const std::string &str);
     bool CompareArrayData(AAFwk::IInterface *one_interface, AAFwk::IInterface *two_interface);
-    bool JudgeType(cJSON *item);
+    bool JudgeType(Json::Value &item);
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

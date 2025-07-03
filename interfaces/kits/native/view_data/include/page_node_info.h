@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,14 +19,14 @@
 #include <string>
 
 #include "auto_fill_type.h"
-#include "cJSON.h"
+#include "nlohmann/json.hpp"
 #include "rect.h"
 
 namespace OHOS {
 namespace AbilityBase {
 struct PageNodeInfo {
     void FromJsonString(const std::string& jsonStr);
-    void ParseJsonToPageNodeInfo(const cJSON *jsonObject);
+    void ParseJsonToPageNodeInfo(const nlohmann::json& jsonObject);
     std::string ToJsonString() const;
 
     int32_t id = -1;

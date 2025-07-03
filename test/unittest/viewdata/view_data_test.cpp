@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,7 +16,6 @@
 #include <fstream>
 #include <gtest/gtest.h>
 #include <iostream>
-
 #include "view_data.h"
 #include "session_info.h"
 
@@ -27,9 +26,9 @@ namespace OHOS {
 namespace AbilityBase {
 namespace {
     static const std::string TJSON =
-        "{\"bundleName\":\"\",\"moduleName\":\"\",\"abilityName\":\"\",\"pageUrl\":\"\",\"nodes\":[],"
-        "\"isUserSelected\":false,\"isOtherAccount\":false,"
-        "\"pageRect\":\"{\\\"left\\\":0,\\\"top\\\":0,\\\"width\\\":0,\\\"height\\\":0}\"}";
+        "{\"abilityName\":\"\",\"bundleName\":\"\",\"isOtherAccount\":false,\"isUserSelected\":false,"
+        "\"moduleName\":\"\",\"nodes\":[],\"pageRect\":\"{\\\"height\\\":0.0,\\\"left\\\":0.0,\\\"top\\\":0.0,"
+        "\\\"width\\\":0.0}\",\"pageUrl\":\"\"}";
 
     static const std::string TJSON_WITHOUT_BUNDLE_NAME =
         "{\"moduleName\":\"\",\"abilityName\":\"\",\"pageUrl\":\"\",\"nodes\":[],"

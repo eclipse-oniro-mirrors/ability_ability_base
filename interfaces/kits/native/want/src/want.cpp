@@ -21,21 +21,22 @@
 #include <regex>
 #include <securec.h>
 
-#include "array_wrapper.h"
 #include "base_obj.h"
 #include "bool_wrapper.h"
+#include "zchar_wrapper.h"
 #include "byte_wrapper.h"
-#include "double_wrapper.h"
-#include "float_wrapper.h"
+#include "short_wrapper.h"
 #include "int_wrapper.h"
 #include "long_wrapper.h"
+#include "float_wrapper.h"
+#include "double_wrapper.h"
 #include "string_wrapper.h"
+#include "zchar_wrapper.h"
+#include "array_wrapper.h"
 #include "parcel_macro_base.h"
 #include "remote_object_wrapper.h"
-#include "short_wrapper.h"
 #include "string_ex.h"
 #include "want_params_wrapper.h"
-#include "zchar_wrapper.h"
 
 using namespace OHOS::AppExecFwk;
 using OHOS::AppExecFwk::ElementName;
@@ -1862,149 +1863,116 @@ void Want::DumpInfo(int level) const
     parameters_.DumpInfo(level);
 }
 
-cJSON *Want::ToJson() const
+nlohmann::json Want::ToJson() const
 {
     WantParamWrapper wrapper(parameters_);
     std::string parametersString = wrapper.ToString();
 
-    cJSON *entitiesJson = cJSON_CreateArray();
-    if (entitiesJson == nullptr) {
-        return nullptr;
-    }
+    nlohmann::json entitiesJson;
     std::vector<std::string> entities = GetEntities();
     for (auto entity : entities) {
-        cJSON_AddItemToArray(entitiesJson, cJSON_CreateString(entity.c_str()));
+        entitiesJson.emplace_back(entity);
     }
 
-    cJSON *wantJson = cJSON_CreateObject();
-    if (wantJson == nullptr) {
-        cJSON_Delete(entitiesJson);
-        return nullptr;
-    }
-    cJSON_AddStringToObject(wantJson, "deviceId", operation_.GetDeviceId().c_str());
-    cJSON_AddStringToObject(wantJson, "bundleName", operation_.GetBundleName().c_str());
-    cJSON_AddStringToObject(wantJson, "abilityName", operation_.GetAbilityName().c_str());
-    cJSON_AddStringToObject(wantJson, "uri", GetUriString().c_str());
-    cJSON_AddStringToObject(wantJson, "type", GetType().c_str());
-    cJSON_AddNumberToObject(wantJson, "flags", static_cast<double>(GetFlags()));
-    cJSON_AddStringToObject(wantJson, "action", GetAction().c_str());
-    cJSON_AddStringToObject(wantJson, "parameters", parametersString.c_str());
-    cJSON_AddItemToObject(wantJson, "entities", entitiesJson);
+    nlohmann::json wantJson = nlohmann::json {
+        {"deviceId", operation_.GetDeviceId()},
+        {"bundleName", operation_.GetBundleName()},
+        {"abilityName", operation_.GetAbilityName()},
+        {"uri", GetUriString()},
+        {"type", GetType()},
+        {"flags", GetFlags()},
+        {"action", GetAction()},
+        {"parameters", parametersString},
+        {"entities", entitiesJson},
+    };
+
     return wantJson;
 }
 
-bool Want::ReadFromJson(cJSON *wantJson)
+bool Want::ReadFromJson(nlohmann::json &wantJson)
 {
-    if (wantJson == nullptr) {
-        ABILITYBASE_LOGE("wantJson is null");
-        return false;
-    }
-    cJSON *deviceIdItem = cJSON_GetObjectItem(wantJson, "deviceId");
-    cJSON *bundleNameItem = cJSON_GetObjectItem(wantJson, "bundleName");
-    cJSON *abilityNameItem = cJSON_GetObjectItem(wantJson, "abilityName");
-    cJSON *uriItem = cJSON_GetObjectItem(wantJson, "uri");
-    cJSON *typeItem = cJSON_GetObjectItem(wantJson, "type");
-    cJSON *flagsItem = cJSON_GetObjectItem(wantJson, "flags");
-    cJSON *actionItem = cJSON_GetObjectItem(wantJson, "action");
-    cJSON *parametersItem = cJSON_GetObjectItem(wantJson, "parameters");
-    cJSON *entitiesItem = cJSON_GetObjectItem(wantJson, "entities");
-    if (deviceIdItem == nullptr || bundleNameItem == nullptr || abilityNameItem == nullptr ||
-        uriItem == nullptr || typeItem == nullptr || flagsItem == nullptr ||
-        actionItem == nullptr || parametersItem == nullptr || entitiesItem == nullptr) {
+    const auto &jsonObjectEnd = wantJson.end();
+    if ((wantJson.find("deviceId") == jsonObjectEnd)
+        || (wantJson.find("bundleName") == jsonObjectEnd)
+        || (wantJson.find("abilityName") == jsonObjectEnd)
+        || (wantJson.find("uri") == jsonObjectEnd)
+        || (wantJson.find("type") == jsonObjectEnd)
+        || (wantJson.find("flags") == jsonObjectEnd)
+        || (wantJson.find("action") == jsonObjectEnd)
+        || (wantJson.find("parameters") == jsonObjectEnd)
+        || (wantJson.find("entities") == jsonObjectEnd)) {
         ABILITYBASE_LOGE("Incomplete wantJson");
         return false;
     }
 
-    if (!cJSON_IsString(deviceIdItem)) {
+    if (!wantJson["deviceId"].is_string()) {
         ABILITYBASE_LOGE("deviceId not string");
         return false;
     }
-    if (!cJSON_IsString(bundleNameItem)) {
+    if (!wantJson["bundleName"].is_string()) {
         ABILITYBASE_LOGE("bundleName not string");
         return false;
     }
-    if (!cJSON_IsString(abilityNameItem)) {
+    if (!wantJson["abilityName"].is_string()) {
         ABILITYBASE_LOGE("abilityName not string");
         return false;
     }
-    std::string deviceId = deviceIdItem->valuestring;
-    std::string bundleName = bundleNameItem->valuestring;
-    std::string abilityName = abilityNameItem->valuestring;
-    SetElementName(deviceId, bundleName, abilityName);
+    SetElementName(wantJson["deviceId"], wantJson["bundleName"], wantJson["abilityName"]);
 
-    if (!cJSON_IsString(uriItem)) {
+    if (!wantJson["uri"].is_string()) {
         ABILITYBASE_LOGE("uri not string");
         return false;
     }
-    std::string uri = uriItem->valuestring;
-    SetUri(uri);
+    SetUri(wantJson["uri"]);
 
-    if (!cJSON_IsString(typeItem)) {
+    if (!wantJson["type"].is_string()) {
         ABILITYBASE_LOGE("type not string");
         return false;
     }
-    std::string type = typeItem->valuestring;
-    SetType(type);
+    SetType(wantJson["type"]);
 
-    if (!cJSON_IsNumber(flagsItem)) {
+    if (!wantJson["flags"].is_number_unsigned()) {
         ABILITYBASE_LOGE("flags not number");
         return false;
     }
-    unsigned int flags = static_cast<unsigned int>(flagsItem->valuedouble);
-    SetFlags(flags);
+    SetFlags(wantJson["flags"]);
 
-    if (!cJSON_IsString(actionItem)) {
+    if (!wantJson["action"].is_string()) {
         ABILITYBASE_LOGE("action not string");
         return false;
     }
-    std::string action = actionItem->valuestring;
-    SetAction(action);
+    SetAction(wantJson["action"]);
 
-    if (!cJSON_IsString(parametersItem)) {
+    if (!wantJson["parameters"].is_string()) {
         ABILITYBASE_LOGE("parameters not string");
         return false;
     }
-    std::string parameters = parametersItem->valuestring;
-    WantParams wantParams = WantParamWrapper::ParseWantParams(parameters);
-    SetParams(wantParams);
+    WantParams parameters = WantParamWrapper::ParseWantParams(wantJson["parameters"]);
+    SetParams(parameters);
     std::string moduleName = GetStringParam(PARAM_MODULE_NAME);
     SetModuleName(moduleName);
 
-    if (cJSON_IsNull(entitiesItem)) {
+    if (wantJson.at("entities").is_null()) {
         ABILITYBASE_LOGD("null entities");
-    } else if (cJSON_IsArray(entitiesItem)) {
-        int size = cJSON_GetArraySize(entitiesItem);
-        for (int i = 0; i < size; i++) {
-            cJSON *entityItem = cJSON_GetArrayItem(entitiesItem, i);
-            if (!cJSON_IsString(entityItem)) {
+    } else if (wantJson["entities"].is_array()) {
+        auto size = wantJson["entities"].size();
+        for (size_t i = 0; i < size; i++) {
+            if (!wantJson["entities"][i].is_string()) {
                 ABILITYBASE_LOGE("entities not string");
                 return false;
             }
-            std::string entity = entityItem->valuestring;
-            AddEntity(entity);
+            AddEntity(wantJson["entities"][i]);
         }
     } else {
         ABILITYBASE_LOGE("parse entities failed");
         return false;
     }
-
     return true;
 }
 
 std::string Want::ToString() const
 {
-    cJSON *jsonObject = ToJson();
-    if (jsonObject == nullptr) {
-        return "";
-    }
-    char *str = cJSON_PrintUnformatted(jsonObject);
-    cJSON_Delete(jsonObject);
-    if (str == nullptr) {
-        return "";
-    }
-    std::string jsonStr(str);
-    cJSON_free(str);
-    return jsonStr;
+    return ToJson().dump(-1, ' ', false, nlohmann::json::error_handler_t::ignore);
 }
 
 Want *Want::FromString(std::string &string)
@@ -2013,8 +1981,9 @@ Want *Want::FromString(std::string &string)
         ABILITYBASE_LOGE("Invalid string");
         return nullptr;
     }
-    cJSON *wantJson = cJSON_Parse(string.c_str());
-    if (wantJson == nullptr) {
+
+    nlohmann::json wantJson = nlohmann::json::parse(string, nullptr, false);
+    if (wantJson.is_discarded()) {
         ABILITYBASE_LOGE("json parse failed: %{private}s.", string.c_str());
         return nullptr;
     }
@@ -2024,7 +1993,6 @@ Want *Want::FromString(std::string &string)
         delete want;
         want = nullptr;
     }
-    cJSON_Delete(wantJson);
     return want;
 }
 
