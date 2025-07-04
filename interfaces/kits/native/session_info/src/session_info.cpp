@@ -313,13 +313,8 @@ bool SessionInfo::DoMarshallingSix(Parcel& parcel) const
         return false;
     }
 
-    if (!parcel.WriteParcelable(animationOptions.get())) {
-        ABILITYBASE_LOGE("Write animationOptions failed");
-        return false;
-    }
-
-    if (!parcel.WriteParcelable(animationSystemOptions.get())) {
-        ABILITYBASE_LOGE("Write animationSystemOptions failed");
+    if (!parcel.WriteParcelable(windowCreateParams.get())) {
+        ABILITYBASE_LOGE("Write windowCreateParams failed");
         return false;
     }
 
@@ -408,8 +403,7 @@ SessionInfo* SessionInfo::ReadParcelOne(SessionInfo* info, Parcel& parcel)
     info->specifiedFlag = parcel.ReadString();
     info->reuseDelegatorWindow = parcel.ReadBool();
     info->scenarios = parcel.ReadInt32();
-    info->animationOptions.reset(parcel.ReadParcelable<Rosen::StartAnimationOptions>());
-    info->animationSystemOptions.reset(parcel.ReadParcelable<Rosen::StartAnimationSystemOptions>());
+    info->windowCreateParams.reset(parcel.ReadParcelable<Rosen::WindowCreateParams>());
 
     std::unique_ptr<Want> want(parcel.ReadParcelable<Want>());
     if (want != nullptr) {
