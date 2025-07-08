@@ -1,12 +1,4 @@
 /*
- * @Author: wkljy wangkailong6@huawei.com
- * @Date: 2025-05-06 17:37:37
- * @LastEditors: wkljy wangkailong6@huawei.com
- * @LastEditTime: 2025-07-10 11:01:54
- * @FilePath: /master/foundation/ability/ability_base/interfaces/inner_api/base/include/zchar_wrapper.h
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- */
-/*
  * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

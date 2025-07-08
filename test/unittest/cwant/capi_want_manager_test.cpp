@@ -26,6 +26,7 @@
 #include "string_wrapper.h"
 
 using namespace testing::ext;
+using namespace OHOS::AAFwk;
 
 
 class CWantTest : public testing::Test {
@@ -135,4 +136,114 @@ HWTEST_F(CWantTest, OH_AbilityBase_TransformToWant_002, TestSize.Level0)
     AbilityBase_ErrorCode errCode = OHOS::AAFwk::CWantManager::TransformToCWantWithoutElement(*want2, false, *want);
     ASSERT_EQ(errCode, ABILITY_BASE_ERROR_CODE_NO_ERROR);
     ReleaseElementMemory(element);
+}
+
+HWTEST_F(CWantTest, ShouldTransformEmptyWant, TestSize.Level0)
+{
+    OHOS::AAFwk::Want want;
+    AbilityBase_Want cwant;
+    auto result = OHOS::AAFwk::CWantManager::TransformToCWantWithoutElement(want, false, cwant);
+
+    EXPECT_EQ(result, ABILITY_BASE_ERROR_CODE_NO_ERROR);
+    EXPECT_TRUE(cwant.uri.empty());
+    EXPECT_TRUE(cwant.params.empty());
+    EXPECT_TRUE(cwant.intParams.empty());
+    EXPECT_TRUE(cwant.boolParams.empty());
+    EXPECT_TRUE(cwant.doubleParams.empty());
+    EXPECT_TRUE(cwant.fds.empty());
+}
+
+HWTEST_F(CWantTest, ShouldTransformUriCorrectly, TestSize.Level0)
+{
+    OHOS::AAFwk::Want want;
+    want.SetUri("test_uri");
+    AbilityBase_Want cwant;
+    auto result = OHOS::AAFwk::CWantManager::TransformToCWantWithoutElement(want, false, cwant);
+
+    EXPECT_EQ(result, ABILITY_BASE_ERROR_CODE_NO_ERROR);
+    EXPECT_EQ(cwant.uri, "test_uri");
+}
+
+HWTEST_F(CWantTest, ShouldTransformStringParams, TestSize.Level0)
+{
+    OHOS::AAFwk::Want want;
+    OHOS::AAFwk::WantParams params;
+    params.SetParam("str_key", String::Box("str_value"));
+    want.SetParams(params);
+    
+    AbilityBase_Want cwant;
+    auto result = OHOS::AAFwk::CWantManager::TransformToCWantWithoutElement(want, false, cwant);
+
+    EXPECT_EQ(result, ABILITY_BASE_ERROR_CODE_NO_ERROR);
+    ASSERT_EQ(cwant.params.size(), 1);
+    EXPECT_EQ(cwant.params["str_key"], "str_value");
+}
+
+HWTEST_F(CWantTest, ShouldTransformIntParams, TestSize.Level0)
+{
+    OHOS::AAFwk::Want want;
+    OHOS::AAFwk::WantParams params;
+    params.SetParam("int_key", Integer::Box(123));
+    want.SetParams(params);
+    
+    AbilityBase_Want cwant;
+    auto result = OHOS::AAFwk::CWantManager::TransformToCWantWithoutElement(want, false, cwant);
+
+    EXPECT_EQ(result, ABILITY_BASE_ERROR_CODE_NO_ERROR);
+    ASSERT_EQ(cwant.intParams.size(), 1);
+    EXPECT_EQ(cwant.intParams["int_key"], 123);
+}
+
+HWTEST_F(CWantTest, ShouldTransformBoolParams, TestSize.Level0)
+{
+    OHOS::AAFwk::Want want;
+    OHOS::AAFwk::WantParams params;
+    params.SetParam("bool_key", Boolean::Box(true));
+    want.SetParams(params);
+    
+    AbilityBase_Want cwant;
+    auto result = OHOS::AAFwk::CWantManager::TransformToCWantWithoutElement(want, false, cwant);
+
+    EXPECT_EQ(result, ABILITY_BASE_ERROR_CODE_NO_ERROR);
+    ASSERT_EQ(cwant.boolParams.size(), 1);
+    EXPECT_EQ(cwant.boolParams["bool_key"], true);
+}
+
+HWTEST_F(CWantTest, ShouldTransformDoubleParams, TestSize.Level0)
+{
+    OHOS::AAFwk::Want want;
+    OHOS::AAFwk::WantParams params;
+    params.SetParam("double_key", Double::Box(3.14));
+    want.SetParams(params);
+    
+    AbilityBase_Want cwant;
+    auto result = OHOS::AAFwk::CWantManager::TransformToCWantWithoutElement(want, false, cwant);
+
+    EXPECT_EQ(result, ABILITY_BASE_ERROR_CODE_NO_ERROR);
+    ASSERT_EQ(cwant.doubleParams.size(), 1);
+    EXPECT_DOUBLE_EQ(cwant.doubleParams["double_key"], 3.14);
+}
+
+HWTEST_F(CWantTest, ShouldTransformMultipleParams, TestSize.Level0)
+{
+    OHOS::AAFwk::Want want;
+    OHOS::AAFwk::WantParams params;
+    params.SetParam("str_key", String::Box("str_value"));
+    params.SetParam("int_key", Integer::Box(123));
+    params.SetParam("bool_key", Boolean::Box(true));
+    params.SetParam("double_key", Double::Box(3.14));
+    want.SetParams(params);
+    
+    AbilityBase_Want cwant;
+    auto result = OHOS::AAFwk::CWantManager::TransformToCWantWithoutElement(want, false, cwant);
+
+    EXPECT_EQ(result, ABILITY_BASE_ERROR_CODE_NO_ERROR);
+    ASSERT_EQ(cwant.params.size(), 1);
+    ASSERT_EQ(cwant.intParams.size(), 1);
+    ASSERT_EQ(cwant.boolParams.size(), 1);
+    ASSERT_EQ(cwant.doubleParams.size(), 1);
+    EXPECT_EQ(cwant.params["str_key"], "str_value");
+    EXPECT_EQ(cwant.intParams["int_key"], 123);
+    EXPECT_EQ(cwant.boolParams["bool_key"], true);
+    EXPECT_DOUBLE_EQ(cwant.doubleParams["double_key"], 3.14);
 }
