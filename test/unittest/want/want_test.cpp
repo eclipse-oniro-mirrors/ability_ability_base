@@ -4141,8 +4141,8 @@ HWTEST_F(WantBaseTest, Fd_test_001, TestSize.Level1)
     want1->CloseAllFd();
     want1->RemoveAllFd();
     want1->DupAllFd();
-    EXPECT_EQ(-1, want1->Flags_ConvertEts2Native(10));
-    EXPECT_EQ(0x00000001, want1->Flags_ConvertEts2Native(1));
+    EXPECT_EQ(0, want1->Flags_ConvertEts2Native(10));
+    EXPECT_EQ(0x00000001, want1->Flags_ConvertEts2Native(0));
     EXPECT_EQ(1, want1->Flags_ConvertNative2Ets(0x00000002));
     EXPECT_EQ(-1, want1->Flags_ConvertNative2Ets(0x00000007));
     EXPECT_EQ("", want1->Action_ConvertEts2Native(-1));

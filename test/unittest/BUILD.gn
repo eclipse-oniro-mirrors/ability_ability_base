@@ -291,6 +291,66 @@ ohos_unittest("want_test") {
   ]
 }
 
+ohos_unittest("pac_map_test") {
+  module_out_path = want_output_path
+  include_dirs = [
+    "${ability_base_path}/interfaces/kits/native/want/include",
+    "${ability_base_path}/interfaces/kits/native/want/src",
+  ]
+
+  sources = [
+    "want/pac_map_test.cpp"
+  ]
+
+  configs = [
+    ":want_private_config",
+    "${ability_base_path}:want_public_config",
+  ]
+
+  deps = []
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:want",
+    "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
+    "googletest:gtest_main",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "jsoncpp:jsoncpp",
+  ]
+}
+
+ohos_unittest("pac_map_second_test") {
+  module_out_path = want_output_path
+  include_dirs = [
+    "${ability_base_path}/interfaces/kits/native/want/include",
+    "${ability_base_path}/interfaces/kits/native/want/src",
+  ]
+
+  sources = [
+    "want/pac_map_second_test.cpp"
+  ]
+
+  configs = [
+    ":want_private_config",
+    "${ability_base_path}:want_public_config",
+  ]
+
+  deps = []
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:want",
+    "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
+    "googletest:gtest_main",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "jsoncpp:jsoncpp",
+  ]
+}
+
 ohos_unittest("uri_test") {
   module_out_path = want_output_path
   sources = [ "want/uri_test.cpp" ]
@@ -712,6 +772,8 @@ group("unittest") {
     ":want_params_test",
     ":want_params_wrapper_test",
     ":want_test",
+    ":pac_map_second_test",
+    ":pac_map_test",
     ":zchar_wrapper_test",
   ]
 }
