@@ -303,7 +303,7 @@ Global::Resource::ScreenDensity ScreenDensity_ConvertEts2Native(const int32_t in
 }
 int32_t ScreenDensity_ConvertNative2Ets(const Global::Resource::ScreenDensity nativeValue)
 {
-    for (int32_t index = 0; index < ScreenDensityArray.size(); index++) {
+    for (int32_t index = 0; index < static_cast<int32_t>(ScreenDensityArray.size()); index++) {
         if (nativeValue == ScreenDensityArray[index]) {
             return index;
         }
