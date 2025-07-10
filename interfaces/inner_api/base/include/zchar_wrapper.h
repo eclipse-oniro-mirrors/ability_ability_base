@@ -57,7 +57,7 @@ public:
 
 private:
     static zchar GetCharInternal(const unsigned char *cur, /* [in] */
-        int &size);                                        /* [in] */
+        unsigned int &size);                                        /* [in] */
 
     static constexpr int MAX_CODE_POINT = 0x10FFFF;
     static constexpr int MIN_HIGH_SURROGATE = 0xD800;

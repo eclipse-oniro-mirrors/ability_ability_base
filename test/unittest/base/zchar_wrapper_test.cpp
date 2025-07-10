@@ -219,7 +219,7 @@ HWTEST_F(AAfWKZcharWrapperTest, ZcharWrapperTest_GetCharInternal_001, TestSize.L
     Char zcharValue(value);
     const char* str = u8"你好";
     unsigned char* cur = reinterpret_cast<unsigned char*>(const_cast<char*>(str));
-    int32_t size = 0;
+    unsigned int size = 0;
     zcharValue.GetCharInternal(cur, size);
     EXPECT_EQ(3, size);
 }
