@@ -121,11 +121,11 @@ zchar Char::GetChar(const std::string &str,
         return INVALID_CHAR;
     }
 
-    int bsize;
+    unsigned int bsize;
     const char *p = str.c_str();
     const char *end = p + str.length() + 1;
     unsigned int size = str.length();
-    int now = 0;
+    unsigned int now = 0;
     while (*p && p < end) {
         zchar unicode = GetCharInternal((unsigned char *)p, bsize);
         if (bsize == 0 || now + bsize > size) {
@@ -144,7 +144,7 @@ zchar Char::GetChar(const std::string &str,
 }
 
 zchar Char::GetCharInternal(const unsigned char *cur,
-    int &size)
+    unsigned int &size)
 {
     if (isascii(*cur) != 0) {
         size = 1;
@@ -161,7 +161,7 @@ zchar Char::GetCharInternal(const unsigned char *cur,
     }
     ignoreMask |= mask;
     result &= ~(ignoreMask << (BYTE_SHIFT * (num2Read - 1)));
-    size = static_cast<int>(num2Read);
+    size = num2Read;
     return result;
 }
 }  // namespace AAFwk
