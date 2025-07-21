@@ -61,9 +61,8 @@ typename std::enable_if<std::is_arithmetic<T>::value, T>::type GetData(const cha
         return static_cast<T>(0);
     }
 
-
     T result = 0;
-    if (memcpy_s(&result, sizeof(T), ptr, std::min(sizeof(T),size)) != 0) {
+    if (memcpy_s(&result, sizeof(T), ptr, std::min(sizeof(T), size)) != 0) {
         std::cout << "copy failed." << std::endl;
         return static_cast<T>(0);
     }
