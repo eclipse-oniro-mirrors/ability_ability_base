@@ -1,0 +1,1 @@
+data jsonStr{"bundleName": "teset_bundleName", "abilityName": "teset_abilityName", "uri": "teset_uri", "flags": "teset_flags", "action": "teset_action", "parameters": "teset_parameters"}

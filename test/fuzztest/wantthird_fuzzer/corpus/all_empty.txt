@@ -1,0 +1,1 @@
+data jsonStr{"deviceId": "", "bundleName": "", "abilityName": "", "uri": "", "type": "", "flags": "", "action": "", "parameters": ""}

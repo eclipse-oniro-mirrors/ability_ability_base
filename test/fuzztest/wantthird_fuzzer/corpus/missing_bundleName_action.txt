@@ -1,0 +1,1 @@
+data jsonStr{"deviceId": "teset_deviceId", "abilityName": "teset_abilityName", "uri": "teset_uri", "type": "teset_type", "flags": "teset_flags", "parameters": "teset_parameters"}

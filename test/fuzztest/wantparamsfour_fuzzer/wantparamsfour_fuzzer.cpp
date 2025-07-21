@@ -44,12 +44,28 @@ namespace {
 constexpr size_t U32_AT_SIZE = 4;
 constexpr size_t BOOLEAN_TO_STRING = 10;
 constexpr int32_t ARRAY_SIZE = 5;
+constexpr size_t FOO_MAX_LEN = 1024;
 }
 
 uint32_t GetU32Data(const char* ptr)
 {
     // convert fuzz input data to an integer
     return (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | ptr[3];
+}
+
+template <typename T>
+typename std::enable_if<std::is_arithmetic<T>::value, T>::type GetData(const char* ptr, size_t size)
+{
+    if (ptr == nullptr || size > OHOS::FOO_MAX_LEN || size < sizeof(T)) {
+        return static_cast<T>(0);
+    }
+
+    T result = 0;
+    if (memcpy_s(&result, sizeof(T), ptr, std::min(sizeof(T), size)) != 0) {
+        std::cout << "copy failed." << std::endl;
+        return static_cast<T>(0);
+    }
+    return result;
 }
 
 void DoCoverageUnsupportedDataAndWantParams()
@@ -79,9 +95,9 @@ void ConvertBasicDataTypes(const char* data, size_t size, std::map<std::string, 
     char charValue = static_cast<char>(GetU32Data(data));
     int16_t shortValue = static_cast<int16_t>(GetU32Data(data));
     int32_t intValue = static_cast<int32_t>(GetU32Data(data));
-    long longValue = static_cast<long>(GetU32Data(data));
-    float floatValue = static_cast<float>(GetU32Data(data));
-    double doubleValue = static_cast<double>(GetU32Data(data));
+    long longValue = static_cast<long>(GetData<long>(data, size));
+    float floatValue = static_cast<float>(GetData<float>(data, size));
+    double doubleValue = static_cast<double>(GetData<double>(data, size));
 
     params["string"] = String::Box(stringValue);
     params["boolean"] = Boolean::Box(boolValue);
@@ -181,7 +197,7 @@ void DoCoverageWriteToParce(const char* data, size_t size)
     std::string stringValue(data, size);
     bool boolValue = static_cast<bool>(GetU32Data(data));
     int intValue = static_cast<int>(GetU32Data(data));
-    long longValue = static_cast<long>(GetU32Data(data));
+    long longValue = static_cast<long>(GetData<long>(data, size));
     sptr<IInterface> stringIt = String::Box(stringValue);
     sptr<IInterface> boolIt = Boolean::Box(boolValue);
     sptr<IInterface> intIt = Integer::Box(intValue);
