@@ -54,6 +54,22 @@ uint32_t GetU32Data(const char* ptr, size_t size)
            (static_cast<uint32_t>(ptr[2]) << BYTE2_SHIFT) | static_cast<uint32_t>(ptr[3]);
 }
 
+template <typename T>
+typename std::enable_if<std::is_arithmetic<T>::value, T>::type GetData(const char* ptr, size_t size)
+{
+    if (ptr == nullptr || size > OHOS::FOO_MAX_LEN || size < sizeof(T)) {
+        return static_cast<T>(0);
+    }
+
+
+    T result = 0;
+    if (memcpy_s(&result, sizeof(T), ptr, std::min(sizeof(T),size)) != 0) {
+        std::cout << "copy failed." << std::endl;
+        return static_cast<T>(0);
+    }
+    return result;
+}
+
 void DoFromString(const char* data, size_t size)
 {
     std::shared_ptr<Want> want = std::make_shared<Want>();
@@ -153,13 +169,13 @@ void DoUriStringAppendParam(const char* data, size_t size)
     auto intValue = static_cast<int>(GetU32Data(data, size));
     std::string wantIntKey(1, Integer::SIGNATURE);
     wantParams.SetParam(wantIntKey, Integer::Box(intValue));
-    auto floatValue = static_cast<float>(GetU32Data(data, size));
+    auto floatValue = static_cast<float>(GetData<float>(data, size));
     std::string wantFloatKey(1, Float::SIGNATURE);
     wantParams.SetParam(wantFloatKey, Float::Box(floatValue));
-    auto doubleValue = static_cast<double>(GetU32Data(data, size));
+    auto doubleValue = static_cast<double>(GetData<double>(data, size));
     std::string wantDoubleKey(1, Double::SIGNATURE);
     wantParams.SetParam(wantDoubleKey, Double::Box(doubleValue));
-    auto longValue = static_cast<long>(U32_AT_SIZE);
+    auto longValue = static_cast<long>(GetData<long>(data, size));
     std::string wantLongKey(1, Long::SIGNATURE);
     wantParams.SetParam(wantLongKey, Long::Box(longValue));
     std::shared_ptr<Array> wantArray = std::make_shared<Array>(longValue, g_IID_IString);

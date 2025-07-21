@@ -317,7 +317,16 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     int level = static_cast<int>(GetU32Data(data));
     want->DumpInfo(level);
     nlohmann::json wantJson;
-    want->ReadFromJson(wantJson);
+    std::string jsonStr(data, size);
+    size_t pos = jsonStr.find("\"jsonStr\"");
+    if (pos != std::string::npos) {
+        std::string jsonString = jsonStr.substr(pos + 8);
+        wantJson = nlohmann::json::parse(jsonString, nullptr, false);
+        if (!wantJson.is_discarded()) {
+            std::cout << "json parse success:" << wantJson.dump() << std::endl;
+            want->ReadFromJson(wantJson);
+        }
+    }
     DoReadFromJson(want);
     return true;
 }
