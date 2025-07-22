@@ -128,7 +128,7 @@ zchar Char::GetChar(const std::string &str,
     unsigned int now = 0;
     while (*p && p < end) {
         zchar unicode = GetCharInternal((unsigned char *)p, bsize);
-        if (bsize == 0 || now + bsize > static_cast<int>(size)) {
+        if (bsize == 0 || now + bsize > size) {
             break;
         }
 
