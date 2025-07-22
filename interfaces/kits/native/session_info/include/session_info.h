@@ -95,6 +95,7 @@ public:
     bool reuseDelegatorWindow = false;
     int32_t scenarios = 0;
     std::shared_ptr<Rosen::WindowCreateParams> windowCreateParams = nullptr;
+    bool isCallBySCB = false; // scb to set
 
 private:
     bool DoMarshallingOne(Parcel& parcel) const;
