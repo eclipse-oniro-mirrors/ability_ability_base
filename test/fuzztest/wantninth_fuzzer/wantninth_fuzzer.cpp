@@ -148,46 +148,6 @@ void DoWriteAndReadParameters(const char* data, size_t size)
     want->ReadParameters(parameters);
 }
 
-void DoUriStringAppendParam(const char* data, size_t size)
-{
-    std::shared_ptr<Want> want = std::make_shared<Want>();
-    std::string values(data, size);
-    WantParams wantParams;
-    std::string wantStringKey(1, String::SIGNATURE);
-    wantParams.SetParam(wantStringKey, String::Box(values));
-    std::string wantBoolKey(1, Boolean::SIGNATURE);
-    wantParams.SetParam(wantBoolKey, Boolean::Box(true));
-    std::string wantCharKey(1, Char::SIGNATURE);
-    wantParams.SetParam(wantCharKey, Char::Box(values[0]));
-    auto byteValue = static_cast<int8_t>(GetU32Data(data, size));
-    std::string wantByteKey(1, Byte::SIGNATURE);
-    wantParams.SetParam(wantByteKey, Byte::Box(byteValue));
-    auto shortValue = static_cast<short>(GetU32Data(data, size));
-    std::string wantShortKey(1, Short::SIGNATURE);
-    wantParams.SetParam(wantShortKey, Short::Box(shortValue));
-    auto intValue = static_cast<int>(GetU32Data(data, size));
-    std::string wantIntKey(1, Integer::SIGNATURE);
-    wantParams.SetParam(wantIntKey, Integer::Box(intValue));
-    auto floatValue = static_cast<float>(GetData<float>(data, size));
-    std::string wantFloatKey(1, Float::SIGNATURE);
-    wantParams.SetParam(wantFloatKey, Float::Box(floatValue));
-    auto doubleValue = static_cast<double>(GetData<double>(data, size));
-    std::string wantDoubleKey(1, Double::SIGNATURE);
-    wantParams.SetParam(wantDoubleKey, Double::Box(doubleValue));
-    auto longValue = static_cast<long>(GetData<long>(data, size));
-    std::string wantLongKey(1, Long::SIGNATURE);
-    wantParams.SetParam(wantLongKey, Long::Box(longValue));
-    std::shared_ptr<Array> wantArray = std::make_shared<Array>(longValue, g_IID_IString);
-    sptr<IInterface> stringValue = String::Box(values);
-    for (size_t i = 0; i < longValue; i++) {
-        wantArray->Set(i, stringValue);
-    }
-    sptr<IInterface> wantArrayParam = Array::Parse(wantArray->ToString());
-    std::string wantArrayKey(1, Array::SIGNATURE);
-    wantParams.SetParam(wantArrayKey, wantArrayParam);
-    want->SetParams(wantParams);
-    want->UriStringAppendParam(values);
-}
 
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {

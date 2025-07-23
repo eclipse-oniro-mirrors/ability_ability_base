@@ -17,6 +17,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
+#include <fuzzer/FuzzedDataProvider.h>
 
 #include "wantparamsfifth_fuzzer.h"
 
@@ -70,17 +71,18 @@ typename std::enable_if<std::is_arithmetic<T>::value, T>::type GetData(const cha
     return result;
 }
 
-void WriteBasicTypesToParcel(Parcel& parcel, const char* data, size_t size)
+void WriteBasicTypesToParcel(Parcel& parcel, const char* data, size_t size, const uint8_t* rowData)
 {
-    std::string stringValue(data, size);
-    bool boolValue = static_cast<bool>(GetU32Data(data));
-    int8_t byteValue = static_cast<int8_t>(GetU32Data(data));
-    char charValue = static_cast<char>(GetU32Data(data));
-    int16_t shortValue = static_cast<int16_t>(GetU32Data(data));
-    int32_t intValue = static_cast<int32_t>(GetU32Data(data));
-    long longValue = static_cast<long>(GetData<long>(data, size));
-    float floatValue = static_cast<float>(GetData<float>(data, size));
-    double doubleValue = static_cast<double>(GetData<double>(data, size));
+    FuzzedDataProvider fdp(rowData, size);
+    std::string stringValue = fdp.ConsumeRandomLengthString();
+    bool boolValue = fdp.ConsumeBool();
+    int8_t byteValue = fdp.ConsumeIntegral<int8_t>();
+    char charValue = fdp.ConsumeIntegral<char>();
+    int16_t shortValue = fdp.ConsumeIntegral<int16_t>();
+    int32_t intValue = fdp.ConsumeIntegral<int32_t>();
+    long longValue = fdp.ConsumeIntegral<long>();
+    float floatValue = fdp.ConsumeFloatingPoint<float>();
+    double doubleValue = fdp.ConsumeFloatingPoint<double>();
 
     parcel.WriteInt32(PARAMS_SIZE);
     parcel.WriteString16(Str8ToStr16("booleanKey"));
@@ -120,9 +122,11 @@ void WriteArrayToParcel(
     wantParams->WriteArrayToParcel(parcel, array, 0);
 }
 
-void WriteArraysToParcel(Parcel& parcel, const char* data, size_t size, std::shared_ptr<WantParams> wantParams)
+void WriteArraysToParcel(
+    Parcel& parcel, const char* data, size_t size, std::shared_ptr<WantParams> wantParams, const uint8_t* rowData)
 {
-    std::string stringValue(data, size);
+    FuzzedDataProvider fdp(rowData, size);
+    std::string stringValue = fdp.ConsumeRandomLengthString();
     sptr<IArray> booleanArray = new Array(ARRAY_SIZE, g_IID_IBoolean);
     sptr<IArray> charArray = new Array(ARRAY_SIZE, g_IID_IChar);
     sptr<IArray> byteArray = new Array(ARRAY_SIZE, g_IID_IByte);
@@ -135,14 +139,22 @@ void WriteArraysToParcel(Parcel& parcel, const char* data, size_t size, std::sha
     sptr<IArray> wantParamsArray = new Array(ARRAY_SIZE, g_IID_IWantParams);
     sptr<IArray> other = new Array(ARRAY_SIZE, g_IID_IRemoteObjectWrap);
     for (int32_t i = 0; i < ARRAY_SIZE; i++) {
-        booleanArray->Set(i, Boolean::Box(static_cast<bool>(GetU32Data(data))));
-        charArray->Set(i, Char::Box(static_cast<char>(GetU32Data(data))));
-        byteArray->Set(i, Byte::Box(static_cast<int8_t>(GetU32Data(data))));
-        shortArray->Set(i, Short::Box(static_cast<int16_t>(GetU32Data(data))));
-        integerArray->Set(i, Integer::Box(static_cast<int32_t>(GetU32Data(data))));
-        longArray->Set(i, Long::Box(static_cast<long>(GetU32Data(data))));
-        floatArray->Set(i, Float::Box(static_cast<float>(GetU32Data(data))));
-        doubleArray->Set(i, Double::Box(static_cast<double>(GetU32Data(data))));
+        bool boolValue = fdp.ConsumeBool();
+        int8_t byteValue = fdp.ConsumeIntegral<int8_t>();
+        char charValue = fdp.ConsumeIntegral<char>();
+        int16_t shortValue = fdp.ConsumeIntegral<int16_t>();
+        int32_t intValue = fdp.ConsumeIntegral<int32_t>();
+        long longValue = fdp.ConsumeIntegral<long>();
+        float floatValue = fdp.ConsumeFloatingPoint<float>();
+        double doubleValue = fdp.ConsumeFloatingPoint<double>();
+        booleanArray->Set(i, Boolean::Box(boolValue));
+        charArray->Set(i, Char::Box(charValue));
+        byteArray->Set(i, Byte::Box(byteValue));
+        shortArray->Set(i, Short::Box(shortValue));
+        integerArray->Set(i, Integer::Box(intValue));
+        longArray->Set(i, Long::Box(longValue));
+        floatArray->Set(i, Float::Box(floatValue));
+        doubleArray->Set(i, Double::Box(doubleValue));
         stringArray->Set(i, String::Box(stringValue));
         other->Set(i, RemoteObjectWrap::Box(nullptr));
     }
@@ -160,14 +172,14 @@ void WriteArraysToParcel(Parcel& parcel, const char* data, size_t size, std::sha
     parcel.WriteInt32(WantParams::VALUE_TYPE_NULL);
 }
 
-bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
+bool DoSomethingInterestingWithMyAPI(const char* data, size_t size, const uint8_t* rowData)
 {
     WantParams wantOther;
     std::shared_ptr<WantParams> wantParams = std::make_shared<WantParams>(wantOther);
 
     Parcel parcel;
-    WriteBasicTypesToParcel(parcel, data, size);
-    WriteArraysToParcel(parcel, data, size, wantParams);
+    WriteBasicTypesToParcel(parcel, data, size, rowData);
+    WriteArraysToParcel(parcel, data, size, wantParams, rowData);
 
     auto wantPtr = wantParams->Unmarshalling(parcel, 0);
     if (wantPtr) {
@@ -206,7 +218,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
 
-    OHOS::DoSomethingInterestingWithMyAPI(ch, size);
+    OHOS::DoSomethingInterestingWithMyAPI(ch, size, data);
     free(ch);
     ch = nullptr;
     return 0;

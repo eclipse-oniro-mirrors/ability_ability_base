@@ -18,6 +18,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
+#include <fuzzer/FuzzedDataProvider.h>
 
 #define private public
 #include "want_params.h"
@@ -87,17 +88,19 @@ void DoCoverageUnsupportedDataAndWantParams()
     wantParams->GetCachedUnsupportedData(cachedUnsupportedData);
 }
 
-void ConvertBasicDataTypes(const char* data, size_t size, std::map<std::string, sptr<IInterface>>& params)
+void ConvertBasicDataTypes(
+    const char* data, size_t size, std::map<std::string, sptr<IInterface>>& params, const uint8_t* rowData)
 {
-    std::string stringValue(data, size);
-    bool boolValue = static_cast<bool>(GetU32Data(data));
-    uint8_t byteValue = static_cast<uint8_t>(GetU32Data(data));
-    char charValue = static_cast<char>(GetU32Data(data));
-    int16_t shortValue = static_cast<int16_t>(GetU32Data(data));
-    int32_t intValue = static_cast<int32_t>(GetU32Data(data));
-    long longValue = static_cast<long>(GetData<long>(data, size));
-    float floatValue = static_cast<float>(GetData<float>(data, size));
-    double doubleValue = static_cast<double>(GetData<double>(data, size));
+    FuzzedDataProvider fdp(rowData, size);
+    std::string stringValue = fdp.ConsumeRandomLengthString();
+    bool boolValue = fdp.ConsumeBool();
+    int8_t byteValue = fdp.ConsumeIntegral<int8_t>();
+    char charValue = fdp.ConsumeIntegral<char>();
+    int16_t shortValue = fdp.ConsumeIntegral<int16_t>();
+    int32_t intValue = fdp.ConsumeIntegral<int32_t>();
+    long longValue = fdp.ConsumeIntegral<long>();
+    float floatValue = fdp.ConsumeFloatingPoint<float>();
+    double doubleValue = fdp.ConsumeFloatingPoint<double>();
 
     params["string"] = String::Box(stringValue);
     params["boolean"] = Boolean::Box(boolValue);
@@ -110,7 +113,8 @@ void ConvertBasicDataTypes(const char* data, size_t size, std::map<std::string, 
     params["double"] = Double::Box(doubleValue);
 }
 
-void CreateArrays(const char* data, size_t size, std::map<std::string, sptr<IInterface>>& params)
+void CreateArrays(
+    const char* data, size_t size, std::map<std::string, sptr<IInterface>>& params, const uint8_t* rowData)
 {
     sptr<IArray> booleanArray = new Array(ARRAY_SIZE, g_IID_IBoolean);
     sptr<IArray> charArray = new Array(ARRAY_SIZE, g_IID_IChar);
@@ -124,16 +128,25 @@ void CreateArrays(const char* data, size_t size, std::map<std::string, sptr<IInt
     sptr<IArray> wantParamsArray = new Array(ARRAY_SIZE, g_IID_IWantParams);
     sptr<IArray> other = new Array(ARRAY_SIZE, g_IID_IRemoteObjectWrap);
     
-    std::string stringValue(data, size);
+    FuzzedDataProvider fdp(rowData, size);
+    std::string stringValue = fdp.ConsumeRandomLengthString();
     for (int32_t i = 0; i < ARRAY_SIZE; i++) {
-        booleanArray->Set(i, Boolean::Box(static_cast<bool>(GetU32Data(data))));
-        charArray->Set(i, Char::Box(static_cast<char>(GetU32Data(data))));
-        byteArray->Set(i, Byte::Box(static_cast<int8_t>(GetU32Data(data))));
-        shortArray->Set(i, Short::Box(static_cast<int16_t>(GetU32Data(data))));
-        integerArray->Set(i, Integer::Box(static_cast<int32_t>(GetU32Data(data))));
-        longArray->Set(i, Long::Box(static_cast<long>(GetU32Data(data))));
-        floatArray->Set(i, Float::Box(static_cast<float>(GetU32Data(data))));
-        doubleArray->Set(i, Double::Box(static_cast<double>(GetU32Data(data))));
+        bool boolValue = fdp.ConsumeBool();
+        int8_t byteValue = fdp.ConsumeIntegral<int8_t>();
+        char charValue = fdp.ConsumeIntegral<char>();
+        int16_t shortValue = fdp.ConsumeIntegral<int16_t>();
+        int32_t intValue = fdp.ConsumeIntegral<int32_t>();
+        long longValue = fdp.ConsumeIntegral<long>();
+        float floatValue = fdp.ConsumeFloatingPoint<float>();
+        double doubleValue = fdp.ConsumeFloatingPoint<double>();
+        booleanArray->Set(i, Boolean::Box(boolValue));
+        charArray->Set(i, Char::Box(charValue));
+        byteArray->Set(i, Byte::Box(byteValue));
+        shortArray->Set(i, Short::Box(shortValue));
+        integerArray->Set(i, Integer::Box(intValue));
+        longArray->Set(i, Long::Box(longValue));
+        floatArray->Set(i, Float::Box(floatValue));
+        doubleArray->Set(i, Double::Box(doubleValue));
         stringArray->Set(i, String::Box(stringValue));
         other->Set(i, RemoteObjectWrap::Box(nullptr));
     }
@@ -173,11 +186,11 @@ void HandleWantParams(std::map<std::string, sptr<IInterface>>& params)
     paramsDup.DupAllFd();
 }
 
-void DoCoverageNewArrayData(const char* data, size_t size)
+void DoCoverageNewArrayData(const char* data, size_t size, const uint8_t* rowData)
 {
     std::map<std::string, sptr<IInterface>> params;
-    ConvertBasicDataTypes(data, size, params);
-    CreateArrays(data, size, params);
+    ConvertBasicDataTypes(data, size, params, rowData);
+    CreateArrays(data, size, params, rowData);
     HandleWantParams(params);
 }
 
@@ -191,13 +204,14 @@ void DoCoverageGetInterfaceByType()
     params.GetInterfaceByType(WantParams::VALUE_TYPE_ARRAY, stringValue);
 }
 
-void DoCoverageWriteToParce(const char* data, size_t size)
+void DoCoverageWriteToParce(const char* data, size_t size, const uint8_t* rowData)
 {
     Parcel parcel;
-    std::string stringValue(data, size);
-    bool boolValue = static_cast<bool>(GetU32Data(data));
-    int intValue = static_cast<int>(GetU32Data(data));
-    long longValue = static_cast<long>(GetData<long>(data, size));
+    FuzzedDataProvider fdp(rowData, size);
+    std::string stringValue = fdp.ConsumeRandomLengthString();
+    bool boolValue = fdp.ConsumeBool();
+    int32_t intValue = fdp.ConsumeIntegral<int32_t>();
+    long longValue = fdp.ConsumeIntegral<long>();
     sptr<IInterface> stringIt = String::Box(stringValue);
     sptr<IInterface> boolIt = Boolean::Box(boolValue);
     sptr<IInterface> intIt = Integer::Box(intValue);
@@ -209,12 +223,12 @@ void DoCoverageWriteToParce(const char* data, size_t size)
     params.WriteToParcelLong(parcel, longIt);
 }
 
-bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
+bool DoSomethingInterestingWithMyAPI(const char* data, size_t size, const uint8_t* rowData)
 {
     DoCoverageUnsupportedDataAndWantParams();
-    DoCoverageNewArrayData(data, size);
+    DoCoverageNewArrayData(data, size, rowData);
     DoCoverageGetInterfaceByType();
-    DoCoverageWriteToParce(data, size);
+    DoCoverageWriteToParce(data, size, rowData);
     return true;
 }
 }
@@ -247,7 +261,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
 
-    OHOS::DoSomethingInterestingWithMyAPI(ch, size);
+    OHOS::DoSomethingInterestingWithMyAPI(ch, size, data);
     free(ch);
     ch = nullptr;
     return 0;
