@@ -889,7 +889,7 @@ std::unique_ptr<FileMapper> ZipFile::CreateFileMapper(const std::string &fileNam
 {
     ZipEntry zipEntry;
     if (!GetEntry(fileName, zipEntry)) {
-        ABILITYBASE_LOGE("Fail to getEntry from %{public}s", fileName.c_str());
+        ABILITYBASE_LOGE("GetEntry from %{public}s err", fileName.c_str());
         return nullptr;
     }
 
@@ -930,7 +930,7 @@ bool ZipFile::ExtractToBufByName(const std::string &fileName, std::unique_ptr<ui
     ZipEntry zipEntry;
     if (!GetEntry(fileName, zipEntry)) {
         if (fileName.length() > MAP_FILE_SUFFIX && fileName.substr(fileName.length() - MAP_FILE_SUFFIX) != ".map") {
-            ABILITYBASE_LOGE("Fail to GetEntry from %{public}s", fileName.c_str());
+            ABILITYBASE_LOGE("GetEntry from %{public}s err", fileName.c_str());
         }
         return false;
     }
