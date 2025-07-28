@@ -247,7 +247,7 @@ bool Extractor::IsHapCompress(const std::string &fileName) const
     std::string relativePath = GetRelativePath(fileName);
     ZipEntry zipEntry;
     if (!zipFile_.GetEntry(relativePath, zipEntry)) {
-        ABILITYBASE_LOGE("GetEntry failed fileName: %{public}s", fileName.c_str());
+        ABILITYBASE_LOGD("GetEntry failed fileName: %{public}s", fileName.c_str());
         return false;
     }
     return zipEntry.compressionMethod > 0;
@@ -270,7 +270,7 @@ std::shared_ptr<Extractor> ExtractorUtil::GetExtractor(const std::string &hapPat
 {
     newCreate = false;
     if (hapPath.empty()) {
-        ABILITYBASE_LOGE("empty hapPath");
+        ABILITYBASE_LOGD("empty hapPath");
         return nullptr;
     }
     {
