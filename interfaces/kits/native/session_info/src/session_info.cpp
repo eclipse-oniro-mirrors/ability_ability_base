@@ -120,6 +120,11 @@ bool SessionInfo::DoMarshallingTwo(Parcel& parcel) const
         return false;
     }
 
+    if (!parcel.WriteBool(shouldSkipKillInStartup)) {
+        ABILITYBASE_LOGE("Write shouldSkipKillInStartup failed.");
+        return false;
+    }
+
     return true;
 }
 
@@ -373,6 +378,7 @@ SessionInfo* SessionInfo::ReadParcelOne(SessionInfo* info, Parcel& parcel)
     info->identityToken = parcel.ReadString();
     info->parentWindowType = parcel.ReadUint32();
     info->hideStartWindow = parcel.ReadBool();
+    info->shouldSkipKillInStartup = parcel.ReadBool();
     info->persistentId = parcel.ReadInt32();
     info->hostWindowId = parcel.ReadUint32();
     info->realHostWindowId = parcel.ReadInt32();
@@ -415,7 +421,6 @@ SessionInfo* SessionInfo::ReadParcelOne(SessionInfo* info, Parcel& parcel)
     if (want != nullptr) {
         info->want = *want;
     }
-
     return info;
 }
 

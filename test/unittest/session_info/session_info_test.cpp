@@ -62,6 +62,13 @@ HWTEST_F(SessionInfoTest, SessionInfo_Unmarshalling_001, TestSize.Level1)
     ASSERT_TRUE(info != nullptr);
 }
 
+HWTEST_F(SessionInfoTest, SessionInfo_DoMarshallingTwo_001, TestSize.Level1)
+{
+    SessionInfo sessionInfo;
+    Parcel parcel;
+    ASSERT_TRUE(sessionInfo.DoMarshallingTwo(parcel));
+}
+
 HWTEST_F(SessionInfoTest, SessionInfo_DoMarshallingSix_001, TestSize.Level1)
 {
     SessionInfo sessionInfo;
