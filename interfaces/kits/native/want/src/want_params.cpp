@@ -2223,6 +2223,13 @@ void WantParams::ToJson(nlohmann::json &jsObject) const
     }
 }
 
+std::string WantParams::ToString() const
+{
+    nlohmann::json jsonObject;
+    ToJson(jsonObject);
+    return jsonObject.dump();
+}
+
 void from_json(const nlohmann::json &jsonObject, WantParams &wantParams)
 {
     wantParams.FromJson(jsonObject);
