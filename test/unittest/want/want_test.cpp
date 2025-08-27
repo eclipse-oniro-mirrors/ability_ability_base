@@ -200,9 +200,7 @@ HWTEST_F(WantBaseTest, AaFwk_Want_ModuleName_0100, Function | MediumTest | Level
 HWTEST_F(WantBaseTest, AaFwk_Want_Parcelable_0100, Function | MediumTest | Level1)
 {
     std::shared_ptr<Want> WantIn_ = std::make_shared<Want>();
-    if (WantIn_ == nullptr) {
-        return;
-    }
+    ASSERT_NE(WantIn_, nullptr);
 
     WantIn_->SetAction("12345");
     WantIn_->SetFlags(123);
@@ -264,9 +262,7 @@ HWTEST_F(WantBaseTest, AaFwk_Want_Parcelable_0100, Function | MediumTest | Level
 HWTEST_F(WantBaseTest, AaFwk_Want_Parcelable_0200, Function | MediumTest | Level1)
 {
     std::shared_ptr<Want> WantIn_ = std::make_shared<Want>();
-    if (WantIn_ == nullptr) {
-        return;
-    }
+    ASSERT_NE(WantIn_, nullptr);
     WantIn_->SetAction("@#￥#3243adsafdf_中文");
     WantIn_->SetFlags(123);
     WantIn_->AddEntity("@#￥#3243adsafdf_中文");
@@ -321,9 +317,7 @@ HWTEST_F(WantBaseTest, AaFwk_Want_Parcelable_0200, Function | MediumTest | Level
 HWTEST_F(WantBaseTest, AaFwk_Want_Parcelable_0300, Function | MediumTest | Level1)
 {
     std::shared_ptr<Want> WantIn_ = std::make_shared<Want>();
-    if (WantIn_ == nullptr) {
-        return;
-    }
+    ASSERT_NE(WantIn_, nullptr);
 
     WantIn_->SetAction("");
     WantIn_->SetFlags(123);
@@ -384,9 +378,7 @@ HWTEST_F(WantBaseTest, AaFwk_Want_Parcelable_0300, Function | MediumTest | Level
 HWTEST_F(WantBaseTest, AaFwk_Want_Parcelable_0400, Function | MediumTest | Level1)
 {
     std::shared_ptr<Want> WantIn_ = std::make_shared<Want>();
-    if (WantIn_ == nullptr) {
-        return;
-    }
+    ASSERT_NE(WantIn_, nullptr);
 
     WantIn_->SetAction("12345");
     WantIn_->SetFlags(123);
@@ -450,9 +442,7 @@ HWTEST_F(WantBaseTest, AaFwk_Want_Parcelable_0500, Function | MediumTest | Level
 {
     GTEST_LOG_(INFO) << "AaFwk_Want_Parcelable_005 start";
     std::shared_ptr<Want> WantIn_ = std::make_shared<Want>();
-    if (WantIn_ == nullptr) {
-        return;
-    }
+    ASSERT_NE(WantIn_, nullptr);
 
     WantIn_->SetAction("system.test.action");
     WantIn_->SetFlags(64);
@@ -3845,9 +3835,7 @@ HWTEST_F(WantBaseTest, AaFwk_Want_HasParameter_0200, Function | MediumTest | Lev
     std::string key = std::to_string(Array::SIGNATURE) + ".#Intent;key=3{\"\\b\\\";end";
     std::vector<zchar> arrayValue = {'.', '=', ';'};
     std::shared_ptr<Want> p1 = std::make_shared<Want>();
-    if (p1 == nullptr) {
-        return;
-    }
+    ASSERT_NE(p1, nullptr);
     p1->SetParam(key, arrayValue);
     Want *newWant = nullptr;
     newWant = Want::ParseUri(p1->ToUri());
@@ -3891,9 +3879,7 @@ HWTEST_F(WantBaseTest, AaFwk_Want_ToString_0100, Function | MediumTest | Level1)
     parameters.SetParam(keyStr, Integer::Box(valueInt));
 
     std::shared_ptr<Want> want1 = std::make_shared<Want>();
-    if (want1 == nullptr) {
-        return;
-    }
+    ASSERT_NE(want1, nullptr);
     want1->SetElementName(deviceId, bundleName, abilityName);
     want1->SetUri(uri);
     want1->SetType(type);
@@ -4135,9 +4121,7 @@ HWTEST_F(WantBaseTest, Fd_test_001, TestSize.Level1)
     GTEST_LOG_(INFO) << "Fd_test_001 start";
 
     std::shared_ptr<Want> want1 = std::make_shared<Want>();
-    if (want1 == nullptr) {
-        return;
-    }
+    ASSERT_NE(want1, nullptr);
     want1->CloseAllFd();
     want1->RemoveAllFd();
     want1->DupAllFd();
