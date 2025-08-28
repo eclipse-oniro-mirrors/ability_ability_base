@@ -76,9 +76,7 @@ void SkillsBaseTest::TearDown(void)
 HWTEST_F(SkillsBaseTest, AaFwk_Skills_Parcelable_0100, Function | MediumTest | Level1)
 {
     std::shared_ptr<Skills> SkillsIn_ = std::make_shared<Skills>();
-    if (SkillsIn_ == nullptr) {
-        return;
-    }
+    ASSERT_NE(SkillsIn_, nullptr);
     SkillsIn_->AddEntity("12345");
     SkillsIn_->AddAction("12345");
     SkillsIn_->AddAuthority("12345");
@@ -109,9 +107,7 @@ HWTEST_F(SkillsBaseTest, AaFwk_Skills_Parcelable_0100, Function | MediumTest | L
 HWTEST_F(SkillsBaseTest, AaFwk_Skills_Parcelable_0200, Function | MediumTest | Level1)
 {
     std::shared_ptr<Skills> SkillsIn_ = std::make_shared<Skills>();
-    if (SkillsIn_ == nullptr) {
-        return;
-    }
+    ASSERT_NE(SkillsIn_, nullptr);
 
     SkillsIn_->AddEntity("@#￥#3243adsafdf_中文");
     SkillsIn_->AddAction("@#￥#3243adsafdf_中文");
@@ -147,9 +143,7 @@ HWTEST_F(SkillsBaseTest, AaFwk_Skills_Parcelable_0200, Function | MediumTest | L
 HWTEST_F(SkillsBaseTest, AaFwk_Skills_Parcelable_0300, Function | MediumTest | Level1)
 {
     std::shared_ptr<Skills> SkillsIn_ = std::make_shared<Skills>();
-    if (SkillsIn_ == nullptr) {
-        return;
-    }
+    ASSERT_NE(SkillsIn_, nullptr);
 
     SkillsIn_->AddEntity("");
     SkillsIn_->AddAction("");
@@ -184,9 +178,7 @@ HWTEST_F(SkillsBaseTest, AaFwk_Skills_Parcelable_0300, Function | MediumTest | L
 HWTEST_F(SkillsBaseTest, AaFwk_Skills_Parcelable_0400, Function | MediumTest | Level1)
 {
     std::shared_ptr<Skills> SkillsIn_ = std::make_shared<Skills>();
-    if (SkillsIn_ == nullptr) {
-        return;
-    }
+    ASSERT_NE(SkillsIn_, nullptr);
     SkillsIn_->AddEntity("12345");
     SkillsIn_->AddAction("12345");
     SkillsIn_->AddAuthority("12345");
