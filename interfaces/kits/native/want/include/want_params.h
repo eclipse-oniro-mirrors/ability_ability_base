@@ -119,6 +119,7 @@ public:
 
     void FromJson(const nlohmann::json &jsonObject);
     void ToJson(nlohmann::json &jsonObject) const;
+    std::string ToString() const;
 
 private:
     enum {
