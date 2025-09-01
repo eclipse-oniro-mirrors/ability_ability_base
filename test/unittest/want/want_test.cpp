@@ -3839,9 +3839,7 @@ HWTEST_F(WantBaseTest, AaFwk_Want_HasParameter_0200, Function | MediumTest | Lev
     p1->SetParam(key, arrayValue);
     Want *newWant = nullptr;
     newWant = Want::ParseUri(p1->ToUri());
-    if (newWant == nullptr) {
-        return;
-    }
+    ASSERT_NE(newWant, nullptr);
     std::shared_ptr<Want> p2(newWant);
     // want has default param which key is "moduleName"
     std::string moduleKey = "moduleName";
@@ -3898,9 +3896,7 @@ HWTEST_F(WantBaseTest, AaFwk_Want_ToString_0100, Function | MediumTest | Level1)
 
     std::string jsonString = want1->ToString();
     Want *newWant = Want::FromString(jsonString);
-    if (newWant == nullptr) {
-        return;
-    }
+    ASSERT_NE(newWant, nullptr);
     std::shared_ptr<Want> want2(newWant);
 
     CompareWant(want1, want2);
