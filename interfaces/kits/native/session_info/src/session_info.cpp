@@ -293,6 +293,11 @@ bool SessionInfo::DoMarshallingFive(Parcel& parcel) const
         ABILITYBASE_LOGE("Write requestId failed");
         return false;
     }
+
+    if (!parcel.WriteInt32(userId)) {
+        ABILITYBASE_LOGE("Write userId failed");
+        return false;
+    }
     return true;
 }
 
@@ -405,6 +410,7 @@ SessionInfo* SessionInfo::ReadParcelOne(SessionInfo* info, Parcel& parcel)
     info->instanceKey = parcel.ReadString();
     info->isFromIcon = parcel.ReadBool();
     info->requestId = parcel.ReadInt32();
+    info->userId = parcel.ReadInt32();
     info->isDensityFollowHost = parcel.ReadBool();
     info->specifiedFlag = parcel.ReadString();
     info->reuseDelegatorWindow = parcel.ReadBool();
