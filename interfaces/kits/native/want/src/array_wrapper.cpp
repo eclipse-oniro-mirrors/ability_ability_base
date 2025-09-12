@@ -137,6 +137,9 @@ std::string Array::ToString()
 
     result += std::to_string(size_) + "{";
     for (long i = 0; i < size_; i++) {
+        if (values_[i].GetRefPtr() == nullptr) {
+            break;
+        }
         result += Object::ToString(*(values_[i].GetRefPtr()));
         if (i < size_ - 1) {
             result += ",";
@@ -341,6 +344,9 @@ void Array::ParseElement(IArray *array,                  /* [in] */
 
 bool Array::IsBooleanArray(IArray *array) /* [in] */
 {
+    if (array == nullptr) {
+        return false;
+    }
     InterfaceID typeId;
     array->GetType(typeId);
     return typeId == g_IID_IBoolean;
@@ -348,6 +354,9 @@ bool Array::IsBooleanArray(IArray *array) /* [in] */
 
 bool Array::IsCharArray(IArray *array) /* [in] */
 {
+    if (array == nullptr) {
+        return false;
+    }
     InterfaceID typeId;
     array->GetType(typeId);
     return typeId == g_IID_IChar;
@@ -355,6 +364,9 @@ bool Array::IsCharArray(IArray *array) /* [in] */
 
 bool Array::IsByteArray(IArray *array) /* [in] */
 {
+    if (array == nullptr) {
+        return false;
+    }
     InterfaceID typeId;
     array->GetType(typeId);
     return typeId == g_IID_IByte;
@@ -362,6 +374,9 @@ bool Array::IsByteArray(IArray *array) /* [in] */
 
 bool Array::IsShortArray(IArray *array) /* [in] */
 {
+    if (array == nullptr) {
+        return false;
+    }
     InterfaceID typeId;
     array->GetType(typeId);
     return typeId == g_IID_IShort;
@@ -369,6 +384,9 @@ bool Array::IsShortArray(IArray *array) /* [in] */
 
 bool Array::IsIntegerArray(IArray *array) /* [in] */
 {
+    if (array == nullptr) {
+        return false;
+    }
     InterfaceID typeId;
     array->GetType(typeId);
     return typeId == g_IID_IInteger;
@@ -376,6 +394,9 @@ bool Array::IsIntegerArray(IArray *array) /* [in] */
 
 bool Array::IsLongArray(IArray *array) /* [in] */
 {
+    if (array == nullptr) {
+        return false;
+    }
     InterfaceID typeId;
     array->GetType(typeId);
     return typeId == g_IID_ILong;
@@ -383,6 +404,9 @@ bool Array::IsLongArray(IArray *array) /* [in] */
 
 bool Array::IsFloatArray(IArray *array) /* [in] */
 {
+    if (array == nullptr) {
+        return false;
+    }
     InterfaceID typeId;
     array->GetType(typeId);
     return typeId == g_IID_IFloat;
@@ -390,6 +414,9 @@ bool Array::IsFloatArray(IArray *array) /* [in] */
 
 bool Array::IsDoubleArray(IArray *array) /* [in] */
 {
+    if (array == nullptr) {
+        return false;
+    }
     InterfaceID typeId;
     array->GetType(typeId);
     return typeId == g_IID_IDouble;
@@ -397,6 +424,9 @@ bool Array::IsDoubleArray(IArray *array) /* [in] */
 
 bool Array::IsStringArray(IArray *array) /* [in] */
 {
+    if (array == nullptr) {
+        return false;
+    }
     InterfaceID typeId;
     array->GetType(typeId);
     return typeId == g_IID_IString;
@@ -404,6 +434,9 @@ bool Array::IsStringArray(IArray *array) /* [in] */
 
 bool Array::IsWantParamsArray(IArray *array) /* [in] */
 {
+    if (array == nullptr) {
+        return false;
+    }
     InterfaceID typeId;
     array->GetType(typeId);
     return typeId == g_IID_IWantParams;
@@ -412,6 +445,9 @@ bool Array::IsWantParamsArray(IArray *array) /* [in] */
 void Array::ForEach(IArray *array,          /* [in] */
     std::function<void(IInterface *)> func) /* [in] */
 {
+    if (array == nullptr) {
+        return;
+    }
     long size;
     array->GetLength(size);
     for (long i = 0; i < size; i++) {
