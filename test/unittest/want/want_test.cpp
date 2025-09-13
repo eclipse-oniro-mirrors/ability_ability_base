@@ -4001,6 +4001,20 @@ HWTEST_F(WantBaseTest, array_test_005, TestSize.Level1)
     EXPECT_TRUE(Object::Equals(*(arrayObj1.GetRefPtr()), *(arrayObj3.GetRefPtr())));
 }
 
+/*
+ * Feature: Array
+ * Function: ToString
+ * SubFunction: NA
+ * FunctionPoints: ToString
+ * EnvConditions: NA
+ * CaseDescription: Verify ToString method of Array.
+ */
+HWTEST_F(WantBaseTest, array_test_006, TestSize.Level1)
+{
+    sptr<Array> arrayObj = new Array(5, g_IID_IInteger);
+    EXPECT_EQ(arrayObj->ToString(), std::string("I5{}"));
+}
+
 /**
  * @tc.number: DumpInfo_test_001
  * @tc.name: DumpInfo
