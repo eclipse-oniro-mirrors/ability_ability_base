@@ -80,5 +80,125 @@ HWTEST_F(PageNodeInfoTest, Unmarshalling_100, TestSize.Level1)
     auto ret = sessioninfo->Unmarshalling(parcel);
     EXPECT_NE(ret, nullptr);
 }
+
+/**
+ * @tc.name: ToJsonString_001
+ * @tc.desc: SessionInfo test for ToJsonString.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PageNodeInfoToJsonTest, ToJsonString_001, TestSize.Level1)
+{
+    PageNodeInfo testNode;
+    // Setup common test data
+    testNode.id = "test_id";
+    testNode.depth = 2;
+    testNode.autoFillType = AutoFillType::USERNAME;
+    testNode.tag = "input";
+    testNode.value = "test_value";
+    testNode.placeholder = "test_placeholder";
+    testNode.passwordRules = "test_rules";
+    testNode.metadata = "test_metadata";
+    testNode.enableAutoFill = true;
+    testNode.rect = {1, 2, 3, 4}; // Assuming Rect has a constructor
+    testNode.isFocus = false;
+
+    std::string result = testNode.ToJsonString();
+    nlohmann::json jsonResult = nlohmann::json::parse(result);
+    
+    EXPECT_EQ(jsonResult[PAGE_NODE_INFO_ID], "test_id");
+    EXPECT_EQ(jsonResult[PAGE_NODE_INFO_DEPTH], 2);
+    EXPECT_EQ(jsonResult[PAGE_NODE_INFO_AUTO_FILL_TYPE], static_cast<int32_t>(AutoFillType::USERNAME));
+    EXPECT_EQ(jsonResult[PAGE_NODE_INFO_TAG], "input");
+    EXPECT_EQ(jsonResult[PAGE_NODE_INFO_VALUE], "test_value");
+    EXPECT_EQ(jsonResult[PAGE_NODE_INFO_PLACEHOLDER], "test_placeholder");
+    EXPECT_EQ(jsonResult[PAGE_NODE_INFO_PASSWORD_RULES], "test_rules");
+    EXPECT_EQ(jsonResult[PAGE_NODE_INFO_META_DATA], "test_metadata");
+    EXPECT_EQ(jsonResult[PAGE_NODE_INFO_ENABLE_AUTO_FILL], true);
+    EXPECT_EQ(jsonResult[PAGE_NODE_INFO_IS_FOCUS], false);
+    
+    // Test nested rect object
+    auto rectJson = nlohmann::json::parse(jsonResult[PAGE_NODE_INFO_RECT].get<std::string>());
+    EXPECT_FALSE(rectJson.empty());
+}
+
+/**
+ * @tc.name: ToJsonString_002
+ * @tc.desc: SessionInfo test for ToJsonString.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PageNodeInfoToJsonTest, ToJsonString_002, TestSize.Level1) {
+    PageNodeInfo emptyNode;
+    std::string result = emptyNode.ToJsonString();
+    
+    nlohmann::json jsonResult = nlohmann::json::parse(result);
+    
+    EXPECT_TRUE(jsonResult[PAGE_NODE_INFO_ID].empty());
+    EXPECT_EQ(jsonResult[PAGE_NODE_INFO_DEPTH], 0);
+    EXPECT_EQ(jsonResult[PAGE_NODE_INFO_AUTO_FILL_TYPE], static_cast<int32_t>(AutoFillType::NONE));
+    EXPECT_TRUE(jsonResult[PAGE_NODE_INFO_TAG].empty());
+    EXPECT_TRUE(jsonResult[PAGE_NODE_INFO_VALUE].empty());
+    EXPECT_TRUE(jsonResult[PAGE_NODE_INFO_PLACEHOLDER].empty());
+    EXPECT_TRUE(jsonResult[PAGE_NODE_INFO_PASSWORD_RULES].empty());
+    EXPECT_TRUE(jsonResult[PAGE_NODE_INFO_META_DATA].empty());
+    EXPECT_EQ(jsonResult[PAGE_NODE_INFO_ENABLE_AUTO_FILL], false);
+    EXPECT_EQ(jsonResult[PAGE_NODE_INFO_IS_FOCUS], false);
+    
+    // Test nested rect object
+    auto rectJson = nlohmann::json::parse(jsonResult[PAGE_NODE_INFO_RECT].get<std::string>());
+    EXPECT_FALSE(rectJson.empty());
+}
+
+/**
+ * @tc.name: ToJsonString_003
+ * @tc.desc: SessionInfo test for ToJsonString.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PageNodeInfoToJsonTest, ToJsonString_003, TestSize.Level1) {
+    PageNodeInfo testNode;
+    // Setup common test data
+    testNode.id = "test_id";
+    testNode.depth = 2;
+    testNode.autoFillType = AutoFillType::USERNAME;
+    testNode.tag = "input";
+    testNode.value = "test_value";
+    testNode.placeholder = "test_placeholder";
+    testNode.passwordRules = "test_rules";
+    testNode.metadata = "test_metadata";
+    testNode.enableAutoFill = true;
+    testNode.rect = {1, 2, 3, 4}; // Assuming Rect has a constructor
+    testNode.isFocus = false;
+    testNode.value = "special\"chars\\/\b\f\n\r\t";
+    std::string result = testNode.ToJsonString();
+    
+    nlohmann::json jsonResult = nlohmann::json::parse(result);
+    EXPECT_EQ(jsonResult[PAGE_NODE_INFO_VALUE], "special\"chars\\/\b\f\n\r\t");
+}
+
+/**
+ * @tc.name: ToJsonString_004
+ * @tc.desc: SessionInfo test for ToJsonString.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PageNodeInfoToJsonTest, ToJsonString_004, TestSize.Level1) {
+    PageNodeInfo testNode;
+    // Setup common test data
+    testNode.id = "test_id";
+    testNode.depth = 2;
+    testNode.autoFillType = AutoFillType::USERNAME;
+    testNode.tag = "input";
+    testNode.value = "test_value";
+    testNode.placeholder = "test_placeholder";
+    testNode.passwordRules = "test_rules";
+    testNode.metadata = "test_metadata";
+    testNode.enableAutoFill = true;
+    testNode.rect = {1, 2, 3, 4}; // Assuming Rect has a constructor
+    testNode.isFocus = false;
+
+    std::string result = testNode.ToJsonString();
+    
+    // This will throw if string is not valid JSON
+    nlohmann::json jsonResult = nlohmann::json::parse(result);
+    EXPECT_FALSE(jsonResult.is_null());
+}
 }  // namespace AbilityBase
 }  // namespace OHOS
