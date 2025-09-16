@@ -63,11 +63,11 @@ void PageNodeInfoTest::TearDown()
 {}
 
 /**
- * @tc.name: FromJsonString_100
+ * @tc.name: FromJsonString_1001
  * @tc.desc: PageNodeInfo test for FromJsonString.
  * @tc.type: FUNC
  */
-HWTEST_F(PageNodeInfoTest, FromJsonString_100, TestSize.Level1)
+HWTEST_F(PageNodeInfoTest, FromJsonString_1001, TestSize.Level1)
 {
     std::string jsonStr = "jsonStr";
     std::shared_ptr<PageNodeInfo> pageNodeInfo = std::make_shared<PageNodeInfo>();
@@ -76,6 +76,337 @@ HWTEST_F(PageNodeInfoTest, FromJsonString_100, TestSize.Level1)
     pageNodeInfo->FromJsonString(TJSON);
     std::string ret = pageNodeInfo->ToJsonString();
     EXPECT_EQ(ret, TJSON);
+}
+
+/**
+ * @tc.name: FromJsonString_1002
+ * @tc.desc: PageNodeInfo test for FromJsonString.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PageNodeInfoTest, FromJsonString_1002, TestSize.Level1) {
+    PageNodeInfo info;
+    std::string jsonStr = R"({
+        "id": 123,
+        "depth": 2,
+        "autoFillType": 1,
+        "tag": "input",
+        "value": "test value",
+        "placeholder": "Enter text",
+        "passwordRules": "minlength:8",
+        "metadata": "{\"key\":\"value\"}",
+        "enableAutoFill": true
+    })";
+
+    info.FromJsonString(jsonStr);
+
+    EXPECT_EQ(info.id, 123);
+    EXPECT_EQ(info.depth, 2);
+    EXPECT_EQ(info.autoFillType, AutoFillType::PASSWORD);
+    EXPECT_EQ(info.tag, "input");
+    EXPECT_EQ(info.value, "test value");
+    EXPECT_EQ(info.placeholder, "Enter text");
+    EXPECT_EQ(info.passwordRules, "minlength:8");
+    EXPECT_EQ(info.metadata, "{\"key\":\"value\"}");
+    EXPECT_TRUE(info.enableAutoFill);
+}
+
+/**
+ * @tc.name: FromJsonString_1003
+ * @tc.desc: PageNodeInfo test for FromJsonString.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PageNodeInfoTest, FromJsonString_1003, TestSize.Level1) {
+    PageNodeInfo info;
+    std::string jsonStr = R"({
+        "id": 123
+    })";
+
+    info.FromJsonString(jsonStr);
+
+    EXPECT_EQ(info.id, 123);
+}
+
+/**
+ * @tc.name: FromJsonString_1004
+ * @tc.desc: PageNodeInfo test for FromJsonString.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PageNodeInfoTest, FromJsonString_1004, TestSize.Level1) {
+    PageNodeInfo info;
+    std::string jsonStr = R"({
+        "depth": 2
+    })";
+
+    info.FromJsonString(jsonStr);
+
+    EXPECT_EQ(info.depth, 2);
+}
+
+/**
+ * @tc.name: FromJsonString_1005
+ * @tc.desc: PageNodeInfo test for FromJsonString.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PageNodeInfoTest, FromJsonString_1005, TestSize.Level1) {
+    PageNodeInfo info;
+    std::string jsonStr = R"({
+        "autoFillType": 1
+    })";
+
+    info.FromJsonString(jsonStr);
+
+    EXPECT_EQ(info.autoFillType, AutoFillType::PASSWORD);
+}
+
+/**
+ * @tc.name: FromJsonString_1006
+ * @tc.desc: PageNodeInfo test for FromJsonString.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PageNodeInfoTest, FromJsonString_1006, TestSize.Level1) {
+    PageNodeInfo info;
+    std::string jsonStr = R"({
+        "tag": "input"
+    })";
+
+    info.FromJsonString(jsonStr);
+
+    EXPECT_EQ(info.tag, "input");
+}
+
+/**
+ * @tc.name: FromJsonString_1007
+ * @tc.desc: PageNodeInfo test for FromJsonString.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PageNodeInfoTest, FromJsonString_1007, TestSize.Level1) {
+    PageNodeInfo info;
+    std::string jsonStr = R"({
+        "value": "test value"
+    })";
+
+    info.FromJsonString(jsonStr);
+
+    EXPECT_EQ(info.value, "test value");
+}
+
+/**
+ * @tc.name: FromJsonString_1008
+ * @tc.desc: PageNodeInfo test for FromJsonString.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PageNodeInfoTest, FromJsonString_1008, TestSize.Level1) {
+    PageNodeInfo info;
+    std::string jsonStr = R"({
+        "placeholder": "Enter text"
+    })";
+
+    info.FromJsonString(jsonStr);
+
+    EXPECT_EQ(info.placeholder, "Enter text");
+}
+
+/**
+ * @tc.name: FromJsonString_1009
+ * @tc.desc: PageNodeInfo test for FromJsonString.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PageNodeInfoTest, FromJsonString_1009, TestSize.Level1) {
+    PageNodeInfo info;
+    std::string originalTag = info.tag;
+    std::string originalValue = info.value;
+    int32_t originalId = info.id;
+
+    std::string invalidJson = "{ invalid json }";
+    info.FromJsonString(invalidJson);
+
+    EXPECT_EQ(info.id, originalId);
+    EXPECT_EQ(info.tag, originalTag);
+    EXPECT_EQ(info.value, originalValue);
+}
+
+/**
+ * @tc.name: FromJsonString_1010
+ * @tc.desc: PageNodeInfo test for FromJsonString.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PageNodeInfoTest, FromJsonString_1010, TestSize.Level1) {
+    PageNodeInfo info;
+    std::string jsonStr = R"({
+        "id": 456,
+        "tag": "div",
+        "enableAutoFill": false
+    })";
+
+    info.FromJsonString(jsonStr);
+
+    EXPECT_EQ(info.id, 456);
+    EXPECT_EQ(info.tag, "div");
+    EXPECT_FALSE(info.enableAutoFill);
+    EXPECT_EQ(info.depth, -1); // default value
+    EXPECT_EQ(info.value, ""); // default value
+}
+
+/**
+ * @tc.name: FromJsonString_1011
+ * @tc.desc: PageNodeInfo test for FromJsonString.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PageNodeInfoTest, FromJsonString_1011, TestSize.Level1) {
+    PageNodeInfo info;
+    std::string jsonStr = R"({
+        "id": "should be number",
+        "depth": "invalid",
+        "tag": 12345,
+        "value": true,
+        "enableAutoFill": "not a boolean"
+    })";
+
+    info.FromJsonString(jsonStr);
+
+    EXPECT_EQ(info.id, -1); // default value
+    EXPECT_EQ(info.depth, -1); // default value
+    EXPECT_EQ(info.tag, ""); // default value
+    EXPECT_EQ(info.value, ""); // default value
+    EXPECT_TRUE(info.enableAutoFill); // default value
+}
+
+/**
+ * @tc.name: FromJsonString_1012
+ * @tc.desc: PageNodeInfo test for FromJsonString.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PageNodeInfoTest, FromJsonString_1012, TestSize.Level1) {
+    PageNodeInfo info;
+    std::string originalTag = info.tag;
+    std::string originalValue = info.value;
+    int32_t originalId = info.id;
+
+    std::string emptyJson = "{}";
+    info.FromJsonString(emptyJson);
+
+    EXPECT_EQ(info.id, originalId);
+    EXPECT_EQ(info.tag, originalTag);
+    EXPECT_EQ(info.value, originalValue);
+}
+
+/**
+ * @tc.name: FromJsonString_1013
+ * @tc.desc: PageNodeInfo test for FromJsonString.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PageNodeInfoTest, FromJsonString_1013, TestSize.Level1) {
+    PageNodeInfo info;
+    std::string originalTag = info.tag;
+    std::string originalValue = info.value;
+    int32_t originalId = info.id;
+
+    std::string nullJson = "null";
+    info.FromJsonString(nullJson);
+
+    EXPECT_EQ(info.id, originalId);
+    EXPECT_EQ(info.tag, originalTag);
+    EXPECT_EQ(info.value, originalValue);
+}
+
+/**
+ * @tc.name: FromJsonString_1014
+ * @tc.desc: PageNodeInfo test for FromJsonString.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PageNodeInfoTest, FromJsonString_1014, TestSize.Level1) {
+    PageNodeInfo info;
+    std::string jsonStr = R"({
+        "id": "should be number",
+        "depth": "invalid",
+        "tag": 12345,
+        "value": true,
+        "enableAutoFill": "not a boolean"
+    })";
+
+    info.FromJsonString(jsonStr);
+
+    EXPECT_EQ(info.id, -1); // default value
+}
+
+/**
+ * @tc.name: FromJsonString_1015
+ * @tc.desc: PageNodeInfo test for FromJsonString.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PageNodeInfoTest, FromJsonString_1015, TestSize.Level1) {
+    PageNodeInfo info;
+    std::string jsonStr = R"({
+        "id": "should be number",
+        "depth": "invalid",
+        "tag": 12345,
+        "value": true,
+        "enableAutoFill": "not a boolean"
+    })";
+
+    info.FromJsonString(jsonStr);
+
+    EXPECT_EQ(info.depth, -1); // default value
+}
+
+/**
+ * @tc.name: FromJsonString_1016
+ * @tc.desc: PageNodeInfo test for FromJsonString.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PageNodeInfoTest, FromJsonString_1016, TestSize.Level1) {
+    PageNodeInfo info;
+    std::string jsonStr = R"({
+        "id": "should be number",
+        "depth": "invalid",
+        "tag": 12345,
+        "value": true,
+        "enableAutoFill": "not a boolean"
+    })";
+
+    info.FromJsonString(jsonStr);
+
+    EXPECT_EQ(info.tag, ""); // default value
+}
+
+/**
+ * @tc.name: FromJsonString_1017
+ * @tc.desc: PageNodeInfo test for FromJsonString.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PageNodeInfoTest, FromJsonString_1017, TestSize.Level1) {
+    PageNodeInfo info;
+    std::string jsonStr = R"({
+        "id": "should be number",
+        "depth": "invalid",
+        "tag": 12345,
+        "value": true,
+        "enableAutoFill": "not a boolean"
+    })";
+
+    info.FromJsonString(jsonStr);
+
+    EXPECT_EQ(info.value, ""); // default value
+}
+
+/**
+ * @tc.name: FromJsonString_1018
+ * @tc.desc: PageNodeInfo test for FromJsonString.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PageNodeInfoTest, FromJsonString_1018, TestSize.Level1) {
+    PageNodeInfo info;
+    std::string jsonStr = R"({
+        "id": "should be number",
+        "depth": "invalid",
+        "tag": 12345,
+        "value": true,
+        "enableAutoFill": "not a boolean"
+    })";
+
+    info.FromJsonString(jsonStr);
+
+    EXPECT_TRUE(info.enableAutoFill); // default value
 }
 
 /**
