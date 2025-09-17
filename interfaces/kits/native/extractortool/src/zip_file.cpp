@@ -258,7 +258,7 @@ bool ZipFile::Open()
     } else {
         HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "realpath_file");
         if (realpath(pathName_.c_str(), &(realPath[0])) == nullptr) {
-            ABILITYBASE_LOGE("realpath error: %{public}d, pathName: %{public}s", errno, pathName_.c_str());
+            ABILITYBASE_LOGW("realpath error: %{public}d, pathName: %{public}s", errno, pathName_.c_str());
             return false;
         }
     }
@@ -889,7 +889,7 @@ std::unique_ptr<FileMapper> ZipFile::CreateFileMapper(const std::string &fileNam
 {
     ZipEntry zipEntry;
     if (!GetEntry(fileName, zipEntry)) {
-        ABILITYBASE_LOGE("GetEntry from %{public}s err", fileName.c_str());
+        ABILITYBASE_LOGW("GetEntry from %{public}s err", fileName.c_str());
         return nullptr;
     }
 
@@ -930,7 +930,7 @@ bool ZipFile::ExtractToBufByName(const std::string &fileName, std::unique_ptr<ui
     ZipEntry zipEntry;
     if (!GetEntry(fileName, zipEntry)) {
         if (fileName.length() > MAP_FILE_SUFFIX && fileName.substr(fileName.length() - MAP_FILE_SUFFIX) != ".map") {
-            ABILITYBASE_LOGE("GetEntry from %{public}s err", fileName.c_str());
+            ABILITYBASE_LOGW("GetEntry from %{public}s err", fileName.c_str());
         }
         return false;
     }
