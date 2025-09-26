@@ -239,7 +239,13 @@ const std::string Configuration::GetName() const
 {
     std::lock_guard<std::recursive_mutex> lock(configParameterMutex_);
     json configArray(configParameter_);
-    return configArray.dump();
+    std::string configArrayStr = "";
+    try {
+        configArrayStr = configArray.dump();
+    } catch (...) {
+        ABILITYBASE_LOGE("failed to dump GetName");
+    }
+    return configArrayStr;
 }
 
 bool Configuration::ReadFromParcel(Parcel &parcel)
