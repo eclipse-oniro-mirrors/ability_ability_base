@@ -231,7 +231,7 @@ private:
      * @brief Parse one entry.
      * @return Returns true if successfully parsed; returns false otherwise.
      */
-    bool ParseOneEntry(uint8_t* &entryPtr);
+    bool ParseOneEntry(uint8_t* &entryPtr, const uint8_t* endPtr);
     /**
      * @brief Parse all Entries.
      * @return Returns true if successfully parsed; returns false otherwise.

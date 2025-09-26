@@ -16,7 +16,7 @@
 #include "zip_file.h"
 
 #include <ostream>
-
+#include <cstdint>
 #include "ability_base_log_wrapper.h"
 #include "constants.h"
 #include "file_mapper.h"
@@ -157,10 +157,15 @@ bool ZipFile::ParseEndDirectory()
     return CheckEndDir(endDir_);
 }
 
-bool ZipFile::ParseOneEntry(uint8_t* &entryPtr)
+bool ZipFile::ParseOneEntry(uint8_t* &entryPtr, const uint8_t* endPtr)
 {
-    if (entryPtr == nullptr) {
-        ABILITYBASE_LOGE("null entryPtr");
+    if (entryPtr == nullptr || endPtr == nullptr || entryPtr >= endPtr) {
+        ABILITYBASE_LOGE("Invalid entryPtr or endPtr");
+        return false;
+    }
+
+    if (entryPtr + sizeof(CentralDirEntry) > endPtr) {
+        ABILITYBASE_LOGE("CentralDirEntry out of bounds");
         return false;
     }
 
@@ -176,6 +181,19 @@ bool ZipFile::ParseOneEntry(uint8_t* &entryPtr)
     }
 
     entryPtr += sizeof(CentralDirEntry);
+    /* 校验nameSize + extraSize + commentSize 是否超出剩余大小 */
+    size_t remainingSize = endPtr - entryPtr;
+    if (directoryEntry.nameSize > SIZE_MAX - directoryEntry.extraSize || (directoryEntry.nameSize +
+        directoryEntry.extraSize) > SIZE_MAX - directoryEntry.commentSize) {
+        ABILITYBASE_LOGE("Entry size fields too large, potential overflow");
+        return false;
+    }
+
+    size_t requiredSize = directoryEntry.nameSize + directoryEntry.extraSize + directoryEntry.commentSize;
+    if (requiredSize >  remainingSize) {
+        ABILITYBASE_LOGE("Entry data exceeds remaining buffer");
+        return false;
+    }
     size_t fileLength = (directoryEntry.nameSize >= MAX_FILE_NAME) ? (MAX_FILE_NAME - 1) : directoryEntry.nameSize;
     std::string fileName(fileLength, 0);
     if (memcpy_s(&(fileName[0]), fileLength, entryPtr, fileLength) != EOK) {
@@ -186,7 +204,7 @@ bool ZipFile::ParseOneEntry(uint8_t* &entryPtr)
     ZipEntry currentEntry(directoryEntry);
     currentEntry.fileName = fileName;
     entriesMap_[fileName] = currentEntry;
-    entryPtr += directoryEntry.nameSize + directoryEntry.extraSize + directoryEntry.commentSize;
+    entryPtr += requiredSize;
     return true;
 }
 
@@ -226,8 +244,9 @@ bool ZipFile::ParseAllEntries()
 
     bool ret = true;
     uint8_t *entryPtr = reinterpret_cast<uint8_t *>(centralData.data());
+    const uint8_t *endPtr = entryPtr + centralData.size(); // 获取有效的范围终点
     for (uint16_t i = 0; i < endDir_.totalEntries; i++) {
-        if (!ParseOneEntry(entryPtr)) {
+        if (!ParseOneEntry(entryPtr, endPtr)) {
             ABILITYBASE_LOGE("Parse entry[%{public}d] failed", i);
             ret = false;
             break;
