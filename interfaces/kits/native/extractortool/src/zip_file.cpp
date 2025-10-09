@@ -677,6 +677,10 @@ bool ZipFile::CheckCoherencyLocalHeader(const ZipEntry &zipEntry, uint16_t &extr
     auto nameSize = zipEntry.fileName.length();
     auto startPos = fileStartPos_ + zipEntry.localHeaderOffset;
     size_t buffSize = sizeof(LocalHeader) + nameSize;
+    if (zipFileReader_ == nullptr) {
+        ABILITYBASE_LOGE("zipFileReader_ is nullptr");
+        return false;
+    }
     auto buff = zipFileReader_->ReadBuffer(startPos, buffSize);
     if (buff.size() < buffSize) {
         ABILITYBASE_LOGE("read header failed");
