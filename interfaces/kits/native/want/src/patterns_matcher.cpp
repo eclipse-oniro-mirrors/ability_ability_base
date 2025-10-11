@@ -108,8 +108,13 @@ bool PatternsMatcher::MatchPattern(std::string pattern, std::string match, Match
             return match.find(pattern) == 0;
         }
         case MatchType::PATTERN: {
-            std::regex regex_(pattern);
-            return regex_match(match, regex_);
+            try {
+                std::regex regex_(pattern);
+                return regex_match(match, regex_);
+            } catch (std::regex_error &message) {
+                ABILITYBASE_LOGE("create regex failed");
+                return false;
+            }
         }
         case MatchType::GLOBAL: {
             return GlobPattern(pattern, match);
