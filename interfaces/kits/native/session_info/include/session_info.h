@@ -95,6 +95,7 @@ public:
     std::string specifiedFlag = "";
     bool reuseDelegatorWindow = false;
     int32_t scenarios = 0;
+    bool isPrelaunch = false;
     std::shared_ptr<Rosen::WindowCreateParams> windowCreateParams = nullptr;
 
 private:

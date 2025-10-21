@@ -328,6 +328,11 @@ bool SessionInfo::DoMarshallingSix(Parcel& parcel) const
         return false;
     }
 
+    if (!parcel.WriteBool(isPrelaunch)) {
+        ABILITYBASE_LOGE("Write isPrelaunch failed");
+        return false;
+    }
+
     // other params need place before want
     if (!parcel.WriteParcelable(&want)) {
         ABILITYBASE_LOGE("Write want failed");
@@ -416,6 +421,7 @@ SessionInfo* SessionInfo::ReadParcelOne(SessionInfo* info, Parcel& parcel)
     info->reuseDelegatorWindow = parcel.ReadBool();
     info->scenarios = parcel.ReadInt32();
     info->windowCreateParams.reset(parcel.ReadParcelable<Rosen::WindowCreateParams>());
+    info->isPrelaunch = parcel.ReadBool();
 
     std::unique_ptr<Want> want(parcel.ReadParcelable<Want>());
     if (want != nullptr) {
