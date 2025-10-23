@@ -97,6 +97,7 @@ public:
     int32_t scenarios = 0;
     bool isPrelaunch = false;
     std::shared_ptr<Rosen::WindowCreateParams> windowCreateParams = nullptr;
+    std::string targetGrantBundleName = "";
 
 private:
     bool DoMarshallingOne(Parcel& parcel) const;
