@@ -838,6 +838,11 @@ bool ZipFile::UnzipWithInflatedFromMMap(const ZipEntry &zipEntry, const uint16_t
         }
 
         inflateLen = UNZIP_BUF_OUT_LEN - zstream.avail_out;
+        if ((dstDataPtr + inflateLen) > (dataPtr.get() + len)) {
+            ABILITYBASE_LOGE("Buffer overflow detected.");
+            ret = false;
+            break;
+        }
         if (!CopyInflateOut(zstream, inflateLen, &dstDataPtr, bufOut, errorTimes)) {
             break;
         }
