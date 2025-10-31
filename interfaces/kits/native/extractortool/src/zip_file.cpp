@@ -383,7 +383,7 @@ bool ZipFile::IsDirExist(const std::string &dir)
     }
     tmpDir.pop_back();
     if (entriesMap_.count(tmpDir) > 0) {
-        ABILITYBASE_LOGW("file not dir");
+        ABILITYBASE_LOGD("file not dir");
         return false;
     }
 
