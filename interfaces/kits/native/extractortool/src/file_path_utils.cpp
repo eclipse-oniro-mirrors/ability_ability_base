@@ -306,6 +306,9 @@ std::string FindNpmPackage(const std::string& curJsModulePath, const std::string
         pathVector.pop_back();
     }
 
+    if (pathVector.empty()) {
+        return std::string();
+    }
     char* p = nullptr;
     size_t indexNum = std::strtoul(pathVector.back().c_str(), &p, 10);
     if (p == nullptr || *p != '\0') {
