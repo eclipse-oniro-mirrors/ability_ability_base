@@ -91,7 +91,6 @@ public:
     bool needClearInNotShowRecent = false;
     std::string instanceKey = "";
     bool isMinimizedDuringFreeInstall = false;
-    bool isFromIcon = false;
     int32_t requestId = 0;
     bool isDensityFollowHost = false;
     std::string specifiedFlag = "";
@@ -100,6 +99,7 @@ public:
     bool isPrelaunch = false;
     std::shared_ptr<Rosen::WindowCreateParams> windowCreateParams = nullptr;
     std::string targetGrantBundleName = "";
+    int32_t specifiedReason = 0;
 
 private:
     bool DoMarshallingOne(Parcel& parcel) const;
