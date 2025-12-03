@@ -48,7 +48,11 @@ bool SessionInfo::Marshalling(Parcel& parcel) const
         return false;
     }
 
-    return DoMarshallingSix(parcel);
+    if (!DoMarshallingSix(parcel)) {
+        return false;
+    }
+    
+    return DoMarshallingSeven(parcel);
 }
 
 bool SessionInfo::DoMarshallingOne(Parcel& parcel) const
@@ -338,12 +342,6 @@ bool SessionInfo::DoMarshallingSix(Parcel& parcel) const
         return false;
     }
 
-    // other params need place before want
-    if (!parcel.WriteParcelable(&want)) {
-        ABILITYBASE_LOGE("Write want failed");
-        return false;
-    }
-
     if (!parcel.WriteParcelable(startWindowOption.get())) {
         ABILITYBASE_LOGE("Write startWindowOption failed");
         return false;
@@ -352,6 +350,26 @@ bool SessionInfo::DoMarshallingSix(Parcel& parcel) const
     parcel.WriteInt32(supportWindowModes.size());
     for (auto windowMode : supportWindowModes) {
         parcel.WriteInt32(static_cast<int32_t>(windowMode));
+    }
+    return true;
+}
+
+bool SessionInfo::DoMarshallingSeven(Parcel& parcel) const
+{
+    if (!parcel.WriteBool(isTargetPlugin)) {
+        ABILITYBASE_LOGE("Write isTargetPlugin failed");
+        return false;
+    }
+
+    if (!parcel.WriteString(hostBundleName)) {
+        ABILITYBASE_LOGE("Write hostBundleName failed");
+        return false;
+    }
+
+    // other params need place before want
+    if (!parcel.WriteParcelable(&want)) {
+        ABILITYBASE_LOGE("Write want failed");
+        return false;
     }
     return true;
 }
@@ -429,10 +447,6 @@ SessionInfo* SessionInfo::ReadParcelOne(SessionInfo* info, Parcel& parcel)
     info->isPrelaunch = parcel.ReadBool();
     info->targetGrantBundleName = parcel.ReadString();
 
-    std::unique_ptr<Want> want(parcel.ReadParcelable<Want>());
-    if (want != nullptr) {
-        info->want = *want;
-    }
     return info;
 }
 
@@ -444,6 +458,12 @@ SessionInfo* SessionInfo::ReadParcelTwo(SessionInfo* info, Parcel& parcel)
         for (int i = 0; i < size; i++) {
             info->supportWindowModes.emplace_back(AppExecFwk::SupportWindowMode(parcel.ReadInt32()));
         }
+    }
+    info->isTargetPlugin = parcel.ReadBool();
+    info->hostBundleName = parcel.ReadString();
+    std::unique_ptr<Want> want(parcel.ReadParcelable<Want>());
+    if (want != nullptr) {
+        info->want = *want;
     }
     return info;
 }

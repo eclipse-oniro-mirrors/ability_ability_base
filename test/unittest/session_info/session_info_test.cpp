@@ -62,6 +62,15 @@ HWTEST_F(SessionInfoTest, SessionInfo_Unmarshalling_001, TestSize.Level1)
     ASSERT_TRUE(info != nullptr);
 }
 
+HWTEST_F(SessionInfoTest, SessionInfo_ReadParcelTwo_001, TestSize.Level1)
+{
+    Parcel parcel;
+    sptr<SessionInfo> sessionInfo = new (std::nothrow) SessionInfo();
+    ASSERT_TRUE(sessionInfo != nullptr);
+    SessionInfo* info = SessionInfo::ReadParcelTwo(sessionInfo, parcel);
+    ASSERT_TRUE(info != nullptr);
+}
+
 HWTEST_F(SessionInfoTest, SessionInfo_DoMarshallingTwo_001, TestSize.Level1)
 {
     SessionInfo sessionInfo;

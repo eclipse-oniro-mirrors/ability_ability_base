@@ -53,6 +53,8 @@ public:
     uint32_t parentWindowType = 1;
     bool hideStartWindow = false;
     bool shouldSkipKillInStartup = false;
+    bool isTargetPlugin = false;
+    std::string hostBundleName = "";
     // Status of the UIAbility invoked by the StartABilityByCall
     CallToState state = CallToState::UNKNOW;
     // Returned resultCode of terminateSelfWithResult
@@ -106,6 +108,7 @@ private:
     bool DoMarshallingFour(Parcel& parcel) const;
     bool DoMarshallingFive(Parcel& parcel) const;
     bool DoMarshallingSix(Parcel& parcel) const;
+    bool DoMarshallingSeven(Parcel& parcel) const;
     static SessionInfo* ReadParcelOne(SessionInfo* info, Parcel& parcel);
     static SessionInfo* ReadParcelTwo(SessionInfo* info, Parcel& parcel);
 };
