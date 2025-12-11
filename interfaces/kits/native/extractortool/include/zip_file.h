@@ -215,6 +215,7 @@ public:
         size_t &len) const;
     void SetCacheMode(CacheMode cacheMode);
     bool UseDirCache() const;
+    void SetAutoCloseFd(bool autoClose);
 private:
     /**
      * @brief Check the EndDir object.

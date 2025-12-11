@@ -990,5 +990,14 @@ bool ZipFile::ExtractToBufByName(const std::string &fileName, std::unique_ptr<ui
 
     return true;
 }
+
+void ZipFile::SetAutoCloseFd(bool autoClose)
+{
+    if (zipFileReader_ == nullptr)  {
+        ABILITYBASE_LOGE("zipFileReader_ is nullptr");
+        return;
+    }
+    zipFileReader_->SetClosable(autoClose);
+}
 }  // namespace AbilityBase
 }  // namespace OHOS

@@ -99,6 +99,11 @@ public:
     {
         zipFile_.SetCacheMode(cacheMode);
     }
+
+    void SetAutoCloseFd(bool autoClose)
+    {
+        zipFile_.SetAutoCloseFd(autoClose);
+    }
 private:
     ZipFile zipFile_;
     std::atomic_bool initial_ = false;

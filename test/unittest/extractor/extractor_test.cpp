@@ -20,6 +20,7 @@
 #define protected public
 #include "extract_resource_manager.h"
 #include "zip_file.h"
+#include "zip_file_reader_io.h"
 #include "extractor.h"
 #undef private
 #undef protected
@@ -507,6 +508,26 @@ HWTEST_F(ExtractorTest, UnzipData_001, TestSize.Level1)
     std::unique_ptr<uint8_t[]> data;
     size_t len = 0;
     EXPECT_FALSE(extractor1->UnzipData(std::move(fileMapper), data, len));
+}
+
+/*
+ * Feature: ExtractResourceManager
+ * Function: SetAutoCloseFd
+ * SubFunction: NA
+ * EnvConditions: NA
+ * CaseDescription: Create ExtractResourceManager, call SetAutoCloseFd function.
+ */
+HWTEST_F(ExtractorTest, SetAutoCloseFd_001, TestSize.Level1)
+{
+    std::shared_ptr<Extractor> extractor = std::make_shared<Extractor>(testPath_);
+    extractor->initial_ = true;
+
+    auto zipFileReader = std::make_shared<ZipFileReaderIo>(testPath_);
+    zipFileReader->closable_ = false;
+    extractor->zipFile_.zipFileReader_ = zipFileReader;
+    extractor->SetAutoCloseFd(true);
+
+    EXPECT_TRUE(extractor->zipFile_.zipFileReader_->closable_);
 }
 }  // namespace AbilityBase
 }  // namespace OHOS
