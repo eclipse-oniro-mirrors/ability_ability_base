@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -48,6 +48,21 @@ namespace ConfigurationInner {
     constexpr const char* SYSTEM_DEFAULT_FONTSIZE_SCALE = "1.0";
     constexpr const char* SMART_GESTURE_AUTO = "auto";
     constexpr const char* SMART_GESTURE_DISABLE = "disable";
+};
+
+/**
+ * @enum ConfigUpdateReason
+ * ConfigUpdateReason defines app config update scene.
+ */
+enum class ConfigUpdateReason : uint8_t {
+    /*
+     * default config update scene
+     */
+    CONFIG_UPDATE_REASON_DEFAULT = 0,
+    /*
+     * app in whitelist update config in hot-reloaded scene
+     */
+    CONFIG_UPDATE_REASON_IN_WHITE_LIST,
 };
 
 class Configuration final: public Parcelable {
