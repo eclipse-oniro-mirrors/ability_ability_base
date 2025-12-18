@@ -288,11 +288,6 @@ bool SessionInfo::DoMarshallingFive(Parcel& parcel) const
         return false;
     }
 
-    if (!parcel.WriteBool(isFromIcon)) {
-        ABILITYBASE_LOGE("Write isFromIcon failed");
-        return false;
-    }
-
     if (!parcel.WriteInt32(requestId)) {
         ABILITYBASE_LOGE("Write requestId failed");
         return false;
@@ -339,6 +334,11 @@ bool SessionInfo::DoMarshallingSix(Parcel& parcel) const
 
     if (!parcel.WriteString(targetGrantBundleName)) {
         ABILITYBASE_LOGE("Write targetGrantBundleName failed");
+        return false;
+    }
+
+    if (!parcel.WriteInt32(specifiedReason)) {
+        ABILITYBASE_LOGE("Write specifiedReason failed");
         return false;
     }
 
@@ -436,7 +436,6 @@ SessionInfo* SessionInfo::ReadParcelOne(SessionInfo* info, Parcel& parcel)
     info->orientation = parcel.ReadInt32();
     info->needClearInNotShowRecent = parcel.ReadBool();
     info->instanceKey = parcel.ReadString();
-    info->isFromIcon = parcel.ReadBool();
     info->requestId = parcel.ReadInt32();
     info->userId = parcel.ReadInt32();
     info->isDensityFollowHost = parcel.ReadBool();
@@ -446,6 +445,7 @@ SessionInfo* SessionInfo::ReadParcelOne(SessionInfo* info, Parcel& parcel)
     info->windowCreateParams.reset(parcel.ReadParcelable<Rosen::WindowCreateParams>());
     info->isPrelaunch = parcel.ReadBool();
     info->targetGrantBundleName = parcel.ReadString();
+    info->specifiedReason = parcel.ReadInt32();
 
     return info;
 }
