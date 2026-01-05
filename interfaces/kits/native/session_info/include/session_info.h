@@ -100,6 +100,7 @@ public:
     std::shared_ptr<Rosen::WindowCreateParams> windowCreateParams = nullptr;
     std::string targetGrantBundleName = "";
     int32_t specifiedReason = 0;
+    int32_t frameNum = 0;
 
 private:
     bool DoMarshallingOne(Parcel& parcel) const;
