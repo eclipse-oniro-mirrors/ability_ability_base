@@ -779,7 +779,7 @@ bool ZipFile::GetDataOffsetRelative(const ZipEntry &zipEntry, ZipPos &offset, ui
 
     offset = GetEntryDataOffset(zipEntry, extraSize);
     length = zipEntry.compressedSize;
-    if (offset - fileStartPos_ + length > fileLength_) {
+    if (offset + length > fileLength_ + fileStartPos_ || offset > fileLength_ + fileStartPos_ - length) {
         ABILITYBASE_LOGE("offset(%{public}lld) + entryCompressedSize(%{public}ud) > fileLength(%{public}llu)",
             offset - fileStartPos_, length, fileLength_);
         return false;
