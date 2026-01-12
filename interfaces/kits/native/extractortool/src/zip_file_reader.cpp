@@ -43,10 +43,6 @@ std::shared_ptr<ZipFileReader> ZipFileReader::CreateZipFileReader(const std::str
 
 ZipFileReader::~ZipFileReader()
 {
-    // if (fd_ >= 0 && closable_) {
-    //     close(fd_);
-    //     fd_ = -1;
-    // }
     if (file_ != nullptr && closable_) {
         fclose(file_);
         file_ = nullptr;

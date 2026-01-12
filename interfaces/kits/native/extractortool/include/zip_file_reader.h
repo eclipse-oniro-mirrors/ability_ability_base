@@ -57,7 +57,7 @@ protected:
     size_t fileLen_ = 0;
 
     // For safe memory, reserve this field and keep the file opened.
-    File* file_ = nullptr;
+    FILE* file_ = nullptr;
     // close fd in destructor
     bool closable_ = true;
 };
