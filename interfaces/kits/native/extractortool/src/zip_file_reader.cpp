@@ -46,6 +46,7 @@ ZipFileReader::~ZipFileReader()
     if (file_ != nullptr && closable_) {
         fclose(file_);
         file_ = nullptr;
+        fd_ = -1;
     }
 }
 
@@ -88,6 +89,7 @@ bool ZipFileReader::init()
         ABILITYBASE_LOGE("fopen file error: %{public}s : %{public}d", resolvePath.c_str(), errno);
         return false;
     }
+    fd_ = fileno(file_);
 
     return true;
 }

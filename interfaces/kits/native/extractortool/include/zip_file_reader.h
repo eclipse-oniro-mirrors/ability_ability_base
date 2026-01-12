@@ -20,7 +20,7 @@
 #include <memory>
 #include <unistd.h>
 #include <string>
-#include <stdio.h>
+#include <cstdio>
 
 
 namespace OHOS {
@@ -43,10 +43,7 @@ public:
     }
     int GetFd() const
     {
-        if (file_ != nullptr) {
-            return fileno(file_);
-        }
-        return -1;
+        return fd_;
     }
     void SetClosable(bool closable)
     {
@@ -60,6 +57,7 @@ protected:
     size_t fileLen_ = 0;
 
     // For safe memory, reserve this field and keep the file opened.
+    int32_t fd_ = -1;
     FILE* file_ = nullptr;
     // close fd in destructor
     bool closable_ = true;
