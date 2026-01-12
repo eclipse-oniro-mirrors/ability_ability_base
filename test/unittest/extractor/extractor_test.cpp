@@ -589,7 +589,7 @@ HWTEST_F(ExtractorTest, GetDataOffsetRelative_002, TestSize.Level1)
  * EnvConditions: NA
  * CaseDescription: Create ExtractResourceManager, call CreateZipFileReader
  */
-HWTEST_F(ExtractorTest, CreateZipFileReader_001)
+HWTEST_F(ExtractorTest, CreateZipFileReader_001, TestSize.Level1)
 {
     std::shared_ptr<Extractor> extractor = std::make_shared<Extractor>(testPath_);
     extractor->initial_ = true;
