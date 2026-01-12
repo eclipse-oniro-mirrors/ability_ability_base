@@ -43,7 +43,10 @@ public:
     }
     int GetFd() const
     {
-        return fd_;
+        if (file_ != nullptr) {
+            return fileno(file_);
+        }
+        return -1;
     }
     void SetClosable(bool closable)
     {
