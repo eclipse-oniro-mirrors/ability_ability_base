@@ -600,8 +600,7 @@ HWTEST_F(ExtractorTest, CreateZipFileReader_001, TestSize.Level1)
     extractor->zipFile_.zipFileReader_ = zipFileReader;
     extractor->SetAutoCloseFd(true);
 
-    EXPECT_NE(ZipFileReader->file_, nullptr);
-    ZipFileReader->~ZipFileReader();
+    EXPECT_EQ(zipFileReader->file_, nullptr);
 }
 }  // namespace AbilityBase
 }  // namespace OHOS
