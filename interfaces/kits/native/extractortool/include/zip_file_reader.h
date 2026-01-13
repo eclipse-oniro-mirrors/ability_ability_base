@@ -20,6 +20,8 @@
 #include <memory>
 #include <unistd.h>
 #include <string>
+#include <cstdio>
+
 
 namespace OHOS {
 namespace AbilityBase {
@@ -55,7 +57,8 @@ protected:
     size_t fileLen_ = 0;
 
     // For safe memory, reserve this field and keep the file opened.
-    int fd_ = -1;
+    int32_t fd_ = -1;
+    FILE* file_ = nullptr;
     // close fd in destructor
     bool closable_ = true;
 };

@@ -529,5 +529,78 @@ HWTEST_F(ExtractorTest, SetAutoCloseFd_001, TestSize.Level1)
 
     EXPECT_TRUE(extractor->zipFile_.zipFileReader_->closable_);
 }
+
+/*
+ * Feature: ExtractResourceManager
+ * Function: GetDataOffsetRelative
+ * SubFunction: NA
+ * EnvConditions: NA
+ * CaseDescription: Create ExtractResourceManager, call GetDataOffsetRelative function.
+ */
+HWTEST_F(ExtractorTest, GetDataOffsetRelative_001, TestSize.Level1)
+{
+    std::shared_ptr<Extractor> extractor = std::make_shared<Extractor>(testPath_);
+    extractor->initial_ = true;
+
+    auto zipFileReader = std::make_shared<ZipFileReaderIo>(testPath_);
+    zipFileReader->closable_ = false;
+    extractor->zipFile_.zipFileReader_ = zipFileReader;
+    extractor->SetAutoCloseFd(true);
+    ZipEntry zipEntry;
+    extractor->zipFile_.GetEntry(testPath_, zipEntry);
+
+    ZipPos offset = 9999999;
+    uint32_t length = 9999999;
+    bool result = extractor->zipFile_.GetDataOffsetRelative(zipEntry, offset, length);
+
+    EXPECT_FALSE(result);
+}
+
+/*
+ * Feature: ExtractResourceManager
+ * Function: GetDataOffsetRelative
+ * SubFunction: NA
+ * EnvConditions: NA
+ * CaseDescription: Create ExtractResourceManager, call GetDataOffsetRelative function.
+ */
+HWTEST_F(ExtractorTest, GetDataOffsetRelative_002, TestSize.Level1)
+{
+    std::shared_ptr<Extractor> extractor = std::make_shared<Extractor>(testPath_);
+    extractor->initial_ = true;
+
+    auto zipFileReader = std::make_shared<ZipFileReaderIo>(testPath_);
+    zipFileReader->closable_ = false;
+    extractor->zipFile_.zipFileReader_ = zipFileReader;
+    extractor->SetAutoCloseFd(true);
+    ZipEntry zipEntry;
+    extractor->zipFile_.GetEntry(testPath_, zipEntry);
+
+    ZipPos offset = 0;
+    uint32_t length = 0;
+    bool result = extractor->zipFile_.GetDataOffsetRelative(zipEntry, offset, length);
+
+    EXPECT_FALSE(result);
+}
+
+/*
+ * Feature: ExtractResourceManager
+ * Function: CreateZipFileReader
+ * SubFunction: NA
+ * EnvConditions: NA
+ * CaseDescription: Create ExtractResourceManager, call CreateZipFileReader
+ */
+HWTEST_F(ExtractorTest, CreateZipFileReader_001, TestSize.Level1)
+{
+    std::shared_ptr<Extractor> extractor = std::make_shared<Extractor>(testPath_);
+    extractor->initial_ = true;
+
+    auto zipFileReader = std::make_shared<ZipFileReaderIo>(testPath_);
+    zipFileReader->closable_ = false;
+    auto result = zipFileReader->CreateZipFileReader(testPath_);
+    extractor->zipFile_.zipFileReader_ = zipFileReader;
+    extractor->SetAutoCloseFd(true);
+
+    EXPECT_EQ(zipFileReader->file_, nullptr);
+}
 }  // namespace AbilityBase
 }  // namespace OHOS

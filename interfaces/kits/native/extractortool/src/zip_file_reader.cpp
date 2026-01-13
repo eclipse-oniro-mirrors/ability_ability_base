@@ -43,8 +43,9 @@ std::shared_ptr<ZipFileReader> ZipFileReader::CreateZipFileReader(const std::str
 
 ZipFileReader::~ZipFileReader()
 {
-    if (fd_ >= 0 && closable_) {
-        close(fd_);
+    if (file_ != nullptr && closable_) {
+        fclose(file_);
+        file_ = nullptr;
         fd_ = -1;
     }
 }
@@ -82,11 +83,13 @@ bool ZipFileReader::init()
         }
     }
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "open_file");
-    fd_ = open(resolvePath.c_str(), O_RDONLY);
-    if (fd_ < 0) {
-        ABILITYBASE_LOGE("open file error: %{public}s : %{public}d", resolvePath.c_str(), errno);
+
+    file_ = fopen(resolvePath.c_str(), "rb");
+    if (file_ == nullptr) {
+        ABILITYBASE_LOGE("fopen file error: %{public}s : %{public}d", resolvePath.c_str(), errno);
         return false;
     }
+    fd_ = fileno(file_);
 
     return true;
 }
