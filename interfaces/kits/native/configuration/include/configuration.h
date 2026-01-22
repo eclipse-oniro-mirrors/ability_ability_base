@@ -60,7 +60,7 @@ enum class ConfigUpdateReason : uint8_t {
      */
     CONFIG_UPDATE_REASON_DEFAULT = 0,
     /*
-     * app in whitelist update config in hot-reloaded scene
+     * app in whitelist update config hot-reloaded scene
      */
     CONFIG_UPDATE_REASON_IN_WHITE_LIST,
 };

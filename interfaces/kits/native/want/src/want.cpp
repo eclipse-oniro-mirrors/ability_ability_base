@@ -116,12 +116,12 @@ const std::string Want::PARAM_ATOMIC_SERVICE_PAGE_SOURCE_FILE("ohos.param.atomic
 const std::string Want::PARAM_ATOMIC_SERVICE_BUILD_FUNCTION("ohos.param.atomicservice.buildFunction");
 const std::string Want::PARAM_ATOMIC_SERVICE_SUB_PACKAGE_NAME("ohos.param.atomicservice.subpackageName");
 
-const std::string Want::PARAM_APP_KEEP_ALIVE_ENABLED("ohos.param.app.keepAliveEnabled");
-
 const std::string Want::PARAMS_REAL_CALLER_KEY("ohos.ability.param.realCallerKey");
 const std::string Want::DESTINATION_PLUGIN_ABILITY("ohos.params.pluginAbility");
 const std::string Want::START_ABILITY_WITH_WAIT_OBSERVER_ID_KEY("ohos.ability.param.startWithWaitKey");
 const std::string Want::ATOMIC_SERVICE_SHARE_ROUTER("ohos.params.atomicservice.shareRouter");
+
+const std::string Want::PARAM_APP_KEEP_ALIVE_ENABLED("ohos.param.app.keepAliveEnabled");
 const std::string Want::PARAM_ABILITY_UNIFIED_DATA_KEY("ohos.param.ability.udKey");
 
 /**
