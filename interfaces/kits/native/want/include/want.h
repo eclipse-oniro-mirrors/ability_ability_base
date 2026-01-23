@@ -918,15 +918,16 @@ public:
     static const std::string PARAM_ATOMIC_SERVICE_BUILD_FUNCTION;
     static const std::string PARAM_ATOMIC_SERVICE_SUB_PACKAGE_NAME;
 
+    static const std::string PARAMS_REAL_CALLER_KEY;
+    static const std::string DESTINATION_PLUGIN_ABILITY;
+
     // keep-alive
     static const std::string PARAM_APP_KEEP_ALIVE_ENABLED;
 
-    static const std::string PARAMS_REAL_CALLER_KEY;
-    static const std::string DESTINATION_PLUGIN_ABILITY;
     static const std::string START_ABILITY_WITH_WAIT_OBSERVER_ID_KEY;
-    static const std::string ATOMIC_SERVICE_SHARE_ROUTER;
     // unified data key
     static const std::string PARAM_ABILITY_UNIFIED_DATA_KEY;
+    static const std::string ATOMIC_SERVICE_SHARE_ROUTER;
 
 private:
     WantParams parameters_;
