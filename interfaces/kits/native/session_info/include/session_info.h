@@ -80,7 +80,6 @@ public:
     bool isAsyncModalBinding = false;
     bool isAtomicService = false;
     bool isBackTransition = false;
-    bool isSkipErms = false;
     // The following attributes are used for UIExtension
     // To ensure security, this attribute must be rewritten on the server-side.
     UIExtensionUsage uiExtensionUsage = UIExtensionUsage::MODAL;
@@ -89,15 +88,15 @@ public:
     float density = 0.0f;
     int32_t orientation = 0;
     bool needClearInNotShowRecent = false;
-    std::string instanceKey = "";
     bool isMinimizedDuringFreeInstall = false;
+    std::string instanceKey = "";
     int32_t requestId = 0;
     bool isDensityFollowHost = false;
     std::string specifiedFlag = "";
     bool reuseDelegatorWindow = false;
-    int32_t scenarios = 0;
     bool isPrelaunch = false;
     std::shared_ptr<Rosen::WindowCreateParams> windowCreateParams = nullptr;
+    int32_t scenarios = 0;
     std::string targetGrantBundleName = "";
     int32_t specifiedReason = 0;
     int32_t frameNum = 0;

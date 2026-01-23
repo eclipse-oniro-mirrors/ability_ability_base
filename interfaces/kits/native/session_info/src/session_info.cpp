@@ -258,11 +258,6 @@ bool SessionInfo::DoMarshallingFive(Parcel& parcel) const
         return false;
     }
 
-    if (!parcel.WriteBool(isSkipErms)) {
-        ABILITYBASE_LOGE("Write isSkipErms failed.");
-        return false;
-    }
-
     if (!parcel.WriteUint64(displayId)) {
         ABILITYBASE_LOGE("Write displayId failed.");
         return false;
@@ -435,7 +430,6 @@ SessionInfo* SessionInfo::ReadParcelOne(SessionInfo* info, Parcel& parcel)
     info->uiExtensionUsage = static_cast<UIExtensionUsage>(parcel.ReadUint32());
     info->isAtomicService = parcel.ReadBool();
     info->isBackTransition = parcel.ReadBool();
-    info->isSkipErms = parcel.ReadBool();
     info->displayId = parcel.ReadUint64();
     info->density = parcel.ReadFloat();
     info->orientation = parcel.ReadInt32();
