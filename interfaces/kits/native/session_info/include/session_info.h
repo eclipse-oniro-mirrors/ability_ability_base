@@ -94,10 +94,10 @@ public:
     bool isDensityFollowHost = false;
     std::string specifiedFlag = "";
     bool reuseDelegatorWindow = false;
-    bool isPrelaunch = false;
     std::shared_ptr<Rosen::WindowCreateParams> windowCreateParams = nullptr;
     int32_t scenarios = 0;
     std::string targetGrantBundleName = "";
+    bool isPrelaunch = false;
     int32_t specifiedReason = 0;
     int32_t frameNum = 0;
 
