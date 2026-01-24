@@ -312,13 +312,13 @@ bool SessionInfo::DoMarshallingSix(Parcel& parcel) const
         return false;
     }
 
-    if (!parcel.WriteInt32(scenarios)) {
-        ABILITYBASE_LOGE("Write scenarios failed");
+    if (!parcel.WriteParcelable(windowCreateParams.get())) {
+        ABILITYBASE_LOGE("Write windowCreateParams failed");
         return false;
     }
 
-    if (!parcel.WriteParcelable(windowCreateParams.get())) {
-        ABILITYBASE_LOGE("Write windowCreateParams failed");
+    if (!parcel.WriteInt32(scenarios)) {
+        ABILITYBASE_LOGE("Write scenarios failed");
         return false;
     }
 
@@ -440,8 +440,8 @@ SessionInfo* SessionInfo::ReadParcelOne(SessionInfo* info, Parcel& parcel)
     info->isDensityFollowHost = parcel.ReadBool();
     info->specifiedFlag = parcel.ReadString();
     info->reuseDelegatorWindow = parcel.ReadBool();
-    info->scenarios = parcel.ReadInt32();
     info->windowCreateParams.reset(parcel.ReadParcelable<Rosen::WindowCreateParams>());
+    info->scenarios = parcel.ReadInt32();
     info->isPrelaunch = parcel.ReadBool();
     info->targetGrantBundleName = parcel.ReadString();
     info->specifiedReason = parcel.ReadInt32();
