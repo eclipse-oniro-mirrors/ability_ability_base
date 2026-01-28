@@ -1672,6 +1672,11 @@ bool WantParams::ReadFromParcel(Parcel &parcel, int depth)
         ABILITYBASE_LOGE("read size fail");
         return false;
     }
+    static constexpr int32_t maxAllowedSize = 1024;
+    if (size<0 || size > maxAllowedSize) {
+        ABILITYBASE_LOGE("invalid size: %{public}d", size);
+        return false;
+    }
     for (int32_t i = 0; i < size; i++) {
         std::u16string key = parcel.ReadString16();
         int type;
