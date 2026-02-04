@@ -120,7 +120,9 @@ public:
     void FromJson(const nlohmann::json &jsonObject);
     void ToJson(nlohmann::json &jsonObject) const;
     std::string ToString() const;
-
+    void SetNeedExpansion(bool flag) const;
+    bool CheckNeedExpansion() const;
+    bool PublicReadFromParcel(Parcel &parcel, int depth = 1);
 private:
     enum {
         VALUE_TYPE_NULL = -1,
@@ -245,6 +247,10 @@ private:
     bool NewArrayData(IArray *source, sptr<IArray> &dest);
     bool NewParams(const WantParams &source, WantParams &dest);
     bool NewFds(const WantParams &source, WantParams &dest);
+    bool AddWantParamToInterfaceVector(const sptr<WantParams> &value,
+        std::vector<sptr<IInterface>> &array) const;
+
+    mutable bool needExpansion_ = false; // compatible DMS
     std::map<std::string, sptr<IInterface>> params_;
     std::map<std::string, int> fds_;
     std::vector<UnsupportedData> cachedUnsupportedData_;
