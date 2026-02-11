@@ -123,6 +123,8 @@ const std::string Want::ATOMIC_SERVICE_SHARE_ROUTER("ohos.params.atomicservice.s
 
 const std::string Want::PARAM_APP_KEEP_ALIVE_ENABLED("ohos.param.app.keepAliveEnabled");
 const std::string Want::PARAM_ABILITY_UNIFIED_DATA_KEY("ohos.param.ability.udKey");
+const std::string Want::PARAM_WANT_EXPANSION_TAG("ohos.want.IPC.string8:");
+const int32_t Want::PARAM_WANT_CAPACITY_EXPANSION(512 * 1024);
 
 /**
  * @description:Default construcotr of Want class, which is used to initialzie flags and URI.
@@ -1588,8 +1590,16 @@ void Want::ClearWant(Want *want)
  */
 bool Want::Marshalling(Parcel &parcel) const
 {
+    std::string ipcAction = GetAction();
+    if (GetDeviceId().empty()) {
+        bool needExpansion = true;
+        ipcAction = PARAM_WANT_EXPANSION_TAG + ipcAction;
+        parameters_.SetNeedExpansion(needExpansion); // add expand capacity flag
+        parcel.SetMaxCapacity(PARAM_WANT_CAPACITY_EXPANSION);
+    }
+
     // write action
-    if (!parcel.WriteString16(Str8ToStr16(GetAction()))) {
+    if (!parcel.WriteString16(Str8ToStr16(ipcAction))) {
         return false;
     }
 
@@ -1623,6 +1633,8 @@ bool Want::Marshalling(Parcel &parcel) const
         return false;
     }
 
+    // close expand capacity flag
+    parameters_.SetNeedExpansion(false);
     return true;
 }
 
@@ -1644,8 +1656,15 @@ Want *Want::Unmarshalling(Parcel &parcel)
 
 bool Want::ReadFromParcel(Parcel &parcel)
 {
+    std::string ipcAction = Str16ToStr8(parcel.ReadString16());
+    if (ipcAction.size() >= PARAM_WANT_EXPANSION_TAG.size()) {
+        if (ipcAction.substr(0, PARAM_WANT_EXPANSION_TAG.size()) == PARAM_WANT_EXPANSION_TAG) {
+            ipcAction = ipcAction.substr(PARAM_WANT_EXPANSION_TAG.size());
+            parameters_.SetNeedExpansion(true); // add expand capacity flag
+        }
+    }
     // read action
-    operation_.SetAction(Str16ToStr8(parcel.ReadString16()));
+    operation_.SetAction(ipcAction);
 
     // read uri
     if (!ReadUri(parcel)) {
@@ -1677,6 +1696,8 @@ bool Want::ReadFromParcel(Parcel &parcel)
     // read package
     operation_.SetBundleName(Str16ToStr8(parcel.ReadString16()));
 
+    // close expand capacity flag
+    parameters_.SetNeedExpansion(false);
     return true;
 }
 
@@ -2082,11 +2103,16 @@ bool Want::WriteUri(Parcel &parcel) const
         if (!parcel.WriteInt32(VALUE_OBJECT)) {
             return false;
         }
-        if (!parcel.WriteString16(Str8ToStr16(GetUriString()))) {
-            return false;
+        if (parameters_.CheckNeedExpansion()) {
+            if (!parcel.WriteString(GetUriString())) {
+                return false;
+            }
+        } else {
+            if (!parcel.WriteString16(Str8ToStr16(GetUriString()))) {
+                return false;
+            }
         }
     }
-
     return true;
 }
 
@@ -2100,15 +2126,21 @@ bool Want::WriteEntities(Parcel &parcel) const
         return true;
     }
 
-    std::vector<std::u16string> entityU16;
-    for (std::vector<std::string>::size_type i = 0; i < entities.size(); i++) {
-        entityU16.push_back(Str8ToStr16(entities[i]));
-    }
     if (!parcel.WriteInt32(VALUE_OBJECT)) {
         return false;
     }
-    if (!parcel.WriteString16Vector(entityU16)) {
-        return false;
+    if (parameters_.CheckNeedExpansion()) {
+        if (!parcel.WriteStringVector(entities)) {
+            return false;
+        }
+    } else {
+        std::vector<std::u16string> entityU16;
+        for (std::vector<std::string>::size_type i = 0; i < entities.size(); i++) {
+            entityU16.push_back(Str8ToStr16(entities[i]));
+        }
+        if (!parcel.WriteString16Vector(entityU16)) {
+            return false;
+        }
     }
     return true;
 }
@@ -2159,7 +2191,11 @@ bool Want::ReadUri(Parcel &parcel)
         return false;
     }
     if (empty == VALUE_OBJECT) {
-        SetUri(Str16ToStr8(parcel.ReadString16()));
+        if (parameters_.CheckNeedExpansion()) {
+            SetUri(parcel.ReadString());
+        } else {
+            SetUri(Str16ToStr8(parcel.ReadString16()));
+        }
     }
 
     return true;
@@ -2174,15 +2210,20 @@ bool Want::ReadEntities(Parcel &parcel)
         return false;
     }
     if (empty == VALUE_OBJECT) {
-        if (!parcel.ReadString16Vector(&entityU16)) {
-            return false;
+        if (parameters_.CheckNeedExpansion()) {
+            if (!parcel.ReadStringVector(&entities)) {
+                return false;
+            }
+        } else {
+            if (!parcel.ReadString16Vector(&entityU16)) {
+                return false;
+            }
+            for (std::vector<std::u16string>::size_type i = 0; i < entityU16.size(); i++) {
+                entities.push_back(Str16ToStr8(entityU16[i]));
+            }
         }
     }
-    for (std::vector<std::u16string>::size_type i = 0; i < entityU16.size(); i++) {
-        entities.push_back(Str16ToStr8(entityU16[i]));
-    }
     operation_.SetEntities(entities);
-
     return true;
 }
 
@@ -2214,18 +2255,30 @@ bool Want::ReadParameters(Parcel &parcel)
     }
 
     if (empty == VALUE_OBJECT) {
-        auto params = parcel.ReadParcelable<WantParams>();
-        if (params != nullptr) {
-            parameters_ = *params;
-            delete params;
-            params = nullptr;
-            std::string moduleName = GetStringParam(PARAM_MODULE_NAME);
-            SetModuleName(moduleName);
+        if (parameters_.CheckNeedExpansion()) {
+            int32_t size = parcel.ReadInt32(); // compatible with IPC ReadFromParcel<WantParams>
+            if (size == 0) {
+                return false;
+            }
+            if (parameters_.PublicReadFromParcel(parcel)) {
+                std::string moduleName = GetStringParam(PARAM_MODULE_NAME);
+                SetModuleName(moduleName);
+            } else {
+                return false;
+            }
         } else {
-            return false;
+            auto params = parcel.ReadParcelable<WantParams>();
+            if (params != nullptr) {
+                parameters_ = *params;
+                delete params;
+                params = nullptr;
+                std::string moduleName = GetStringParam(PARAM_MODULE_NAME);
+                SetModuleName(moduleName);
+            } else {
+                return false;
+            }
         }
     }
-
     return true;
 }
 

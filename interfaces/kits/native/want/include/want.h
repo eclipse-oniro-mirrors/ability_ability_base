@@ -928,6 +928,9 @@ public:
     // unified data key
     static const std::string PARAM_ABILITY_UNIFIED_DATA_KEY;
     static const std::string ATOMIC_SERVICE_SHARE_ROUTER;
+    // expansion flag
+    static const std::string PARAM_WANT_EXPANSION_TAG;
+    static const int32_t PARAM_WANT_CAPACITY_EXPANSION;
 
 private:
     WantParams parameters_;

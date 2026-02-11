@@ -698,6 +698,9 @@ bool WantParams::WriteToParcelString(Parcel &parcel, sptr<IInterface> &o) const
     if (!parcel.WriteInt32(VALUE_TYPE_STRING)) {
         return false;
     }
+    if (CheckNeedExpansion()) {
+        return parcel.WriteString(value);
+    }
     return parcel.WriteString16(Str8ToStr16(value));
 }
 
@@ -713,7 +716,7 @@ bool WantParams::WriteToParcelBool(Parcel &parcel, sptr<IInterface> &o) const
 bool WantParams::WriteToParcelWantParams(Parcel &parcel, sptr<IInterface> &o, int depth) const
 {
     WantParams value = WantParamWrapper::Unbox(IWantParams::Query(o));
-
+    value.SetNeedExpansion(CheckNeedExpansion());
     auto type = value.GetParam(TYPE_PROPERTY);
     AAFwk::IString *typeP = AAFwk::IString::Query(type);
     if (typeP != nullptr) {
@@ -871,6 +874,16 @@ bool WantParams::WriteMarshalling(Parcel &parcel, sptr<IInterface> &o, int depth
             return true;
         }
     }
+}
+
+void WantParams::SetNeedExpansion(bool flag) const
+{
+    needExpansion_ = flag;
+}
+
+bool WantParams::CheckNeedExpansion() const
+{
+    return needExpansion_;
 }
 
 bool WantParams::DoMarshalling(Parcel &parcel, int depth) const
@@ -1149,6 +1162,7 @@ bool WantParams::WriteArrayToParcelWantParams(Parcel &parcel, IArray *ao, int de
     }
 
     for (const auto& wp : array) {
+        wp.SetNeedExpansion(CheckNeedExpansion());
         if (!wp.DoMarshalling(parcel, depth + 1)) {
             return false;
         }
@@ -1260,6 +1274,24 @@ bool WantParams::ReadFromParcelArrayInt(Parcel &parcel, sptr<IArray> &ao)
     return SetArray<int, Integer>(g_IID_IInteger, value, ao);
 }
 
+/**
+ * @description: Helper function to add a WantParams object to an IInterface vector.
+ * Encapsulates the common logic of checking non-null and boxing.
+ */
+bool WantParams::AddWantParamToInterfaceVector(const sptr<WantParams> &value,
+    std::vector<sptr<IInterface>> &array) const
+{
+    if (value == nullptr) {
+        return false;
+    }
+    sptr<IInterface> interface = WantParamWrapper::Box(*value);
+    if (interface == nullptr) {
+        return false;
+    }
+    array.push_back(interface);
+    return true;
+}
+
 bool WantParams::ReadFromParcelArrayLong(Parcel &parcel, sptr<IArray> &ao)
 {
     std::vector<int64_t> value;
@@ -1309,12 +1341,23 @@ bool WantParams::ReadFromParcelArrayWantParams(Parcel &parcel, sptr<IArray> &ao,
     }
     std::vector<sptr<IInterface>> arrayWantParams;
     for (int32_t i = 0; i < size; ++i) {
-        sptr<WantParams> value(Unmarshalling(parcel, depth + 1));
-        if (value != nullptr) {
-            sptr<IInterface> interface = WantParamWrapper::Box(*value);
-            if (interface != nullptr) {
-                arrayWantParams.push_back(interface);
+        sptr<WantParams> value;
+        if (CheckNeedExpansion()) {
+            WantParams *wantParams = new (std::nothrow) WantParams();
+            if (wantParams == nullptr) {
+                return false;
             }
+            wantParams->SetNeedExpansion(CheckNeedExpansion());
+            if (!wantParams->PublicReadFromParcel(parcel, depth + 1)) {
+                delete wantParams;
+                return false;
+            }
+            value = sptr<WantParams>(wantParams);
+        } else {
+            value = sptr<WantParams>(Unmarshalling(parcel, depth + 1));
+        }
+        if (!AddWantParamToInterfaceVector(value, arrayWantParams)) {
+            return false;
         }
     }
 
@@ -1361,9 +1404,14 @@ bool WantParams::ReadArrayToParcel(Parcel &parcel, int type, sptr<IArray> &ao, i
 
 bool WantParams::ReadFromParcelString(Parcel &parcel, const std::string &key)
 {
-    std::u16string value = parcel.ReadString16();
-    std::string strValue(Str16ToStr8(value));
-    sptr<IInterface> intf = String::Box(Str16ToStr8(value));
+    sptr<IInterface> intf;
+    if (CheckNeedExpansion()) {
+        std::string value = parcel.ReadString();
+        intf = String::Box(value);
+    } else {
+        std::u16string value = parcel.ReadString16();
+        intf = String::Box(Str16ToStr8(value));
+    }
     if (intf) {
         SetParam(key, intf);
     } else {
@@ -1472,11 +1520,27 @@ bool WantParams::ReadFromParcelWantParamWrapper(Parcel &parcel, const std::strin
         return ReadFromParcelRemoteObject(parcel, key);
     }
 
-    sptr<WantParams> value(Unmarshalling(parcel, depth + 1));
-    if (value != nullptr) {
-        sptr<IInterface> intf = WantParamWrapper::Box(*value);
-        if (intf) {
-            SetParam(key, intf);
+    if (CheckNeedExpansion()) {
+        WantParams *wantParams = new (std::nothrow) WantParams();
+        if (wantParams == nullptr) {
+            return false;
+        }
+        wantParams->SetNeedExpansion(CheckNeedExpansion());
+        wantParams->PublicReadFromParcel(parcel, depth + 1);
+        sptr<WantParams> value(wantParams);
+        if (value != nullptr) {
+            sptr<IInterface> intf = WantParamWrapper::Box(*value);
+            if (intf) {
+                SetParam(key, intf);
+            }
+        }
+    } else {
+        sptr<WantParams> value(Unmarshalling(parcel, depth + 1));
+        if (value != nullptr) {
+            sptr<IInterface> intf = WantParamWrapper::Box(*value);
+            if (intf) {
+                SetParam(key, intf);
+            }
         }
     }
 
@@ -1690,6 +1754,15 @@ bool WantParams::ReadFromParcel(Parcel &parcel, int depth)
         }
     }
     return true;
+}
+
+/**
+ * @description: Public ReadFromParcel used to compatible with capacity expansion.
+ * @return Follow Unmarshalling, if any key-value pair fails to be unmarshalled, false is returned.
+ */
+bool WantParams::PublicReadFromParcel(Parcel &parcel, int depth)
+{
+    return ReadFromParcel(parcel, depth);
 }
 
 /**
