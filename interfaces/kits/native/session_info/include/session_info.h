@@ -35,6 +35,12 @@ class AbilityStartSetting;
 class ProcessOptions;
 class StartWindowOption;
 
+enum class CallerTypeForAnco : int32_t {
+    DEFAULT = 0,
+    ADD = 1,
+    QUERY = 2
+};
+
 class SessionInfo : public Parcelable {
 public:
     SessionInfo() = default;
@@ -55,6 +61,7 @@ public:
     bool shouldSkipKillInStartup = false;
     bool isTargetPlugin = false;
     std::string hostBundleName = "";
+    int32_t callerTypeForAnco = static_cast<int32_t>(CallerTypeForAnco::DEFAULT);
     // Status of the UIAbility invoked by the StartABilityByCall
     CallToState state = CallToState::UNKNOW;
     // Returned resultCode of terminateSelfWithResult

@@ -91,5 +91,26 @@ HWTEST_F(SessionInfoTest, SessionInfo_DoMarshallingSix_001, TestSize.Level1)
     Parcel parcel;
     ASSERT_TRUE(sessionInfo.DoMarshallingSix(parcel));
 }
+
+HWTEST_F(SessionInfoTest, SessionInfo_DoMarshallingSeven_001, TestSize.Level1)
+{
+    SessionInfo sessionInfo;
+    Parcel parcel;
+    ASSERT_TRUE(sessionInfo.DoMarshallingSeven(parcel));
+}
+
+HWTEST_F(SessionInfoTest, SessionInfo_DoMarshallingSeven_002, TestSize.Level1)
+{
+    SessionInfo sessionInfo;
+    sessionInfo.isTargetPlugin = true;
+    sessionInfo.hostBundleName = "com.example.test";
+    sessionInfo.frameNum = 50;
+    sessionInfo.callerTypeForAnco = 1;
+    Want want;
+    want.SetAction("action.system.test");
+    sessionInfo.want = want;
+    Parcel parcel;
+    ASSERT_TRUE(sessionInfo.DoMarshallingSeven(parcel));
+}
 } // namespace AAFwk
 } // namespace OHOS
