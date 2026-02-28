@@ -897,6 +897,7 @@ public:
     static const std::string PARAM_ABILITY_URITYPES;
     static const std::string PARAM_ABILITY_APPINFOS;
     static const std::string PARAM_ASSERT_FAULT_SESSION_ID;
+    static const std::string PARAM_STRING_TRANS_FORMAT_UTF8;
     // module name string
     static const std::string PARAM_MODULE_NAME;
 

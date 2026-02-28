@@ -102,6 +102,7 @@ const std::string Want::PARAM_MODULE_NAME("moduleName");
 const std::string Want::PARAM_ABILITY_URITYPES("ohos.ability.params.uriTypes");
 const std::string Want::PARAM_ABILITY_APPINFOS("ohos.ability.params.appInfos");
 const std::string Want::PARAM_ASSERT_FAULT_SESSION_ID("ohos.ability.params.asssertFaultSessionId");
+const std::string Want::PARAM_STRING_TRANS_FORMAT_UTF8("ohos.ability.params.utf8format");
 
 const std::string Want::PARAM_BACK_TO_OTHER_MISSION_STACK("ability.params.backToOtherMissionStack");
 const std::string Want::PARM_LAUNCH_REASON_MESSAGE("ohos.params.launchReasonMessage");
@@ -1591,11 +1592,11 @@ void Want::ClearWant(Want *want)
 bool Want::Marshalling(Parcel &parcel) const
 {
     std::string ipcAction = GetAction();
-    if (GetDeviceId().empty()) {
+    parcel.SetMaxCapacity(PARAM_WANT_CAPACITY_EXPANSION);
+    if (GetBoolParam(Want::PARAM_STRING_TRANS_FORMAT_UTF8, false)) {
         bool needExpansion = true;
         ipcAction = PARAM_WANT_EXPANSION_TAG + ipcAction;
         parameters_.SetNeedExpansion(needExpansion); // add expand capacity flag
-        parcel.SetMaxCapacity(PARAM_WANT_CAPACITY_EXPANSION);
     }
 
     // write action
