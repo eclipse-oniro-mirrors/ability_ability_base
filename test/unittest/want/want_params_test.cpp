@@ -1685,5 +1685,335 @@ HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_to_json_0100, Function | MediumTes
     ASSERT_TRUE(js.contains("strKey"));
     EXPECT_EQ(js["strKey"], "OpenHarmony");
 }
+
+/**
+ * @tc.number: AaFwk_WantParams_PublicReadFromParcel_0100
+ * @tc.name: PublicReadFromParcel
+ * @tc.desc: Test PublicReadFromParcel with simple string parameter.
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_PublicReadFromParcel_0100, Function | MediumTest | Level1)
+{
+    WantParams paramsIn;
+    std::string keyStr = "testKey";
+    std::string valueStr = "testValue";
+    paramsIn.SetParam(keyStr, String::Box(valueStr));
+
+    Parcel parcel;
+    paramsIn.Marshalling(parcel);
+
+    WantParams paramsOut;
+    bool result = paramsOut.PublicReadFromParcel(parcel);
+    EXPECT_TRUE(result);
+    EXPECT_EQ(valueStr, String::Unbox(IString::Query(paramsOut.GetParam(keyStr))));
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_PublicReadFromParcel_0200
+ * @tc.name: PublicReadFromParcel
+ * @tc.desc: Test PublicReadFromParcel with nested WantParams.
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_PublicReadFromParcel_0200, Function | MediumTest | Level1)
+{
+    WantParams innerParams;
+    innerParams.SetParam("innerKey", String::Box("innerValue"));
+
+    WantParams outerParams;
+    outerParams.SetParam("outerKey", WantParamWrapper::Box(innerParams));
+
+    Parcel parcel;
+    outerParams.Marshalling(parcel);
+
+    WantParams paramsOut;
+    bool result = paramsOut.PublicReadFromParcel(parcel);
+    EXPECT_TRUE(result);
+
+    WantParams innerOut = WantParamWrapper::Unbox(IWantParams::Query(paramsOut.GetParam("outerKey")));
+    EXPECT_EQ("innerValue", String::Unbox(IString::Query(innerOut.GetParam("innerKey"))));
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_PublicReadFromParcel_0300
+ * @tc.name: PublicReadFromParcel
+ * @tc.desc: Test PublicReadFromParcel with array parameter.
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_PublicReadFromParcel_0300, Function | MediumTest | Level1)
+{
+    WantParams paramsIn;
+    sptr<IArray> ao = new (std::nothrow) Array(3, g_IID_IString);
+    ao->Set(0, String::Box("value0"));
+    ao->Set(1, String::Box("value1"));
+    ao->Set(2, String::Box("value2"));
+    paramsIn.SetParam("arrayKey", ao);
+
+    Parcel parcel;
+    paramsIn.Marshalling(parcel);
+
+    WantParams paramsOut;
+    bool result = paramsOut.PublicReadFromParcel(parcel);
+    EXPECT_TRUE(result);
+
+    IArray *arrayOut = IArray::Query(paramsOut.GetParam("arrayKey"));
+    ASSERT_NE(arrayOut, nullptr);
+    long size = 0;
+    arrayOut->GetLength(size);
+    EXPECT_EQ(size, 3);
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_PublicReadFromParcel_0400
+ * @tc.name: PublicReadFromParcel
+ * @tc.desc: Test PublicReadFromParcel with empty WantParams.
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_PublicReadFromParcel_0400, Function | MediumTest | Level1)
+{
+    WantParams paramsIn;
+
+    Parcel parcel;
+    paramsIn.Marshalling(parcel);
+
+    WantParams paramsOut;
+    bool result = paramsOut.PublicReadFromParcel(parcel);
+    EXPECT_TRUE(result);
+    EXPECT_TRUE(paramsOut.IsEmpty());
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_PublicReadFromParcel_0500
+ * @tc.name: PublicReadFromParcel
+ * @tc.desc: Test PublicReadFromParcel with multiple data types.
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_PublicReadFromParcel_0500, Function | MediumTest | Level1)
+{
+    WantParams paramsIn;
+    paramsIn.SetParam("strKey", String::Box("stringValue"));
+    paramsIn.SetParam("intKey", Integer::Box(12345));
+    paramsIn.SetParam("boolKey", Boolean::Box(true));
+    paramsIn.SetParam("doubleKey", Double::Box(3.14159));
+
+    Parcel parcel;
+    paramsIn.Marshalling(parcel);
+
+    WantParams paramsOut;
+    bool result = paramsOut.PublicReadFromParcel(parcel);
+    EXPECT_TRUE(result);
+
+    EXPECT_EQ("stringValue", String::Unbox(IString::Query(paramsOut.GetParam("strKey"))));
+    EXPECT_EQ(12345, Integer::Unbox(IInteger::Query(paramsOut.GetParam("intKey"))));
+    EXPECT_EQ(true, Boolean::Unbox(IBoolean::Query(paramsOut.GetParam("boolKey"))));
+    EXPECT_DOUBLE_EQ(3.14159, Double::Unbox(IDouble::Query(paramsOut.GetParam("doubleKey"))));
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_PublicReadFromParcel_0600
+ * @tc.name: PublicReadFromParcel
+ * @tc.desc: Test PublicReadFromParcel with depth parameter.
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_PublicReadFromParcel_0600, Function | MediumTest | Level1)
+{
+    WantParams paramsIn;
+    paramsIn.SetParam("key", String::Box("value"));
+
+    Parcel parcel;
+    paramsIn.Marshalling(parcel);
+
+    WantParams paramsOut;
+    bool result = paramsOut.PublicReadFromParcel(parcel, 5);
+    EXPECT_TRUE(result);
+    EXPECT_EQ("value", String::Unbox(IString::Query(paramsOut.GetParam("key"))));
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_PublicReadFromParcel_0700
+ * @tc.name: PublicReadFromParcel
+ * @tc.desc: Test PublicReadFromParcel with nested array of WantParams.
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_PublicReadFromParcel_0700, Function | MediumTest | Level1)
+{
+    sptr<IArray> ao = new (std::nothrow) Array(2, g_IID_IWantParams);
+    for (size_t i = 0; i < 2; i++) {
+        WantParams wp;
+        wp.SetParam("hello", String::Box("World"));
+        ao->Set(i, WantParamWrapper::Box(wp));
+    }
+
+    WantParams paramsIn;
+    paramsIn.SetParam("arrayKey", ao);
+
+    Parcel parcel;
+    paramsIn.Marshalling(parcel);
+
+    WantParams paramsOut;
+    bool result = paramsOut.PublicReadFromParcel(parcel);
+    EXPECT_TRUE(result);
+
+    IArray *arrayOut = IArray::Query(paramsOut.GetParam("arrayKey"));
+    ASSERT_NE(arrayOut, nullptr);
+    long size = 0;
+    arrayOut->GetLength(size);
+    EXPECT_EQ(size, 2);
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_PublicReadFromParcel_0800
+ * @tc.name: PublicReadFromParcel
+ * @tc.desc: Test PublicReadFromParcel with float type parameter.
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_PublicReadFromParcel_0800, Function | MediumTest | Level1)
+{
+    WantParams paramsIn;
+    float floatValue = 2.71828f;
+    paramsIn.SetParam("floatKey", Float::Box(floatValue));
+
+    Parcel parcel;
+    paramsIn.Marshalling(parcel);
+
+    WantParams paramsOut;
+    bool result = paramsOut.PublicReadFromParcel(parcel);
+    EXPECT_TRUE(result);
+    EXPECT_FLOAT_EQ(floatValue, Float::Unbox(IFloat::Query(paramsOut.GetParam("floatKey"))));
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_PublicReadFromParcel_0900
+ * @tc.name: PublicReadFromParcel
+ * @tc.desc: Test PublicReadFromParcel with byte type parameter.
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_PublicReadFromParcel_0900, Function | MediumTest | Level1)
+{
+    WantParams paramsIn;
+    byte byteValue = 255;
+    paramsIn.SetParam("byteKey", Byte::Box(byteValue));
+
+    Parcel parcel;
+    paramsIn.Marshalling(parcel);
+
+    WantParams paramsOut;
+    bool result = paramsOut.PublicReadFromParcel(parcel);
+    EXPECT_TRUE(result);
+    EXPECT_EQ(byteValue, Byte::Unbox(IByte::Query(paramsOut.GetParam("byteKey"))));
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_PublicReadFromParcel_1000
+ * @tc.name: PublicReadFromParcel
+ * @tc.desc: Test PublicReadFromParcel with short type parameter.
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_PublicReadFromParcel_1000, Function | MediumTest | Level1)
+{
+    WantParams paramsIn;
+    short shortValue = 32767;
+    paramsIn.SetParam("shortKey", Short::Box(shortValue));
+
+    Parcel parcel;
+    paramsIn.Marshalling(parcel);
+
+    WantParams paramsOut;
+    bool result = paramsOut.PublicReadFromParcel(parcel);
+    EXPECT_TRUE(result);
+    EXPECT_EQ(shortValue, Short::Unbox(IShort::Query(paramsOut.GetParam("shortKey"))));
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_PublicReadFromParcel_1100
+ * @tc.name: PublicReadFromParcel
+ * @tc.desc: Test PublicReadFromParcel with char type parameter.
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_PublicReadFromParcel_1100, Function | MediumTest | Level1)
+{
+    WantParams paramsIn;
+    zchar charValue = 'X';
+    paramsIn.SetParam("charKey", Char::Box(charValue));
+
+    Parcel parcel;
+    paramsIn.Marshalling(parcel);
+
+    WantParams paramsOut;
+    bool result = paramsOut.PublicReadFromParcel(parcel);
+    EXPECT_TRUE(result);
+    EXPECT_EQ(charValue, Char::Unbox(IChar::Query(paramsOut.GetParam("charKey"))));
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_PublicReadFromParcel_1200
+ * @tc.name: PublicReadFromParcel
+ * @tc.desc: Test PublicReadFromParcel with boolean array parameter.
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_PublicReadFromParcel_1200, Function | MediumTest | Level1)
+{
+    WantParams paramsIn;
+    sptr<IArray> ao = new (std::nothrow) Array(3, g_IID_IBoolean);
+    ao->Set(0, Boolean::Box(true));
+    ao->Set(1, Boolean::Box(false));
+    ao->Set(2, Boolean::Box(true));
+    paramsIn.SetParam("boolArrayKey", ao);
+
+    Parcel parcel;
+    paramsIn.Marshalling(parcel);
+
+    WantParams paramsOut;
+    bool result = paramsOut.PublicReadFromParcel(parcel);
+    EXPECT_TRUE(result);
+
+    IArray *arrayOut = IArray::Query(paramsOut.GetParam("boolArrayKey"));
+    ASSERT_NE(arrayOut, nullptr);
+    long size = 0;
+    arrayOut->GetLength(size);
+    EXPECT_EQ(size, 3);
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_PublicReadFromParcel_1300
+ * @tc.name: PublicReadFromParcel
+ * @tc.desc: Test PublicReadFromParcel with integer array parameter.
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_PublicReadFromParcel_1300, Function | MediumTest | Level1)
+{
+    WantParams paramsIn;
+    sptr<IArray> ao = new (std::nothrow) Array(3, g_IID_IInteger);
+    ao->Set(0, Integer::Box(100));
+    ao->Set(1, Integer::Box(200));
+    ao->Set(2, Integer::Box(300));
+    paramsIn.SetParam("intArrayKey", ao);
+
+    Parcel parcel;
+    paramsIn.Marshalling(parcel);
+
+    WantParams paramsOut;
+    bool result = paramsOut.PublicReadFromParcel(parcel);
+    EXPECT_TRUE(result);
+
+    IArray *arrayOut = IArray::Query(paramsOut.GetParam("intArrayKey"));
+    ASSERT_NE(arrayOut, nullptr);
+    long size = 0;
+    arrayOut->GetLength(size);
+    EXPECT_EQ(size, 3);
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_PublicReadFromParcel_1400
+ * @tc.name: PublicReadFromParcel
+ * @tc.desc: Test PublicReadFromParcel with double array parameter.
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_PublicReadFromParcel_1400, Function | MediumTest | Level1)
+{
+    WantParams paramsIn;
+    sptr<IArray> ao = new (std::nothrow) Array(2, g_IID_IDouble);
+    ao->Set(0, Double::Box(1.23));
+    ao->Set(1, Double::Box(4.56));
+    paramsIn.SetParam("doubleArrayKey", ao);
+
+    Parcel parcel;
+    paramsIn.Marshalling(parcel);
+
+    WantParams paramsOut;
+    bool result = paramsOut.PublicReadFromParcel(parcel);
+    EXPECT_TRUE(result);
+
+    IArray *arrayOut = IArray::Query(paramsOut.GetParam("doubleArrayKey"));
+    ASSERT_NE(arrayOut, nullptr);
+    long size = 0;
+    arrayOut->GetLength(size);
+    EXPECT_EQ(size, 2);
+}
 }
 }
