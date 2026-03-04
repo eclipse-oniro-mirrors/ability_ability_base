@@ -296,7 +296,7 @@ int32_t Direction_ConvertNative2Ets(const Global::Resource::Direction nativeValu
 static constexpr std::array<int, 7> ScreenDensityArray = {0, 120, 160, 240, 320, 480, 640};
 Global::Resource::ScreenDensity ScreenDensity_ConvertEts2Native(const int32_t index)
 {
-    if (index < 0 || index >= ScreenDensityArray.size()) {
+    if (index < 0 || index >= static_cast<int32_t>(ScreenDensityArray.size())) {
         return Global::Resource::ScreenDensity::SCREEN_DENSITY_NOT_SET;
     }
     return static_cast<Global::Resource::ScreenDensity>(ScreenDensityArray[index]);
