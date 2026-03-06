@@ -125,6 +125,7 @@ const std::string Want::ATOMIC_SERVICE_SHARE_ROUTER("ohos.params.atomicservice.s
 const std::string Want::PARAM_APP_KEEP_ALIVE_ENABLED("ohos.param.app.keepAliveEnabled");
 const std::string Want::PARAM_ABILITY_UNIFIED_DATA_KEY("ohos.param.ability.udKey");
 const std::string Want::PARAM_WANT_EXPANSION_TAG("ohos.want.IPC.string8:");
+const std::string Want::UI_EXTENSION_ROOT_TOKEN("ohos.param.uiExtension.rootHostToken");
 const int32_t Want::PARAM_WANT_CAPACITY_EXPANSION(512 * 1024);
 
 /**
