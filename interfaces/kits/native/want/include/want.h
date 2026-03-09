@@ -933,6 +933,7 @@ public:
     static const std::string PARAM_WANT_EXPANSION_TAG;
     static const int32_t PARAM_WANT_CAPACITY_EXPANSION;
 
+    static const std::string UI_EXTENSION_ROOT_TOKEN;
 private:
     WantParams parameters_;
     Operation operation_;
