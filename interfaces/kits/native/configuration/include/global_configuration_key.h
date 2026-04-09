@@ -35,6 +35,7 @@ namespace GlobalConfigurationKey {
     constexpr const char* THEME = "ohos.application.theme";
     constexpr const char* THEME_ID = "ohos.application.themeId";
     constexpr const char* THEME_ICON = "ohos.application.themeIcon";
+    constexpr const char* THEME_SKIN = "ohos.application.themeSkin";
     constexpr const char* SYSTEM_FONT_ID = "ohos.system.fontId";
     constexpr const char* SYSTEM_FONT_SIZE_SCALE = "ohos.system.fontSizeScale";
     constexpr const char* SYSTEM_FONT_WEIGHT_SCALE = "ohos.system.fontWeightScale";
