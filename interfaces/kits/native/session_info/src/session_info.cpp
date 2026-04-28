@@ -69,18 +69,6 @@ bool SessionInfo::DoMarshallingOne(Parcel& parcel) const
         }
     }
 
-    if (renderSession) {
-        if (!parcel.WriteBool(true) ||
-            !(static_cast<MessageParcel*>(&parcel))->WriteRemoteObject(renderSession)) {
-            ABILITYBASE_LOGE("Write renderSession failed");
-            return false;
-        }
-    } else {
-        if (!parcel.WriteBool(false)) {
-            return false;
-        }
-    }
-
     if (callerSession) {
         if (!parcel.WriteBool(true) ||
             !(static_cast<MessageParcel*>(&parcel))->WriteRemoteObject(callerSession)) {
@@ -410,10 +398,6 @@ SessionInfo* SessionInfo::Unmarshalling(Parcel& parcel)
     }
     if (parcel.ReadBool()) {
         info->sessionToken = (static_cast<MessageParcel*>(&parcel))->ReadRemoteObject();
-    }
-
-    if (parcel.ReadBool()) {
-        info->renderSession = (static_cast<MessageParcel*>(&parcel))->ReadRemoteObject();
     }
 
     if (parcel.ReadBool()) {
