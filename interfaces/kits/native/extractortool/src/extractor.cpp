@@ -148,6 +148,15 @@ std::unique_ptr<FileMapper> Extractor::GetSafeData(const std::string &fileName)
         return nullptr;
     }
 
+    auto result = zipFile_.IsEntryDataConsistent(relativePath);
+    if (result != ConsistencyResult::CONSISTENT) {
+        ABILITYBASE_LOGW("Entry data not consistent for %{public}s, result=%{public}d",
+            relativePath.c_str(), static_cast<int>(result));
+    }
+    if (result == ConsistencyResult::OFFSET_MISMATCH) {
+        return nullptr;
+    }
+
     return zipFile_.CreateFileMapper(relativePath, FileMapperType::SAFE_ABC);
 }
 

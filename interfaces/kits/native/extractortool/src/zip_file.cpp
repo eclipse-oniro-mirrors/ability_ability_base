@@ -1004,5 +1004,93 @@ void ZipFile::SetAutoCloseFd(bool autoClose)
     }
     zipFileReader_->SetClosable(autoClose);
 }
+
+ConsistencyResult ZipFile::IsEntryDataConsistent(const std::string &fileName) const
+{
+    ZipEntry zipEntry;
+    if (!GetEntry(fileName, zipEntry)) {
+        ABILITYBASE_LOGE("GetEntry failed for %{public}s", fileName.c_str());
+        return ConsistencyResult::READ_ERROR;
+    }
+
+    if (zipEntry.localHeaderOffset == 0) {
+        return ConsistencyResult::CONSISTENT;
+    }
+
+    uint32_t currentOffset = 0;
+    while (currentOffset < endDir_.offset) {
+        LocalHeader header = {0};
+        std::string entryName;
+        if (!ReadLocalHeaderName(currentOffset, header, entryName)) {
+            return ConsistencyResult::READ_ERROR;
+        }
+        if (entryName == fileName) {
+            if (currentOffset != zipEntry.localHeaderOffset) {
+                ABILITYBASE_LOGE("Offset mismatch for %{public}s: "
+                    "sequential=%{public}u, centralDir=%{public}u",
+                    fileName.c_str(), currentOffset,
+                    zipEntry.localHeaderOffset);
+                return ConsistencyResult::OFFSET_MISMATCH;
+            }
+            return ConsistencyResult::CONSISTENT;
+        }
+        if (header.flags & FLAG_DATA_DESC) {
+            ABILITYBASE_LOGW("Data descriptor set at %{public}u, skip traversal",
+                currentOffset);
+            return ConsistencyResult::DATA_DESCRIPTOR_SET;
+        }
+        uint64_t nextOffset = static_cast<uint64_t>(currentOffset) +
+            sizeof(LocalHeader) + header.nameSize + header.extraSize +
+            header.compressedSize;
+        if (nextOffset > endDir_.offset) {
+            ABILITYBASE_LOGE("Entry exceeds central directory at %{public}u",
+                currentOffset);
+            return ConsistencyResult::READ_ERROR;
+        }
+        currentOffset = static_cast<uint32_t>(nextOffset);
+    }
+
+    ABILITYBASE_LOGE("Entry not found during traversal: %{public}s",
+        fileName.c_str());
+    return ConsistencyResult::ENTRY_NOT_FOUND;
+}
+
+bool ZipFile::ReadLocalHeaderName(uint32_t offset, LocalHeader &header,
+    std::string &name) const
+{
+    if (zipFileReader_ == nullptr) {
+        ABILITYBASE_LOGE("zipFileReader_ is nullptr");
+        return false;
+    }
+    if (fileStartPos_ > UINT64_MAX - offset) {
+        ABILITYBASE_LOGE("readPos overflow at offset %{public}u", offset);
+        return false;
+    }
+    ZipPos readPos = fileStartPos_ + offset;
+    if (!zipFileReader_->ReadBuffer(reinterpret_cast<uint8_t*>(&header),
+        readPos, sizeof(LocalHeader))) {
+        ABILITYBASE_LOGE("Read local header failed at offset %{public}u", offset);
+        return false;
+    }
+
+    if (header.nameSize >= MAX_FILE_NAME) {
+        ABILITYBASE_LOGE("Invalid nameSize(%{public}hu) at offset %{public}u",
+            header.nameSize, offset);
+        return false;
+    }
+
+    ZipPos namePos = readPos + sizeof(LocalHeader);
+    if (namePos > UINT64_MAX - header.nameSize) {
+        ABILITYBASE_LOGE("namePos overflow at offset %{public}u", offset);
+        return false;
+    }
+    name.resize(header.nameSize);
+    if (!zipFileReader_->ReadBuffer(reinterpret_cast<uint8_t*>(&name[0]),
+        namePos, header.nameSize)) {
+        ABILITYBASE_LOGE("Read file name failed at offset %{public}u", offset);
+        return false;
+    }
+    return true;
+}
 }  // namespace AbilityBase
 }  // namespace OHOS
