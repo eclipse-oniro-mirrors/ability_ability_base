@@ -24,7 +24,13 @@ IINTERFACE_IMPL_1(Long, Object, ILong);
 ErrCode Long::GetValue(long &value) /* [out] */
 {
     VALIDATE_NOT_NULL(&value);
+    value = static_cast<long>(value_);
+    return ERR_OK;
+}
 
+ErrCode Long::GetValue64(int64_t &value) /* [out] */
+{
+    VALIDATE_NOT_NULL(&value);
     value = value_;
     return ERR_OK;
 }
@@ -46,6 +52,11 @@ sptr<ILong> Long::Box(long value) /* [in] */
     return object;
 }
 
+sptr<ILong> Long::Box64(int64_t value) /* [in] */
+{
+    return sptr<Long>(new Long(value, ConstructorTag::ForBox64));
+}
+
 long Long::Unbox(ILong *object) /* [in] */
 {
     long value = 0;
@@ -54,6 +65,22 @@ long Long::Unbox(ILong *object) /* [in] */
     }
     object->GetValue(value);
     return value;
+}
+
+int64_t Long::Unbox64(ILong *object) /* [in] */
+{
+    if (object == nullptr) {
+        return 0;
+    }
+    Long *longObj = static_cast<Long*>(ILong::Query(object));
+    if (longObj != nullptr) {
+        int64_t value;
+        longObj->GetValue64(value);
+        return value;
+    }
+    long tmp = 0;
+    object->GetValue(tmp);
+    return static_cast<int64_t>(tmp);
 }
 
 sptr<ILong> Long::Parse(const std::string &str) /* [in] */

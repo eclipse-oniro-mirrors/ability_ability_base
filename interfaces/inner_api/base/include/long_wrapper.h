@@ -22,9 +22,14 @@ namespace OHOS {
 namespace AAFwk {
 class Long final : public Object, public ILong {
 public:
-    Long(long value) : value_(value)
+    Long(long value) : value_(static_cast<int64_t>(value))
+    {}
+private:
+    enum class ConstructorTag { ForBox64 };
+    Long(int64_t value, ConstructorTag) : value_(value)
     {}
 
+public:
     ~Long()
     {}
 
@@ -32,13 +37,19 @@ public:
 
     ErrCode GetValue(long &value) override; /* [out] */
 
+    ErrCode GetValue64(int64_t &value); /* [out] */
+
     bool Equals(IObject &other) override; /* [in] */
 
     std::string ToString() override;
 
     static sptr<ILong> Box(long value); /* [in] */
 
+    static sptr<ILong> Box64(int64_t value); /* [in] */
+    
     static long Unbox(ILong *object); /* [in] */
+
+    static int64_t Unbox64(ILong *object); /* [in] */
 
     static sptr<ILong> Parse(const std::string &str); /* [in] */
 
@@ -46,7 +57,7 @@ public:
     static constexpr char SIGNATURE = 'J';
 
 private:
-    long value_;
+    int64_t value_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS
