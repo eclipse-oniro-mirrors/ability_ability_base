@@ -167,6 +167,14 @@ enum class CacheMode: uint32_t {
     CACHE_ALL
 };
 
+enum class ConsistencyResult {
+    CONSISTENT = 0,
+    OFFSET_MISMATCH,
+    DATA_DESCRIPTOR_SET,
+    ENTRY_NOT_FOUND,
+    READ_ERROR,
+};
+
 // zip file extract class for bundle format.
 class ZipFile {
 public:
@@ -216,6 +224,9 @@ public:
     void SetCacheMode(CacheMode cacheMode);
     bool UseDirCache() const;
     void SetAutoCloseFd(bool autoClose);
+    ConsistencyResult IsEntryDataConsistent(const std::string &fileName) const;
+    bool ReadLocalHeaderName(uint32_t offset, LocalHeader &header,
+        std::string &name) const;
 private:
     /**
      * @brief Check the EndDir object.

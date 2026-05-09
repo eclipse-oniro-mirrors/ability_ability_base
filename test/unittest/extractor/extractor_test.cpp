@@ -602,5 +602,317 @@ HWTEST_F(ExtractorTest, CreateZipFileReader_001, TestSize.Level1)
 
     EXPECT_EQ(zipFileReader->file_, nullptr);
 }
+
+/*
+ * Feature: ZipFile
+ * Function: IsEntryDataConsistent
+ * SubFunction: NA
+ * EnvConditions: NA
+ * CaseDescription: Test IsEntryDataConsistent with entry not in entriesMap
+ */
+HWTEST_F(ExtractorTest, IsEntryDataConsistent_001, TestSize.Level1)
+{
+    std::shared_ptr<Extractor> extractor = std::make_shared<Extractor>(testPath_);
+    extractor->Init();
+    auto result = extractor->zipFile_.IsEntryDataConsistent("not_exist_entry");
+    EXPECT_EQ(result, ConsistencyResult::READ_ERROR);
+}
+
+/*
+ * Feature: ZipFile
+ * Function: IsEntryDataConsistent
+ * SubFunction: NA
+ * EnvConditions: NA
+ * CaseDescription: Test IsEntryDataConsistent with zipFileReader nullptr
+ */
+HWTEST_F(ExtractorTest, IsEntryDataConsistent_002, TestSize.Level1)
+{
+    std::shared_ptr<Extractor> extractor = std::make_shared<Extractor>(testPath_);
+    extractor->Init();
+    extractor->zipFile_.zipFileReader_ = nullptr;
+    auto result = extractor->zipFile_.IsEntryDataConsistent(MAIN_ABILITY_FILENAME);
+    EXPECT_EQ(result, ConsistencyResult::READ_ERROR);
+}
+
+/*
+ * Feature: ZipFile
+ * Function: IsEntryDataConsistent
+ * SubFunction: NA
+ * EnvConditions: NA
+ * CaseDescription: Test IsEntryDataConsistent with real entry and offset set to 0
+ */
+HWTEST_F(ExtractorTest, IsEntryDataConsistent_003, TestSize.Level1)
+{
+    std::shared_ptr<Extractor> extractor = std::make_shared<Extractor>(testPath_);
+    extractor->Init();
+    std::vector<std::string> fileList;
+    extractor->GetSpecifiedTypeFiles(fileList, ".abc");
+    if (fileList.empty()) {
+        return;
+    }
+    std::string fileName = fileList.front();
+    ZipEntry zipEntry;
+    extractor->zipFile_.GetEntry(fileName, zipEntry);
+    zipEntry.localHeaderOffset = 0;
+    extractor->zipFile_.entriesMap_[fileName] = zipEntry;
+    auto result = extractor->zipFile_.IsEntryDataConsistent(fileName);
+    if (zipEntry.localHeaderOffset == 0) {
+        EXPECT_EQ(result, ConsistencyResult::CONSISTENT);
+    } else {
+        EXPECT_EQ(result, ConsistencyResult::OFFSET_MISMATCH);
+    }
+}
+
+/*
+ * Feature: ZipFile
+ * Function: IsEntryDataConsistent
+ * SubFunction: NA
+ * EnvConditions: NA
+ * CaseDescription: Test IsEntryDataConsistent with fake entry name using real offset
+ */
+HWTEST_F(ExtractorTest, IsEntryDataConsistent_004, TestSize.Level1)
+{
+    std::shared_ptr<Extractor> extractor = std::make_shared<Extractor>(testPath_);
+    extractor->Init();
+    std::vector<std::string> fileList;
+    extractor->GetSpecifiedTypeFiles(fileList, ".abc");
+    if (fileList.empty()) {
+        return;
+    }
+    std::string realFileName = fileList.front();
+    ZipEntry zipEntry;
+    extractor->zipFile_.GetEntry(realFileName, zipEntry);
+    std::string fakeFileName = "fake_entry_name.abc";
+    ZipEntry fakeZipEntry;
+    fakeZipEntry.localHeaderOffset = zipEntry.localHeaderOffset;
+    fakeZipEntry.fileName = fakeFileName;
+    extractor->zipFile_.entriesMap_.emplace(fakeFileName, fakeZipEntry);
+    auto result = extractor->zipFile_.IsEntryDataConsistent(fakeFileName);
+    EXPECT_EQ(result, ConsistencyResult::CONSISTENT);
+}
+
+/*
+ * Feature: ZipFile
+ * Function: IsEntryDataConsistent
+ * SubFunction: NA
+ * EnvConditions: NA
+ * CaseDescription: Test IsEntryDataConsistent with real entry but modified offset
+ */
+HWTEST_F(ExtractorTest, IsEntryDataConsistent_005, TestSize.Level1)
+{
+    std::shared_ptr<Extractor> extractor = std::make_shared<Extractor>(testPath_);
+    extractor->Init();
+    std::vector<std::string> fileList;
+    extractor->GetSpecifiedTypeFiles(fileList, ".abc");
+    if (fileList.empty()) {
+        return;
+    }
+    std::string fileName = fileList.front();
+    ZipEntry zipEntry;
+    extractor->zipFile_.GetEntry(fileName, zipEntry);
+    uint32_t originalOffset = zipEntry.localHeaderOffset;
+    zipEntry.localHeaderOffset = originalOffset + 100;
+    extractor->zipFile_.entriesMap_[fileName] = zipEntry;
+    auto result = extractor->zipFile_.IsEntryDataConsistent(fileName);
+    EXPECT_EQ(result, ConsistencyResult::OFFSET_MISMATCH);
+}
+
+/*
+ * Feature: ZipFile
+ * Function: IsEntryDataConsistent
+ * SubFunction: NA
+ * EnvConditions: NA
+ * CaseDescription: Test IsEntryDataConsistent with real entry and correct offset
+ */
+HWTEST_F(ExtractorTest, IsEntryDataConsistent_006, TestSize.Level1)
+{
+    std::shared_ptr<Extractor> extractor = std::make_shared<Extractor>(testPath_);
+    extractor->Init();
+    std::vector<std::string> fileList;
+    extractor->GetSpecifiedTypeFiles(fileList, ".abc");
+    if (fileList.empty()) {
+        return;
+    }
+    std::string fileName = fileList.front();
+    auto result = extractor->zipFile_.IsEntryDataConsistent(fileName);
+    EXPECT_EQ(result, ConsistencyResult::CONSISTENT);
+}
+
+/*
+ * Feature: ZipFile
+ * Function: ReadLocalHeaderName
+ * SubFunction: NA
+ * EnvConditions: NA
+ * CaseDescription: Test ReadLocalHeaderName with fileStartPos overflow
+ */
+HWTEST_F(ExtractorTest, ReadLocalHeaderName_001, TestSize.Level1)
+{
+    std::shared_ptr<Extractor> extractor = std::make_shared<Extractor>(testPath_);
+    extractor->Init();
+    extractor->zipFile_.fileStartPos_ = UINT64_MAX;
+    LocalHeader header;
+    std::string name;
+    bool result = extractor->zipFile_.ReadLocalHeaderName(1, header, name);
+    EXPECT_FALSE(result);
+}
+
+/*
+ * Feature: ZipFile
+ * Function: ReadLocalHeaderName
+ * SubFunction: NA
+ * EnvConditions: NA
+ * CaseDescription: Test ReadLocalHeaderName with zipFileReader nullptr
+ */
+HWTEST_F(ExtractorTest, ReadLocalHeaderName_002, TestSize.Level1)
+{
+    std::shared_ptr<Extractor> extractor = std::make_shared<Extractor>(testPath_);
+    extractor->Init();
+    extractor->zipFile_.zipFileReader_ = nullptr;
+    LocalHeader header;
+    std::string name;
+    bool result = extractor->zipFile_.ReadLocalHeaderName(0, header, name);
+    EXPECT_FALSE(result);
+}
+
+/*
+ * Feature: ZipFile
+ * Function: ReadLocalHeaderName
+ * SubFunction: NA
+ * EnvConditions: NA
+ * CaseDescription: Test ReadLocalHeaderName with valid entry
+ */
+HWTEST_F(ExtractorTest, ReadLocalHeaderName_005, TestSize.Level1)
+{
+    std::shared_ptr<Extractor> extractor = std::make_shared<Extractor>(testPath_);
+    extractor->Init();
+    LocalHeader header;
+    std::string name;
+    bool result = extractor->zipFile_.ReadLocalHeaderName(0, header, name);
+    EXPECT_TRUE(result);
+}
+
+/*
+ * Feature: Extractor
+ * Function: GetSafeData
+ * SubFunction: NA
+ * EnvConditions: NA
+ * CaseDescription: Test GetSafeData with non-abc file extension
+ */
+HWTEST_F(ExtractorTest, GetSafeData_001, TestSize.Level1)
+{
+    std::shared_ptr<Extractor> extractor = std::make_shared<Extractor>(testPath_);
+    extractor->Init();
+    auto result = extractor->GetSafeData(MODULE_JSON_PATH);
+    EXPECT_EQ(result, nullptr);
+}
+
+/*
+ * Feature: Extractor
+ * Function: GetSafeData
+ * SubFunction: NA
+ * EnvConditions: NA
+ * CaseDescription: Test GetSafeData with abc file but entry not in map
+ */
+HWTEST_F(ExtractorTest, GetSafeData_002, TestSize.Level1)
+{
+    std::shared_ptr<Extractor> extractor = std::make_shared<Extractor>(testPath_);
+    extractor->Init();
+    auto result = extractor->GetSafeData("not_exist.abc");
+    EXPECT_EQ(result, nullptr);
+}
+
+/*
+ * Feature: Extractor
+ * Function: GetSafeData
+ * SubFunction: NA
+ * EnvConditions: NA
+ * CaseDescription: Test GetSafeData with abc file but zipFileReader nullptr
+ */
+HWTEST_F(ExtractorTest, GetSafeData_003, TestSize.Level1)
+{
+    std::shared_ptr<Extractor> extractor = std::make_shared<Extractor>(testPath_);
+    extractor->Init();
+    extractor->zipFile_.zipFileReader_ = nullptr;
+    std::vector<std::string> fileList;
+    extractor->GetSpecifiedTypeFiles(fileList, ".abc");
+    if (fileList.empty()) {
+        return;
+    }
+    auto result = extractor->GetSafeData(fileList.front());
+    EXPECT_EQ(result, nullptr);
+}
+
+/*
+ * Feature: Extractor
+ * Function: GetSafeData
+ * SubFunction: NA
+ * EnvConditions: NA
+ * CaseDescription: Test GetSafeData with abc file and offset mismatch
+ */
+HWTEST_F(ExtractorTest, GetSafeData_004, TestSize.Level1)
+{
+    std::shared_ptr<Extractor> extractor = std::make_shared<Extractor>(testPath_);
+    extractor->Init();
+    std::vector<std::string> fileList;
+    extractor->GetSpecifiedTypeFiles(fileList, ".abc");
+    if (fileList.empty()) {
+        return;
+    }
+    std::string fileName = fileList.front();
+    ZipEntry zipEntry;
+    extractor->zipFile_.GetEntry(fileName, zipEntry);
+    zipEntry.localHeaderOffset += 100;
+    extractor->zipFile_.entriesMap_[fileName] = zipEntry;
+    auto result = extractor->GetSafeData(fileName);
+    EXPECT_EQ(result, nullptr);
+}
+
+/*
+ * Feature: Extractor
+ * Function: GetSafeData
+ * SubFunction: NA
+ * EnvConditions: NA
+ * CaseDescription: Test GetSafeData with abc file and consistent result
+ */
+HWTEST_F(ExtractorTest, GetSafeData_005, TestSize.Level1)
+{
+    std::shared_ptr<Extractor> extractor = std::make_shared<Extractor>(testPath_);
+    extractor->Init();
+    std::vector<std::string> fileList;
+    extractor->GetSpecifiedTypeFiles(fileList, ".abc");
+    if (fileList.empty()) {
+        return;
+    }
+    auto result = extractor->GetSafeData(fileList.front());
+    EXPECT_NE(result, nullptr);
+}
+
+/*
+ * Feature: Extractor
+ * Function: GetSafeData
+ * SubFunction: NA
+ * EnvConditions: NA
+ * CaseDescription: Test GetSafeData with fake entry name using real offset
+ */
+HWTEST_F(ExtractorTest, GetSafeData_006, TestSize.Level1)
+{
+    std::shared_ptr<Extractor> extractor = std::make_shared<Extractor>(testPath_);
+    extractor->Init();
+    std::vector<std::string> fileList;
+    extractor->GetSpecifiedTypeFiles(fileList, ".abc");
+    if (fileList.empty()) {
+        return;
+    }
+    std::string realFileName = fileList.front();
+    ZipEntry zipEntry;
+    extractor->zipFile_.GetEntry(realFileName, zipEntry);
+    std::string fakeFileName = "fake_entry_name.abc";
+    ZipEntry fakeZipEntry;
+    fakeZipEntry.localHeaderOffset = zipEntry.localHeaderOffset;
+    fakeZipEntry.fileName = fakeFileName;
+    extractor->zipFile_.entriesMap_.emplace(fakeFileName, fakeZipEntry);
+    auto result = extractor->GetSafeData(fakeFileName);
+    EXPECT_EQ(result, nullptr);
+}
 }  // namespace AbilityBase
 }  // namespace OHOS
