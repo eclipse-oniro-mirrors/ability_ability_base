@@ -28,6 +28,7 @@
                 "c_utils",
                 "hilog",
                 "hitrace",
+                "icu",
                 "ipc",
                 "resource_management",
                 "json",

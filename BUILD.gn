@@ -398,7 +398,10 @@ ohos_shared_library("extractresourcemanager") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
 
-  external_deps = [ "resource_management:global_resmgr" ]
+  external_deps = [
+    "resource_management:global_resmgr",
+    "icu:shared_icuuc",
+  ]
 
   public_configs = [ ":ability_extract_resource_manager_config" ]
 
