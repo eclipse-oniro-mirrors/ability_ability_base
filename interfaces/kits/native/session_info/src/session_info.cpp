@@ -300,6 +300,11 @@ bool SessionInfo::DoMarshallingFive(Parcel& parcel) const
         return false;
     }
 
+    if (!parcel.WriteInt32(scbRequestId)) {
+        ABILITYBASE_LOGE("Write scbRequestId failed");
+        return false;
+    }
+
     if (!parcel.WriteInt32(userId)) {
         ABILITYBASE_LOGE("Write userId failed");
         return false;
@@ -467,6 +472,7 @@ SessionInfo* SessionInfo::ReadParcelOne(SessionInfo* info, Parcel& parcel)
     info->needClearInNotShowRecent = parcel.ReadBool();
     info->instanceKey = parcel.ReadString();
     info->requestId = parcel.ReadInt32();
+    info->scbRequestId = parcel.ReadInt32();
     info->userId = parcel.ReadInt32();
     info->isDensityFollowHost = parcel.ReadBool();
     info->specifiedFlag = parcel.ReadString();
