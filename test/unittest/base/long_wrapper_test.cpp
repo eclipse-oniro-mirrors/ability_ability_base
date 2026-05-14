@@ -49,6 +49,20 @@ HWTEST_F(AAfWKLongWrapperTest, LongWrapperTest_GetValue_001, TestSize.Level1)
 }
 
 /**
+ * @tc.number: LongWrapperTest_GetValue64_001
+ * @tc.name: GetValue64
+ * @tc.desc:
+ */
+HWTEST_F(AAfWKLongWrapperTest, LongWrapperTest_GetValue64_001, TestSize.Level1)
+{
+    Long longValue(1410065409LL);
+    int64_t value = 0;
+    ErrCode result = longValue.GetValue64(value);
+    EXPECT_EQ(ERR_OK, result);
+    EXPECT_EQ(value, 1410065409LL);
+}
+
+/**
  * @tc.number: LongWrapperTest_ToString_001
  * @tc.name: ToString
  * @tc.desc:
@@ -71,6 +85,19 @@ HWTEST_F(AAfWKLongWrapperTest, LongWrapperTest_Box_001, TestSize.Level1)
   Long longValue(value);
   long result = longValue.Unbox(longValue.Box(value));
   EXPECT_EQ(1410065409, result);
+}
+
+/**
+ * @tc.number: LongWrapperTest_Box64_001
+ * @tc.name: Box64
+ * @tc.desc:
+ */
+HWTEST_F(AAfWKLongWrapperTest, LongWrapperTest_Box64_001, TestSize.Level1)
+{
+    int64_t value = 1410065409LL;
+    Long longValue(value);
+    int64_t result = longValue.Unbox64(longValue.Box64(value));
+    EXPECT_EQ(1410065409LL, result);
 }
 
 /**
