@@ -153,7 +153,7 @@ std::unique_ptr<FileMapper> Extractor::GetSafeData(const std::string &fileName)
         ABILITYBASE_LOGW("Entry data not consistent for %{public}s, result=%{public}d",
             relativePath.c_str(), static_cast<int>(result));
     }
-    if (result == ConsistencyResult::OFFSET_MISMATCH) {
+    if (result == ConsistencyResult::OFFSET_MISMATCH || result == ConsistencyResult::ENTRY_NOT_FOUND) {
         return nullptr;
     }
 

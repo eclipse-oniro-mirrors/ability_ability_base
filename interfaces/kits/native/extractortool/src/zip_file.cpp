@@ -1018,7 +1018,7 @@ ConsistencyResult ZipFile::IsEntryDataConsistent(const std::string &fileName) co
     }
 
     uint32_t currentOffset = 0;
-    while (currentOffset < endDir_.offset) {
+    while (currentOffset <= zipEntry.localHeaderOffset) {
         LocalHeader header = {0};
         std::string entryName;
         if (!ReadLocalHeaderName(currentOffset, header, entryName)) {
@@ -1042,10 +1042,9 @@ ConsistencyResult ZipFile::IsEntryDataConsistent(const std::string &fileName) co
         uint64_t nextOffset = static_cast<uint64_t>(currentOffset) +
             sizeof(LocalHeader) + header.nameSize + header.extraSize +
             header.compressedSize;
-        if (nextOffset > endDir_.offset) {
-            ABILITYBASE_LOGE("Entry exceeds central directory at %{public}u",
-                currentOffset);
-            return ConsistencyResult::READ_ERROR;
+        if (nextOffset > UINT32_MAX) {
+            ABILITYBASE_LOGE("nextOffset overflow at %{public}u", currentOffset);
+            return ConsistencyResult::ENTRY_NOT_FOUND;
         }
         currentOffset = static_cast<uint32_t>(nextOffset);
     }
