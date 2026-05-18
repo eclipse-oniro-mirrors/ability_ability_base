@@ -100,6 +100,7 @@ public:
     bool isMinimizedDuringFreeInstall = false;
     std::string instanceKey = "";
     int32_t requestId = 0;
+    int32_t scbRequestId = 0;
     bool isDensityFollowHost = false;
     std::string specifiedFlag = "";
     bool reuseDelegatorWindow = false;

@@ -891,6 +891,8 @@ public:
     static const std::string PARAM_RESV_REQUEST_TOKEN_CODE;
     static const std::string PARAM_RESV_ABILITY_INFO_CALLBACK;
     static const std::string PARAM_RESV_START_TIME;
+    static const std::string PARAM_RESV_APP_REQUEST_ID;
+    static const std::string PARAM_RESV_SCB_REQUEST_ID;
     static const std::string PARAM_ABILITY_ACQUIRE_SHARE_DATA;
     static const std::string PARAM_ABILITY_RECOVERY_RESTART;
     static const std::string PARAM_ABILITY_URITYPES;
