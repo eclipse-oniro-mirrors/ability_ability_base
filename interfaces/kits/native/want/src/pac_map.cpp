@@ -244,6 +244,7 @@ PacMap::~PacMap()
 PacMap &PacMap::operator=(const PacMap &other)
 {
     if (&other != this) {
+        std::lock_guard<std::mutex> mLock(mapLock_);
         dataList_.clear();
         std::string str = MapListToString(other.dataList_);
         StringToMapList(str, dataList_);
