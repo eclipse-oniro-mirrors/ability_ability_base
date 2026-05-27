@@ -1842,5 +1842,81 @@ HWTEST_F(PacMapTest, AppExecFwk_InnerPutPacMapValue_0100, Function | MediumTest 
     
     GTEST_LOG_(INFO) << "AppExecFwk_InnerPutPacMapValue_0100 end";
 }
+
+/**
+ * @tc.number: AppExecFwk_PacMap_OperatorAssign_0100
+ * @tc.name: OperatorAssign
+ * @tc.desc: Verify operator= with data copy.
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_OperatorAssign_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_OperatorAssign_0100 start";
+
+    PacMap srcMap;
+    FillData(srcMap);
+    PacMap destMap;
+    destMap = srcMap;
+    EXPECT_EQ(true, destMap.Equals(srcMap));
+
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_OperatorAssign_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_OperatorAssign_0200
+ * @tc.name: OperatorAssign
+ * @tc.desc: Verify operator= self-assignment does not corrupt data.
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_OperatorAssign_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_OperatorAssign_0200 start";
+
+    FillData(*pacmap_.get());
+    int sizeBefore = pacmap_->GetSize();
+    *pacmap_ = *pacmap_;
+    EXPECT_EQ(sizeBefore, pacmap_->GetSize());
+    EXPECT_EQ(PAC_MPA_TEST_INT, pacmap_->GetIntValue("key_int"));
+
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_OperatorAssign_0200 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_OperatorAssign_0300
+ * @tc.name: OperatorAssign
+ * @tc.desc: Verify operator= from empty PacMap clears destination.
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_OperatorAssign_0300, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_OperatorAssign_0300 start";
+
+    FillData(*pacmap_.get());
+    EXPECT_EQ(false, pacmap_->IsEmpty());
+    PacMap emptyMap;
+    *pacmap_ = emptyMap;
+    EXPECT_EQ(true, pacmap_->IsEmpty());
+
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_OperatorAssign_0300 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_OperatorAssign_0400
+ * @tc.name: OperatorAssign
+ * @tc.desc: Verify operator= deep copy isolation.
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_OperatorAssign_0400, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_OperatorAssign_0400 start";
+
+    PacMap srcMap;
+    srcMap.PutIntValue("key_int", PAC_MPA_TEST_INT);
+    srcMap.PutStringValue("key_string", "original");
+
+    PacMap destMap;
+    destMap = srcMap;
+
+    srcMap.PutStringValue("key_string", "modified");
+    EXPECT_EQ(std::string("original"), destMap.GetStringValue("key_string"));
+
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_OperatorAssign_0400 end";
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
