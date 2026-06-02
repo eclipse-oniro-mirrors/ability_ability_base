@@ -58,6 +58,7 @@
 // object data
 #define PACMAP_DATA_USEROBJECT 0x00010000
 #define PACMAP_DATA_PACMAP 0x00020000
+#define PACMAP_MAX_DEPTH 100
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -499,8 +500,8 @@ private:
     bool EqualPacMapData(const PacMapList &leftPacMapList, const PacMapList &rightPacMapList);
     bool ReadFromParcel(Parcel &parcel);
 
-    bool ParseJson(Json::Value &data, PacMapList &mapList);
-    bool ParseJsonItem(PacMapList &mapList, const std::string &key, Json::Value &item);
+    bool ParseJson(Json::Value &data, PacMapList &mapList, int depth = 0);
+    bool ParseJsonItem(PacMapList &mapList, const std::string &key, Json::Value &item, int depth = 0);
     bool ParseJsonItemArray(PacMapList &mapList, const std::string &key, Json::Value &item);
     bool ParseJsonItemArrayShort(PacMapList &mapList, const std::string &key, Json::Value &item);
     bool ParseJsonItemArrayInteger(PacMapList &mapList, const std::string &key, Json::Value &item);
@@ -513,9 +514,9 @@ private:
     bool ParseJsonItemArrayString(PacMapList &mapList, const std::string &key, Json::Value &item);
 
     bool InnerPutObjectValue(PacMapList &mapList, const std::string &key, Json::Value &item);
-    bool InnerPutPacMapValue(PacMapList &mapList, const std::string &key, Json::Value &item);
+    bool InnerPutPacMapValue(PacMapList &mapList, const std::string &key, Json::Value &item, int depth = 0);
 
-    bool ToJson(const PacMapList &mapList, Json::Value &dataObject) const;
+    bool ToJson(const PacMapList &mapList, Json::Value &dataObject, int depth = 0) const;
 
     std::string MapListToString(const PacMapList &mapList) const;
     bool StringToMapList(const std::string &str, PacMapList &mapList);
