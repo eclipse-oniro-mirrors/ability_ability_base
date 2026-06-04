@@ -1918,5 +1918,81 @@ HWTEST_F(PacMapTest, AppExecFwk_PacMap_OperatorAssign_0400, Function | MediumTes
 
     GTEST_LOG_(INFO) << "AppExecFwk_PacMap_OperatorAssign_0400 end";
 }
+
+/**
+ * @tc.number: AppExecFwk_PacMap_InnerPutPacMapValue_DepthLimit_0100
+ * @tc.name: InnerPutPacMapValue DepthLimit
+ * @tc.desc: Verify nested PacMap within PACMAP_MAX_DEPTH can serialize/deserialize.
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_InnerPutPacMapValue_DepthLimit_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_InnerPutPacMapValue_DepthLimit_0100 start";
+
+    PacMap root;
+    PacMap *current = &root;
+    for (int i = 0; i < PACMAP_MAX_DEPTH - 1; i++) {
+        PacMap inner;
+        inner.PutIntValue("val", i);
+        current->PutPacMap("nested", inner);
+        auto it = current->dataList_.find("nested");
+        current = static_cast<PacMap *>(IPacMap::Query(it->second.GetRefPtr()));
+    }
+
+    std::string serialized = root.ToString();
+    EXPECT_FALSE(serialized.empty());
+
+    PacMap restored;
+    bool result = restored.FromString(serialized);
+    EXPECT_TRUE(result);
+
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_InnerPutPacMapValue_DepthLimit_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_InnerPutPacMapValue_DepthLimit_0200
+ * @tc.name: InnerPutPacMapValue DepthLimit
+ * @tc.desc: Verify FromString returns false when depth exceeds PACMAP_MAX_DEPTH.
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_InnerPutPacMapValue_DepthLimit_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_InnerPutPacMapValue_DepthLimit_0200 start";
+
+    std::string innerJson = "{\"val\":{\"type\":2,\"data\":0}}";
+    for (int i = 0; i < PACMAP_MAX_DEPTH + 1; i++) {
+        innerJson = "{\"nested\":{\"type\":131072,\"data\":" + innerJson + "}}";
+    }
+    std::string str = "{\"pacmap\":" + innerJson + "}";
+
+    PacMap restored;
+    bool result = restored.FromString(str);
+    EXPECT_FALSE(result);
+
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_InnerPutPacMapValue_DepthLimit_0200 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_InnerPutPacMapValue_DepthLimit_0300
+ * @tc.name: InnerPutPacMapValue DepthLimit
+ * @tc.desc: Verify ToString returns empty when depth exceeds PACMAP_MAX_DEPTH.
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_InnerPutPacMapValue_DepthLimit_0300, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_InnerPutPacMapValue_DepthLimit_0300 start";
+
+    PacMap root;
+    PacMap *current = &root;
+    for (int i = 0; i < PACMAP_MAX_DEPTH + 1; i++) {
+        PacMap inner;
+        inner.PutIntValue("val", i);
+        current->PutPacMap("nested", inner);
+        auto it = current->dataList_.find("nested");
+        current = static_cast<PacMap *>(IPacMap::Query(it->second.GetRefPtr()));
+    }
+
+    std::string serialized = root.ToString();
+    EXPECT_TRUE(serialized.empty());
+
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_InnerPutPacMapValue_DepthLimit_0300 end";
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

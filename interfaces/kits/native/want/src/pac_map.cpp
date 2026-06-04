@@ -1187,7 +1187,10 @@ std::string PacMap::MapListToString(const PacMapList &mapList) const
     Json::Value root;
     Json::Value dataObject;
 
-    ToJson(mapList, dataObject);
+    bool isOK = ToJson(mapList, dataObject);
+    if (!isOK) {
+        return std::string("");
+    }
     root["pacmap"] = dataObject;
 
     std::ostringstream os;
@@ -1202,8 +1205,11 @@ std::string PacMap::MapListToString(const PacMapList &mapList) const
     }
 }
 
-bool PacMap::ToJson(const PacMapList &mapList, Json::Value &dataObject) const
+bool PacMap::ToJson(const PacMapList &mapList, Json::Value &dataObject, int depth) const
 {
+    if (depth >= PACMAP_MAX_DEPTH) {
+        return false;
+    }
     for (auto it = mapList.begin(); it != mapList.end(); it++) {
         Json::Value item;
         bool isOK = false;
@@ -1213,7 +1219,7 @@ bool PacMap::ToJson(const PacMapList &mapList, Json::Value &dataObject) const
                 continue;
             }
             Json::Value item2;
-            isOK = pacmap->ToJson(pacmap->dataList_, item2);
+            isOK = pacmap->ToJson(pacmap->dataList_, item2, depth + 1);
             if (isOK) {
                 item["type"] = PACMAP_DATA_PACMAP;
                 item["data"] = item2;
@@ -1498,8 +1504,11 @@ bool PacMap::StringToMapList(const std::string &str, PacMapList &mapList)
     return ParseJson(dataObject, mapList);
 }
 
-bool PacMap::ParseJson(Json::Value &data, PacMapList &mapList)
+bool PacMap::ParseJson(Json::Value &data, PacMapList &mapList, int depth)
 {
+    if (depth >= PACMAP_MAX_DEPTH) {
+        return false;
+    }
     if (data.isNull() || !data.isObject()) {
         return false;
     }
@@ -1510,8 +1519,13 @@ bool PacMap::ParseJson(Json::Value &data, PacMapList &mapList)
     Json::Value item;
     for (size_t i = 0; i < keyList.size(); i++) {
         item = data[keyList[i]];
-        if (!item.isNull() && item.isObject() && JudgeType(item)) {
-            ParseJsonItem(mapList, keyList[i], item);
+        if (item.isNull() || !item.isObject() || !JudgeType(item)) {
+            continue;
+        }
+        bool isPacMapType = item["type"].asInt() == PACMAP_DATA_PACMAP;
+        bool parseResult = ParseJsonItem(mapList, keyList[i], item, depth);
+        if (isPacMapType && !parseResult) {
+            return false;
         }
     }
     return true;
@@ -1550,9 +1564,8 @@ bool PacMap::JudgeType(Json::Value &item)
     return false;
 }
 
-bool PacMap::ParseJsonItem(PacMapList &mapList, const std::string &key, Json::Value &item)
+bool PacMap::ParseJsonItem(PacMapList &mapList, const std::string &key, Json::Value &item, int depth)
 {
-    // base data, object data, arry data
     switch (item["type"].asInt()) {
         case PACMAP_DATA_SHORT:
             InnerPutShortValue(mapList, key, item["data"].asInt());
@@ -1585,8 +1598,7 @@ bool PacMap::ParseJsonItem(PacMapList &mapList, const std::string &key, Json::Va
             InnerPutObjectValue(mapList, key, item);
             break;
         case PACMAP_DATA_PACMAP:
-            InnerPutPacMapValue(mapList, key, item);
-            break;
+            return InnerPutPacMapValue(mapList, key, item, depth);
         default:
             return ParseJsonItemArray(mapList, key, item);
     }
@@ -1857,8 +1869,11 @@ bool PacMap::InnerPutObjectValue(PacMapList &mapList, const std::string &key, Js
     return true;
 }
 
-bool PacMap::InnerPutPacMapValue(PacMapList &mapList, const std::string &key, Json::Value &item)
+bool PacMap::InnerPutPacMapValue(PacMapList &mapList, const std::string &key, Json::Value &item, int depth)
 {
+    if (depth >= PACMAP_MAX_DEPTH) {
+        return false;
+    }
     Json::Value value = item["data"];
 
     if (value.isNull()) {
@@ -1869,7 +1884,7 @@ bool PacMap::InnerPutPacMapValue(PacMapList &mapList, const std::string &key, Js
         return false;
     }
     sptr<IPacMap> sp = p;
-    if (p->ParseJson(value, p->dataList_)) {
+    if (p->ParseJson(value, p->dataList_, depth + 1)) {
         mapList.emplace(key, sp);
         return true;
     }
