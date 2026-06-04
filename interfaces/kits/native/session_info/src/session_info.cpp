@@ -17,7 +17,6 @@
 
 #include "ability_base_log_wrapper.h"
 #include "ability_start_setting.h"
-#include "js_window_animation_utils.h"
 #include "process_options.h"
 #include "start_window_option.h"
 #include "wm_animation_common.h"
