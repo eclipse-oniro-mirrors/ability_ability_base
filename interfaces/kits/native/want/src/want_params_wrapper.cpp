@@ -15,6 +15,7 @@
 #include "want_params_wrapper.h"
 
 #include <algorithm>
+#include "ability_base_log_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -152,20 +153,38 @@ sptr<IWantParams> WantParamWrapper::Parse(const std::string &str)
             } else if (str[strnum] == '"') {
                 if (key == "") {
                     strnum++;
-                    key = str.substr(strnum, str.find('"', strnum) - strnum);
-                    strnum = str.find('"', strnum);
+                    size_t pos = str.find('"', strnum);
+                    if (pos == std::string::npos) {
+                        ABILITYBASE_LOGE("Parse: unmatched quote at pos %{public}zu", strnum);
+                        wantParams = WantParams();
+                        break;
+                    }
+                    key = str.substr(strnum, pos - strnum);
+                    strnum = pos;
                 } else if (typeId == 0) {
                     strnum++;
-                    typeId = atoi(str.substr(strnum, str.find('"', strnum) - strnum).c_str());
+                    size_t pos = str.find('"', strnum);
+                    if (pos == std::string::npos) {
+                        ABILITYBASE_LOGE("Parse: unmatched quote at pos %{public}zu", strnum);
+                        wantParams = WantParams();
+                        break;
+                    }
+                    typeId = atoi(str.substr(strnum, pos - strnum).c_str());
                     if (errno == ERANGE) {
                         return nullptr;
                     }
-                    strnum = str.find('"', strnum);
+                    strnum = pos;
                 } else {
                     strnum++;
+                    size_t pos = str.find('"', strnum);
+                    if (pos == std::string::npos) {
+                        ABILITYBASE_LOGE("Parse: unmatched quote at pos %{public}zu", strnum);
+                        wantParams = WantParams();
+                        break;
+                    }
                     wantParams.SetParam(key,
-                        WantParams::GetInterfaceByType(typeId, str.substr(strnum, str.find('"', strnum) - strnum)));
-                    strnum = str.find('"', strnum);
+                        WantParams::GetInterfaceByType(typeId, str.substr(strnum, pos - strnum)));
+                    strnum = pos;
                     typeId = 0;
                     key = "";
                 }
@@ -205,20 +224,38 @@ WantParams WantParamWrapper::ParseWantParams(const std::string &str)
         } else if (str[strnum] == '"') {
             if (key == "") {
                 strnum++;
-                key = str.substr(strnum, str.find('"', strnum) - strnum);
-                strnum = str.find('"', strnum);
+                size_t pos = str.find('"', strnum);
+                if (pos == std::string::npos) {
+                    ABILITYBASE_LOGE("ParseWantParams: unmatched quote at pos %{public}zu", strnum);
+                    wantParams = WantParams();
+                    break;
+                }
+                key = str.substr(strnum, pos - strnum);
+                strnum = pos;
             } else if (typeId == 0) {
                 strnum++;
-                typeId = atoi(str.substr(strnum, str.find('"', strnum) - strnum).c_str());
+                size_t pos = str.find('"', strnum);
+                if (pos == std::string::npos) {
+                    ABILITYBASE_LOGE("ParseWantParams: unmatched quote at pos %{public}zu", strnum);
+                    wantParams = WantParams();
+                    break;
+                }
+                typeId = atoi(str.substr(strnum, pos - strnum).c_str());
                 if (errno == ERANGE) {
                     return wantParams;
                 }
-                strnum = str.find('"', strnum);
+                strnum = pos;
             } else {
                 strnum++;
+                size_t pos = str.find('"', strnum);
+                if (pos == std::string::npos) {
+                    ABILITYBASE_LOGE("ParseWantParams: unmatched quote at pos %{public}zu", strnum);
+                    wantParams = WantParams();
+                    break;
+                }
                 wantParams.SetParam(key,
-                    WantParams::GetInterfaceByType(typeId, str.substr(strnum, str.find('"', strnum) - strnum)));
-                strnum = str.find('"', strnum);
+                    WantParams::GetInterfaceByType(typeId, str.substr(strnum, pos - strnum)));
+                strnum = pos;
                 typeId = 0;
                 key = "";
             }
@@ -257,16 +294,30 @@ WantParams WantParamWrapper::ParseWantParamsWithBrackets(const std::string &str)
         } else if (str[strnum] == '"') {
             if (key == "") {
                 strnum++;
-                key = str.substr(strnum, str.find('"', strnum) - strnum);
-                strnum = str.find('"', strnum);
+                size_t pos = str.find('"', strnum);
+                if (pos == std::string::npos) {
+                    ABILITYBASE_LOGE("ParseWantParamsWithBrackets: unmatched quote at pos %{public}zu",
+                        strnum);
+                    wantParams = WantParams();
+                    break;
+                }
+                key = str.substr(strnum, pos - strnum);
+                strnum = pos;
             } else if (typeId == 0) {
                 type_index_before = strnum;
                 strnum++;
-                typeId = atoi(str.substr(strnum, str.find('"', strnum) - strnum).c_str());
+                size_t pos = str.find('"', strnum);
+                if (pos == std::string::npos) {
+                    ABILITYBASE_LOGE("ParseWantParamsWithBrackets: unmatched quote at pos %{public}zu",
+                        strnum);
+                    wantParams = WantParams();
+                    break;
+                }
+                typeId = atoi(str.substr(strnum, pos - strnum).c_str());
                 if (errno == ERANGE) {
                     return wantParams;
                 }
-                strnum = str.find('"', strnum);
+                strnum = pos;
             } else {
                 strnum++;
                 auto index = FindMatchingBrackets(str, type_index_before - 1);
