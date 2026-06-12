@@ -35,6 +35,17 @@ size_t FindMatchingBrackets(const std::string &str, size_t leftIndex)
     }
     return -1;
 }
+
+bool FindNextQuote(const std::string &str, size_t &strnum, size_t &pos, const char *func)
+{
+    strnum++;
+    pos = str.find('"', strnum);
+    if (pos == std::string::npos) {
+        ABILITYBASE_LOGE("%{public}s: unmatched quote at pos %{public}zu", func, strnum);
+        return false;
+    }
+    return true;
+}
 }
 constexpr int32_t WANT_PARAM_WRAPPER_TWO = 2;
 
@@ -152,20 +163,16 @@ sptr<IWantParams> WantParamWrapper::Parse(const std::string &str)
                 strnum = num + 1;
             } else if (str[strnum] == '"') {
                 if (key == "") {
-                    strnum++;
-                    size_t pos = str.find('"', strnum);
-                    if (pos == std::string::npos) {
-                        ABILITYBASE_LOGE("Parse: unmatched quote at pos %{public}zu", strnum);
+                    size_t pos = 0;
+                    if (!FindNextQuote(str, strnum, pos, "Parse")) {
                         wantParams = WantParams();
                         break;
                     }
                     key = str.substr(strnum, pos - strnum);
                     strnum = pos;
                 } else if (typeId == 0) {
-                    strnum++;
-                    size_t pos = str.find('"', strnum);
-                    if (pos == std::string::npos) {
-                        ABILITYBASE_LOGE("Parse: unmatched quote at pos %{public}zu", strnum);
+                    size_t pos = 0;
+                    if (!FindNextQuote(str, strnum, pos, "Parse")) {
                         wantParams = WantParams();
                         break;
                     }
@@ -175,10 +182,8 @@ sptr<IWantParams> WantParamWrapper::Parse(const std::string &str)
                     }
                     strnum = pos;
                 } else {
-                    strnum++;
-                    size_t pos = str.find('"', strnum);
-                    if (pos == std::string::npos) {
-                        ABILITYBASE_LOGE("Parse: unmatched quote at pos %{public}zu", strnum);
+                    size_t pos = 0;
+                    if (!FindNextQuote(str, strnum, pos, "Parse")) {
                         wantParams = WantParams();
                         break;
                     }
@@ -223,20 +228,16 @@ WantParams WantParamWrapper::ParseWantParams(const std::string &str)
             strnum = num + 1;
         } else if (str[strnum] == '"') {
             if (key == "") {
-                strnum++;
-                size_t pos = str.find('"', strnum);
-                if (pos == std::string::npos) {
-                    ABILITYBASE_LOGE("ParseWantParams: unmatched quote at pos %{public}zu", strnum);
+                size_t pos = 0;
+                if (!FindNextQuote(str, strnum, pos, "ParseWantParams")) {
                     wantParams = WantParams();
                     break;
                 }
                 key = str.substr(strnum, pos - strnum);
                 strnum = pos;
             } else if (typeId == 0) {
-                strnum++;
-                size_t pos = str.find('"', strnum);
-                if (pos == std::string::npos) {
-                    ABILITYBASE_LOGE("ParseWantParams: unmatched quote at pos %{public}zu", strnum);
+                size_t pos = 0;
+                if (!FindNextQuote(str, strnum, pos, "ParseWantParams")) {
                     wantParams = WantParams();
                     break;
                 }
@@ -246,10 +247,8 @@ WantParams WantParamWrapper::ParseWantParams(const std::string &str)
                 }
                 strnum = pos;
             } else {
-                strnum++;
-                size_t pos = str.find('"', strnum);
-                if (pos == std::string::npos) {
-                    ABILITYBASE_LOGE("ParseWantParams: unmatched quote at pos %{public}zu", strnum);
+                size_t pos = 0;
+                if (!FindNextQuote(str, strnum, pos, "ParseWantParams")) {
                     wantParams = WantParams();
                     break;
                 }
@@ -293,11 +292,8 @@ WantParams WantParamWrapper::ParseWantParamsWithBrackets(const std::string &str)
             strnum = num + 1;
         } else if (str[strnum] == '"') {
             if (key == "") {
-                strnum++;
-                size_t pos = str.find('"', strnum);
-                if (pos == std::string::npos) {
-                    ABILITYBASE_LOGE("ParseWantParamsWithBrackets: unmatched quote at pos %{public}zu",
-                        strnum);
+                size_t pos = 0;
+                if (!FindNextQuote(str, strnum, pos, "ParseWantParamsWithBrackets")) {
                     wantParams = WantParams();
                     break;
                 }
@@ -305,11 +301,8 @@ WantParams WantParamWrapper::ParseWantParamsWithBrackets(const std::string &str)
                 strnum = pos;
             } else if (typeId == 0) {
                 type_index_before = strnum;
-                strnum++;
-                size_t pos = str.find('"', strnum);
-                if (pos == std::string::npos) {
-                    ABILITYBASE_LOGE("ParseWantParamsWithBrackets: unmatched quote at pos %{public}zu",
-                        strnum);
+                size_t pos = 0;
+                if (!FindNextQuote(str, strnum, pos, "ParseWantParamsWithBrackets")) {
                     wantParams = WantParams();
                     break;
                 }
