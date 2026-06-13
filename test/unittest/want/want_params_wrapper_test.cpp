@@ -458,3 +458,43 @@ HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_2100, Function | MediumTes
     auto longTest3Value = wantParams.GetParam("longTest3");
     EXPECT_EQ(longTest3Value, nullptr);
 }
+
+/**
+ * @tc.number: Want_Param_Wrapper_2200
+ * @tc.name: Parse with unmatched quote returns empty
+ * @tc.desc: Verify Parse does not infinite loop on malformed input with stray quote.
+ */
+HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_2200, Function | MediumTest | Level1)
+{
+    // Colon format: {"k":{"101":{"x"}"a":{"1":"v"}}}
+    // After nested {"x"}, strnum=17 then loop inc->18, skipping the " at pos 17.
+    // Remaining effective quotes from pos 18: 5 (odd) — last " triggers npos.
+    std::string malformed = "{\"k\":{\"101\":{\"x\"}\"a\":{\"1\":\"v\"}}}";
+    auto result = WantParamWrapper::Parse(malformed);
+    WantParams wantParams = WantParamWrapper::Unbox(result);
+    EXPECT_EQ(wantParams.Size(), 0);
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_2300
+ * @tc.name: ParseWantParams with unmatched quote returns empty
+ * @tc.desc: Verify ParseWantParams does not infinite loop on malformed input with stray quote.
+ */
+HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_2300, Function | MediumTest | Level1)
+{
+    std::string malformed = "{\"k\":{\"101\":{\"x\"}\"a\":{\"1\":\"v\"}}}";
+    WantParams wantParams = WantParamWrapper::ParseWantParams(malformed);
+    EXPECT_EQ(wantParams.Size(), 0);
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_2400
+ * @tc.name: ParseWantParamsWithBrackets with unmatched quote returns empty
+ * @tc.desc: Verify ParseWantParamsWithBrackets does not infinite loop on malformed input with stray quote.
+ */
+HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_2400, Function | MediumTest | Level1)
+{
+    std::string malformed = "{\"k\":{\"101\":{\"x\"}\"a\":{\"1\":\"v\"}}}";
+    WantParams wantParams = WantParamWrapper::ParseWantParamsWithBrackets(malformed);
+    EXPECT_EQ(wantParams.Size(), 0);
+}

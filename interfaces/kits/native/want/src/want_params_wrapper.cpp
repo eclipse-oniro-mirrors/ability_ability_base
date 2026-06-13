@@ -15,6 +15,7 @@
 #include "want_params_wrapper.h"
 
 #include <algorithm>
+#include "ability_base_log_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -33,6 +34,17 @@ size_t FindMatchingBrackets(const std::string &str, size_t leftIndex)
         }
     }
     return -1;
+}
+
+bool FindNextQuote(const std::string &str, size_t &strnum, size_t &pos, const char *func)
+{
+    strnum++;
+    pos = str.find('"', strnum);
+    if (pos == std::string::npos) {
+        ABILITYBASE_LOGE("%{public}s: unmatched quote at pos %{public}zu", func, strnum);
+        return false;
+    }
+    return true;
 }
 }
 constexpr int32_t WANT_PARAM_WRAPPER_TWO = 2;
@@ -151,21 +163,33 @@ sptr<IWantParams> WantParamWrapper::Parse(const std::string &str)
                 strnum = num + 1;
             } else if (str[strnum] == '"') {
                 if (key == "") {
-                    strnum++;
-                    key = str.substr(strnum, str.find('"', strnum) - strnum);
-                    strnum = str.find('"', strnum);
+                    size_t pos = 0;
+                    if (!FindNextQuote(str, strnum, pos, "Parse")) {
+                        wantParams = WantParams();
+                        break;
+                    }
+                    key = str.substr(strnum, pos - strnum);
+                    strnum = pos;
                 } else if (typeId == 0) {
-                    strnum++;
-                    typeId = atoi(str.substr(strnum, str.find('"', strnum) - strnum).c_str());
+                    size_t pos = 0;
+                    if (!FindNextQuote(str, strnum, pos, "Parse")) {
+                        wantParams = WantParams();
+                        break;
+                    }
+                    typeId = atoi(str.substr(strnum, pos - strnum).c_str());
                     if (errno == ERANGE) {
                         return nullptr;
                     }
-                    strnum = str.find('"', strnum);
+                    strnum = pos;
                 } else {
-                    strnum++;
+                    size_t pos = 0;
+                    if (!FindNextQuote(str, strnum, pos, "Parse")) {
+                        wantParams = WantParams();
+                        break;
+                    }
                     wantParams.SetParam(key,
-                        WantParams::GetInterfaceByType(typeId, str.substr(strnum, str.find('"', strnum) - strnum)));
-                    strnum = str.find('"', strnum);
+                        WantParams::GetInterfaceByType(typeId, str.substr(strnum, pos - strnum)));
+                    strnum = pos;
                     typeId = 0;
                     key = "";
                 }
@@ -204,21 +228,33 @@ WantParams WantParamWrapper::ParseWantParams(const std::string &str)
             strnum = num + 1;
         } else if (str[strnum] == '"') {
             if (key == "") {
-                strnum++;
-                key = str.substr(strnum, str.find('"', strnum) - strnum);
-                strnum = str.find('"', strnum);
+                size_t pos = 0;
+                if (!FindNextQuote(str, strnum, pos, "ParseWantParams")) {
+                    wantParams = WantParams();
+                    break;
+                }
+                key = str.substr(strnum, pos - strnum);
+                strnum = pos;
             } else if (typeId == 0) {
-                strnum++;
-                typeId = atoi(str.substr(strnum, str.find('"', strnum) - strnum).c_str());
+                size_t pos = 0;
+                if (!FindNextQuote(str, strnum, pos, "ParseWantParams")) {
+                    wantParams = WantParams();
+                    break;
+                }
+                typeId = atoi(str.substr(strnum, pos - strnum).c_str());
                 if (errno == ERANGE) {
                     return wantParams;
                 }
-                strnum = str.find('"', strnum);
+                strnum = pos;
             } else {
-                strnum++;
+                size_t pos = 0;
+                if (!FindNextQuote(str, strnum, pos, "ParseWantParams")) {
+                    wantParams = WantParams();
+                    break;
+                }
                 wantParams.SetParam(key,
-                    WantParams::GetInterfaceByType(typeId, str.substr(strnum, str.find('"', strnum) - strnum)));
-                strnum = str.find('"', strnum);
+                    WantParams::GetInterfaceByType(typeId, str.substr(strnum, pos - strnum)));
+                strnum = pos;
                 typeId = 0;
                 key = "";
             }
@@ -256,17 +292,25 @@ WantParams WantParamWrapper::ParseWantParamsWithBrackets(const std::string &str)
             strnum = num + 1;
         } else if (str[strnum] == '"') {
             if (key == "") {
-                strnum++;
-                key = str.substr(strnum, str.find('"', strnum) - strnum);
-                strnum = str.find('"', strnum);
+                size_t pos = 0;
+                if (!FindNextQuote(str, strnum, pos, "ParseWantParamsWithBrackets")) {
+                    wantParams = WantParams();
+                    break;
+                }
+                key = str.substr(strnum, pos - strnum);
+                strnum = pos;
             } else if (typeId == 0) {
                 type_index_before = strnum;
-                strnum++;
-                typeId = atoi(str.substr(strnum, str.find('"', strnum) - strnum).c_str());
+                size_t pos = 0;
+                if (!FindNextQuote(str, strnum, pos, "ParseWantParamsWithBrackets")) {
+                    wantParams = WantParams();
+                    break;
+                }
+                typeId = atoi(str.substr(strnum, pos - strnum).c_str());
                 if (errno == ERANGE) {
                     return wantParams;
                 }
-                strnum = str.find('"', strnum);
+                strnum = pos;
             } else {
                 strnum++;
                 auto index = FindMatchingBrackets(str, type_index_before - 1);
