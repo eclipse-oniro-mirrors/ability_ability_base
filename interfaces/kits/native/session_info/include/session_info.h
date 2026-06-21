@@ -49,6 +49,7 @@ public:
     static SessionInfo* Unmarshalling(Parcel& parcel);
 
     sptr<IRemoteObject> sessionToken = nullptr;
+    sptr<IRemoteObject> renderSession = nullptr;
     sptr<IRemoteObject> callerSession = nullptr;
     sptr<IRemoteObject> callerToken = nullptr;
     sptr<IRemoteObject> parentToken = nullptr;
