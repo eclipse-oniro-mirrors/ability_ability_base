@@ -925,6 +925,53 @@ HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_CompareInterface_1002, Function | 
 }
 
 /**
+ * @tc.number: AaFwk_WantParams_GetInterfaceByType_InvalidArray_0100
+ * @tc.name: GetInterfaceByType
+ * @tc.desc: Verify GetInterfaceByType returns nullptr when array parsing fails
+ *           due to an invalid element that ParseElement rejects.
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_GetInterfaceByType_InvalidArray_0100, Function | MediumTest | Level1)
+{
+    // "Z3{true,maybe,false}" — "maybe" is not a valid Boolean.
+    // Boolean::Parse("maybe") returns nullptr, ParseElement detects this,
+    // ParseBoolean returns nullptr, Array::Parse returns nullptr.
+    const std::string value = "Z3{true,maybe,false}";
+    sptr<IInterface> result = WantParams::GetInterfaceByType(WantParams::VALUE_TYPE_ARRAY, value);
+    EXPECT_TRUE(result == nullptr);
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_GetInterfaceByType_InvalidArray_0200
+ * @tc.name: GetInterfaceByType
+ * @tc.desc: Verify GetInterfaceByType returns nullptr for an integer array
+ *           containing a non-integer element.
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_GetInterfaceByType_InvalidArray_0200, Function | MediumTest | Level1)
+{
+    // "I3{2,abc,4}" — "abc" is not a valid integer.
+    const std::string value = "I3{2,abc,4}";
+    sptr<IInterface> result = WantParams::GetInterfaceByType(WantParams::VALUE_TYPE_ARRAY, value);
+    EXPECT_TRUE(result == nullptr);
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_CompareInterface_InvalidArray_0100
+ * @tc.name: CompareInterface
+ * @tc.desc: Verify CompareInterface returns false when both interfaces are nullptr
+ *           (GetInterfaceByType returns nullptr for invalid array, type checks fail).
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_CompareInterface_InvalidArray_0100, Function | MediumTest | Level1)
+{
+    // Both elements fail to parse → both are nullptr → GetDataType returns VALUE_TYPE_NULL
+    // VALUE_TYPE_NULL != VALUE_TYPE_ARRAY → CompareInterface returns false
+    const std::string value = "Z3{true,maybe,false}";
+    sptr<IInterface> iObj1 = WantParams::GetInterfaceByType(WantParams::VALUE_TYPE_ARRAY, value);
+    sptr<IInterface> iObj2 = WantParams::GetInterfaceByType(WantParams::VALUE_TYPE_ARRAY, value);
+    bool result = WantParams::CompareInterface(iObj1, iObj2, WantParams::VALUE_TYPE_ARRAY);
+    EXPECT_FALSE(result);
+}
+
+/**
  * @tc.number: AaFwk_WantParams_WriteArrayToParcelString_0100
  * @tc.name: WriteArrayToParcelString
  * @tc.desc: Test WriteArrayToParcelString string content.
