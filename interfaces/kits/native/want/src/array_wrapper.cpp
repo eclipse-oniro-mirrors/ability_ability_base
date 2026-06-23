@@ -99,7 +99,15 @@ bool Array::Equals(IObject &other) /* [in] */
     }
 
     for (long i = 0; i < size_; i++) {
-        if (!Object::Equals(*(values_[i].GetRefPtr()), *(otherObj->values_[i].GetRefPtr()))) {
+        auto *left = values_[i].GetRefPtr();
+        auto *right = otherObj->values_[i].GetRefPtr();
+        if (left == nullptr && right == nullptr) {
+            continue;
+        }
+        if (left == nullptr || right == nullptr) {
+            return false;
+        }
+        if (!Object::Equals(*left, *right)) {
             return false;
         }
     }
@@ -154,7 +162,9 @@ sptr<IArray> Array::ParseString(const std::string &values, long size)
     sptr<IArray> array = sptr<Array>::MakeSptr(size, g_IID_IString);
     if (array != nullptr) {
         auto func = [](const std::string &str) -> sptr<IInterface> { return String::Parse(str); };
-        ParseElement(array, func, values, size);
+        if (!ParseElement(array, func, values, size)) {
+            return nullptr;
+        }
     }
     return array;
 }
@@ -164,7 +174,9 @@ sptr<IArray> Array::ParseBoolean(const std::string &values, long size)
     sptr<IArray> array = sptr<Array>::MakeSptr(size, g_IID_IBoolean);
     if (array != nullptr) {
         auto func = [](const std::string &str) -> sptr<IInterface> { return Boolean::Parse(str); };
-        ParseElement(array, func, values, size);
+        if (!ParseElement(array, func, values, size)) {
+            return nullptr;
+        }
     }
     return array;
 }
@@ -174,7 +186,9 @@ sptr<IArray> Array::ParseByte(const std::string &values, long size)
     sptr<IArray> array = sptr<Array>::MakeSptr(size, g_IID_IByte);
     if (array != nullptr) {
         auto func = [](const std::string &str) -> sptr<IInterface> { return Byte::Parse(str); };
-        ParseElement(array, func, values, size);
+        if (!ParseElement(array, func, values, size)) {
+            return nullptr;
+        }
     }
     return array;
 }
@@ -184,7 +198,9 @@ sptr<IArray> Array::ParseShort(const std::string &values, long size)
     sptr<IArray> array = sptr<Array>::MakeSptr(size, g_IID_IShort);
     if (array != nullptr) {
         auto func = [](const std::string &str) -> sptr<IInterface> { return Short::Parse(str); };
-        ParseElement(array, func, values, size);
+        if (!ParseElement(array, func, values, size)) {
+            return nullptr;
+        }
     }
     return array;
 }
@@ -194,7 +210,9 @@ sptr<IArray> Array::ParseInteger(const std::string &values, long size)
     sptr<IArray> array = sptr<Array>::MakeSptr(size, g_IID_IInteger);
     if (array != nullptr) {
         auto func = [](const std::string &str) -> sptr<IInterface> { return Integer::Parse(str); };
-        ParseElement(array, func, values, size);
+        if (!ParseElement(array, func, values, size)) {
+            return nullptr;
+        }
     }
     return array;
 }
@@ -204,7 +222,9 @@ sptr<IArray> Array::ParseLong(const std::string &values, long size)
     sptr<IArray> array = sptr<Array>::MakeSptr(size, g_IID_ILong);
     if (array != nullptr) {
         auto func = [](const std::string &str) -> sptr<IInterface> { return Long::Parse(str); };
-        ParseElement(array, func, values, size);
+        if (!ParseElement(array, func, values, size)) {
+            return nullptr;
+        }
     }
     return array;
 }
@@ -214,7 +234,9 @@ sptr<IArray> Array::ParseFloat(const std::string &values, long size)
     sptr<IArray> array = sptr<Array>::MakeSptr(size, g_IID_IFloat);
     if (array != nullptr) {
         auto func = [](const std::string &str) -> sptr<IInterface> { return Float::Parse(str); };
-        ParseElement(array, func, values, size);
+        if (!ParseElement(array, func, values, size)) {
+            return nullptr;
+        }
     }
     return array;
 }
@@ -224,7 +246,9 @@ sptr<IArray> Array::ParseDouble(const std::string &values, long size)
     sptr<IArray> array = sptr<Array>::MakeSptr(size, g_IID_IDouble);
     if (array != nullptr) {
         auto func = [](const std::string &str) -> sptr<IInterface> { return Double::Parse(str); };
-        ParseElement(array, func, values, size);
+        if (!ParseElement(array, func, values, size)) {
+            return nullptr;
+        }
     }
     return array;
 }
@@ -233,7 +257,9 @@ sptr<IArray> Array::ParseChar(const std::string &values, long size)
     sptr<IArray> array = sptr<Array>::MakeSptr(size, g_IID_IChar);
     if (array != nullptr) {
         auto func = [](const std::string &str) -> sptr<IInterface> { return Char::Parse(str); };
-        ParseElement(array, func, values, size);
+        if (!ParseElement(array, func, values, size)) {
+            return nullptr;
+        }
     }
     return array;
 }
@@ -242,7 +268,9 @@ sptr<IArray> Array::ParseArray(const std::string &values, long size)
     sptr<IArray> array = sptr<Array>::MakeSptr(size, g_IID_IArray);
     if (array != nullptr) {
         auto func = [](const std::string &str) -> sptr<IInterface> { return Array::Parse(str); };
-        ParseElement(array, func, values, size);
+        if (!ParseElement(array, func, values, size)) {
+            return nullptr;
+        }
     }
     return array;
 }
@@ -252,7 +280,9 @@ sptr<IArray> Array::ParseWantParams(const std::string &values, long size)
     sptr<IArray> array = sptr<Array>::MakeSptr(size, g_IID_IWantParams);
     if (array != nullptr) {
         auto func = [](const std::string &str) -> sptr<IInterface> { return WantParamWrapper::Parse(str); };
-        ParseElement(array, func, values, size);
+        if (!ParseElement(array, func, values, size)) {
+            return nullptr;
+        }
     }
     return array;
 }
@@ -314,13 +344,13 @@ sptr<IArray> Array::Parse(const std::string &arrayStr) /* [in] */
     return nullptr;
 }
 
-void Array::ParseElement(IArray *array,                  /* [in] */
+bool Array::ParseElement(IArray *array,                  /* [in] */
     std::function<sptr<IInterface>(std::string &)> func, /* [in] */
     const std::string &values,                           /* [in] */
     long size)                                           /* [in] */
 {
     if (array == nullptr) {
-        return;
+        return false;
     }
 
     std::size_t beginIdx = 0;
@@ -338,8 +368,13 @@ void Array::ParseElement(IArray *array,                  /* [in] */
         } else {
             valueStr = values.substr(beginIdx, values.length() - beginIdx);
         }
-        array->Set(i, func(valueStr));
+        auto element = func(valueStr);
+        if (element == nullptr) {
+            return false;
+        }
+        array->Set(i, element);
     }
+    return true;
 }
 
 bool Array::IsBooleanArray(IArray *array) /* [in] */

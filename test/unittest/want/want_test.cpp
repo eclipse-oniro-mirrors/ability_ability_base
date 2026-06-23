@@ -22,6 +22,7 @@
 #include "float_wrapper.h"
 #include "long_wrapper.h"
 #include "array_wrapper.h"
+#include "zchar_wrapper.h"
 
 #define private public
 #define protected public
@@ -4013,6 +4014,174 @@ HWTEST_F(WantBaseTest, array_test_006, TestSize.Level1)
 {
     sptr<Array> arrayObj = new Array(5, g_IID_IInteger);
     EXPECT_EQ(arrayObj->ToString(), std::string("I5{}"));
+}
+
+/*
+ * Feature: Array
+ * Function: Parse
+ * SubFunction: NA
+ * FunctionPoints: ParseElement rejects null from Boolean::Parse callback
+ * EnvConditions: NA
+ * CaseDescription: Verify Parse returns nullptr when a Boolean element fails to parse.
+ */
+HWTEST_F(WantBaseTest, array_test_007, TestSize.Level1)
+{
+    // "maybe" is not a valid Boolean, Boolean::Parse returns nullptr,
+    // ParseElement detects this and returns false, ParseBoolean propagates nullptr.
+    sptr<IArray> arrayObj = Array::Parse("Z3{true,maybe,false}");
+    EXPECT_TRUE(arrayObj == nullptr);
+}
+
+/*
+ * Feature: Array
+ * Function: Parse
+ * SubFunction: NA
+ * FunctionPoints: ParseElement rejects null from Integer::Parse callback
+ * EnvConditions: NA
+ * CaseDescription: Verify Parse returns nullptr when an Integer element fails to parse.
+ */
+HWTEST_F(WantBaseTest, array_test_008, TestSize.Level1)
+{
+    // "abc" is not a valid integer, Integer::Parse returns nullptr,
+    // ParseElement detects this and returns false, ParseInteger propagates nullptr.
+    sptr<IArray> arrayObj = Array::Parse("I3{2,abc,4}");
+    EXPECT_TRUE(arrayObj == nullptr);
+}
+
+/*
+ * Feature: Array
+ * Function: Parse
+ * SubFunction: NA
+ * FunctionPoints: ParseElement rejects null from Float::Parse callback
+ * EnvConditions: NA
+ * CaseDescription: Verify Parse returns nullptr when a Float element fails to parse.
+ */
+HWTEST_F(WantBaseTest, array_test_009, TestSize.Level1)
+{
+    // "notanum" is not a valid float, Float::Parse returns nullptr,
+    // ParseElement detects this and returns false, ParseFloat propagates nullptr.
+    sptr<IArray> arrayObj = Array::Parse("F3{1.5,notanum,3.0}");
+    EXPECT_TRUE(arrayObj == nullptr);
+}
+
+/*
+ * Feature: Array
+ * Function: Parse
+ * SubFunction: NA
+ * FunctionPoints: ParseElement rejects null from Byte::Parse callback
+ * EnvConditions: NA
+ * CaseDescription: Verify Parse returns nullptr when a Byte element fails to parse.
+ */
+HWTEST_F(WantBaseTest, array_test_010, TestSize.Level1)
+{
+    // "" (empty string) is not a valid byte, Byte::Parse returns nullptr,
+    // ParseElement detects this and returns false, ParseByte propagates nullptr.
+    sptr<IArray> arrayObj = Array::Parse("B3{1,,3}");
+    EXPECT_TRUE(arrayObj == nullptr);
+}
+
+/*
+ * Feature: Array
+ * Function: Equals
+ * SubFunction: NA
+ * FunctionPoints: Equals with null elements (defense-in-depth)
+ * EnvConditions: NA
+ * CaseDescription: Verify Equals treats both-null elements as equal (no crash).
+ */
+HWTEST_F(WantBaseTest, array_test_011, TestSize.Level1)
+{
+    // Two arrays where the same index is null (unset) in both:
+    // null == null → continue (treated as equal)
+    sptr<IArray> arrayObj1 = new Array(2, g_IID_IInteger);
+    arrayObj1->Set(0, Integer::Box(1));
+    // arrayObj1 index 1 is still nullptr (unset)
+
+    sptr<IArray> arrayObj2 = new Array(2, g_IID_IInteger);
+    arrayObj2->Set(0, Integer::Box(1));
+    // arrayObj2 index 1 is still nullptr (unset)
+
+    EXPECT_TRUE(Object::Equals(*(arrayObj1.GetRefPtr()), *(arrayObj2.GetRefPtr())));
+}
+
+/*
+ * Feature: Array
+ * Function: Equals
+ * SubFunction: NA
+ * FunctionPoints: Equals with null vs non-null elements (defense-in-depth)
+ * EnvConditions: NA
+ * CaseDescription: Verify Equals handles null vs non-null safely — not equal, no crash.
+ */
+HWTEST_F(WantBaseTest, array_test_012, TestSize.Level1)
+{
+    // One array has an element set, the other has nullptr at same index:
+    // null != value → return false
+    sptr<IArray> arrayObj1 = new Array(2, g_IID_IInteger);
+    arrayObj1->Set(0, Integer::Box(1));
+    arrayObj1->Set(1, Integer::Box(2));
+
+    sptr<IArray> arrayObj2 = new Array(2, g_IID_IInteger);
+    arrayObj2->Set(0, Integer::Box(1));
+    // arrayObj2 index 1 is nullptr (unset)
+
+    EXPECT_FALSE(Object::Equals(*(arrayObj1.GetRefPtr()), *(arrayObj2.GetRefPtr())));
+}
+
+/*
+ * Feature: Array
+ * Function: Parse
+ * SubFunction: NA
+ * FunctionPoints: ParseElement with valid Boolean array still succeeds
+ * EnvConditions: NA
+ * CaseDescription: Verify a fully valid Boolean array still parses correctly after fix.
+ */
+HWTEST_F(WantBaseTest, array_test_013, TestSize.Level1)
+{
+    sptr<IArray> arrayObj = Array::Parse("Z3{true,false,true}");
+    EXPECT_TRUE(arrayObj != nullptr);
+    sptr<IInterface> valueObj;
+    arrayObj->Get(0, valueObj);
+    EXPECT_EQ(Boolean::Unbox(IBoolean::Query(valueObj)), true);
+    arrayObj->Get(1, valueObj);
+    EXPECT_EQ(Boolean::Unbox(IBoolean::Query(valueObj)), false);
+    arrayObj->Get(2, valueObj);
+    EXPECT_EQ(Boolean::Unbox(IBoolean::Query(valueObj)), true);
+}
+
+/*
+ * Feature: Array
+ * Function: Parse
+ * SubFunction: NA
+ * FunctionPoints: ParseElement with valid Char array still succeeds
+ * EnvConditions: NA
+ * CaseDescription: Verify Char array (never returns null from callback) still parses correctly.
+ */
+HWTEST_F(WantBaseTest, array_test_014, TestSize.Level1)
+{
+    sptr<IArray> arrayObj = Array::Parse("C3{a,b,c}");
+    EXPECT_TRUE(arrayObj != nullptr);
+    sptr<IInterface> valueObj;
+    arrayObj->Get(0, valueObj);
+    EXPECT_EQ(Char::Unbox(IChar::Query(valueObj)), U'a');
+    arrayObj->Get(1, valueObj);
+    EXPECT_EQ(Char::Unbox(IChar::Query(valueObj)), U'b');
+    arrayObj->Get(2, valueObj);
+    EXPECT_EQ(Char::Unbox(IChar::Query(valueObj)), U'c');
+}
+
+/*
+ * Feature: Array
+ * Function: Parse
+ * SubFunction: NA
+ * FunctionPoints: Parse with empty values string returns nullptr
+ * EnvConditions: NA
+ * CaseDescription: Verify an array with empty values string fails to parse
+ *                   (empty string is an invalid element for all numeric/boolean types).
+ */
+HWTEST_F(WantBaseTest, array_test_015, TestSize.Level1)
+{
+    // size=1 but values string is empty
+    sptr<IArray> arrayObj = Array::Parse("I1{}");
+    EXPECT_TRUE(arrayObj == nullptr);
 }
 
 /**
