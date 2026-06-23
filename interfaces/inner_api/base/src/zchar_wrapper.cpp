@@ -127,6 +127,21 @@ zchar Char::GetChar(const std::string &str,
     unsigned int size = str.length();
     unsigned int now = 0;
     while (*p && p < end) {
+        unsigned char firstByte = static_cast<unsigned char>(*p);
+        unsigned int seqLen = BYTE_COUNT_1;
+        if (firstByte >= 0xC0 && firstByte <= 0xDF) {
+            seqLen = BYTE_COUNT_2;
+        } else if (firstByte >= 0xE0 && firstByte <= 0xEF) {
+            seqLen = BYTE_COUNT_3;
+        } else if (firstByte >= 0xF0 && firstByte <= 0xF7) {
+            seqLen = BYTE_COUNT_4;
+        } else if (firstByte >= 0xF8) {
+            break;
+        }
+        if (now + seqLen > size) {
+            break;
+        }
+
         zchar unicode = GetCharInternal((unsigned char *)p, bsize);
         if (bsize == 0 || now + bsize > size) {
             break;
@@ -147,7 +162,7 @@ zchar Char::GetCharInternal(const unsigned char *cur,
     unsigned int &size)
 {
     if (isascii(*cur) != 0) {
-        size = 1;
+        size = BYTE_COUNT_1;
         return *cur;
     }
 
@@ -155,12 +170,12 @@ zchar Char::GetCharInternal(const unsigned char *cur,
     zchar result = firstChar;
     zchar mask = 0x40;
     zchar ignoreMask = 0xFFFFFF80;
-    unsigned int num2Read = 1;
-    for (; (firstChar & mask); num2Read++, ignoreMask |= mask, mask >>= 1) {
+    unsigned int num2Read = BYTE_COUNT_1;
+    for (; (firstChar & mask) && num2Read < BYTE_COUNT_4; num2Read++, ignoreMask |= mask, mask >>= 1) {
         result = (result << BYTE_SHIFT) + (*cur++ & 0x3F);
     }
     ignoreMask |= mask;
-    result &= ~(ignoreMask << (BYTE_SHIFT * (num2Read - 1)));
+    result &= ~(ignoreMask << (BYTE_SHIFT * (num2Read - BYTE_COUNT_1)));
     size = num2Read;
     return result;
 }
