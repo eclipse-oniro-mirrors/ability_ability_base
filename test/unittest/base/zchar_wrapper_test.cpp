@@ -223,5 +223,41 @@ HWTEST_F(AAfWKZcharWrapperTest, ZcharWrapperTest_GetCharInternal_001, TestSize.L
     zcharValue.GetCharInternal(cur, size);
     EXPECT_EQ(3, size);
 }
+
+/**
+ * @tc.number: ZcharWrapperTest_GetCharInternal_002
+ * @tc.name: GetCharInternal
+ * @tc.desc: Verify GetCharInternal caps num2Read at 4 for invalid leading byte 0xFF.
+ *           Without the cap, 0xFF would trigger 7 continuation byte reads (OOB + UB shift).
+ */
+HWTEST_F(AAfWKZcharWrapperTest, ZcharWrapperTest_GetCharInternal_002, TestSize.Level1)
+{
+    zchar value = 0;
+    Char zcharValue(value);
+    // 0xFF is never valid in UTF-8. The num2Read < 4 cap limits continuation reads to 3.
+    unsigned char buf[4] = {0xFF, 0x80, 0x80, 0x80};
+    unsigned int size = 0;
+    zcharValue.GetCharInternal(buf, size);
+    // With cap: size is 4 (not 8). Without cap: undefined behavior (shift > 31 bits).
+    EXPECT_EQ(4, size);
+}
+
+/**
+ * @tc.number: ZcharWrapperTest_GetCharInternal_003
+ * @tc.name: GetCharInternal
+ * @tc.desc: Verify GetCharInternal correctly decodes a valid 4-byte UTF-8 sequence
+ *           (U+1F600 😀 = F0 9F 98 80).
+ */
+HWTEST_F(AAfWKZcharWrapperTest, ZcharWrapperTest_GetCharInternal_003, TestSize.Level1)
+{
+    zchar value = 0;
+    Char zcharValue(value);
+    // U+1F600 😀 in UTF-8: F0 9F 98 80
+    unsigned char buf[4] = {0xF0, 0x9F, 0x98, 0x80};
+    unsigned int size = 0;
+    zchar result = zcharValue.GetCharInternal(buf, size);
+    EXPECT_EQ(4, size);
+    EXPECT_EQ(static_cast<zchar>(0x1F600), result);
+}
 }
 }
