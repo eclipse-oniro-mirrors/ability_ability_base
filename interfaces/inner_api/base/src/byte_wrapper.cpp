@@ -15,6 +15,10 @@
 
 #include "byte_wrapper.h"
 
+#include <cerrno>
+#include <climits>
+#include <cstdlib>
+
 #include "ability_base_log_wrapper.h"
 
 namespace OHOS {
@@ -56,18 +60,21 @@ byte Byte::Unbox(IByte *object) /* [in] */
     return value;
 }
 
-sptr<IByte> Byte::Parse(const std::string &str) /* [in] */
+sptr<IByte> Byte::Parse(const std::string &str)
 {
     sptr<IByte> object;
-    std::size_t idx;
-    try {
-        byte value = (byte)std::stoi(str, &idx);
-        if (idx != 0) {
-            object = sptr<Byte>::MakeSptr(value);
-        }
-    } catch (...) {
-        ABILITYBASE_LOGE("failed to convert to int: %{public}s", str.c_str());
+    if (str.empty()) {
+        return object;
     }
+    char *end = nullptr;
+    errno = 0;
+    long value = strtol(str.c_str(), &end, 10);
+    if (errno != 0 || end == str.c_str() || *end != '\0' ||
+        value < CHAR_MIN || value > CHAR_MAX) {
+        ABILITYBASE_LOGE("failed to convert to byte: %{public}s", str.c_str());
+        return object;
+    }
+    object = sptr<Byte>::MakeSptr(static_cast<byte>(value));
     return object;
 }
 }  // namespace AAFwk
