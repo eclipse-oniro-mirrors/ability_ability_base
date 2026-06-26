@@ -15,6 +15,10 @@
 
 #include "short_wrapper.h"
 
+#include <cerrno>
+#include <climits>
+#include <cstdlib>
+
 #include "ability_base_log_wrapper.h"
 
 namespace OHOS {
@@ -56,18 +60,21 @@ short Short::Unbox(IShort *object) /* [in] */
     return value;
 }
 
-sptr<IShort> Short::Parse(const std::string &str) /* [in] */
+sptr<IShort> Short::Parse(const std::string &str)
 {
     sptr<IShort> object;
-    std::size_t idx;
-    try {
-        short value = (short)std::stoi(str, &idx);
-        if (idx != 0) {
-            object = sptr<Short>::MakeSptr(value);
-        }
-    } catch (...) {
-        ABILITYBASE_LOGE("failed to convert to short: %{public}s", str.c_str());
+    if (str.empty()) {
+        return object;
     }
+    char *end = nullptr;
+    errno = 0;
+    long value = strtol(str.c_str(), &end, 10);
+    if (errno != 0 || end == str.c_str() || *end != '\0' ||
+        value < SHRT_MIN || value > SHRT_MAX) {
+        ABILITYBASE_LOGE("failed to convert to short: %{public}s", str.c_str());
+        return object;
+    }
+    object = sptr<Short>::MakeSptr(static_cast<short>(value));
     return object;
 }
 }  // namespace AAFwk

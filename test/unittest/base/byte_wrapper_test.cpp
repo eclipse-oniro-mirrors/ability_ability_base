@@ -120,5 +120,73 @@ HWTEST_F(AAfWKByteWrapperTest, ByteWrapperTest_Parse_004, TestSize.Level1)
     sptr<IByte> result = Byte::Parse("abc123");
     EXPECT_EQ(result, nullptr);
 }
+
+/**
+ * @tc.number: ByteWrapperTest_Parse_005
+ * @tc.name: Parse
+ * @tc.desc: Test Parse with trailing non-numeric characters (CWE-20 incomplete parse check)
+ */
+HWTEST_F(AAfWKByteWrapperTest, ByteWrapperTest_Parse_005, TestSize.Level1)
+{
+    sptr<IByte> result = Byte::Parse("1abc");
+    EXPECT_EQ(result, nullptr);
+}
+
+/**
+ * @tc.number: ByteWrapperTest_Parse_006
+ * @tc.name: Parse
+ * @tc.desc: Test Parse with CHAR_MIN boundary value 0 (valid on all platforms)
+ */
+HWTEST_F(AAfWKByteWrapperTest, ByteWrapperTest_Parse_006, TestSize.Level1)
+{
+    sptr<IByte> result = Byte::Parse("0");
+    EXPECT_NE(result, nullptr);
+    EXPECT_EQ(0, Byte::Unbox(result));
+}
+
+/**
+ * @tc.number: ByteWrapperTest_Parse_007
+ * @tc.name: Parse
+ * @tc.desc: Test Parse with value exceeding CHAR_MAX on all platforms (CWE-190 integer overflow)
+ */
+HWTEST_F(AAfWKByteWrapperTest, ByteWrapperTest_Parse_007, TestSize.Level1)
+{
+    sptr<IByte> result = Byte::Parse("256");
+    EXPECT_EQ(result, nullptr);
+}
+
+/**
+ * @tc.number: ByteWrapperTest_Parse_008
+ * @tc.name: Parse
+ * @tc.desc: Test Parse with large value causing strtol ERANGE error (CWE-190)
+ */
+HWTEST_F(AAfWKByteWrapperTest, ByteWrapperTest_Parse_008, TestSize.Level1)
+{
+    sptr<IByte> result = Byte::Parse("9999999999");
+    EXPECT_EQ(result, nullptr);
+}
+
+/**
+ * @tc.number: ByteWrapperTest_Parse_009
+ * @tc.name: Parse
+ * @tc.desc: Test Parse with SCHAR_MAX (127) which is valid on all platforms
+ */
+HWTEST_F(AAfWKByteWrapperTest, ByteWrapperTest_Parse_009, TestSize.Level1)
+{
+    sptr<IByte> result = Byte::Parse("127");
+    EXPECT_NE(result, nullptr);
+    EXPECT_EQ(127, Byte::Unbox(result));
+}
+
+/**
+ * @tc.number: ByteWrapperTest_Parse_010
+ * @tc.name: Parse
+ * @tc.desc: Test Parse with value below CHAR_MIN on all platforms (CWE-190 integer overflow)
+ */
+HWTEST_F(AAfWKByteWrapperTest, ByteWrapperTest_Parse_010, TestSize.Level1)
+{
+    sptr<IByte> result = Byte::Parse("-129");
+    EXPECT_EQ(result, nullptr);
+}
 }
 }
