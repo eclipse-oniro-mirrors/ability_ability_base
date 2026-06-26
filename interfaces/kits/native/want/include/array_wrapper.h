@@ -74,7 +74,7 @@ public:
     static constexpr char SIGNATURE = '[';
 
 private:
-    static void ParseElement(IArray *array,                  /* [in] */
+    static bool ParseElement(IArray *array,                  /* [in] */
         std::function<sptr<IInterface>(std::string &)> func, /* [in] */
         const std::string &values,                           /* [in] */
         long size);                                          /* [in] */

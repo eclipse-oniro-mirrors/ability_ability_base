@@ -412,14 +412,14 @@ HWTEST_F(ArrayWrapperBaseTest, AaFwk_Array_Wrapper_Parse_0100, Function | Medium
     EXPECT_EQ(arrFunction("{Test}"), nullptr);
     EXPECT_NE(arrFunction("C3{1,2,3}"), nullptr);
     EXPECT_NE(arrFunction("T3{1,2,3}"), nullptr);
-    EXPECT_NE(arrFunction("Z3{1,2,3}"), nullptr);
+    EXPECT_EQ(arrFunction("Z3{1,2,3}"), nullptr);
     EXPECT_NE(arrFunction("B3{1,2,3}"), nullptr);
     EXPECT_NE(arrFunction("S3{1,2,3}"), nullptr);
     EXPECT_NE(arrFunction("I3{1,2,3}"), nullptr);
     EXPECT_NE(arrFunction("J3{1,2,3}"), nullptr);
     EXPECT_NE(arrFunction("F3{1,2,3}"), nullptr);
     EXPECT_NE(arrFunction("D3{1,2,3}"), nullptr);
-    EXPECT_NE(arrFunction("[3{1,2,3}"), nullptr);
+    EXPECT_EQ(arrFunction("[3{1,2,3}"), nullptr);
     EXPECT_NE(arrFunction("W3{1,2,3}"), nullptr);
 }
 }
