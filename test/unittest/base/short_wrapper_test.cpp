@@ -121,5 +121,73 @@ HWTEST_F(AAfWKShortWrapperTest, ShortWrapperTest_Parse_004, TestSize.Level1)
     sptr<IShort> result = Short::Parse("abc123");
     EXPECT_EQ(result, nullptr);
 }
+
+/**
+ * @tc.number: ShortWrapperTest_Parse_005
+ * @tc.name: Parse
+ * @tc.desc: Test Parse with trailing non-numeric characters (CWE-20 incomplete parse check)
+ */
+HWTEST_F(AAfWKShortWrapperTest, ShortWrapperTest_Parse_005, TestSize.Level1)
+{
+    sptr<IShort> result = Short::Parse("123abc");
+    EXPECT_EQ(result, nullptr);
+}
+
+/**
+ * @tc.number: ShortWrapperTest_Parse_006
+ * @tc.name: Parse
+ * @tc.desc: Test Parse with value exceeding SHRT_MAX (CWE-190 integer overflow)
+ */
+HWTEST_F(AAfWKShortWrapperTest, ShortWrapperTest_Parse_006, TestSize.Level1)
+{
+    sptr<IShort> result = Short::Parse("32768");
+    EXPECT_EQ(result, nullptr);
+}
+
+/**
+ * @tc.number: ShortWrapperTest_Parse_007
+ * @tc.name: Parse
+ * @tc.desc: Test Parse with value below SHRT_MIN (CWE-190 integer overflow)
+ */
+HWTEST_F(AAfWKShortWrapperTest, ShortWrapperTest_Parse_007, TestSize.Level1)
+{
+    sptr<IShort> result = Short::Parse("-32769");
+    EXPECT_EQ(result, nullptr);
+}
+
+/**
+ * @tc.number: ShortWrapperTest_Parse_008
+ * @tc.name: Parse
+ * @tc.desc: Test Parse with boundary value SHRT_MAX (32767)
+ */
+HWTEST_F(AAfWKShortWrapperTest, ShortWrapperTest_Parse_008, TestSize.Level1)
+{
+    sptr<IShort> result = Short::Parse("32767");
+    EXPECT_NE(result, nullptr);
+    EXPECT_EQ(32767, Short::Unbox(result));
+}
+
+/**
+ * @tc.number: ShortWrapperTest_Parse_009
+ * @tc.name: Parse
+ * @tc.desc: Test Parse with boundary value SHRT_MIN (-32768)
+ */
+HWTEST_F(AAfWKShortWrapperTest, ShortWrapperTest_Parse_009, TestSize.Level1)
+{
+    sptr<IShort> result = Short::Parse("-32768");
+    EXPECT_NE(result, nullptr);
+    EXPECT_EQ(-32768, Short::Unbox(result));
+}
+
+/**
+ * @tc.number: ShortWrapperTest_Parse_010
+ * @tc.name: Parse
+ * @tc.desc: Test Parse with value exceeding long range causing strtol ERANGE error
+ */
+HWTEST_F(AAfWKShortWrapperTest, ShortWrapperTest_Parse_010, TestSize.Level1)
+{
+    sptr<IShort> result = Short::Parse("9999999999");
+    EXPECT_EQ(result, nullptr);
+}
 }
 }
