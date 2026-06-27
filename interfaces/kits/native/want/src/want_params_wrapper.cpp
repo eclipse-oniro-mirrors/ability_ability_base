@@ -160,65 +160,63 @@ sptr<IWantParams> WantParamWrapper::Parse(const std::string &str)
     WantParams wantParams;
     std::string key = "";
     int typeId = 0;
-    if (!ValidateStr(str)) {
-        sptr<IWantParams> iwantParams = new (std::nothrow) WantParamWrapper(wantParams);
-        return iwantParams;
-    }
-    for (size_t strnum = 0; strnum < str.size(); strnum++) {
-        if (str[strnum] == '{' && key != "" && typeId == WantParams::VALUE_TYPE_WANTPARAMS) {
-            size_t num;
-            int count = 0;
-            for (num = strnum; num < str.size(); num++) {
-                if (str[num] == '{') {
-                    count++;
-                } else if (str[num] == '}') {
-                    count--;
+    if (ValidateStr(str)) {
+        for (size_t strnum = 0; strnum < str.size(); strnum++) {
+            if (str[strnum] == '{' && key != "" && typeId == WantParams::VALUE_TYPE_WANTPARAMS) {
+                size_t num;
+                int count = 0;
+                for (num = strnum; num < str.size(); num++) {
+                    if (str[num] == '{') {
+                        count++;
+                    } else if (str[num] == '}') {
+                        count--;
+                    }
+                    if (count == 0) {
+                        break;
+                    }
                 }
-                if (count == 0) {
-                    break;
-                }
-            }
-            sptr<IWantParams> nested = WantParamWrapper::Parse(str.substr(strnum, num - strnum + 1));
-            if (WantParamWrapper::Unbox(nested).Size() == 0) {
-                wantParams = WantParams();
-                break;
-            }
-            wantParams.SetParam(key, nested);
-            key = "";
-            typeId = 0;
-            strnum = num + 1;
-        } else if (str[strnum] == '"') {
-            if (key == "") {
-                size_t pos = 0;
-                if (!FindNextQuote(str, strnum, pos, "Parse")) {
+                sptr<IWantParams> nested = WantParamWrapper::Parse(str.substr(strnum, num - strnum + 1));
+                if (WantParamWrapper::Unbox(nested).Size() == 0) {
                     wantParams = WantParams();
                     break;
                 }
-                key = str.substr(strnum, pos - strnum);
-                strnum = pos;
-            } else if (typeId == 0) {
-                size_t pos = 0;
-                if (!FindNextQuote(str, strnum, pos, "Parse")) {
-                    wantParams = WantParams();
-                    break;
-                }
-                std::string typeIdStr = str.substr(strnum, pos - strnum);
-                if (!ParseTypeId(typeIdStr, typeId)) {
-                    wantParams = WantParams();
-                    break;
-                }
-                strnum = pos;
-            } else {
-                size_t pos = 0;
-                if (!FindNextQuote(str, strnum, pos, "Parse")) {
-                    wantParams = WantParams();
-                    break;
-                }
-                wantParams.SetParam(key,
-                    WantParams::GetInterfaceByType(typeId, str.substr(strnum, pos - strnum)));
-                strnum = pos;
-                typeId = 0;
+                wantParams.SetParam(key, nested);
                 key = "";
+                typeId = 0;
+                strnum = num + 1;
+            } else if (str[strnum] == '"') {
+                if (key == "") {
+                    size_t pos = 0;
+                    if (!FindNextQuote(str, strnum, pos, "Parse")) {
+                        wantParams = WantParams();
+                        break;
+                    }
+                    key = str.substr(strnum, pos - strnum);
+                    strnum = pos;
+                } else if (typeId == 0) {
+                    size_t pos = 0;
+                    if (!FindNextQuote(str, strnum, pos, "Parse")) {
+                        wantParams = WantParams();
+                        break;
+                    }
+                    std::string typeIdStr = str.substr(strnum, pos - strnum);
+                    if (!ParseTypeId(typeIdStr, typeId)) {
+                        wantParams = WantParams();
+                        break;
+                    }
+                    strnum = pos;
+                } else {
+                    size_t pos = 0;
+                    if (!FindNextQuote(str, strnum, pos, "Parse")) {
+                        wantParams = WantParams();
+                        break;
+                    }
+                    wantParams.SetParam(key,
+                        WantParams::GetInterfaceByType(typeId, str.substr(strnum, pos - strnum)));
+                    strnum = pos;
+                    typeId = 0;
+                    key = "";
+                }
             }
         }
     }
