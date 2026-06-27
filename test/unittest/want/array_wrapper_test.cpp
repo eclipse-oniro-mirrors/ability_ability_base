@@ -422,5 +422,49 @@ HWTEST_F(ArrayWrapperBaseTest, AaFwk_Array_Wrapper_Parse_0100, Function | Medium
     EXPECT_EQ(arrFunction("[3{1,2,3}"), nullptr);
     EXPECT_NE(arrFunction("W3{1,2,3}"), nullptr);
 }
+
+/**
+ * @tc.number: AaFwk_Array_Wrapper_Parse_0200
+ * @tc.name: Parse with oversized size returns nullptr
+ * @tc.desc: Verify Array::Parse rejects an oversized size field up front. The claimed size
+ *           2,000,000,000 far exceeds MAX_ARRAY_SIZE and the real element count; without the
+ *           cap, ParseElement would loop ~2e9 times re-parsing the residual ("3") -- a DoS hang.
+ */
+HWTEST_F(ArrayWrapperBaseTest, AaFwk_Array_Wrapper_Parse_0200, Function | MediumTest | Level1)
+{
+    // Claimed size (2,000,000,000) > MAX_ARRAY_SIZE; must return nullptr immediately instead
+    // of driving a multi-billion-iteration ParseElement loop on the 3-element payload.
+    sptr<IArray> result = Array::Parse("I2000000000{1,2,3}");
+    EXPECT_EQ(result, nullptr);
+}
+
+/**
+ * @tc.number: AaFwk_Array_Wrapper_Parse_0300
+ * @tc.name: Parse stops once real elements are exhausted
+ * @tc.desc: Verify ParseElement stops after the last real element instead of re-parsing the
+ *           residual. "I5{1,2,3}" claims 5 Integer elements but only 3 are present; slots 3
+ *           and 4 must keep their default nullptr rather than be filled with the residual "3".
+ */
+HWTEST_F(ArrayWrapperBaseTest, AaFwk_Array_Wrapper_Parse_0300, Function | MediumTest | Level1)
+{
+    // size (5) exceeds the real element count (3); after "3" is consumed there is no more
+    // data, so the loop must stop. Residual slots 3 and 4 stay nullptr.
+    sptr<IArray> result = Array::Parse("I5{1,2,3}");
+    ASSERT_NE(result, nullptr);
+    long len = 0;
+    EXPECT_EQ(result->GetLength(len), ERR_OK);
+    EXPECT_EQ(len, 5);
+    sptr<IInterface> value;
+    EXPECT_EQ(result->Get(0, value), ERR_OK);
+    EXPECT_NE(value, nullptr);
+    EXPECT_EQ(result->Get(1, value), ERR_OK);
+    EXPECT_NE(value, nullptr);
+    EXPECT_EQ(result->Get(2, value), ERR_OK);
+    EXPECT_NE(value, nullptr);
+    EXPECT_EQ(result->Get(3, value), ERR_OK);
+    EXPECT_EQ(value, nullptr);
+    EXPECT_EQ(result->Get(4, value), ERR_OK);
+    EXPECT_EQ(value, nullptr);
+}
 }
 }

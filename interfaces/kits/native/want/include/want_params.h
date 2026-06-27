@@ -72,6 +72,8 @@ public:
 
     static sptr<IInterface> GetInterfaceByType(int typeId, const std::string &value);
 
+    static bool IsKnownTypeId(int typeId);
+
     static bool CompareInterface(const sptr<IInterface> iIt1, const sptr<IInterface> iIt2, int typeId);
 
     static int GetDataType(const sptr<IInterface> iIt);
