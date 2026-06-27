@@ -350,7 +350,7 @@ void Array::ParseElement(IArray *array,                  /* [in] */
             if (endIdx == std::string::npos) {
                 valueStr = values.substr(beginIdx);
                 array->Set(i, func(valueStr));
-                return;
+                break;
             }
             valueStr = values.substr(beginIdx, endIdx - beginIdx);
             beginIdx = endIdx + 1;
