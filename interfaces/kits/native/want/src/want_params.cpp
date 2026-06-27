@@ -501,6 +501,46 @@ int WantParams::GetDataType(const sptr<IInterface> iIt)
     return VALUE_TYPE_NULL;
 }
 
+bool WantParams::IsKnownTypeId(int typeId)
+{
+    switch (typeId) {
+        case VALUE_TYPE_NULL:
+        case VALUE_TYPE_BOOLEAN:
+        case VALUE_TYPE_BYTE:
+        case VALUE_TYPE_CHAR:
+        case VALUE_TYPE_SHORT:
+        case VALUE_TYPE_INT:
+        case VALUE_TYPE_LONG:
+        case VALUE_TYPE_FLOAT:
+        case VALUE_TYPE_DOUBLE:
+        case VALUE_TYPE_STRING:
+        case VALUE_TYPE_CHARSEQUENCE:
+        case VALUE_TYPE_BOOLEANARRAY:
+        case VALUE_TYPE_BYTEARRAY:
+        case VALUE_TYPE_CHARARRAY:
+        case VALUE_TYPE_SHORTARRAY:
+        case VALUE_TYPE_INTARRAY:
+        case VALUE_TYPE_LONGARRAY:
+        case VALUE_TYPE_FLOATARRAY:
+        case VALUE_TYPE_DOUBLEARRAY:
+        case VALUE_TYPE_STRINGARRAY:
+        case VALUE_TYPE_CHARSEQUENCEARRAY:
+        case VALUE_TYPE_PARCELABLE:
+        case VALUE_TYPE_PARCELABLEARRAY:
+        case VALUE_TYPE_SERIALIZABLE:
+        case VALUE_TYPE_WANTPARAMSARRAY:
+        case VALUE_TYPE_LIST:
+        case VALUE_TYPE_WANTPARAMS:
+        case VALUE_TYPE_ARRAY:
+        case VALUE_TYPE_FD:
+        case VALUE_TYPE_REMOTE_OBJECT:
+        case VALUE_TYPE_INVALID_FD:
+            return true;
+        default:
+            return false;
+    }
+}
+
 sptr<IInterface> WantParams::GetInterfaceByType(int typeId, const std::string &value)
 {
     if (typeId == VALUE_TYPE_BOOLEAN) {

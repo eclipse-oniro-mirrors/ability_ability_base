@@ -33,6 +33,31 @@ IINTERFACE_IMPL_1(Array, Object, IArray);
 
 constexpr int32_t MAX_ARRAY_SIZE = 50 * 1024 * 1024;
 
+namespace {
+bool IsValidArraySignature(char signature)
+{
+    return signature == String::SIGNATURE || signature == Boolean::SIGNATURE || signature == Byte::SIGNATURE ||
+        signature == Short::SIGNATURE || signature == Integer::SIGNATURE || signature == Long::SIGNATURE ||
+        signature == Float::SIGNATURE || signature == Double::SIGNATURE || signature == Array::SIGNATURE ||
+        signature == Char::SIGNATURE || signature == WantParamWrapper::SIGNATURE;
+}
+
+bool ParseArraySize(const std::string &arrayStr, std::size_t idx, long &size)
+{
+    try {
+        size = std::stol(arrayStr.substr(1, idx - 1));
+    } catch (...) {
+        ABILITYBASE_LOGE("failed to convert to long: %{public}s", arrayStr.substr(1, idx - 1).c_str());
+        return false;
+    }
+    if (size < 0 || size > MAX_ARRAY_SIZE) {
+        ABILITYBASE_LOGE("invalid array size: %{public}ld", size);
+        return false;
+    }
+    return true;
+}
+}
+
 Array::Array(long size, const InterfaceID &id) : typeId_(id)
 {
     size_ = size > MAX_ARRAY_SIZE ? MAX_ARRAY_SIZE : size;
@@ -260,10 +285,7 @@ sptr<IArray> Array::ParseWantParams(const std::string &values, long size)
 sptr<IArray> Array::Parse(const std::string &arrayStr) /* [in] */
 {
     char signature = arrayStr[0];
-    if (signature != String::SIGNATURE && signature != Boolean::SIGNATURE && signature != Byte::SIGNATURE &&
-        signature != Short::SIGNATURE && signature != Integer::SIGNATURE && signature != Long::SIGNATURE &&
-        signature != Float::SIGNATURE && signature != Double::SIGNATURE && signature != Array::SIGNATURE &&
-        signature != Char::SIGNATURE && signature != WantParamWrapper::SIGNATURE) {
+    if (!IsValidArraySignature(signature)) {
         return nullptr;
     }
 
@@ -275,10 +297,7 @@ sptr<IArray> Array::Parse(const std::string &arrayStr) /* [in] */
         return nullptr;
     }
     long size = 0;
-    try {
-        size = std::stol(arrayStr.substr(1, idx - 1));
-    } catch (...) {
-        ABILITYBASE_LOGE("failed to convert to long: %{public}s", arrayStr.substr(1, idx - 1).c_str());
+    if (!ParseArraySize(arrayStr, idx, size)) {
         return nullptr;
     }
 
@@ -324,17 +343,17 @@ void Array::ParseElement(IArray *array,                  /* [in] */
     }
 
     std::size_t beginIdx = 0;
-    std::size_t endIdx;
     for (long i = 0; i < size; i++) {
         std::string valueStr;
         if (i < size - 1) {
-            endIdx = values.find(",", beginIdx);
+            std::size_t endIdx = values.find(",", beginIdx);
             if (endIdx == std::string::npos) {
                 valueStr = values.substr(beginIdx);
-            } else {
-                valueStr = values.substr(beginIdx, endIdx - beginIdx);
-                beginIdx = endIdx + 1;
+                array->Set(i, func(valueStr));
+                return;
             }
+            valueStr = values.substr(beginIdx, endIdx - beginIdx);
+            beginIdx = endIdx + 1;
         } else {
             valueStr = values.substr(beginIdx, values.length() - beginIdx);
         }

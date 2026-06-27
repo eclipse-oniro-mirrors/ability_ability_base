@@ -498,3 +498,204 @@ HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_2400, Function | MediumTes
     WantParams wantParams = WantParamWrapper::ParseWantParamsWithBrackets(malformed);
     EXPECT_EQ(wantParams.Size(), 0);
 }
+
+/**
+ * @tc.number: Want_Param_Wrapper_2500
+ * @tc.name: Parse with overflowing typeId returns empty
+ * @tc.desc: A typeId out of int range must be rejected and the whole result reset to empty.
+ */
+HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_2500, Function | MediumTest | Level1)
+{
+    // typeId "2147483648" equals INT_MAX + 1, out of int range on every platform.
+    std::string malformed = "{\"k\":{\"2147483648\":\"v\"}}";
+
+    auto result = WantParamWrapper::Parse(malformed);
+    WantParams wantParams = WantParamWrapper::Unbox(result);
+    EXPECT_EQ(wantParams.Size(), 0);
+
+    WantParams wantParamsB = WantParamWrapper::ParseWantParams(malformed);
+    EXPECT_EQ(wantParamsB.Size(), 0);
+
+    WantParams wantParamsC = WantParamWrapper::ParseWantParamsWithBrackets(malformed);
+    EXPECT_EQ(wantParamsC.Size(), 0);
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_2600
+ * @tc.name: Parse with non-numeric typeId returns empty
+ * @tc.desc: A non-numeric typeId must be rejected and the whole result reset to empty.
+ */
+HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_2600, Function | MediumTest | Level1)
+{
+    // typeId "abc" is non-numeric; it must not silently fall back to 0 and misalign parsing.
+    std::string malformed = "{\"k\":{\"abc\":\"v\"}}";
+
+    auto result = WantParamWrapper::Parse(malformed);
+    WantParams wantParams = WantParamWrapper::Unbox(result);
+    EXPECT_EQ(wantParams.Size(), 0);
+
+    WantParams wantParamsB = WantParamWrapper::ParseWantParams(malformed);
+    EXPECT_EQ(wantParamsB.Size(), 0);
+
+    WantParams wantParamsC = WantParamWrapper::ParseWantParamsWithBrackets(malformed);
+    EXPECT_EQ(wantParamsC.Size(), 0);
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_2700
+ * @tc.name: ParseWantParamsWithBrackets with FindMatchingBrackets npos returns empty
+ * @tc.desc: Verify ParseWantParamsWithBrackets does not infinite loop when the value branch
+ *           hits FindMatchingBrackets returning npos. With no unmatched '}' after the typeId
+ *           token, FindMatchingBrackets returns npos; without the npos guard the assignment
+ *           strnum = index + 1 wraps (npos + 1 == 0) and the loop restarts forever. Input
+ *           "a\"a\"\"1\"\"\"" reads key="a", typeId=1, then the value branch triggers.
+ */
+HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_2700, Function | MediumTest | Level1)
+{
+    // No unmatched '}' after the typeId -> FindMatchingBrackets returns npos in the value
+    // branch -> strnum = npos + 1 wraps around to 0 -> infinite loop without the npos guard.
+    std::string malformed = "a\"a\"\"1\"\"\"";
+    WantParams wantParams = WantParamWrapper::ParseWantParamsWithBrackets(malformed);
+    EXPECT_EQ(wantParams.Size(), 0);
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_2800
+ * @tc.name: ParseWantParams parses nested WantParams
+ * @tc.desc: Verify ParseWantParams attaches a nested WantParams under key "k". Before the
+ *           num-strnum+1 fix the nested substring was passed without its closing '}', got
+ *           rejected by ValidateStr, and the entry was lost; after the fix it parses.
+ */
+HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_2800, Function | MediumTest | Level1)
+{
+    std::string s = "{\"k\":{\"101\":{\"i\":{\"9\":\"v\"}}}}";
+    WantParams wp = WantParamWrapper::ParseWantParams(s);
+    auto kVal = wp.GetParam("k");
+    ASSERT_NE(kVal, nullptr);
+    WantParams inner = WantParamWrapper::Unbox(IWantParams::Query(kVal));
+    EXPECT_EQ(inner.Size(), 1u);
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_2900
+ * @tc.name: Nested parse failure propagates to empty result
+ * @tc.desc: Verify that when a nested WantParams fails to parse ("{}" is rejected by
+ *           ValidateStr) the failure propagates and the WHOLE result is empty -- the earlier
+ *           successfully-parsed entry "good" is discarded too, not just the failing key.
+ *           Applies to all three parsers.
+ */
+HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_2900, Function | MediumTest | Level1)
+{
+    // "good" parses fine first; then "k"'s nested {} fails -> whole result empty (Size 0),
+    // i.e. "good" is also dropped. Proves it's not a per-key clear but a full reset.
+    std::string s = "{\"good\":{\"9\":\"v\"},\"k\":{\"101\":{}}}";
+    EXPECT_EQ(WantParamWrapper::Unbox(WantParamWrapper::Parse(s)).Size(), 0u);
+    EXPECT_EQ(WantParamWrapper::ParseWantParams(s).Size(), 0u);
+    EXPECT_EQ(WantParamWrapper::ParseWantParamsWithBrackets(s).Size(), 0u);
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_3000
+ * @tc.name: Parse rejects unknown typeId
+ * @tc.desc: Verify an unknown typeId (999) is rejected -- the whole result is empty instead
+ *           of storing a null entry from GetInterfaceByType. Without the whitelist 999 would
+ *           pass ParseTypeId, GetInterfaceByType would return nullptr, and SetParam would
+ *           store a null-valued entry (Size 1). Applies to all three parsers.
+ */
+HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_3000, Function | MediumTest | Level1)
+{
+    std::string s = "{\"k\":{\"999\":\"v\"}}";
+    EXPECT_EQ(WantParamWrapper::Unbox(WantParamWrapper::Parse(s)).Size(), 0u);
+    EXPECT_EQ(WantParamWrapper::ParseWantParams(s).Size(), 0u);
+    EXPECT_EQ(WantParamWrapper::ParseWantParamsWithBrackets(s).Size(), 0u);
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_3100
+ * @tc.name: Parse rejects typeId 0 (sentinel collision)
+ * @tc.desc: typeId 0 is not a real type and collides with the parser's "not-yet-read"
+ *           sentinel (typeId == 0). It must be rejected so the state machine does not
+ *           re-enter the typeId branch and misread the value as another typeId.
+ */
+HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_3100, Function | MediumTest | Level1)
+{
+    std::string s = "{\"k\":{\"0\":\"v\"}}";
+    EXPECT_EQ(WantParamWrapper::Unbox(WantParamWrapper::Parse(s)).Size(), 0u);
+    EXPECT_EQ(WantParamWrapper::ParseWantParams(s).Size(), 0u);
+    EXPECT_EQ(WantParamWrapper::ParseWantParamsWithBrackets(s).Size(), 0u);
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_3200
+ * @tc.name: Parse rejects typeId with trailing garbage
+ * @tc.desc: A typeId token like "5abc" has trailing non-numeric chars. ParseTypeId's
+ *           *end != '\0' check must reject it so parsing does not silently accept 5 and
+ *           misalign the stream on the residual "abc". Covers the only ParseTypeId branch
+ *           not exercised by 2500/2600/3000/3100. Applies to all three parsers.
+ */
+HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_3200, Function | MediumTest | Level1)
+{
+    std::string s = "{\"k\":{\"5abc\":\"v\"}}";
+    EXPECT_EQ(WantParamWrapper::Unbox(WantParamWrapper::Parse(s)).Size(), 0u);
+    EXPECT_EQ(WantParamWrapper::ParseWantParams(s).Size(), 0u);
+    EXPECT_EQ(WantParamWrapper::ParseWantParamsWithBrackets(s).Size(), 0u);
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_3300
+ * @tc.name: ParseWantParamsWithBrackets parses a standard string entry
+ * @tc.desc: Verify the WithBrackets value branch (ParseBracketValue success path through
+ *           FindMatchingBrackets) attaches a string value. This is the sole POSITIVE
+ *           coverage for ParseWantParamsWithBrackets -- every other case feeds malformed
+ *           input expecting Size 0, so the success path and the typeIndexBefore recording
+ *           in ParseBracketQuotedToken are otherwise untested.
+ */
+HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_3300, Function | MediumTest | Level1)
+{
+    std::string s = "{\"key01\":{\"9\":\"value01\"}}";
+    WantParams wp = WantParamWrapper::ParseWantParamsWithBrackets(s);
+    EXPECT_EQ(wp.Size(), 1u);
+    auto val = wp.GetParam("key01");
+    ASSERT_NE(val, nullptr);
+    IString *iStr = IString::Query(val);
+    ASSERT_NE(iStr, nullptr);
+    EXPECT_EQ(String::Unbox(iStr), "value01");
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_3400
+ * @tc.name: Final-state guard catches value-internal-quote truncation
+ * @tc.desc: Value "a"b"c" contains internal quotes. On the QUOTE path
+ *           (Parse / ParseWantParams) FindNextQuote stops at the first inner quote,
+ *           stores the truncated value "a", and the residual strands a dangling
+ *           key="c"; the final-state guard (ctx.key non-empty) resets the whole
+ *           result to empty (Size 0). This is the primary truncation shape the
+ *           guard intercepts: truncation that leaves the parser mid-cycle. The
+ *           BRACKET path (WithBrackets) matches on '}' not '"', so it extracts the
+ *           full value -- no truncation, guard does not fire, Size stays 1.
+ */
+HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_3400, Function | MediumTest | Level1)
+{
+    std::string s = "{\"k\":{\"9\":\"a\"b\"c\"}}";
+    EXPECT_EQ(WantParamWrapper::Unbox(WantParamWrapper::Parse(s)).Size(), 0u);
+    EXPECT_EQ(WantParamWrapper::ParseWantParams(s).Size(), 0u);
+    EXPECT_EQ(WantParamWrapper::ParseWantParamsWithBrackets(s).Size(), 1u);
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_3500
+ * @tc.name: Final-state guard does not catch trailing garbage
+ * @tc.desc: Boundary of the guard. Trailing chars after a complete object (...}}X)
+ *           are silently skipped and the parser exits in a CLEAN state (key empty,
+ *           typeId 0), so the guard does not fire and the entry survives (Size 1).
+ *           The same applies to multi-object merge (}},{) and to truncation whose
+ *           residual completes full cycles -- those need separate detection, not
+ *           the final-state guard.
+ */
+HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_3500, Function | MediumTest | Level1)
+{
+    std::string s = "{\"k\":{\"9\":\"v\"}}X";
+    EXPECT_EQ(WantParamWrapper::Unbox(WantParamWrapper::Parse(s)).Size(), 1u);
+    EXPECT_EQ(WantParamWrapper::ParseWantParams(s).Size(), 1u);
+    EXPECT_EQ(WantParamWrapper::ParseWantParamsWithBrackets(s).Size(), 1u);
+}
