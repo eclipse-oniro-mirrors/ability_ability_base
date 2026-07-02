@@ -143,7 +143,7 @@ bool SessionInfo::DoMarshallingThree(Parcel& parcel) const
         return false;
     }
 
-    if (!parcel.WriteUint32(realHostWindowId)) {
+    if (!parcel.WriteInt32(realHostWindowId)) {
         ABILITYBASE_LOGE("Write real host window id failed.");
         return false;
     }
@@ -301,7 +301,7 @@ bool SessionInfo::DoMarshallingFive(Parcel& parcel) const
 
 bool SessionInfo::DoMarshallingSix(Parcel& parcel) const
 {
-    if (!parcel.WriteInt32(isDensityFollowHost)) {
+    if (!parcel.WriteBool(isDensityFollowHost)) {
         ABILITYBASE_LOGE("Write isDensityFollowHost failed");
         return false;
     }
