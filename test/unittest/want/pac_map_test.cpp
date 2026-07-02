@@ -1605,6 +1605,134 @@ HWTEST_F(PacMapTest, AppExecFwk_PacMap_ParseJson_0100, Function | MediumTest | L
 }
 
 /**
+ * @tc.number: AppExecFwk_PacMap_ParseJson_0200
+ * @tc.name: ParseJson WithoutTypeMember
+ * @tc.desc: Verify ParseJson skips items that lack "type" member safely, without crash.
+ * @tc.require: issueIAN6U7
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_ParseJson_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ParseJson_0200 start";
+
+    Json::Value data;
+    Json::Value item;
+    // Construct an item with data but without "type" member
+    item["data"] = 100;
+    data["key_int"] = item;
+
+    PacMapList mapList;
+    // ParseJson should skip the item and return true (no fatal error)
+    bool result = pacmap_->ParseJson(data, mapList);
+    EXPECT_EQ(result, true);
+    // The item without "type" should not be added to mapList
+    EXPECT_EQ(mapList.size(), (std::size_t)0);
+
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ParseJson_0200 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_ParseJson_0300
+ * @tc.name: ParseJson WithNonIntegerType
+ * @tc.desc: Verify ParseJson skips items whose "type" member is not an integer.
+ * @tc.require: issueIAN6U7
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_ParseJson_0300, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ParseJson_0300 start";
+
+    Json::Value data;
+    Json::Value item;
+    // Construct an item where "type" is a string instead of an integer
+    item["data"] = 100;
+    item["type"] = "not_an_integer";
+    data["key_int"] = item;
+
+    PacMapList mapList;
+    // ParseJson should skip the item and return true (no fatal error)
+    bool result = pacmap_->ParseJson(data, mapList);
+    EXPECT_EQ(result, true);
+    // The item with non-integer "type" should not be added to mapList
+    EXPECT_EQ(mapList.size(), (std::size_t)0);
+
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ParseJson_0300 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_ParseJson_0400
+ * @tc.name: ParseJson MixedValidAndInvalidItems
+ * @tc.desc: Verify ParseJson skips invalid items and only parses valid ones.
+ * @tc.require: issueIAN6U7
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_ParseJson_0400, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ParseJson_0400 start";
+
+    Json::Value data;
+    // Valid item: has both "data" and integer "type"
+    Json::Value validItem;
+    validItem["data"] = 200;
+    validItem["type"] = 2; // PACMAP_DATA_INTEGER
+    data["valid_key"] = validItem;
+
+    // Invalid item: missing "type" member
+    Json::Value invalidItem1;
+    invalidItem1["data"] = 100;
+    data["no_type_key"] = invalidItem1;
+
+    // Invalid item: "type" is a string
+    Json::Value invalidItem2;
+    invalidItem2["data"] = 300;
+    invalidItem2["type"] = "abc";
+    data["string_type_key"] = invalidItem2;
+
+    PacMapList mapList;
+    bool result = pacmap_->ParseJson(data, mapList);
+    EXPECT_EQ(result, true);
+    // Only the valid item should be parsed into mapList (1 entry, not 3)
+    EXPECT_EQ(mapList.size(), (std::size_t)1);
+
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ParseJson_0400 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_FromString_WithoutType_0100
+ * @tc.name: FromString WithoutType
+ * @tc.desc: Verify FromString safely handles JSON where an item has no "type" member.
+ * @tc.require: issueIAN6U7
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_FromString_WithoutType_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_WithoutType_0100 start";
+
+    // JSON with an item missing the "type" field
+    std::string str = "{\"pacmap\":{\"key_int\":{\"data\":100}}}";
+    auto result = pacmap_->FromString(str);
+    // FromString should succeed but the invalid item is skipped
+    EXPECT_TRUE(result);
+
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_WithoutType_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_FromString_NonIntegerType_0100
+ * @tc.name: FromString NonIntegerType
+ * @tc.desc: Verify FromString safely handles JSON where an item has a non-integer "type".
+ * @tc.require: issueIAN6U7
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_FromString_NonIntegerType_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_NonIntegerType_0100 start";
+
+    // JSON with an item where "type" is a string instead of an integer
+    std::string str = "{\"pacmap\":{\"key_int\":{\"data\":100,\"type\":\"invalid_string\"}}}";
+    auto result = pacmap_->FromString(str);
+    // FromString should succeed but the invalid item is skipped
+    EXPECT_TRUE(result);
+
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_NonIntegerType_0100 end";
+}
+
+/**
  * @tc.number: AppExecFwk_ParseJsonItemArrayShort_0100
  * @tc.name: ParseJsonItemArrayShort
  * @tc.desc: Verify ParseJsonItemArrayShort.

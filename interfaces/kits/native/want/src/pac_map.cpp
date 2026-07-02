@@ -1522,6 +1522,9 @@ bool PacMap::ParseJson(Json::Value &data, PacMapList &mapList, int depth)
         if (item.isNull() || !item.isObject() || !JudgeType(item)) {
             continue;
         }
+        if (!item.isMember("type") || !item["type"].isInt()) {
+            continue;
+        }
         bool isPacMapType = item["type"].asInt() == PACMAP_DATA_PACMAP;
         bool parseResult = ParseJsonItem(mapList, keyList[i], item, depth);
         if (isPacMapType && !parseResult) {
