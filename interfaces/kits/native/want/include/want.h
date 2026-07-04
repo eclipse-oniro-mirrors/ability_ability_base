@@ -25,7 +25,9 @@
 #include "element_name.h"
 #include "operation.h"
 #include "parcel.h"
+#ifndef __cplusplus
 #include <stdbool.h>
+#endif
 
 using Operation = OHOS::AAFwk::Operation;
 
