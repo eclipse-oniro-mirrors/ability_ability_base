@@ -45,7 +45,7 @@ constexpr unsigned char NIBBLE_MASK = (1U << HIGH_NIBBLE_SHIFT) - 1U;
 constexpr unsigned char JSON_CONTROL_CHAR_LIMIT = 0x20;
 constexpr unsigned char ASCII_DELETE = 0x7F;
 constexpr int ARRAY_STRING_SIZE = 2;
-constexpr char ENVELOPE_KEY[] = "ohos.want.params.json";
+constexpr char ENVELOPE_KEY[] = "ohos.want.paramsStringEnvelope";
 
 std::string MakeString(const uint8_t *data, size_t size, size_t maxSize = MAX_FRAGMENT_SIZE)
 {

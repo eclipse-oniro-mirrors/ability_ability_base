@@ -32,6 +32,7 @@ namespace {
 using Json = nlohmann::json;
 
 constexpr int TYPE_WANT_PARAMS = 101;
+constexpr int TYPE_NULL = -1;
 
 // Maximum supported nested WantParams depth. The top-level WantParams object
 // starts at depth 0.
@@ -46,7 +47,7 @@ bool ParseTypeId(const std::string &token, int &typeId)
         return false;
     }
     typeId = static_cast<int>(parsed);
-    return WantParams::IsKnownTypeId(typeId);
+    return typeId != TYPE_NULL && WantParams::IsKnownTypeId(typeId);
 }
 
 bool BuildParamsJson(const WantParams &wp, Json &out, uint32_t depth)
@@ -61,6 +62,10 @@ bool BuildParamsJson(const WantParams &wp, Json &out, uint32_t depth)
     Json params = Json::object();
     for (const auto &it : wp.GetParams()) {
         int typeId = WantParams::GetDataType(it.second);
+        if (typeId == TYPE_NULL) {
+            continue;
+        }
+
         Json typedValue = Json::object();
         IWantParams *nested = IWantParams::Query(it.second);
         if (nested != nullptr) {
@@ -182,6 +187,11 @@ bool ParseEnvelopeJson(const Json &jsonObject, WantParams &out)
 
 bool Parse(const std::string &text, WantParams &out)
 {
+    if (!HasEnvelope(text)) {
+        ABILITYBASE_LOGW("parse failed, missing exact envelope, length=%{public}zu", text.size());
+        return false;
+    }
+
     try {
         Json jsonObject = Json::parse(text, nullptr, false);
         if (jsonObject.is_discarded()) {
