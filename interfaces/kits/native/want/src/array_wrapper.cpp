@@ -314,6 +314,10 @@ sptr<IArray> Array::ParseWantParams(const std::string &values, long size)
 
 sptr<IArray> Array::Parse(const std::string &arrayStr) /* [in] */
 {
+    if (arrayStr.empty()) {
+        return nullptr;
+    }
+
     char signature = arrayStr[0];
     if (!IsValidArraySignature(signature)) {
         return nullptr;

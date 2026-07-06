@@ -407,6 +407,7 @@ HWTEST_F(ArrayWrapperBaseTest, AaFwk_Array_Wrapper_Parse_0100, Function | Medium
             return nullptr;
         }
     };
+    EXPECT_EQ(arrFunction(""), nullptr);
     EXPECT_EQ(arrFunction("Test"), nullptr);
     EXPECT_EQ(arrFunction("{Test"), nullptr);
     EXPECT_EQ(arrFunction("{Test}"), nullptr);

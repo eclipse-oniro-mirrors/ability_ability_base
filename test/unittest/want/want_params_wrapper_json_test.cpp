@@ -1190,6 +1190,7 @@ HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3970, TestSize.Level1
         "{\"ohos.want.paramsStringEnvelope\":{\"k\":{}}}",
         "{\"ohos.want.paramsStringEnvelope\":{\"k\":{\"101\":[]}}}",
         "{\"ohos.want.paramsStringEnvelope\":{\"k\":{\"102\":{}}}}",
+        "{\"ohos.want.paramsStringEnvelope\":{\"k\":{\"102\":\"\"}}}",
         "{\"ohos.want.paramsStringEnvelope\":{\"k\":{\"9\":\"v\"}},\"extra\":{}}",
     };
 
