@@ -61,10 +61,11 @@ constexpr char ENVELOPE_KEY[] = "ohos.want.paramsStringEnvelope";
 bool Parse(const std::string &text, WantParams &out);
 
 /**
- * @brief Checks whether a string starts with the WantParams JSON wrapper envelope.
+ * @brief Checks whether a string starts with the exact WantParams JSON wrapper envelope.
  *
- * This function is only used to select the parser path. It does not validate the
- * complete JSON content.
+ * This function is only used to select the parser path. It matches the exact
+ * envelope prefix emitted by Serialize and does not allow whitespace before or
+ * inside the prefix. It does not validate the complete JSON content.
  *
  * @param text Indicates the string to check.
  * @return Returns true if the wrapper envelope is detected; returns false

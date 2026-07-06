@@ -630,6 +630,9 @@ HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_2600, TestSize.Level1
     const std::string notObject = "\"just a string\"";
     Dump("2600_not_object", notObject);
     EXPECT_FALSE(WantParamWrapperJson::HasEnvelope(notObject));
+    EXPECT_FALSE(WantParamWrapperJson::HasEnvelope(" {\"ohos.want.paramsStringEnvelope\":{}}"));
+    EXPECT_FALSE(WantParamWrapperJson::HasEnvelope("{ \"ohos.want.paramsStringEnvelope\":{}}"));
+    EXPECT_FALSE(WantParamWrapperJson::HasEnvelope("{\"ohos.want.paramsStringEnvelope\" :{}}"));
 }
 
 // ==================== E. 全数据类型往返（真实构造） ====================

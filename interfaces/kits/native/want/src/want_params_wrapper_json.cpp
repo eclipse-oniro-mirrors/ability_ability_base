@@ -37,20 +37,6 @@ constexpr int TYPE_WANT_PARAMS = 101;
 // starts at depth 0.
 constexpr uint32_t MAX_DEPTH = 100;
 
-// Keep HasEnvelope as a lightweight discriminator. Full JSON and schema
-// validation remains in Parse.
-bool IsJsonWhitespace(char value)
-{
-    return value == ' ' || value == '\t' || value == '\r' || value == '\n';
-}
-
-void SkipJsonWhitespace(const std::string &text, size_t &pos)
-{
-    while (pos < text.size() && IsJsonWhitespace(text[pos])) {
-        ++pos;
-    }
-}
-
 bool ParseTypeId(const std::string &token, int &typeId)
 {
     errno = 0;
@@ -220,26 +206,10 @@ bool Parse(const std::string &text, WantParams &out)
 
 bool HasEnvelope(const std::string &text)
 {
-    size_t pos = 0;
-    SkipJsonWhitespace(text, pos);
-    if (pos >= text.size() || text[pos] != '{') {
-        return false;
-    }
-    ++pos;
-
-    SkipJsonWhitespace(text, pos);
-    if (pos >= text.size() || text[pos] != '"') {
-        return false;
-    }
-    ++pos;
-
-    const std::string envelopeKey(ENVELOPE_KEY);
-    if (text.compare(pos, envelopeKey.size(), envelopeKey) != 0) {
-        return false;
-    }
-    pos += envelopeKey.size();
-    // Match the plain envelope key emitted by Serialize.
-    return pos < text.size() && text[pos] == '"';
+    // Match the exact envelope prefix emitted by Serialize. No whitespace is
+    // allowed before '{' or between '{', the envelope key, and ':'.
+    const std::string envelopePrefix = "{\"" + std::string(ENVELOPE_KEY) + "\":";
+    return text.compare(0, envelopePrefix.size(), envelopePrefix) == 0;
 }
 
 bool Serialize(const WantParams &wp, std::string &out)
