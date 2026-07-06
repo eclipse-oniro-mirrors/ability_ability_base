@@ -36,9 +36,8 @@ using namespace OHOS::AAFwk;
 
 namespace OHOS {
 namespace {
-constexpr size_t MAX_INPUT_SIZE = 1000;
+constexpr size_t MAX_INPUT_SIZE = 4096;
 constexpr size_t MAX_FRAGMENT_SIZE = 256;
-constexpr size_t U32_AT_SIZE = 4;
 constexpr int MAX_FUZZ_DEPTH = 104;
 constexpr uint32_t BYTE_SHIFT = CHAR_BIT;
 constexpr unsigned char HIGH_NIBBLE_SHIFT = CHAR_BIT / 2;
@@ -132,7 +131,7 @@ void ExerciseParse(const std::string &text)
     WantParamWrapperJson::Parse(serialized, reparsed);
 }
 
-void ExerciseSchemaMutations(const std::string &raw, uint8_t selector)
+void ExerciseSchemaMutations(const std::string &raw)
 {
     std::string fragment = raw.substr(0, MAX_FRAGMENT_SIZE);
     std::string escaped = EscapeJsonString(fragment);
@@ -157,14 +156,8 @@ void ExerciseSchemaMutations(const std::string &raw, uint8_t selector)
         "   {\"'\"y\"102\"{\"[8888888[0{ m}\"!};}",
     };
 
-    // Run only 1-2 candidates per input, selected by the fuzz byte, so each
-    // invocation stays cheap while coverage-guided fuzzing still reaches every
-    // candidate across the corpus.
-    size_t firstIdx = selector % candidates.size();
-    ExerciseParse(candidates[firstIdx]);
-    size_t secondIdx = (firstIdx + 1 + (selector >> HIGH_NIBBLE_SHIFT)) % candidates.size();
-    if (secondIdx != firstIdx) {
-        ExerciseParse(candidates[secondIdx]);
+    for (const auto &candidate : candidates) {
+        ExerciseParse(candidate);
     }
 }
 
@@ -223,24 +216,10 @@ bool DoSomethingInterestingWithMyAPI(const uint8_t *data, size_t size)
     }
 
     std::string raw = MakeString(data, size, MAX_INPUT_SIZE);
-
-    // Route each input to a single exercise path. This keeps per-input work to
-    // ~1-3 parses instead of ~19, and lets coverage-guided fuzzing build corpus
-    // for each path independently.
-    switch (data[0] % 4) {
-        case 0:
-            ExerciseParse(raw);
-            break;
-        case 1:
-            ExerciseSchemaMutations(raw, data[1]);
-            break;
-        case 2:
-            ExerciseSerializeRoundTrip(data, size);
-            break;
-        default:
-            ExerciseDepth(data, size);
-            break;
-    }
+    ExerciseParse(raw);
+    ExerciseSchemaMutations(raw);
+    ExerciseSerializeRoundTrip(data, size);
+    ExerciseDepth(data, size);
     return true;
 }
 } // namespace OHOS
@@ -248,9 +227,6 @@ bool DoSomethingInterestingWithMyAPI(const uint8_t *data, size_t size)
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
     if (data == nullptr) {
-        return 0;
-    }
-    if (size < OHOS::U32_AT_SIZE) {
         return 0;
     }
 
