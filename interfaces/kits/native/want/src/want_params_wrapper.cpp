@@ -66,6 +66,7 @@ bool ParseTypeId(const std::string &token, int &typeId)
 }
 }
 constexpr int32_t WANT_PARAM_WRAPPER_TWO = 2;
+constexpr int32_t MAX_PARSE_RECURSION_DEPTH = 100;
 
 IINTERFACE_IMPL_1(WantParamWrapper, Object, IWantParams);
 const InterfaceID g_IID_IWantParams = {
@@ -85,14 +86,28 @@ bool WantParamWrapper::Equals(IObject &other)
 
 std::string WantParamWrapper::ToString()
 {
+    return ToString(0);
+}
+
+std::string WantParamWrapper::ToString(int depth)
+{
     std::string result;
+    if (depth < 0 || depth > MAX_PARSE_RECURSION_DEPTH) {
+        ABILITYBASE_LOGE("WantParamWrapper::ToString invalid recursion depth %{public}d", depth);
+        return result;
+    }
     if (wantParams_.Size() != 0) {
         result += "{";
         for (auto it : wantParams_.GetParams()) {
             int typeId = WantParams::GetDataType(it.second);
             result = result + "\"" + it.first + "\":{\"" + std::to_string(typeId) + "\":";
             if (IWantParams::Query(it.second) != nullptr) {
-                result = result + static_cast<WantParamWrapper *>(IWantParams::Query(it.second))->ToString();
+                std::string valueStr =
+                    static_cast<WantParamWrapper *>(IWantParams::Query(it.second))->ToString(depth + 1);
+                if (valueStr.empty()) {
+                    return "";
+                }
+                result += valueStr;
             } else {
                 result = result + "\"" + WantParams::GetStringByType(it.second, typeId) + "\"";
             }
@@ -157,9 +172,18 @@ bool WantParamWrapper::ValidateStr(const std::string &str)
 
 sptr<IWantParams> WantParamWrapper::Parse(const std::string &str)
 {
+    return Parse(str, 0);
+}
+
+sptr<IWantParams> WantParamWrapper::Parse(const std::string &str, int depth)
+{
     WantParams wantParams;
     std::string key = "";
     int typeId = 0;
+    if (depth < 0 || depth > MAX_PARSE_RECURSION_DEPTH) {
+        ABILITYBASE_LOGE("Parse: invalid recursion depth %{public}d", depth);
+        return new (std::nothrow) WantParamWrapper(wantParams);
+    }
     if (ValidateStr(str)) {
         for (size_t strnum = 0; strnum < str.size(); strnum++) {
             if (str[strnum] == '{' && key != "" && typeId == WantParams::VALUE_TYPE_WANTPARAMS) {
@@ -175,7 +199,7 @@ sptr<IWantParams> WantParamWrapper::Parse(const std::string &str)
                         break;
                     }
                 }
-                sptr<IWantParams> nested = WantParamWrapper::Parse(str.substr(strnum, num - strnum + 1));
+                sptr<IWantParams> nested = WantParamWrapper::Parse(str.substr(strnum, num - strnum + 1), depth + 1);
                 if (WantParamWrapper::Unbox(nested).Size() == 0) {
                     wantParams = WantParams();
                     break;
@@ -234,9 +258,18 @@ sptr<IWantParams> WantParamWrapper::Parse(const std::string &str)
 
 WantParams WantParamWrapper::ParseWantParams(const std::string &str)
 {
+    return ParseWantParams(str, 0);
+}
+
+WantParams WantParamWrapper::ParseWantParams(const std::string &str, int depth)
+{
     WantParams wantParams;
     std::string key = "";
     int typeId = 0;
+    if (depth < 0 || depth > MAX_PARSE_RECURSION_DEPTH) {
+        ABILITYBASE_LOGE("ParseWantParams: invalid recursion depth %{public}d", depth);
+        return wantParams;
+    }
     if (!ValidateStr(str)) {
         return wantParams;
     }
@@ -254,7 +287,7 @@ WantParams WantParamWrapper::ParseWantParams(const std::string &str)
                     break;
                 }
             }
-            sptr<IWantParams> nested = WantParamWrapper::Parse(str.substr(strnum, num - strnum + 1));
+            sptr<IWantParams> nested = WantParamWrapper::Parse(str.substr(strnum, num - strnum + 1), depth + 1);
             if (WantParamWrapper::Unbox(nested).Size() == 0) {
                 wantParams = WantParams();
                 break;
@@ -307,10 +340,19 @@ WantParams WantParamWrapper::ParseWantParams(const std::string &str)
 
 WantParams WantParamWrapper::ParseWantParamsWithBrackets(const std::string &str)
 {
+    return ParseWantParamsWithBrackets(str, 0);
+}
+
+WantParams WantParamWrapper::ParseWantParamsWithBrackets(const std::string &str, int depth)
+{
     WantParams wantParams;
     std::string key = "";
     int typeId = 0;
     size_t type_index_before = 0;
+    if (depth < 0 || depth > MAX_PARSE_RECURSION_DEPTH) {
+        ABILITYBASE_LOGE("ParseWantParamsWithBrackets: invalid recursion depth %{public}d", depth);
+        return wantParams;
+    }
     if (!ValidateStr(str)) {
         return wantParams;
     }
@@ -328,7 +370,7 @@ WantParams WantParamWrapper::ParseWantParamsWithBrackets(const std::string &str)
                     break;
                 }
             }
-            sptr<IWantParams> nested = WantParamWrapper::Parse(str.substr(strnum, num - strnum + 1));
+            sptr<IWantParams> nested = WantParamWrapper::Parse(str.substr(strnum, num - strnum + 1), depth + 1);
             if (WantParamWrapper::Unbox(nested).Size() == 0) {
                 wantParams = WantParams();
                 break;

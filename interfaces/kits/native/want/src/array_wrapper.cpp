@@ -337,6 +337,13 @@ sptr<IArray> Array::Parse(const std::string &arrayStr) /* [in] */
 
     idx += 1;
     std::string values = arrayStr.substr(idx, arrayStr.length() - 1 - idx);
+    // DoS guard: Attacker-controlled size.
+    // Reject oversized values upfront to prevent mass empty slot pre-allocation in Array constructor.
+    if (static_cast<size_t>(size) > values.length() + 1) {
+        ABILITYBASE_LOGE("declared array size %{public}ld exceeds content length %{public}zu",
+            size, values.length() + 1);
+        return nullptr;
+    }
 
     switch (signature) {
         case Char::SIGNATURE:
