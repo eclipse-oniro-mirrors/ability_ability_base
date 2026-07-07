@@ -75,6 +75,14 @@ public:
     static constexpr char SIGNATURE = 'W';
 
 private:
+    std::string ToString(int depth);
+
+    static sptr<IWantParams> Parse(const std::string &str, int depth);
+
+    static WantParams ParseWantParams(const std::string &str, int depth);
+
+    static WantParams ParseWantParamsWithBrackets(const std::string &str, int depth);
+
     WantParams wantParams_;
 };
 }  // namespace AAFwk

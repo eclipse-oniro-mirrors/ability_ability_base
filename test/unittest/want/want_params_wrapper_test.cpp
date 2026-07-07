@@ -40,6 +40,30 @@ const std::string STRING_WANT_PARAMS_KEY_02 = "key02";
 const std::string STRING_WANT_PARAMS_VALUE_02 = "value02";
 const std::string STRING_WANT_PARAMS_STRING_0201 =
     "{\"key01\":{\"101\":{\"key02\":{\"9\":\"value02\"}}},\"key02\":{\"9\":\"value02\"}}";
+constexpr int WANT_PARAMS_WRAPPER_PARSE_MAX_DEPTH = 100;
+
+std::string BuildNestedWantParamsString(int depth)
+{
+    std::string str = "{\"leaf\":{\"9\":\"value\"}}";
+    for (int i = 0; i < depth; i++) {
+        str = "{\"key" + std::to_string(i) + "\":{\"101\":" + str + "}}";
+    }
+    return str;
+}
+
+sptr<IWantParams> BuildNestedWantParamWrapper(int depth)
+{
+    WantParams leaf;
+    leaf.SetParam("leaf", String::Box("value"));
+    sptr<IWantParams> current = WantParamWrapper::Box(leaf);
+    for (int i = 0; i < depth; i++) {
+        WantParams outer;
+        outer.SetParam("key" + std::to_string(i), current);
+        current = WantParamWrapper::Box(outer);
+    }
+    return current;
+}
+
 }  // namespace
 
 class WantParamWrapperBaseTest : public testing::Test {
@@ -698,4 +722,70 @@ HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_3500, Function | MediumTes
     EXPECT_EQ(WantParamWrapper::Unbox(WantParamWrapper::Parse(s)).Size(), 1u);
     EXPECT_EQ(WantParamWrapper::ParseWantParams(s).Size(), 1u);
     EXPECT_EQ(WantParamWrapper::ParseWantParamsWithBrackets(s).Size(), 1u);
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_3600
+ * @tc.name: Nested parse within max depth succeeds
+ * @tc.desc: Verify the three parse entrances accept nested WantParams before the depth limit.
+ */
+HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_3600, Function | MediumTest | Level1)
+{
+    std::string s = BuildNestedWantParamsString(WANT_PARAMS_WRAPPER_PARSE_MAX_DEPTH);
+    EXPECT_EQ(WantParamWrapper::Unbox(WantParamWrapper::Parse(s)).Size(), 1u);
+    EXPECT_EQ(WantParamWrapper::ParseWantParams(s).Size(), 1u);
+    EXPECT_EQ(WantParamWrapper::ParseWantParamsWithBrackets(s).Size(), 1u);
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_3700
+ * @tc.name: Nested parse over max depth returns empty
+ * @tc.desc: Verify the three parse entrances propagate recursive Parse depth failures.
+ */
+HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_3700, Function | MediumTest | Level1)
+{
+    std::string s = BuildNestedWantParamsString(WANT_PARAMS_WRAPPER_PARSE_MAX_DEPTH + 1);
+    EXPECT_EQ(WantParamWrapper::Unbox(WantParamWrapper::Parse(s)).Size(), 0u);
+    EXPECT_EQ(WantParamWrapper::ParseWantParams(s).Size(), 0u);
+    EXPECT_EQ(WantParamWrapper::ParseWantParamsWithBrackets(s).Size(), 0u);
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_3800
+ * @tc.name: ToString within max depth succeeds
+ * @tc.desc: Verify ToString serializes nested WantParams before the depth limit. A wrapper
+ *           nested to the max depth (100) must still emit a non-empty string containing the
+ *           leaf value -- the depth guard rejects only depth > MAX, not depth == MAX, and
+ *           none of the recursive calls short-circuit. ToString pairs with Parse's 3600.
+ */
+HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_3800, Function | MediumTest | Level1)
+{
+    auto nested = BuildNestedWantParamWrapper(WANT_PARAMS_WRAPPER_PARSE_MAX_DEPTH);
+    WantParamWrapper wrapper(WantParamWrapper::Unbox(nested));
+
+    auto result = wrapper.ToString();
+
+    EXPECT_FALSE(result.empty());
+    EXPECT_NE(result.find("value"), std::string::npos);
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_3900
+ * @tc.name: ToString over max depth returns empty
+ * @tc.desc: Verify ToString propagates recursive depth failures. A wrapper nested one level
+ *           beyond the max depth (101) makes the innermost call hit ToString(MAX + 1), which
+ *           the depth guard returns as ""; each ancestor then short-circuits on that empty
+ *           child result and also returns "", so the whole serialization collapses to "" and
+ *           recursion cannot run away into a stack overflow. ToString pairs with Parse's
+ *           3700. The over-limit object is built directly because Parse itself enforces the
+ *           same cap and would return empty first.
+ */
+HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_3900, Function | MediumTest | Level1)
+{
+    auto nested = BuildNestedWantParamWrapper(WANT_PARAMS_WRAPPER_PARSE_MAX_DEPTH + 1);
+    WantParamWrapper wrapper(WantParamWrapper::Unbox(nested));
+
+    auto result = wrapper.ToString();
+
+    EXPECT_TRUE(result.empty());
 }

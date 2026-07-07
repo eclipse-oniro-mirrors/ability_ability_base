@@ -467,5 +467,21 @@ HWTEST_F(ArrayWrapperBaseTest, AaFwk_Array_Wrapper_Parse_0300, Function | Medium
     EXPECT_EQ(result->Get(4, value), ERR_OK);
     EXPECT_EQ(value, nullptr);
 }
+/**
+ * @tc.number: AaFwk_Array_Wrapper_Parse_0400
+ * @tc.name: Parse rejects an inflated size within MAX_ARRAY_SIZE
+ * @tc.desc: Verify the size-vs-content DoS guard rejects a huge declared size with tiny content.
+ */
+HWTEST_F(ArrayWrapperBaseTest, AaFwk_Array_Wrapper_Parse_0400, Function | MediumTest | Level1)
+{
+    sptr<IArray> result = Array::Parse("[52428800{[52428800{T52428800{}}}");
+    EXPECT_EQ(result, nullptr);
+
+    sptr<IArray> ok = Array::Parse("I3{1,2,3}");
+    ASSERT_NE(ok, nullptr);
+    long len = 0;
+    EXPECT_EQ(ok->GetLength(len), ERR_OK);
+    EXPECT_EQ(len, 3);
+}
 }
 }
