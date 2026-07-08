@@ -83,6 +83,33 @@ std::string BuildNestedEnvelope(int nestedLevels)
     return s;
 }
 
+std::string BuildNestedArrayString(int depth)
+{
+    std::string str = "I1{1}";
+    for (int i = 0; i < depth; i++) {
+        str = "[1{" + str + "}";
+    }
+    return str;
+}
+
+std::string BuildArrayEnvelope(int arrayDepth)
+{
+    return "{\"" + std::string(ENVELOPE_KEY) + "\":{\"array\":{\"102\":\"" +
+        BuildNestedArrayString(arrayDepth) + "\"}}}";
+}
+
+sptr<IArray> BuildNestedArrayObject(int depth)
+{
+    sptr<IArray> current = sptr<Array>::MakeSptr(1, g_IID_IInteger);
+    current->Set(0, Integer::Box(1));
+    for (int i = 0; i < depth; i++) {
+        sptr<IArray> outer = sptr<Array>::MakeSptr(1, g_IID_IArray);
+        outer->Set(0, current);
+        current = outer;
+    }
+    return current;
+}
+
 constexpr int FULL_MEMBER_COUNT = 1024;
 constexpr int FULL_DEPTH = 100;
 constexpr const char *NESTED_KEY = "lv";
@@ -1202,4 +1229,39 @@ HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3970, TestSize.Level1
         EXPECT_EQ(GetString9(out, "sentinel"), "keep");
         EXPECT_EQ(out.Size(), 1);
     }
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_Json_3980
+ * @tc.name: parse type-102 Array with shared depth
+ * @tc.desc: Array depth is counted from the current JSON WantParams depth.
+ */
+HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3980, TestSize.Level1)
+{
+    WantParams out;
+    EXPECT_TRUE(WantParamWrapperJson::Parse(BuildArrayEnvelope(FULL_DEPTH - 1), out));
+    EXPECT_NE(IArray::Query(out.GetParam("array")), nullptr);
+
+    out = WantParams();
+    EXPECT_FALSE(WantParamWrapperJson::Parse(BuildArrayEnvelope(FULL_DEPTH), out));
+    EXPECT_EQ(out.Size(), 0);
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_Json_3990
+ * @tc.name: serialize type-102 Array with shared depth
+ * @tc.desc: Array ToString depth failures are propagated by JSON serialization.
+ */
+HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3990, TestSize.Level1)
+{
+    WantParams okParams;
+    okParams.SetParam("array", BuildNestedArrayObject(FULL_DEPTH - 1));
+    std::string serialized;
+    EXPECT_TRUE(WantParamWrapperJson::Serialize(okParams, serialized));
+
+    WantParams overLimit;
+    overLimit.SetParam("array", BuildNestedArrayObject(FULL_DEPTH));
+    serialized = "unchanged";
+    EXPECT_FALSE(WantParamWrapperJson::Serialize(overLimit, serialized));
+    EXPECT_EQ(serialized, "unchanged");
 }

@@ -14,11 +14,14 @@
  */
 #ifndef OHOS_ABILITY_BASE_WANT_PARAMS_WRAPPER_H
 #define OHOS_ABILITY_BASE_WANT_PARAMS_WRAPPER_H
+#include <cstddef>
+
 #include "base_def.h"
 #include "base_obj.h"
 #include "want_params.h"
 namespace OHOS {
 namespace AAFwk {
+class Array;
 class WantParams;
 INTERFACE(IWantParams, a75b9db6 - 9813 - 4371 - 8848 - d2966ce6ec68)
 {
@@ -75,6 +78,15 @@ public:
     static constexpr char SIGNATURE = 'W';
 
 private:
+    friend class Array;
+
+    struct ParseState {
+        std::string key;
+        int typeId = 0;
+        size_t typeIndexBefore = 0;
+        WantParams wantParams;
+    };
+
     std::string ToString(int depth);
 
     static sptr<IWantParams> Parse(const std::string &str, int depth);
@@ -82,6 +94,22 @@ private:
     static WantParams ParseWantParams(const std::string &str, int depth);
 
     static WantParams ParseWantParamsWithBrackets(const std::string &str, int depth);
+
+    static bool AppendParamValueString(IInterface *value, int typeId, int depth, std::string &result);
+
+    static void FindNestedWantParamsEnd(const std::string &str, size_t strnum, size_t &num);
+
+    static bool ParseNestedWantParams(const std::string &str, size_t &strnum, int depth, ParseState &state);
+
+    static sptr<IInterface> ParseValueByType(int typeId, const std::string &value, int depth);
+
+    static bool ParseQuotedParam(const std::string &str, size_t &strnum, int depth, ParseState &state,
+        const char *func);
+
+    static bool ParseQuotedParamWithBrackets(const std::string &str, size_t &strnum, int depth, ParseState &state,
+        const char *func);
+
+    static void ResetIfParseIncomplete(ParseState &state);
 
     WantParams wantParams_;
 };

@@ -20,11 +20,37 @@
 #include "array_wrapper.h"
 #undef private
 #undef protected
+#include "int_wrapper.h"
 
 using namespace testing::ext;
 
 namespace OHOS {
 namespace AAFwk {
+namespace {
+constexpr int ARRAY_WRAPPER_MAX_DEPTH = 100;
+
+std::string BuildNestedArrayString(int depth)
+{
+    std::string str = "I1{1}";
+    for (int i = 0; i < depth; i++) {
+        str = "[1{" + str + "}";
+    }
+    return str;
+}
+
+sptr<IArray> BuildNestedArrayObject(int depth)
+{
+    sptr<IArray> current = sptr<Array>::MakeSptr(1, g_IID_IInteger);
+    current->Set(0, Integer::Box(1));
+    for (int i = 0; i < depth; i++) {
+        sptr<IArray> outer = sptr<Array>::MakeSptr(1, g_IID_IArray);
+        outer->Set(0, current);
+        current = outer;
+    }
+    return current;
+}
+}
+
 class ArrayWrapperBaseTest : public testing::Test {
 public:
     static void SetUpTestCase() {};
@@ -482,6 +508,33 @@ HWTEST_F(ArrayWrapperBaseTest, AaFwk_Array_Wrapper_Parse_0400, Function | Medium
     long len = 0;
     EXPECT_EQ(ok->GetLength(len), ERR_OK);
     EXPECT_EQ(len, 3);
+}
+
+/**
+ * @tc.number: AaFwk_Array_Wrapper_Parse_0500
+ * @tc.name: Parse enforces nested Array depth
+ * @tc.desc: Verify pure Array nesting is counted without relying on WantParams parsing.
+ */
+HWTEST_F(ArrayWrapperBaseTest, AaFwk_Array_Wrapper_Parse_0500, Function | MediumTest | Level1)
+{
+    EXPECT_NE(Array::Parse(BuildNestedArrayString(ARRAY_WRAPPER_MAX_DEPTH)), nullptr);
+    EXPECT_EQ(Array::Parse(BuildNestedArrayString(ARRAY_WRAPPER_MAX_DEPTH + 1)), nullptr);
+}
+
+/**
+ * @tc.number: AaFwk_Array_Wrapper_ToString_0100
+ * @tc.name: ToString enforces nested Array depth
+ * @tc.desc: Verify Array serialization propagates recursive depth failures.
+ */
+HWTEST_F(ArrayWrapperBaseTest, AaFwk_Array_Wrapper_ToString_0100, Function | MediumTest | Level1)
+{
+    sptr<IArray> ok = BuildNestedArrayObject(ARRAY_WRAPPER_MAX_DEPTH);
+    ASSERT_NE(ok, nullptr);
+    EXPECT_FALSE(Object::ToString(*ok).empty());
+
+    sptr<IArray> overLimit = BuildNestedArrayObject(ARRAY_WRAPPER_MAX_DEPTH + 1);
+    ASSERT_NE(overLimit, nullptr);
+    EXPECT_TRUE(Object::ToString(*overLimit).empty());
 }
 }
 }

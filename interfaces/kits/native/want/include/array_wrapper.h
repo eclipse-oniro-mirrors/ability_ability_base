@@ -45,8 +45,10 @@ public:
     bool Equals(IObject &other) override; /* [in] */
 
     std::string ToString() override;
+    std::string ToString(int depth);
 
     static sptr<IArray> Parse(const std::string &arrayStr); /* [in] */
+    static sptr<IArray> Parse(const std::string &arrayStr, int depth); /* [in] */
 
     static bool IsBooleanArray(IArray *array); /* [in] */
 
@@ -78,6 +80,7 @@ private:
         std::function<sptr<IInterface>(std::string &)> func, /* [in] */
         const std::string &values,                           /* [in] */
         long size);                                          /* [in] */
+    static bool AppendValueString(IInterface *value, int depth, std::string &result);
 
     std::vector<sptr<IInterface>> values_;
     long size_;
@@ -92,8 +95,11 @@ private:
     static sptr<IArray> ParseFloat(const std::string &values, long size);
     static sptr<IArray> ParseDouble(const std::string &values, long size);
     static sptr<IArray> ParseChar(const std::string &values, long size);
+    static sptr<IArray> ParseBySignature(char signature, const std::string &values, long size, int depth);
     static sptr<IArray> ParseArray(const std::string &values, long size);
+    static sptr<IArray> ParseArray(const std::string &values, long size, int depth);
     static sptr<IArray> ParseWantParams(const std::string &values, long size);
+    static sptr<IArray> ParseWantParams(const std::string &values, long size, int depth);
 };
 }  // namespace AAFwk
 }  // namespace OHOS
