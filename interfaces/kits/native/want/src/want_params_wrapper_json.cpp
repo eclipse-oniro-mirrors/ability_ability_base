@@ -36,8 +36,8 @@ constexpr int TYPE_WANT_PARAMS = 101;
 constexpr int TYPE_ARRAY = 102;
 constexpr int TYPE_NULL = -1;
 
-// Maximum supported nested WantParams depth. The top-level WantParams object
-// starts at depth 0.
+// Maximum supported combined WantParams/Array recursion depth. The top-level
+// WantParams object starts at depth 0.
 constexpr uint32_t MAX_DEPTH = 100;
 
 bool ParseTypeId(const std::string &token, int &typeId)

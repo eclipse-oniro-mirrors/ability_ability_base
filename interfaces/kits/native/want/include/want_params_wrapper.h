@@ -54,6 +54,19 @@ public:
 
     bool Equals(IObject &other) override;
 
+    /**
+     * @brief Serializes the wrapped WantParams using a custom JSON-like format.
+     *
+     * This format does not escape keys or scalar values and is not guaranteed to
+     * be valid JSON. Quotes, backslashes, control characters, and delimiter-like
+     * content can make the output ambiguous or prevent a correct round trip. The
+     * recursion limit only prevents excessive nesting; it does not remove these
+     * format limitations.
+     *
+     * @return Returns the serialized string. Returns an empty string when
+     * recursive serialization fails.
+     * @deprecated Use WantParamWrapperJson::Serialize.
+     */
     std::string ToString() override;
 
     static sptr<IWantParams> Box(const WantParams &value);
@@ -69,10 +82,48 @@ public:
 
     static bool ValidateStr(const std::string &str);
 
+    /**
+     * @brief Parses the custom string format produced by ToString.
+     *
+     * This is not a general JSON parser. Token boundaries are found by scanning
+     * quotes and braces without escape-aware JSON parsing. Delimiter-like content
+     * may be truncated or misinterpreted, malformed input is not validated
+     * atomically, and some known value types cannot round trip. WantParams and
+     * Array recursion is limited to a combined depth of 100.
+     *
+     * @param str Indicates the string to parse.
+     * @return Returns the parsed IWantParams wrapper. The result may contain
+     * empty or partial data when the input cannot be restored reliably.
+     * @deprecated Use WantParamWrapperJson::Parse.
+     */
     static sptr<IWantParams> Parse(const std::string &str);
 
+    /**
+     * @brief Parses the custom string format produced by ToString into WantParams.
+     *
+     * This API has the same unescaped, non-JSON format limitations as Parse.
+     * WantParams and Array recursion is limited to a combined depth of 100.
+     *
+     * @param str Indicates the string to parse.
+     * @return Returns the parsed WantParams. The result may be empty or partial
+     * when the input cannot be restored reliably.
+     * @deprecated Use WantParamWrapperJson::Parse.
+     */
     static WantParams ParseWantParams(const std::string &str);
 
+    /**
+     * @brief Parses the custom string format using a bracket-matching variant.
+     *
+     * This variant also scans unescaped quotes and braces manually. Braces or
+     * delimiter-like content inside values can be treated as structure, so the
+     * input cannot be parsed unambiguously. WantParams and Array recursion is
+     * limited to a combined depth of 100.
+     *
+     * @param str Indicates the string to parse.
+     * @return Returns the parsed WantParams. The result may be empty or partial
+     * when the input cannot be restored reliably.
+     * @deprecated Use WantParamWrapperJson::Parse.
+     */
     static WantParams ParseWantParamsWithBrackets(const std::string &str);
 
     static constexpr char SIGNATURE = 'W';
