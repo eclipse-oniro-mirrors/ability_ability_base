@@ -22,6 +22,7 @@
 #include <utility>
 
 #include "ability_base_log_wrapper.h"
+#include "array_wrapper.h"
 #include "nlohmann/json.hpp"
 #include "want_params_wrapper.h"
 
@@ -32,10 +33,11 @@ namespace {
 using Json = nlohmann::json;
 
 constexpr int TYPE_WANT_PARAMS = 101;
+constexpr int TYPE_ARRAY = 102;
 constexpr int TYPE_NULL = -1;
 
-// Maximum supported nested WantParams depth. The top-level WantParams object
-// starts at depth 0.
+// Maximum supported combined WantParams/Array recursion depth. The top-level
+// WantParams object starts at depth 0.
 constexpr uint32_t MAX_DEPTH = 100;
 
 bool ParseTypeId(const std::string &token, int &typeId)
@@ -68,6 +70,7 @@ bool BuildParamsJson(const WantParams &wp, Json &out, uint32_t depth)
 
         Json typedValue = Json::object();
         IWantParams *nested = IWantParams::Query(it.second);
+        IArray *nestedArray = IArray::Query(it.second);
         if (nested != nullptr) {
             WantParams child;
             ErrCode errCode = nested->GetValue(child);
@@ -81,6 +84,14 @@ bool BuildParamsJson(const WantParams &wp, Json &out, uint32_t depth)
                 return false;
             }
             typedValue[std::to_string(typeId)] = std::move(childJson);
+        } else if (nestedArray != nullptr) {
+            std::string value = static_cast<Array *>(nestedArray)->ToString(depth + 1);
+            if (value.empty()) {
+                ABILITYBASE_LOGW("serialize failed, array depth exceeds max depth, keyLen=%{public}zu",
+                    it.first.size());
+                return false;
+            }
+            typedValue[std::to_string(typeId)] = std::move(value);
         } else {
             typedValue[std::to_string(typeId)] = WantParams::GetStringByType(it.second, typeId);
         }
@@ -92,6 +103,15 @@ bool BuildParamsJson(const WantParams &wp, Json &out, uint32_t depth)
 }
 
 bool ParseParamsJson(const Json &jsonObject, WantParams &out, uint32_t depth);
+
+sptr<IInterface> RestoreScalarValueJson(int typeId, const Json &valueJson, uint32_t depth)
+{
+    std::string valueStr = valueJson.get<std::string>();
+    if (typeId == TYPE_ARRAY) {
+        return Array::Parse(valueStr, depth + 1);
+    }
+    return WantParams::GetInterfaceByType(typeId, valueStr);
+}
 
 bool ParseTypedValueJson(const Json &typedValue, WantParams &parsed, const std::string &key, uint32_t depth)
 {
@@ -131,7 +151,7 @@ bool ParseTypedValueJson(const Json &typedValue, WantParams &parsed, const std::
             key.size(), typeId);
         return false;
     }
-    sptr<IInterface> value = WantParams::GetInterfaceByType(typeId, item.value().get<std::string>());
+    sptr<IInterface> value = RestoreScalarValueJson(typeId, item.value(), depth);
     if (value == nullptr) {
         ABILITYBASE_LOGW("parse failed, restore value failed, keyLen=%{public}zu, typeId=%{public}d",
             key.size(), typeId);

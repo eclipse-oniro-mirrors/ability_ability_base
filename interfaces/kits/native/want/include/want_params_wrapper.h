@@ -14,11 +14,14 @@
  */
 #ifndef OHOS_ABILITY_BASE_WANT_PARAMS_WRAPPER_H
 #define OHOS_ABILITY_BASE_WANT_PARAMS_WRAPPER_H
+#include <cstddef>
+
 #include "base_def.h"
 #include "base_obj.h"
 #include "want_params.h"
 namespace OHOS {
 namespace AAFwk {
+class Array;
 class WantParams;
 INTERFACE(IWantParams, a75b9db6 - 9813 - 4371 - 8848 - d2966ce6ec68)
 {
@@ -51,6 +54,19 @@ public:
 
     bool Equals(IObject &other) override;
 
+    /**
+     * @brief Serializes the wrapped WantParams using a custom JSON-like format.
+     *
+     * This format does not escape keys or scalar values and is not guaranteed to
+     * be valid JSON. Quotes, backslashes, control characters, and delimiter-like
+     * content can make the output ambiguous or prevent a correct round trip. The
+     * recursion limit only prevents excessive nesting; it does not remove these
+     * format limitations.
+     *
+     * @return Returns the serialized string. Returns an empty string when
+     * recursive serialization fails.
+     * @deprecated Use WantParamWrapperJson::Serialize.
+     */
     std::string ToString() override;
 
     static sptr<IWantParams> Box(const WantParams &value);
@@ -66,15 +82,62 @@ public:
 
     static bool ValidateStr(const std::string &str);
 
+    /**
+     * @brief Parses the custom string format produced by ToString.
+     *
+     * This is not a general JSON parser. Token boundaries are found by scanning
+     * quotes and braces without escape-aware JSON parsing. Delimiter-like content
+     * may be truncated or misinterpreted, malformed input is not validated
+     * atomically, and some known value types cannot round trip. WantParams and
+     * Array recursion is limited to a combined depth of 100.
+     *
+     * @param str Indicates the string to parse.
+     * @return Returns the parsed IWantParams wrapper. The result may contain
+     * empty or partial data when the input cannot be restored reliably.
+     * @deprecated Use WantParamWrapperJson::Parse.
+     */
     static sptr<IWantParams> Parse(const std::string &str);
 
+    /**
+     * @brief Parses the custom string format produced by ToString into WantParams.
+     *
+     * This API has the same unescaped, non-JSON format limitations as Parse.
+     * WantParams and Array recursion is limited to a combined depth of 100.
+     *
+     * @param str Indicates the string to parse.
+     * @return Returns the parsed WantParams. The result may be empty or partial
+     * when the input cannot be restored reliably.
+     * @deprecated Use WantParamWrapperJson::Parse.
+     */
     static WantParams ParseWantParams(const std::string &str);
 
+    /**
+     * @brief Parses the custom string format using a bracket-matching variant.
+     *
+     * This variant also scans unescaped quotes and braces manually. Braces or
+     * delimiter-like content inside values can be treated as structure, so the
+     * input cannot be parsed unambiguously. WantParams and Array recursion is
+     * limited to a combined depth of 100.
+     *
+     * @param str Indicates the string to parse.
+     * @return Returns the parsed WantParams. The result may be empty or partial
+     * when the input cannot be restored reliably.
+     * @deprecated Use WantParamWrapperJson::Parse.
+     */
     static WantParams ParseWantParamsWithBrackets(const std::string &str);
 
     static constexpr char SIGNATURE = 'W';
 
 private:
+    friend class Array;
+
+    struct ParseState {
+        std::string key;
+        int typeId = 0;
+        size_t typeIndexBefore = 0;
+        WantParams wantParams;
+    };
+
     std::string ToString(int depth);
 
     static sptr<IWantParams> Parse(const std::string &str, int depth);
@@ -82,6 +145,22 @@ private:
     static WantParams ParseWantParams(const std::string &str, int depth);
 
     static WantParams ParseWantParamsWithBrackets(const std::string &str, int depth);
+
+    static bool AppendParamValueString(IInterface *value, int typeId, int depth, std::string &result);
+
+    static void FindNestedWantParamsEnd(const std::string &str, size_t strnum, size_t &num);
+
+    static bool ParseNestedWantParams(const std::string &str, size_t &strnum, int depth, ParseState &state);
+
+    static sptr<IInterface> ParseValueByType(int typeId, const std::string &value, int depth);
+
+    static bool ParseQuotedParam(const std::string &str, size_t &strnum, int depth, ParseState &state,
+        const char *func);
+
+    static bool ParseQuotedParamWithBrackets(const std::string &str, size_t &strnum, int depth, ParseState &state,
+        const char *func);
+
+    static void ResetIfParseIncomplete(ParseState &state);
 
     WantParams wantParams_;
 };

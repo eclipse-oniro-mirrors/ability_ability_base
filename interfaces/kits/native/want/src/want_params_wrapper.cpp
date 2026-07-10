@@ -19,6 +19,7 @@
 #include <climits>
 #include <cstdlib>
 #include "ability_base_log_wrapper.h"
+#include "array_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -101,15 +102,8 @@ std::string WantParamWrapper::ToString(int depth)
         for (auto it : wantParams_.GetParams()) {
             int typeId = WantParams::GetDataType(it.second);
             result = result + "\"" + it.first + "\":{\"" + std::to_string(typeId) + "\":";
-            if (IWantParams::Query(it.second) != nullptr) {
-                std::string valueStr =
-                    static_cast<WantParamWrapper *>(IWantParams::Query(it.second))->ToString(depth + 1);
-                if (valueStr.empty()) {
-                    return "";
-                }
-                result += valueStr;
-            } else {
-                result = result + "\"" + WantParams::GetStringByType(it.second, typeId) + "\"";
+            if (!AppendParamValueString(it.second, typeId, depth, result)) {
+                return "";
             }
             if (it == *wantParams_.GetParams().rbegin()) {
                 result += "}";
@@ -122,6 +116,28 @@ std::string WantParamWrapper::ToString(int depth)
         result = "{}";
     }
     return result;
+}
+
+bool WantParamWrapper::AppendParamValueString(IInterface *value, int typeId, int depth, std::string &result)
+{
+    if (IWantParams::Query(value) != nullptr) {
+        std::string valueStr = static_cast<WantParamWrapper *>(IWantParams::Query(value))->ToString(depth + 1);
+        if (valueStr.empty()) {
+            return false;
+        }
+        result += valueStr;
+        return true;
+    }
+    if (IArray::Query(value) != nullptr) {
+        std::string valueStr = static_cast<Array *>(IArray::Query(value))->ToString(depth + 1);
+        if (valueStr.empty()) {
+            return false;
+        }
+        result = result + "\"" + valueStr + "\"";
+        return true;
+    }
+    result = result + "\"" + WantParams::GetStringByType(value, typeId) + "\"";
+    return true;
 }
 
 sptr<IWantParams> WantParamWrapper::Box(const WantParams &value)
@@ -170,6 +186,131 @@ bool WantParamWrapper::ValidateStr(const std::string &str)
     return true;
 }
 
+void WantParamWrapper::FindNestedWantParamsEnd(const std::string &str, size_t strnum, size_t &num)
+{
+    int count = 0;
+    for (num = strnum; num < str.size(); num++) {
+        if (str[num] == '{') {
+            count++;
+        } else if (str[num] == '}') {
+            count--;
+        }
+        if (count == 0) {
+            break;
+        }
+    }
+}
+
+bool WantParamWrapper::ParseNestedWantParams(const std::string &str, size_t &strnum, int depth, ParseState &state)
+{
+    size_t num;
+    FindNestedWantParamsEnd(str, strnum, num);
+    sptr<IWantParams> nested = WantParamWrapper::Parse(str.substr(strnum, num - strnum + 1), depth + 1);
+    if (WantParamWrapper::Unbox(nested).Size() == 0) {
+        state.wantParams = WantParams();
+        return false;
+    }
+    state.wantParams.SetParam(state.key, nested);
+    state.key = "";
+    state.typeId = 0;
+    strnum = num + 1;
+    return true;
+}
+
+sptr<IInterface> WantParamWrapper::ParseValueByType(int typeId, const std::string &value, int depth)
+{
+    if (typeId == WantParams::VALUE_TYPE_ARRAY) {
+        return Array::Parse(value, depth + 1);
+    }
+    return WantParams::GetInterfaceByType(typeId, value);
+}
+
+bool WantParamWrapper::ParseQuotedParam(const std::string &str, size_t &strnum, int depth, ParseState &state,
+    const char *func)
+{
+    size_t pos = 0;
+    if (state.key == "") {
+        if (!FindNextQuote(str, strnum, pos, func)) {
+            state.wantParams = WantParams();
+            return false;
+        }
+        state.key = str.substr(strnum, pos - strnum);
+        strnum = pos;
+        return true;
+    }
+    if (state.typeId == 0) {
+        if (!FindNextQuote(str, strnum, pos, func)) {
+            state.wantParams = WantParams();
+            return false;
+        }
+        std::string typeIdStr = str.substr(strnum, pos - strnum);
+        if (!ParseTypeId(typeIdStr, state.typeId)) {
+            state.wantParams = WantParams();
+            return false;
+        }
+        strnum = pos;
+        return true;
+    }
+    if (!FindNextQuote(str, strnum, pos, func)) {
+        state.wantParams = WantParams();
+        return false;
+    }
+    sptr<IInterface> value = ParseValueByType(state.typeId, str.substr(strnum, pos - strnum), depth);
+    state.wantParams.SetParam(state.key, value);
+    strnum = pos;
+    state.typeId = 0;
+    state.key = "";
+    return true;
+}
+
+bool WantParamWrapper::ParseQuotedParamWithBrackets(const std::string &str, size_t &strnum, int depth,
+    ParseState &state, const char *func)
+{
+    size_t pos = 0;
+    if (state.key == "") {
+        if (!FindNextQuote(str, strnum, pos, func)) {
+            state.wantParams = WantParams();
+            return false;
+        }
+        state.key = str.substr(strnum, pos - strnum);
+        strnum = pos;
+        return true;
+    }
+    if (state.typeId == 0) {
+        state.typeIndexBefore = strnum;
+        if (!FindNextQuote(str, strnum, pos, func)) {
+            state.wantParams = WantParams();
+            return false;
+        }
+        std::string typeIdStr = str.substr(strnum, pos - strnum);
+        if (!ParseTypeId(typeIdStr, state.typeId)) {
+            state.wantParams = WantParams();
+            return false;
+        }
+        strnum = pos;
+        return true;
+    }
+    strnum++;
+    auto index = FindMatchingBrackets(str, state.typeIndexBefore - 1);
+    if (index == std::string::npos) {
+        state.wantParams = WantParams();
+        return false;
+    }
+    sptr<IInterface> value = ParseValueByType(state.typeId, str.substr(strnum, index - 1 - strnum), depth);
+    state.wantParams.SetParam(state.key, value);
+    strnum = index + 1;
+    state.typeId = 0;
+    state.key = "";
+    return true;
+}
+
+void WantParamWrapper::ResetIfParseIncomplete(ParseState &state)
+{
+    if (!state.key.empty() || state.typeId != 0) {
+        state.wantParams = WantParams();
+    }
+}
+
 sptr<IWantParams> WantParamWrapper::Parse(const std::string &str)
 {
     return Parse(str, 0);
@@ -177,70 +318,22 @@ sptr<IWantParams> WantParamWrapper::Parse(const std::string &str)
 
 sptr<IWantParams> WantParamWrapper::Parse(const std::string &str, int depth)
 {
-    WantParams wantParams;
-    std::string key = "";
-    int typeId = 0;
+    ParseState state;
     if (depth < 0 || depth > MAX_PARSE_RECURSION_DEPTH) {
         ABILITYBASE_LOGE("Parse: invalid recursion depth %{public}d", depth);
-        return new (std::nothrow) WantParamWrapper(wantParams);
+        return new (std::nothrow) WantParamWrapper(state.wantParams);
     }
-    if (ValidateStr(str)) {
-        for (size_t strnum = 0; strnum < str.size(); strnum++) {
-            if (str[strnum] == '{' && key != "" && typeId == WantParams::VALUE_TYPE_WANTPARAMS) {
-                size_t num;
-                int count = 0;
-                for (num = strnum; num < str.size(); num++) {
-                    if (str[num] == '{') {
-                        count++;
-                    } else if (str[num] == '}') {
-                        count--;
-                    }
-                    if (count == 0) {
-                        break;
-                    }
-                }
-                sptr<IWantParams> nested = WantParamWrapper::Parse(str.substr(strnum, num - strnum + 1), depth + 1);
-                if (WantParamWrapper::Unbox(nested).Size() == 0) {
-                    wantParams = WantParams();
-                    break;
-                }
-                wantParams.SetParam(key, nested);
-                key = "";
-                typeId = 0;
-                strnum = num + 1;
-            } else if (str[strnum] == '"') {
-                if (key == "") {
-                    size_t pos = 0;
-                    if (!FindNextQuote(str, strnum, pos, "Parse")) {
-                        wantParams = WantParams();
-                        break;
-                    }
-                    key = str.substr(strnum, pos - strnum);
-                    strnum = pos;
-                } else if (typeId == 0) {
-                    size_t pos = 0;
-                    if (!FindNextQuote(str, strnum, pos, "Parse")) {
-                        wantParams = WantParams();
-                        break;
-                    }
-                    std::string typeIdStr = str.substr(strnum, pos - strnum);
-                    if (!ParseTypeId(typeIdStr, typeId)) {
-                        wantParams = WantParams();
-                        break;
-                    }
-                    strnum = pos;
-                } else {
-                    size_t pos = 0;
-                    if (!FindNextQuote(str, strnum, pos, "Parse")) {
-                        wantParams = WantParams();
-                        break;
-                    }
-                    wantParams.SetParam(key,
-                        WantParams::GetInterfaceByType(typeId, str.substr(strnum, pos - strnum)));
-                    strnum = pos;
-                    typeId = 0;
-                    key = "";
-                }
+    if (!ValidateStr(str)) {
+        return new (std::nothrow) WantParamWrapper(state.wantParams);
+    }
+    for (size_t strnum = 0; strnum < str.size(); strnum++) {
+        if (str[strnum] == '{' && state.key != "" && state.typeId == WantParams::VALUE_TYPE_WANTPARAMS) {
+            if (!ParseNestedWantParams(str, strnum, depth, state)) {
+                break;
+            }
+        } else if (str[strnum] == '"') {
+            if (!ParseQuotedParam(str, strnum, depth, state, "Parse")) {
+                break;
             }
         }
     }
@@ -249,10 +342,8 @@ sptr<IWantParams> WantParamWrapper::Parse(const std::string &str, int depth)
     // a STRING with an internal double-quote (e.g. {"9":"a"b"c"}), where the quote
     // parser stops early and strands the next key. Does not catch trailing garbage
     // (}}X) or multi-object merge (}},{), which exit in a clean state.
-    if (!key.empty() || typeId != 0) {
-        wantParams = WantParams();
-    }
-    sptr<IWantParams> iwantParams = new (std::nothrow) WantParamWrapper(wantParams);
+    ResetIfParseIncomplete(state);
+    sptr<IWantParams> iwantParams = new (std::nothrow) WantParamWrapper(state.wantParams);
     return iwantParams;
 }
 
@@ -263,79 +354,28 @@ WantParams WantParamWrapper::ParseWantParams(const std::string &str)
 
 WantParams WantParamWrapper::ParseWantParams(const std::string &str, int depth)
 {
-    WantParams wantParams;
-    std::string key = "";
-    int typeId = 0;
+    ParseState state;
     if (depth < 0 || depth > MAX_PARSE_RECURSION_DEPTH) {
         ABILITYBASE_LOGE("ParseWantParams: invalid recursion depth %{public}d", depth);
-        return wantParams;
+        return state.wantParams;
     }
     if (!ValidateStr(str)) {
-        return wantParams;
+        return state.wantParams;
     }
     for (size_t strnum = 0; strnum < str.size(); strnum++) {
-        if (str[strnum] == '{' && key != "" && typeId == WantParams::VALUE_TYPE_WANTPARAMS) {
-            size_t num;
-            int count = 0;
-            for (num = strnum; num < str.size(); num++) {
-                if (str[num] == '{') {
-                    count++;
-                } else if (str[num] == '}') {
-                    count--;
-                }
-                if (count == 0) {
-                    break;
-                }
-            }
-            sptr<IWantParams> nested = WantParamWrapper::Parse(str.substr(strnum, num - strnum + 1), depth + 1);
-            if (WantParamWrapper::Unbox(nested).Size() == 0) {
-                wantParams = WantParams();
+        if (str[strnum] == '{' && state.key != "" && state.typeId == WantParams::VALUE_TYPE_WANTPARAMS) {
+            if (!ParseNestedWantParams(str, strnum, depth, state)) {
                 break;
             }
-            wantParams.SetParam(key, nested);
-            key = "";
-            typeId = 0;
-            strnum = num + 1;
         } else if (str[strnum] == '"') {
-            if (key == "") {
-                size_t pos = 0;
-                if (!FindNextQuote(str, strnum, pos, "ParseWantParams")) {
-                    wantParams = WantParams();
-                    break;
-                }
-                key = str.substr(strnum, pos - strnum);
-                strnum = pos;
-            } else if (typeId == 0) {
-                size_t pos = 0;
-                if (!FindNextQuote(str, strnum, pos, "ParseWantParams")) {
-                    wantParams = WantParams();
-                    break;
-                }
-                std::string typeIdStr = str.substr(strnum, pos - strnum);
-                if (!ParseTypeId(typeIdStr, typeId)) {
-                    wantParams = WantParams();
-                    break;
-                }
-                strnum = pos;
-            } else {
-                size_t pos = 0;
-                if (!FindNextQuote(str, strnum, pos, "ParseWantParams")) {
-                    wantParams = WantParams();
-                    break;
-                }
-                wantParams.SetParam(key,
-                    WantParams::GetInterfaceByType(typeId, str.substr(strnum, pos - strnum)));
-                strnum = pos;
-                typeId = 0;
-                key = "";
+            if (!ParseQuotedParam(str, strnum, depth, state, "ParseWantParams")) {
+                break;
             }
         }
     }
     // Final-state guard -- see Parse for which truncation cases it catches.
-    if (!key.empty() || typeId != 0) {
-        wantParams = WantParams();
-    }
-    return wantParams;
+    ResetIfParseIncomplete(state);
+    return state.wantParams;
 }
 
 WantParams WantParamWrapper::ParseWantParamsWithBrackets(const std::string &str)
@@ -345,82 +385,28 @@ WantParams WantParamWrapper::ParseWantParamsWithBrackets(const std::string &str)
 
 WantParams WantParamWrapper::ParseWantParamsWithBrackets(const std::string &str, int depth)
 {
-    WantParams wantParams;
-    std::string key = "";
-    int typeId = 0;
-    size_t type_index_before = 0;
+    ParseState state;
     if (depth < 0 || depth > MAX_PARSE_RECURSION_DEPTH) {
         ABILITYBASE_LOGE("ParseWantParamsWithBrackets: invalid recursion depth %{public}d", depth);
-        return wantParams;
+        return state.wantParams;
     }
     if (!ValidateStr(str)) {
-        return wantParams;
+        return state.wantParams;
     }
     for (size_t strnum = 0; strnum < str.size(); strnum++) {
-        if (str[strnum] == '{' && key != "" && typeId == WantParams::VALUE_TYPE_WANTPARAMS) {
-            size_t num;
-            int count = 0;
-            for (num = strnum; num < str.size(); num++) {
-                if (str[num] == '{') {
-                    count++;
-                } else if (str[num] == '}') {
-                    count--;
-                }
-                if (count == 0) {
-                    break;
-                }
-            }
-            sptr<IWantParams> nested = WantParamWrapper::Parse(str.substr(strnum, num - strnum + 1), depth + 1);
-            if (WantParamWrapper::Unbox(nested).Size() == 0) {
-                wantParams = WantParams();
+        if (str[strnum] == '{' && state.key != "" && state.typeId == WantParams::VALUE_TYPE_WANTPARAMS) {
+            if (!ParseNestedWantParams(str, strnum, depth, state)) {
                 break;
             }
-            wantParams.SetParam(key, nested);
-            key = "";
-            typeId = 0;
-            strnum = num + 1;
         } else if (str[strnum] == '"') {
-            if (key == "") {
-                size_t pos = 0;
-                if (!FindNextQuote(str, strnum, pos, "ParseWantParamsWithBrackets")) {
-                    wantParams = WantParams();
-                    break;
-                }
-                key = str.substr(strnum, pos - strnum);
-                strnum = pos;
-            } else if (typeId == 0) {
-                type_index_before = strnum;
-                size_t pos = 0;
-                if (!FindNextQuote(str, strnum, pos, "ParseWantParamsWithBrackets")) {
-                    wantParams = WantParams();
-                    break;
-                }
-                std::string typeIdStr = str.substr(strnum, pos - strnum);
-                if (!ParseTypeId(typeIdStr, typeId)) {
-                    wantParams = WantParams();
-                    break;
-                }
-                strnum = pos;
-            } else {
-                strnum++;
-                auto index = FindMatchingBrackets(str, type_index_before - 1);
-                if (index == std::string::npos) {
-                    wantParams = WantParams();
-                    break;
-                }
-                wantParams.SetParam(key,
-                    WantParams::GetInterfaceByType(typeId, str.substr(strnum, index - 1 - strnum)));
-                strnum = index + 1;
-                typeId = 0;
-                key = "";
+            if (!ParseQuotedParamWithBrackets(str, strnum, depth, state, "ParseWantParamsWithBrackets")) {
+                break;
             }
         }
     }
     // Final-state guard -- see Parse for which truncation cases it catches.
-    if (!key.empty() || typeId != 0) {
-        wantParams = WantParams();
-    }
-    return wantParams;
+    ResetIfParseIncomplete(state);
+    return state.wantParams;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -32,6 +32,7 @@ namespace AAFwk {
 IINTERFACE_IMPL_1(Array, Object, IArray);
 
 constexpr int32_t MAX_ARRAY_SIZE = 50 * 1024 * 1024;
+constexpr int32_t MAX_ARRAY_RECURSION_DEPTH = 100;
 
 namespace {
 bool IsValidArraySignature(char signature)
@@ -55,6 +56,76 @@ bool ParseArraySize(const std::string &arrayStr, std::size_t idx, long &size)
         return false;
     }
     return true;
+}
+
+bool IsInvalidArrayDepth(int depth, const char *func)
+{
+    if (depth < 0 || depth > MAX_ARRAY_RECURSION_DEPTH) {
+        ABILITYBASE_LOGE("%{public}s: invalid recursion depth %{public}d", func, depth);
+        return true;
+    }
+    return false;
+}
+
+bool ScanElement(const std::string &values, std::size_t beginIdx, bool stopAtComma, std::size_t &commaIdx)
+{
+    std::size_t braceDepth = 0;
+    for (std::size_t i = beginIdx; i < values.length(); ++i) {
+        char current = values[i];
+        if (current == '{') {
+            ++braceDepth;
+        } else if (current == '}') {
+            if (braceDepth == 0) {
+                return false;
+            }
+            --braceDepth;
+        } else if (stopAtComma && current == ',' && braceDepth == 0) {
+            commaIdx = i;
+            return true;
+        }
+    }
+    commaIdx = std::string::npos;
+    return braceDepth == 0;
+}
+
+bool GetArraySignature(const InterfaceID &typeId, char &signature)
+{
+    if (typeId == g_IID_IString) {
+        signature = String::SIGNATURE;
+        return true;
+    } else if (typeId == g_IID_IBoolean) {
+        signature = Boolean::SIGNATURE;
+        return true;
+    } else if (typeId == g_IID_IByte) {
+        signature = Byte::SIGNATURE;
+        return true;
+    } else if (typeId == g_IID_IShort) {
+        signature = Short::SIGNATURE;
+        return true;
+    } else if (typeId == g_IID_IInteger) {
+        signature = Integer::SIGNATURE;
+        return true;
+    } else if (typeId == g_IID_ILong) {
+        signature = Long::SIGNATURE;
+        return true;
+    } else if (typeId == g_IID_IFloat) {
+        signature = Float::SIGNATURE;
+        return true;
+    } else if (typeId == g_IID_IDouble) {
+        signature = Double::SIGNATURE;
+        return true;
+    } else if (typeId == g_IID_IArray) {
+        signature = Array::SIGNATURE;
+        return true;
+    } else if (typeId == g_IID_IChar) {
+        signature = Char::SIGNATURE;
+        return true;
+    } else if (typeId == g_IID_IWantParams) {
+        signature = WantParamWrapper::SIGNATURE;
+        return true;
+    }
+    ABILITYBASE_LOGE("failed to get array signature");
+    return false;
 }
 }
 
@@ -141,31 +212,18 @@ bool Array::Equals(IObject &other) /* [in] */
 
 std::string Array::ToString()
 {
+    return ToString(0);
+}
+
+std::string Array::ToString(int depth)
+{
     std::string result;
-    if (typeId_ == g_IID_IString) {
-        result += String::SIGNATURE;
-    } else if (typeId_ == g_IID_IBoolean) {
-        result += Boolean::SIGNATURE;
-    } else if (typeId_ == g_IID_IByte) {
-        result += Byte::SIGNATURE;
-    } else if (typeId_ == g_IID_IShort) {
-        result += Short::SIGNATURE;
-    } else if (typeId_ == g_IID_IInteger) {
-        result += Integer::SIGNATURE;
-    } else if (typeId_ == g_IID_ILong) {
-        result += Long::SIGNATURE;
-    } else if (typeId_ == g_IID_IFloat) {
-        result += Float::SIGNATURE;
-    } else if (typeId_ == g_IID_IDouble) {
-        result += Double::SIGNATURE;
-    } else if (typeId_ == g_IID_IArray) {
-        result += Array::SIGNATURE;
-    } else if (typeId_ == g_IID_IChar) {
-        result += Char::SIGNATURE;
-    } else if (typeId_ == g_IID_IWantParams) {
-        result += WantParamWrapper::SIGNATURE;
-    } else {
-        result += "";
+    if (IsInvalidArrayDepth(depth, "Array::ToString")) {
+        return result;
+    }
+    char signature;
+    if (GetArraySignature(typeId_, signature)) {
+        result += signature;
     }
 
     result += std::to_string(size_) + "{";
@@ -173,13 +231,37 @@ std::string Array::ToString()
         if (values_[i].GetRefPtr() == nullptr) {
             break;
         }
-        result += Object::ToString(*(values_[i].GetRefPtr()));
+        if (!AppendValueString(values_[i].GetRefPtr(), depth, result)) {
+            return "";
+        }
         if (i < size_ - 1) {
             result += ",";
         }
     }
     result += "}";
     return result;
+}
+
+bool Array::AppendValueString(IInterface *value, int depth, std::string &result)
+{
+    if (IArray::Query(value) != nullptr) {
+        std::string valueStr = static_cast<Array *>(IArray::Query(value))->ToString(depth + 1);
+        if (valueStr.empty()) {
+            return false;
+        }
+        result += valueStr;
+        return true;
+    }
+    if (IWantParams::Query(value) != nullptr) {
+        std::string valueStr = static_cast<WantParamWrapper *>(IWantParams::Query(value))->ToString(depth + 1);
+        if (valueStr.empty()) {
+            return false;
+        }
+        result += valueStr;
+        return true;
+    }
+    result += Object::ToString(*value);
+    return true;
 }
 
 sptr<IArray> Array::ParseString(const std::string &values, long size)
@@ -290,9 +372,14 @@ sptr<IArray> Array::ParseChar(const std::string &values, long size)
 }
 sptr<IArray> Array::ParseArray(const std::string &values, long size)
 {
+    return ParseArray(values, size, 0);
+}
+
+sptr<IArray> Array::ParseArray(const std::string &values, long size, int depth)
+{
     sptr<IArray> array = sptr<Array>::MakeSptr(size, g_IID_IArray);
     if (array != nullptr) {
-        auto func = [](const std::string &str) -> sptr<IInterface> { return Array::Parse(str); };
+        auto func = [depth](const std::string &str) -> sptr<IInterface> { return Array::Parse(str, depth + 1); };
         if (!ParseElement(array, func, values, size)) {
             return nullptr;
         }
@@ -302,9 +389,16 @@ sptr<IArray> Array::ParseArray(const std::string &values, long size)
 
 sptr<IArray> Array::ParseWantParams(const std::string &values, long size)
 {
+    return ParseWantParams(values, size, 0);
+}
+
+sptr<IArray> Array::ParseWantParams(const std::string &values, long size, int depth)
+{
     sptr<IArray> array = sptr<Array>::MakeSptr(size, g_IID_IWantParams);
     if (array != nullptr) {
-        auto func = [](const std::string &str) -> sptr<IInterface> { return WantParamWrapper::Parse(str); };
+        auto func = [depth](const std::string &str) -> sptr<IInterface> {
+            return WantParamWrapper::Parse(str, depth + 1);
+        };
         if (!ParseElement(array, func, values, size)) {
             return nullptr;
         }
@@ -312,9 +406,47 @@ sptr<IArray> Array::ParseWantParams(const std::string &values, long size)
     return array;
 }
 
+sptr<IArray> Array::ParseBySignature(char signature, const std::string &values, long size, int depth)
+{
+    switch (signature) {
+        case Char::SIGNATURE:
+            return ParseChar(values, size);
+        case String::SIGNATURE:
+            return ParseString(values, size);
+        case Boolean::SIGNATURE:
+            return ParseBoolean(values, size);
+        case Byte::SIGNATURE:
+            return ParseByte(values, size);
+        case Short::SIGNATURE:
+            return ParseShort(values, size);
+        case Integer::SIGNATURE:
+            return ParseInteger(values, size);
+        case Long::SIGNATURE:
+            return ParseLong(values, size);
+        case Float::SIGNATURE:
+            return ParseFloat(values, size);
+        case Double::SIGNATURE:
+            return ParseDouble(values, size);
+        case Array::SIGNATURE:
+            return ParseArray(values, size, depth);
+        case WantParamWrapper::SIGNATURE:
+            return ParseWantParams(values, size, depth);
+        default:
+            return nullptr;
+    }
+}
+
 sptr<IArray> Array::Parse(const std::string &arrayStr) /* [in] */
 {
+    return Parse(arrayStr, 0);
+}
+
+sptr<IArray> Array::Parse(const std::string &arrayStr, int depth) /* [in] */
+{
     if (arrayStr.empty()) {
+        return nullptr;
+    }
+    if (IsInvalidArrayDepth(depth, "Array::Parse")) {
         return nullptr;
     }
 
@@ -345,33 +477,7 @@ sptr<IArray> Array::Parse(const std::string &arrayStr) /* [in] */
         return nullptr;
     }
 
-    switch (signature) {
-        case Char::SIGNATURE:
-            return ParseChar(values, size);
-        case String::SIGNATURE:
-            return ParseString(values, size);
-        case Boolean::SIGNATURE:
-            return ParseBoolean(values, size);
-        case Byte::SIGNATURE:
-            return ParseByte(values, size);
-        case Short::SIGNATURE:
-            return ParseShort(values, size);
-        case Integer::SIGNATURE:
-            return ParseInteger(values, size);
-        case Long::SIGNATURE:
-            return ParseLong(values, size);
-        case Float::SIGNATURE:
-            return ParseFloat(values, size);
-        case Double::SIGNATURE:
-            return ParseDouble(values, size);
-        case Array::SIGNATURE:
-            return ParseArray(values, size);
-        case WantParamWrapper::SIGNATURE:
-            return ParseWantParams(values, size);
-        default:
-            break;
-    }
-    return nullptr;
+    return ParseBySignature(signature, values, size, depth);
 }
 
 bool Array::ParseElement(IArray *array,                  /* [in] */
@@ -387,7 +493,10 @@ bool Array::ParseElement(IArray *array,                  /* [in] */
     for (long i = 0; i < size; i++) {
         std::string valueStr;
         if (i < size - 1) {
-            std::size_t endIdx = values.find(",", beginIdx);
+            std::size_t endIdx = std::string::npos;
+            if (!ScanElement(values, beginIdx, true, endIdx)) {
+                return false;
+            }
             if (endIdx == std::string::npos) {
                 valueStr = values.substr(beginIdx);
                 array->Set(i, func(valueStr));
@@ -397,11 +506,12 @@ bool Array::ParseElement(IArray *array,                  /* [in] */
             beginIdx = endIdx + 1;
         } else {
             valueStr = values.substr(beginIdx, values.length() - beginIdx);
+            std::size_t endIdx = std::string::npos;
+            if (!ScanElement(valueStr, 0, false, endIdx)) {
+                return false;
+            }
         }
         auto element = func(valueStr);
-        if (element == nullptr) {
-            return false;
-        }
         array->Set(i, element);
     }
     return true;
