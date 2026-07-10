@@ -809,9 +809,8 @@ bool Skills::FindMimeType(const std::string &type)
         return true;
     }
 
-    auto typeIt = type.find(0, 1, '/');
-    size_t slashpos = type.size() - typeIt;
-    if (slashpos <= 0) {
+    size_t slashpos = type.find('/');
+    if (slashpos == std::string::npos || slashpos == 0) {
         return false;
     }
 
