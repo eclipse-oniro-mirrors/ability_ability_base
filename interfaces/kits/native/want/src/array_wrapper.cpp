@@ -500,9 +500,6 @@ bool Array::ParseElement(IArray *array,                  /* [in] */
             if (endIdx == std::string::npos) {
                 valueStr = values.substr(beginIdx);
                 auto element = func(valueStr);
-                if (element == nullptr) {
-                    return false;
-                }
                 array->Set(i, element);
                 break;
             }
@@ -516,9 +513,6 @@ bool Array::ParseElement(IArray *array,                  /* [in] */
             }
         }
         auto element = func(valueStr);
-        if (element == nullptr) {
-            return false;
-        }
         array->Set(i, element);
     }
     return true;
