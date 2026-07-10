@@ -499,8 +499,7 @@ bool Array::ParseElement(IArray *array,                  /* [in] */
             }
             if (endIdx == std::string::npos) {
                 valueStr = values.substr(beginIdx);
-                auto element = func(valueStr);
-                array->Set(i, element);
+                array->Set(i, func(valueStr));
                 break;
             }
             valueStr = values.substr(beginIdx, endIdx - beginIdx);
