@@ -21,6 +21,8 @@
 #undef private
 #undef protected
 #include "int_wrapper.h"
+#include "string_wrapper.h"
+#include "want_params_wrapper.h"
 
 using namespace testing::ext;
 
@@ -522,6 +524,62 @@ HWTEST_F(ArrayWrapperBaseTest, AaFwk_Array_Wrapper_Parse_0500, Function | Medium
 }
 
 /**
+ * @tc.number: AaFwk_Array_Wrapper_Parse_0600
+ * @tc.name: Parse nested arrays with multiple elements
+ * @tc.desc: Verify commas inside nested array braces do not split the outer array.
+ */
+HWTEST_F(ArrayWrapperBaseTest, AaFwk_Array_Wrapper_Parse_0600, Function | MediumTest | Level1)
+{
+    sptr<IArray> result = Array::Parse("[2{I2{1,2},I3{3,4,5}}");
+    ASSERT_NE(result, nullptr);
+
+    sptr<IInterface> value;
+    ASSERT_EQ(result->Get(0, value), ERR_OK);
+    IArray *first = IArray::Query(value);
+    ASSERT_NE(first, nullptr);
+    long len = 0;
+    EXPECT_EQ(first->GetLength(len), ERR_OK);
+    EXPECT_EQ(len, 2);
+    ASSERT_EQ(first->Get(1, value), ERR_OK);
+    EXPECT_EQ(Integer::Unbox(IInteger::Query(value)), 2);
+
+    ASSERT_EQ(result->Get(1, value), ERR_OK);
+    IArray *second = IArray::Query(value);
+    ASSERT_NE(second, nullptr);
+    EXPECT_EQ(second->GetLength(len), ERR_OK);
+    EXPECT_EQ(len, 3);
+    ASSERT_EQ(second->Get(2, value), ERR_OK);
+    EXPECT_EQ(Integer::Unbox(IInteger::Query(value)), 5);
+}
+
+/**
+ * @tc.number: AaFwk_Array_Wrapper_Parse_0700
+ * @tc.name: Parse WantParams array containing commas
+ * @tc.desc: Verify commas in braced complex objects and quoted values stay within each element.
+ */
+HWTEST_F(ArrayWrapperBaseTest, AaFwk_Array_Wrapper_Parse_0700, Function | MediumTest | Level1)
+{
+    sptr<IArray> result =
+        Array::Parse("W2{{\"first\":{\"9\":\"a,{b}\"},\"number\":{\"5\":\"1\"}},{\"second\":{\"9\":\"c,d\"}}}");
+    ASSERT_NE(result, nullptr);
+
+    sptr<IInterface> value;
+    ASSERT_EQ(result->Get(0, value), ERR_OK);
+    IWantParams *first = IWantParams::Query(value);
+    ASSERT_NE(first, nullptr);
+    WantParams firstParams = WantParamWrapper::Unbox(first);
+    EXPECT_EQ(firstParams.Size(), 2u);
+    EXPECT_EQ(String::Unbox(IString::Query(firstParams.GetParam("first"))), "a,{b}");
+
+    ASSERT_EQ(result->Get(1, value), ERR_OK);
+    IWantParams *second = IWantParams::Query(value);
+    ASSERT_NE(second, nullptr);
+    WantParams secondParams = WantParamWrapper::Unbox(second);
+    EXPECT_EQ(secondParams.Size(), 1u);
+    EXPECT_EQ(String::Unbox(IString::Query(secondParams.GetParam("second"))), "c,d");
+}
+
+/**
  * @tc.number: AaFwk_Array_Wrapper_ToString_0100
  * @tc.name: ToString enforces nested Array depth
  * @tc.desc: Verify Array serialization propagates recursive depth failures.
@@ -535,6 +593,21 @@ HWTEST_F(ArrayWrapperBaseTest, AaFwk_Array_Wrapper_ToString_0100, Function | Med
     sptr<IArray> overLimit = BuildNestedArrayObject(ARRAY_WRAPPER_MAX_DEPTH + 1);
     ASSERT_NE(overLimit, nullptr);
     EXPECT_TRUE(Object::ToString(*overLimit).empty());
+}
+
+/**
+ * @tc.number: AaFwk_Array_Wrapper_ToString_0200
+ * @tc.name: ToString rejects null array elements
+ * @tc.desc: Verify Array serialization fails instead of returning a malformed string with mismatched size.
+ */
+HWTEST_F(ArrayWrapperBaseTest, AaFwk_Array_Wrapper_ToString_0200, Function | MediumTest | Level1)
+{
+    sptr<IArray> array = sptr<Array>::MakeSptr(3, g_IID_IInteger);
+    ASSERT_NE(array, nullptr);
+    ASSERT_EQ(array->Set(0, Integer::Box(1)), ERR_OK);
+    ASSERT_EQ(array->Set(2, Integer::Box(3)), ERR_OK);
+
+    EXPECT_TRUE(Object::ToString(*array).empty());
 }
 }
 }

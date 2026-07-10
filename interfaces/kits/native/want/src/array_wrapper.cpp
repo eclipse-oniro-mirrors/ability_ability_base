@@ -67,6 +67,27 @@ bool IsInvalidArrayDepth(int depth, const char *func)
     return false;
 }
 
+bool ScanElement(const std::string &values, std::size_t beginIdx, bool stopAtComma, std::size_t &commaIdx)
+{
+    std::size_t braceDepth = 0;
+    for (std::size_t i = beginIdx; i < values.length(); ++i) {
+        char current = values[i];
+        if (current == '{') {
+            ++braceDepth;
+        } else if (current == '}') {
+            if (braceDepth == 0) {
+                return false;
+            }
+            --braceDepth;
+        } else if (stopAtComma && current == ',' && braceDepth == 0) {
+            commaIdx = i;
+            return true;
+        }
+    }
+    commaIdx = std::string::npos;
+    return braceDepth == 0;
+}
+
 bool GetArraySignature(const InterfaceID &typeId, char &signature)
 {
     if (typeId == g_IID_IString) {
@@ -472,16 +493,27 @@ bool Array::ParseElement(IArray *array,                  /* [in] */
     for (long i = 0; i < size; i++) {
         std::string valueStr;
         if (i < size - 1) {
-            std::size_t endIdx = values.find(",", beginIdx);
+            std::size_t endIdx = std::string::npos;
+            if (!ScanElement(values, beginIdx, true, endIdx)) {
+                return false;
+            }
             if (endIdx == std::string::npos) {
                 valueStr = values.substr(beginIdx);
-                array->Set(i, func(valueStr));
+                auto element = func(valueStr);
+                if (element == nullptr) {
+                    return false;
+                }
+                array->Set(i, element);
                 break;
             }
             valueStr = values.substr(beginIdx, endIdx - beginIdx);
             beginIdx = endIdx + 1;
         } else {
             valueStr = values.substr(beginIdx, values.length() - beginIdx);
+            std::size_t endIdx = std::string::npos;
+            if (!ScanElement(valueStr, 0, false, endIdx)) {
+                return false;
+            }
         }
         auto element = func(valueStr);
         if (element == nullptr) {
