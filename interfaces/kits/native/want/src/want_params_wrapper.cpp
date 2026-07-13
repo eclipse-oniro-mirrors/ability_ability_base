@@ -296,6 +296,13 @@ bool WantParamWrapper::ParseQuotedParamWithBrackets(const std::string &str, size
         state.wantParams = WantParams();
         return false;
     }
+
+    if (index <= strnum) {
+        ABILITYBASE_LOGE("%{public}s: malformed bracketed value, index=%{public}zu strnum=%{public}zu",
+            func, index, strnum);
+        state.wantParams = WantParams();
+        return false;
+    }
     sptr<IInterface> value = ParseValueByType(state.typeId, str.substr(strnum, index - 1 - strnum), depth);
     state.wantParams.SetParam(state.key, value);
     strnum = index + 1;
