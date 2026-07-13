@@ -37,7 +37,7 @@ size_t FindMatchingBrackets(const std::string &str, size_t leftIndex)
             count--;
         }
     }
-    return -1;
+    return std::string::npos;
 }
 
 bool FindNextQuote(const std::string &str, size_t &strnum, size_t &pos, const char *func)
