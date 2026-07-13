@@ -273,6 +273,10 @@ std::string Array::ToString(int depth)
 
 bool Array::AppendValueString(IInterface *value, int depth, std::string &result)
 {
+    if (value == nullptr) {
+        ABILITYBASE_LOGE("AppendValueString: value is null");
+        return false;
+    }
     if (IArray::Query(value) != nullptr) {
         std::string valueStr = static_cast<Array *>(IArray::Query(value))->ToString(depth + 1);
         if (valueStr.empty()) {
