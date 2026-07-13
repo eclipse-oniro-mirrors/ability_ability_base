@@ -88,6 +88,35 @@ bool ScanElement(const std::string &values, std::size_t beginIdx, bool stopAtCom
     return braceDepth == 0;
 }
 
+// Extracts one element from `values` at `beginIdx`, advancing past the consumed segment.
+// The last element takes the residual tail; an earlier one scans to the next top-level
+// comma and sets `shouldBreak` when data runs out before the declared size is reached.
+bool ExtractElementValue(const std::string &values, std::size_t &beginIdx, bool isLast,
+    std::string &valueStr, bool &shouldBreak)
+{
+    shouldBreak = false;
+    if (isLast) {
+        valueStr = values.substr(beginIdx, values.length() - beginIdx);
+        std::size_t endIdx = std::string::npos;
+        if (!ScanElement(valueStr, 0, false, endIdx)) {
+            return false;
+        }
+        return true;
+    }
+    std::size_t endIdx = std::string::npos;
+    if (!ScanElement(values, beginIdx, true, endIdx)) {
+        return false;
+    }
+    if (endIdx == std::string::npos) {
+        valueStr = values.substr(beginIdx);
+        shouldBreak = true;
+        return true;
+    }
+    valueStr = values.substr(beginIdx, endIdx - beginIdx);
+    beginIdx = endIdx + 1;
+    return true;
+}
+
 bool GetArraySignature(const InterfaceID &typeId, char &signature)
 {
     if (typeId == g_IID_IString) {
@@ -491,32 +520,18 @@ bool Array::ParseElement(IArray *array,                  /* [in] */
 
     std::size_t beginIdx = 0;
     for (long i = 0; i < size; i++) {
+        bool isLast = (i == size - 1);
         std::string valueStr;
-        if (i < size - 1) {
-            std::size_t endIdx = std::string::npos;
-            if (!ScanElement(values, beginIdx, true, endIdx)) {
-                return false;
-            }
-            if (endIdx == std::string::npos) {
-                valueStr = values.substr(beginIdx);
-                auto element = func(valueStr);
-                if (element == nullptr || array->Set(i, element) != ERR_OK) {
-                    return false;
-                }
-                break;
-            }
-            valueStr = values.substr(beginIdx, endIdx - beginIdx);
-            beginIdx = endIdx + 1;
-        } else {
-            valueStr = values.substr(beginIdx, values.length() - beginIdx);
-            std::size_t endIdx = std::string::npos;
-            if (!ScanElement(valueStr, 0, false, endIdx)) {
-                return false;
-            }
+        bool shouldBreak = false;
+        if (!ExtractElementValue(values, beginIdx, isLast, valueStr, shouldBreak)) {
+            return false;
         }
         auto element = func(valueStr);
         if (element == nullptr || array->Set(i, element) != ERR_OK) {
             return false;
+        }
+        if (shouldBreak) {
+            break;
         }
     }
     return true;
