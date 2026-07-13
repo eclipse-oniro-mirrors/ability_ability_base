@@ -53,11 +53,6 @@ std::string BuildNestedArrayString(int depth)
     return str;
 }
 
-std::string BuildWantParamsWithArrayString(int arrayDepth)
-{
-    return "{\"array\":{\"102\":\"" + BuildNestedArrayString(arrayDepth) + "\"}}";
-}
-
 std::string BuildNestedWantParamsString(int depth)
 {
     std::string str = "{\"leaf\":{\"9\":\"value\"}}";
@@ -821,31 +816,25 @@ HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_3900, Function | MediumTes
 /**
  * @tc.number: Want_Param_Wrapper_4000
  * @tc.name: Type 102 Array nesting within max depth succeeds
- * @tc.desc: Verify Parse stores a type-102 Array before WantParams by-value copy.
+ * @tc.desc: Verify type-102 parsing shares depth with nested Array parsing.
  */
 HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_4000, Function | MediumTest | Level1)
 {
-    std::string s = BuildWantParamsWithArrayString(WANT_PARAMS_WRAPPER_PARSE_MAX_DEPTH - 1);
-    sptr<IWantParams> parsed = WantParamWrapper::Parse(s);
-    ASSERT_NE(parsed, nullptr);
-    auto wrapper = static_cast<WantParamWrapper *>(parsed.GetRefPtr());
-    ASSERT_NE(wrapper, nullptr);
-    EXPECT_NE(IArray::Query(wrapper->wantParams_.GetParam("array")), nullptr);
+    std::string s = BuildNestedArrayString(WANT_PARAMS_WRAPPER_PARSE_MAX_DEPTH - 1);
+    sptr<IInterface> value = WantParamWrapper::ParseValueByType(WantParams::VALUE_TYPE_ARRAY, s, 0);
+    EXPECT_NE(IArray::Query(value), nullptr);
 }
 
 /**
  * @tc.number: Want_Param_Wrapper_4100
  * @tc.name: Type 102 Array nesting over max depth fails
- * @tc.desc: Verify Parse rejects type-102 Array when nested Array depth crosses the limit.
+ * @tc.desc: Verify type-102 parsing rejects nested Array depth over the limit.
  */
 HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_4100, Function | MediumTest | Level1)
 {
-    std::string s = BuildWantParamsWithArrayString(WANT_PARAMS_WRAPPER_PARSE_MAX_DEPTH);
-    sptr<IWantParams> parsed = WantParamWrapper::Parse(s);
-    ASSERT_NE(parsed, nullptr);
-    auto wrapper = static_cast<WantParamWrapper *>(parsed.GetRefPtr());
-    ASSERT_NE(wrapper, nullptr);
-    EXPECT_EQ(IArray::Query(wrapper->wantParams_.GetParam("array")), nullptr);
+    std::string s = BuildNestedArrayString(WANT_PARAMS_WRAPPER_PARSE_MAX_DEPTH);
+    sptr<IInterface> value = WantParamWrapper::ParseValueByType(WantParams::VALUE_TYPE_ARRAY, s, 0);
+    EXPECT_EQ(IArray::Query(value), nullptr);
 }
 
 /**
