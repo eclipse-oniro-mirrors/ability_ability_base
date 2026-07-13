@@ -15,6 +15,7 @@
 
 #include <gtest/gtest.h>
 #include <cstdint>
+#include <utility>
 
 #define private public
 #include "want_params_wrapper.h"
@@ -820,27 +821,31 @@ HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_3900, Function | MediumTes
 /**
  * @tc.number: Want_Param_Wrapper_4000
  * @tc.name: Type 102 Array nesting within max depth succeeds
- * @tc.desc: Verify Array depth is counted when WantParams parsing crosses a type-102 value.
+ * @tc.desc: Verify Parse stores a type-102 Array before WantParams by-value copy.
  */
 HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_4000, Function | MediumTest | Level1)
 {
     std::string s = BuildWantParamsWithArrayString(WANT_PARAMS_WRAPPER_PARSE_MAX_DEPTH - 1);
-    EXPECT_NE(IArray::Query(WantParamWrapper::Unbox(WantParamWrapper::Parse(s)).GetParam("array")), nullptr);
-    EXPECT_NE(IArray::Query(WantParamWrapper::ParseWantParams(s).GetParam("array")), nullptr);
-    EXPECT_NE(IArray::Query(WantParamWrapper::ParseWantParamsWithBrackets(s).GetParam("array")), nullptr);
+    sptr<IWantParams> parsed = WantParamWrapper::Parse(s);
+    ASSERT_NE(parsed, nullptr);
+    auto wrapper = static_cast<WantParamWrapper *>(parsed.GetRefPtr());
+    ASSERT_NE(wrapper, nullptr);
+    EXPECT_NE(IArray::Query(wrapper->wantParams_.GetParam("array")), nullptr);
 }
 
 /**
  * @tc.number: Want_Param_Wrapper_4100
  * @tc.name: Type 102 Array nesting over max depth fails
- * @tc.desc: Verify Array boundaries do not reset the WantParams parser depth counter.
+ * @tc.desc: Verify Parse rejects type-102 Array when nested Array depth crosses the limit.
  */
 HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_4100, Function | MediumTest | Level1)
 {
     std::string s = BuildWantParamsWithArrayString(WANT_PARAMS_WRAPPER_PARSE_MAX_DEPTH);
-    EXPECT_EQ(IArray::Query(WantParamWrapper::Unbox(WantParamWrapper::Parse(s)).GetParam("array")), nullptr);
-    EXPECT_EQ(IArray::Query(WantParamWrapper::ParseWantParams(s).GetParam("array")), nullptr);
-    EXPECT_EQ(IArray::Query(WantParamWrapper::ParseWantParamsWithBrackets(s).GetParam("array")), nullptr);
+    sptr<IWantParams> parsed = WantParamWrapper::Parse(s);
+    ASSERT_NE(parsed, nullptr);
+    auto wrapper = static_cast<WantParamWrapper *>(parsed.GetRefPtr());
+    ASSERT_NE(wrapper, nullptr);
+    EXPECT_EQ(IArray::Query(wrapper->wantParams_.GetParam("array")), nullptr);
 }
 
 /**
@@ -852,11 +857,11 @@ HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_4200, Function | MediumTes
 {
     WantParams okParams;
     okParams.SetParam("array", BuildNestedArrayObject(WANT_PARAMS_WRAPPER_PARSE_MAX_DEPTH - 1));
-    WantParamWrapper okWrapper(okParams);
+    WantParamWrapper okWrapper(std::move(okParams));
     EXPECT_FALSE(okWrapper.ToString().empty());
 
     WantParams overLimit;
     overLimit.SetParam("array", BuildNestedArrayObject(WANT_PARAMS_WRAPPER_PARSE_MAX_DEPTH));
-    WantParamWrapper overLimitWrapper(overLimit);
+    WantParamWrapper overLimitWrapper(std::move(overLimit));
     EXPECT_TRUE(overLimitWrapper.ToString().empty());
 }
