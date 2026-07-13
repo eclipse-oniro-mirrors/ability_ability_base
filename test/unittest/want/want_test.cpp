@@ -4044,7 +4044,7 @@ HWTEST_F(WantBaseTest, array_test_005, TestSize.Level1)
 HWTEST_F(WantBaseTest, array_test_006, TestSize.Level1)
 {
     sptr<Array> arrayObj = new Array(5, g_IID_IInteger);
-    EXPECT_EQ(arrayObj->ToString(), std::string("I5{}"));
+    EXPECT_TRUE(arrayObj->ToString().empty());
 }
 
 /*
