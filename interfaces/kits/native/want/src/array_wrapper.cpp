@@ -229,7 +229,7 @@ std::string Array::ToString(int depth)
     result += std::to_string(size_) + "{";
     for (long i = 0; i < size_; i++) {
         if (values_[i].GetRefPtr() == nullptr) {
-            break;
+            return "";
         }
         if (!AppendValueString(values_[i].GetRefPtr(), depth, result)) {
             return "";
@@ -499,7 +499,10 @@ bool Array::ParseElement(IArray *array,                  /* [in] */
             }
             if (endIdx == std::string::npos) {
                 valueStr = values.substr(beginIdx);
-                array->Set(i, func(valueStr));
+                auto element = func(valueStr);
+                if (element == nullptr || array->Set(i, element) != ERR_OK) {
+                    return false;
+                }
                 break;
             }
             valueStr = values.substr(beginIdx, endIdx - beginIdx);
@@ -512,7 +515,9 @@ bool Array::ParseElement(IArray *array,                  /* [in] */
             }
         }
         auto element = func(valueStr);
-        array->Set(i, element);
+        if (element == nullptr || array->Set(i, element) != ERR_OK) {
+            return false;
+        }
     }
     return true;
 }
