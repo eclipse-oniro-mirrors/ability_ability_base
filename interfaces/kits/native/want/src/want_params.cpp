@@ -18,6 +18,8 @@
 #define WANT_PARAM_USE_LONG
 #endif
 
+#include <new>
+
 #include "ability_base_log_wrapper.h"
 #include "array_wrapper.h"
 #include "base_interfaces.h"
@@ -218,7 +220,14 @@ UnsupportedData::UnsupportedData() = default;
 
 UnsupportedData::UnsupportedData(const UnsupportedData &other) : key(other.key), type(other.type), size(other.size)
 {
-    buffer = new uint8_t[size];
+    buffer = new (std::nothrow) uint8_t[size];
+    if (buffer == nullptr) {
+        ABILITYBASE_LOGE("alloc failed, size=%{public}u", size);
+        key.clear();
+        type = 0;
+        size = 0;
+        return;
+    }
     if (memcpy_s(buffer, size, other.buffer, size) != EOK) {
         ABILITYBASE_LOGE("memcpy failed");
 
@@ -251,7 +260,14 @@ UnsupportedData &UnsupportedData::operator=(const UnsupportedData &other)
         delete[] buffer;
         buffer = nullptr;
     }
-    buffer = new uint8_t[size];
+    buffer = new (std::nothrow) uint8_t[size];
+    if (buffer == nullptr) {
+        ABILITYBASE_LOGE("alloc failed, size=%{public}u", size);
+        key.clear();
+        type = 0;
+        size = 0;
+        return *this;
+    }
     if (memcpy_s(buffer, size, other.buffer, size) != EOK) {
         ABILITYBASE_LOGE("memcpy failed");
 
