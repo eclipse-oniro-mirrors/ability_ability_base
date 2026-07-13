@@ -37,7 +37,7 @@ size_t FindMatchingBrackets(const std::string &str, size_t leftIndex)
             count--;
         }
     }
-    return -1;
+    return std::string::npos;
 }
 
 bool FindNextQuote(const std::string &str, size_t &strnum, size_t &pos, const char *func)
@@ -293,6 +293,13 @@ bool WantParamWrapper::ParseQuotedParamWithBrackets(const std::string &str, size
     strnum++;
     auto index = FindMatchingBrackets(str, state.typeIndexBefore - 1);
     if (index == std::string::npos) {
+        state.wantParams = WantParams();
+        return false;
+    }
+
+    if (index <= strnum) {
+        ABILITYBASE_LOGE("%{public}s: malformed bracketed value, index=%{public}zu strnum=%{public}zu",
+            func, index, strnum);
         state.wantParams = WantParams();
         return false;
     }
