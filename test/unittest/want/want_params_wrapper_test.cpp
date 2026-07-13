@@ -18,7 +18,7 @@
 
 #define private public
 #include "want_params_wrapper.h"
-#undef protected
+#undef private
 #include "array_wrapper.h"
 #include "byte_wrapper.h"
 #include "double_wrapper.h"
