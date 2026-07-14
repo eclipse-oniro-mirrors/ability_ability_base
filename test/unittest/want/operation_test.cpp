@@ -86,6 +86,36 @@ HWTEST_F(OperationBaseTest, AaFwk_Operation_GetAbilityName_0200, Function | Medi
 }
 
 /**
+ * @tc.number: AaFwk_Operation_GetAbilityNameRef_0100
+ * @tc.name: WithAbilityName/GetAbilityNameRef
+ * @tc.desc: Verify GetAbilityNameRef returns a const reference with the correct value.
+ */
+HWTEST_F(OperationBaseTest, AaFwk_Operation_GetAbilityNameRef_0100, Function | MediumTest | Level1)
+{
+    std::string value = "enter";
+    operationbuilder_->WithAbilityName(value);
+    std::shared_ptr<Operation> operation = operationbuilder_->Build();
+    const std::string &ref = operation->GetAbilityNameRef();
+    EXPECT_STREQ(value.c_str(), ref.c_str());
+    EXPECT_EQ(&(operation->abilityName_), &ref);
+}
+
+/**
+ * @tc.number: AaFwk_Operation_GetAbilityNameRef_0200
+ * @tc.name: WithAbilityName/GetAbilityNameRef
+ * @tc.desc: Verify GetAbilityNameRef works when the input string is empty.
+ */
+HWTEST_F(OperationBaseTest, AaFwk_Operation_GetAbilityNameRef_0200, Function | MediumTest | Level3)
+{
+    std::string value = "";
+    operationbuilder_->WithAbilityName(value);
+    std::shared_ptr<Operation> operation = operationbuilder_->Build();
+    const std::string &ref = operation->GetAbilityNameRef();
+    EXPECT_STREQ(value.c_str(), ref.c_str());
+    EXPECT_EQ(&(operation->abilityName_), &ref);
+}
+
+/**
  * @tc.number:  AaFwk_Operation_GetBundleName_0100
  * @tc.name: WithBundleName/GetBundleName
  * @tc.desc: Verify the function when the input string contains special characters.
@@ -96,6 +126,36 @@ HWTEST_F(OperationBaseTest, AaFwk_Operation_GetBundleName_0100, Function | Mediu
     operationbuilder_->WithBundleName(value);
     std::shared_ptr<Operation> operation = operationbuilder_->Build();
     EXPECT_STREQ(value.c_str(), operation->GetBundleName().c_str());
+}
+
+/**
+ * @tc.number: AaFwk_Operation_GetBundleNameRef_0100
+ * @tc.name: WithBundleName/GetBundleNameRef
+ * @tc.desc: Verify GetBundleNameRef returns a const reference with the correct value.
+ */
+HWTEST_F(OperationBaseTest, AaFwk_Operation_GetBundleNameRef_0100, Function | MediumTest | Level1)
+{
+    std::string value = "value";
+    operationbuilder_->WithBundleName(value);
+    std::shared_ptr<Operation> operation = operationbuilder_->Build();
+    const std::string &ref = operation->GetBundleNameRef();
+    EXPECT_STREQ(value.c_str(), ref.c_str());
+    EXPECT_EQ(&(operation->bundleName_), &ref);
+}
+
+/**
+ * @tc.number: AaFwk_Operation_GetBundleNameRef_0200
+ * @tc.name: WithBundleName/GetBundleNameRef
+ * @tc.desc: Verify GetBundleNameRef works when the input string is empty.
+ */
+HWTEST_F(OperationBaseTest, AaFwk_Operation_GetBundleNameRef_0200, Function | MediumTest | Level3)
+{
+    std::string value = "";
+    operationbuilder_->WithBundleName(value);
+    std::shared_ptr<Operation> operation = operationbuilder_->Build();
+    const std::string &ref = operation->GetBundleNameRef();
+    EXPECT_STREQ(value.c_str(), ref.c_str());
+    EXPECT_EQ(&(operation->bundleName_), &ref);
 }
 
 /**
@@ -138,6 +198,36 @@ HWTEST_F(OperationBaseTest, AaFwk_Operation_GetDeviceId_0200, Function | MediumT
 }
 
 /**
+ * @tc.number: AaFwk_Operation_GetDeviceIdRef_0100
+ * @tc.name: WithDeviceId/GetDeviceIdRef
+ * @tc.desc: Verify GetDeviceIdRef returns a const reference with the correct value.
+ */
+HWTEST_F(OperationBaseTest, AaFwk_Operation_GetDeviceIdRef_0100, Function | MediumTest | Level1)
+{
+    std::string value = "value";
+    operationbuilder_->WithDeviceId(value);
+    std::shared_ptr<Operation> operation = operationbuilder_->Build();
+    const std::string &ref = operation->GetDeviceIdRef();
+    EXPECT_STREQ(value.c_str(), ref.c_str());
+    EXPECT_EQ(&(operation->deviceId_), &ref);
+}
+
+/**
+ * @tc.number: AaFwk_Operation_GetDeviceIdRef_0200
+ * @tc.name: WithDeviceId/GetDeviceIdRef
+ * @tc.desc: Verify GetDeviceIdRef works when the input string is empty.
+ */
+HWTEST_F(OperationBaseTest, AaFwk_Operation_GetDeviceIdRef_0200, Function | MediumTest | Level3)
+{
+    std::string value = "";
+    operationbuilder_->WithDeviceId(value);
+    std::shared_ptr<Operation> operation = operationbuilder_->Build();
+    const std::string &ref = operation->GetDeviceIdRef();
+    EXPECT_STREQ(value.c_str(), ref.c_str());
+    EXPECT_EQ(&(operation->deviceId_), &ref);
+}
+
+/**
  * @tc.number: AaFwk_Operation_GetAction_0100
  * @tc.name: WithAction/GetAction
  * @tc.desc: Verify the function when the input string contains special characters.
@@ -161,6 +251,62 @@ HWTEST_F(OperationBaseTest, AaFwk_Operation_GetAction_0200, Function | MediumTes
     operationbuilder_->WithAction(value);
     std::shared_ptr<Operation> operation = operationbuilder_->Build();
     EXPECT_STREQ(value.c_str(), operation->GetAction().c_str());
+}
+
+/**
+ * @tc.number: AaFwk_Operation_GetModuleName_0100
+ * @tc.name: SetModuleName/GetModuleName
+ * @tc.desc: Verify GetModuleName returns the correct value.
+ */
+HWTEST_F(OperationBaseTest, AaFwk_Operation_GetModuleName_0100, Function | MediumTest | Level1)
+{
+    std::string value = "module01";
+    std::shared_ptr<Operation> operation = operationbuilder_->Build();
+    operation->SetModuleName(value);
+    EXPECT_STREQ(value.c_str(), operation->GetModuleName().c_str());
+}
+
+/**
+ * @tc.number: AaFwk_Operation_GetModuleName_0200
+ * @tc.name: SetModuleName/GetModuleName
+ * @tc.desc: Verify GetModuleName works when the input string is empty.
+ */
+HWTEST_F(OperationBaseTest, AaFwk_Operation_GetModuleName_0200, Function | MediumTest | Level3)
+{
+    std::string value = "";
+    std::shared_ptr<Operation> operation = operationbuilder_->Build();
+    operation->SetModuleName(value);
+    EXPECT_STREQ(value.c_str(), operation->GetModuleName().c_str());
+}
+
+/**
+ * @tc.number: AaFwk_Operation_GetModuleNameRef_0100
+ * @tc.name: SetModuleName/GetModuleNameRef
+ * @tc.desc: Verify GetModuleNameRef returns a const reference with the correct value.
+ */
+HWTEST_F(OperationBaseTest, AaFwk_Operation_GetModuleNameRef_0100, Function | MediumTest | Level1)
+{
+    std::string value = "module01";
+    std::shared_ptr<Operation> operation = operationbuilder_->Build();
+    operation->SetModuleName(value);
+    const std::string &ref = operation->GetModuleNameRef();
+    EXPECT_STREQ(value.c_str(), ref.c_str());
+    EXPECT_EQ(&(operation->moduleName_), &ref);
+}
+
+/**
+ * @tc.number: AaFwk_Operation_GetModuleNameRef_0200
+ * @tc.name: SetModuleName/GetModuleNameRef
+ * @tc.desc: Verify GetModuleNameRef works when the input string is empty.
+ */
+HWTEST_F(OperationBaseTest, AaFwk_Operation_GetModuleNameRef_0200, Function | MediumTest | Level3)
+{
+    std::string value = "";
+    std::shared_ptr<Operation> operation = operationbuilder_->Build();
+    operation->SetModuleName(value);
+    const std::string &ref = operation->GetModuleNameRef();
+    EXPECT_STREQ(value.c_str(), ref.c_str());
+    EXPECT_EQ(&(operation->moduleName_), &ref);
 }
 
 /**
