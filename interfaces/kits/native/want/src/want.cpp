@@ -268,6 +268,9 @@ Want::Want(const Want &want)
     parameters_ = want.parameters_;
 }
 
+Want::Want(Want &&other) noexcept
+    : parameters_(std::move(other.parameters_)), operation_(std::move(other.operation_)) {}
+
 Want &Want::operator=(const Want &want)
 {
     operation_ = want.operation_;
@@ -275,17 +278,11 @@ Want &Want::operator=(const Want &want)
     return *this;
 }
 
-Want::Want(Want &&want) noexcept
-    : parameters_(std::move(want.parameters_)),
-    operation_(std::move(want.operation_))
-      
-{}
-
-Want &Want::operator=(Want &&want) noexcept
+Want &Want::operator=(Want &&other) noexcept
 {
-    if (this != &want) {
-        operation_ = std::move(want.operation_);
-        parameters_ = std::move(want.parameters_);
+    if (this != &other) {
+        parameters_ = std::move(other.parameters_);
+        operation_ = std::move(other.operation_);
     }
     return *this;
 }
