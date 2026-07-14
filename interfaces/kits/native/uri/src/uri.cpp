@@ -70,6 +70,60 @@ Uri::Uri(const string& uriString)
 Uri::~Uri()
 {}
 
+Uri::Uri(const Uri &other)
+    : uriString_(other.uriString_), scheme_(other.scheme_),
+      ssp_(other.ssp_), authority_(other.authority_),
+      host_(other.host_), port_(other.port_),
+      userInfo_(other.userInfo_), query_(other.query_),
+      path_(other.path_), fragment_(other.fragment_),
+      cachedSsi_(other.cachedSsi_), cachedFsi_(other.cachedFsi_) {}
+
+Uri &Uri::operator=(const Uri &other)
+{
+    if (this != &other) {
+        uriString_ = other.uriString_;
+        scheme_ = other.scheme_;
+        ssp_ = other.ssp_;
+        authority_ = other.authority_;
+        host_ = other.host_;
+        port_ = other.port_;
+        userInfo_ = other.userInfo_;
+        query_ = other.query_;
+        path_ = other.path_;
+        fragment_ = other.fragment_;
+        cachedSsi_ = other.cachedSsi_;
+        cachedFsi_ = other.cachedFsi_;
+    }
+    return *this;
+}
+
+Uri::Uri(Uri &&other) noexcept
+    : uriString_(std::move(other.uriString_)), scheme_(std::move(other.scheme_)),
+      ssp_(std::move(other.ssp_)), authority_(std::move(other.authority_)),
+      host_(std::move(other.host_)), port_(other.port_),
+      userInfo_(std::move(other.userInfo_)), query_(std::move(other.query_)),
+      path_(std::move(other.path_)), fragment_(std::move(other.fragment_)),
+      cachedSsi_(other.cachedSsi_), cachedFsi_(other.cachedFsi_) {}
+
+Uri &Uri::operator=(Uri &&other) noexcept
+{
+    if (this != &other) {
+        uriString_ = std::move(other.uriString_);
+        scheme_ = std::move(other.scheme_);
+        ssp_ = std::move(other.ssp_);
+        authority_ = std::move(other.authority_);
+        host_ = std::move(other.host_);
+        port_ = other.port_;
+        userInfo_ = std::move(other.userInfo_);
+        query_ = std::move(other.query_);
+        path_ = std::move(other.path_);
+        fragment_ = std::move(other.fragment_);
+        cachedSsi_ = other.cachedSsi_;
+        cachedFsi_ = other.cachedFsi_;
+    }
+    return *this;
+}
+
 bool Uri::CheckScheme()
 {
     scheme_ = ParseScheme();

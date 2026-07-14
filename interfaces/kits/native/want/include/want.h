@@ -140,9 +140,17 @@ public:
      * @return None
      */
     Want(const Want &want);
-    Want(Want &&want) noexcept;
+    Want(Want &&other) noexcept;
     Want &operator=(const Want &want);
-    Want &operator=(Want &&want) noexcept;
+    Want &operator=(Want &&other) noexcept;
+
+    const Operation &GetOperationRef() const { return operation_; }
+    const Uri &GetUriRef() const { return operation_.GetUriRef(); }
+    const std::string &GetAbilityNameRef() const { return operation_.GetAbilityNameRef(); }
+    const std::string &GetBundleNameRef() const { return operation_.GetBundleNameRef(); }
+    const std::string &GetModuleNameRef() const { return operation_.GetModuleNameRef(); }
+    const std::string &GetActionRef() const { return operation_.GetActionRef(); }
+    const std::string &GetDeviceIdRef() const { return operation_.GetDeviceIdRef(); }
 
     /**
      * @description: Sets a flag in a Want.

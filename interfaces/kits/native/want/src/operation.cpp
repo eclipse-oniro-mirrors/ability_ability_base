@@ -23,7 +23,7 @@ Operation::Operation() : flags_(0), uri_("")
 {
 }
 
-Operation::Operation(const Operation &other) : flags_(0), uri_(other.uri_.ToString())
+Operation::Operation(const Operation &other) : flags_(0), uri_(other.uri_)
 {
     flags_ = other.flags_;
     action_ = other.action_;
@@ -33,6 +33,12 @@ Operation::Operation(const Operation &other) : flags_(0), uri_(other.uri_.ToStri
     abilityName_ = other.abilityName_;
     moduleName_ = other.moduleName_;
 }
+
+Operation::Operation(Operation &&other) noexcept
+    : abilityName_(std::move(other.abilityName_)), action_(std::move(other.action_)),
+      bundleName_(std::move(other.bundleName_)), deviceId_(std::move(other.deviceId_)),
+      moduleName_(std::move(other.moduleName_)), entities_(std::move(other.entities_)),
+      flags_(other.flags_), uri_(std::move(other.uri_)) {}
 
 Operation::~Operation()
 {}
@@ -279,6 +285,21 @@ Operation &Operation::operator=(const Operation &other)
         bundleName_ = other.bundleName_;
         abilityName_ = other.abilityName_;
         moduleName_ = other.moduleName_;
+    }
+    return *this;
+}
+
+Operation &Operation::operator=(Operation &&other) noexcept
+{
+    if (this != &other) {
+        abilityName_ = std::move(other.abilityName_);
+        action_ = std::move(other.action_);
+        bundleName_ = std::move(other.bundleName_);
+        deviceId_ = std::move(other.deviceId_);
+        moduleName_ = std::move(other.moduleName_);
+        entities_ = std::move(other.entities_);
+        flags_ = other.flags_;
+        uri_ = std::move(other.uri_);
     }
     return *this;
 }

@@ -33,6 +33,15 @@ public:
     Operation();
     ~Operation();
     Operation(const Operation &other);
+    Operation(Operation &&other) noexcept;
+    Operation &operator=(Operation &&other) noexcept;
+
+    const std::string &GetAbilityNameRef() const { return abilityName_; }
+    const std::string &GetActionRef() const { return action_; }
+    const std::string &GetBundleNameRef() const { return bundleName_; }
+    const std::string &GetDeviceIdRef() const { return deviceId_; }
+    const std::string &GetModuleNameRef() const { return moduleName_; }
+    const Uri &GetUriRef() const { return uri_; }
     /**
      * @description: Obtains the value of the abilityName attribute included in this Operation.
      * @return Returns the ability name included in this Operation.
