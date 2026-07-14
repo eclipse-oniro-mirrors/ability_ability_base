@@ -50,7 +50,7 @@ void FreeCString(char*& p)
     p = nullptr;
 }
 
-void ReplaceElementField(char*& dst, const char* src)
+void ReplaceElementField(const char* src, char*& dst)
 {
     FreeCString(dst);
     dst = DuplicateCString(src);
@@ -63,11 +63,11 @@ void FreeElementFields(AbilityBase_Element& element)
     FreeCString(element.abilityName);
 }
 
-void AssignElement(AbilityBase_Element& dst, const AbilityBase_Element& src)
+void AssignElement(const AbilityBase_Element& src, AbilityBase_Element& dst)
 {
-    ReplaceElementField(dst.bundleName, src.bundleName);
-    ReplaceElementField(dst.moduleName, src.moduleName);
-    ReplaceElementField(dst.abilityName, src.abilityName);
+    ReplaceElementField(src.bundleName, dst.bundleName);
+    ReplaceElementField(src.moduleName, dst.moduleName);
+    ReplaceElementField(src.abilityName, dst.abilityName);
 }
 }  // namespace
 
@@ -88,7 +88,7 @@ AbilityBase_Want* OH_AbilityBase_CreateWant(AbilityBase_Element element)
     want->element.bundleName = nullptr;
     want->element.moduleName = nullptr;
     want->element.abilityName = nullptr;
-    AssignElement(want->element, element);
+    AssignElement(element, want->element);
     return want.release();
 }
 
@@ -115,7 +115,7 @@ AbilityBase_ErrorCode OH_AbilityBase_SetWantElement(AbilityBase_Want* want, Abil
         ABILITYBASE_LOGE("null want");
         return ABILITY_BASE_ERROR_CODE_PARAM_INVALID;
     }
-    AssignElement(want->element, element);
+    AssignElement(element, want->element);
     return ABILITY_BASE_ERROR_CODE_NO_ERROR;
 }
 
