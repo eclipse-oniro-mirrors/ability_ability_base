@@ -85,9 +85,6 @@ struct AbilityBase_Want {
 AbilityBase_Want* OH_AbilityBase_CreateWant(AbilityBase_Element element)
 {
     std::unique_ptr<AbilityBase_Want> want = std::make_unique<AbilityBase_Want>();
-    want->element.bundleName = nullptr;
-    want->element.moduleName = nullptr;
-    want->element.abilityName = nullptr;
     AssignElement(element, want->element);
     return want.release();
 }
