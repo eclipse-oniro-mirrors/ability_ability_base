@@ -62,6 +62,13 @@ void FreeElementFields(AbilityBase_Element& element)
     FreeCString(element.moduleName);
     FreeCString(element.abilityName);
 }
+
+void AssignElement(AbilityBase_Element& dst, const AbilityBase_Element& src)
+{
+    ReplaceElementField(dst.bundleName, src.bundleName);
+    ReplaceElementField(dst.moduleName, src.moduleName);
+    ReplaceElementField(dst.abilityName, src.abilityName);
+}
 }  // namespace
 
 struct AbilityBase_Want {
@@ -81,9 +88,7 @@ AbilityBase_Want* OH_AbilityBase_CreateWant(AbilityBase_Element element)
     want->element.bundleName = nullptr;
     want->element.moduleName = nullptr;
     want->element.abilityName = nullptr;
-    ReplaceElementField(want->element.bundleName, element.bundleName);
-    ReplaceElementField(want->element.moduleName, element.moduleName);
-    ReplaceElementField(want->element.abilityName, element.abilityName);
+    AssignElement(want->element, element);
     return want.release();
 }
 
@@ -110,9 +115,7 @@ AbilityBase_ErrorCode OH_AbilityBase_SetWantElement(AbilityBase_Want* want, Abil
         ABILITYBASE_LOGE("null want");
         return ABILITY_BASE_ERROR_CODE_PARAM_INVALID;
     }
-    ReplaceElementField(want->element.bundleName, element.bundleName);
-    ReplaceElementField(want->element.moduleName, element.moduleName);
-    ReplaceElementField(want->element.abilityName, element.abilityName);
+    AssignElement(want->element, element);
     return ABILITY_BASE_ERROR_CODE_NO_ERROR;
 }
 
