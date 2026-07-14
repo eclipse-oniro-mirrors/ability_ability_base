@@ -122,8 +122,8 @@ void ElementName::Split(const std::string &str, const std::string &delim, std::v
 
 bool ElementName::operator==(const ElementName &element) const
 {
-    return (deviceId_ == element.GetDeviceID() && bundleName_ == element.GetBundleName() &&
-        abilityName_ == element.GetAbilityName() && moduleName_ == element.GetModuleName());
+    return (deviceId_ == element.deviceId_ && bundleName_ == element.bundleName_ &&
+        abilityName_ == element.abilityName_ && moduleName_ == element.moduleName_);
 }
 
 bool ElementName::ReadFromParcel(Parcel &parcel)

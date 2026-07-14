@@ -647,7 +647,7 @@ int Skills::CountTypes() const
  */
 bool Skills::Match(const Want &want)
 {
-    if (!MatchAction(want.GetAction())) {
+    if (!MatchAction(want.GetActionRef())) {
         return false;
     }
 
