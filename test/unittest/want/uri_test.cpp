@@ -517,4 +517,82 @@ HWTEST_F(UriTest, Uri_ParsePath_0200, Function | MediumTest | Level1)
     EXPECT_EQ(result, EMPTY);
     GTEST_LOG_(INFO) << "Uri_ParsePath_0200 end";
 }
+
+/**
+ * @tc.number: Uri_CheckScheme_0100
+ * @tc.name: CheckScheme
+ * @tc.desc: Verify the function when scheme first character is not a letter.
+ * @tc.require: issueI6415N
+ */
+HWTEST_F(UriTest, Uri_CheckScheme_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "Uri_CheckScheme_0100 start";
+    string uriString = "1abc:";
+    uri_ = std::make_shared<Uri>(uriString);
+    EXPECT_EQ(uri_->uriString_, EMPTY);
+    GTEST_LOG_(INFO) << "Uri_CheckScheme_0100 end";
+}
+
+/**
+ * @tc.number: Uri_CheckScheme_0200
+ * @tc.name: CheckScheme
+ * @tc.desc: Verify the function when scheme subsequent character is invalid.
+ * @tc.require: issueI6415N
+ */
+HWTEST_F(UriTest, Uri_CheckScheme_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "Uri_CheckScheme_0200 start";
+    string uriString = "ab_c:";
+    uri_ = std::make_shared<Uri>(uriString);
+    EXPECT_EQ(uri_->uriString_, EMPTY);
+    GTEST_LOG_(INFO) << "Uri_CheckScheme_0200 end";
+}
+
+/**
+ * @tc.number: Uri_CheckScheme_0300
+ * @tc.name: CheckScheme
+ * @tc.desc: Verify the function when scheme all characters are valid.
+ * @tc.require: issueI6415N
+ */
+HWTEST_F(UriTest, Uri_CheckScheme_0300, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "Uri_CheckScheme_0300 start";
+    string uriString = "http:";
+    uri_ = std::make_shared<Uri>(uriString);
+    EXPECT_EQ(uri_->uriString_, "http:");
+    EXPECT_EQ(uri_->GetScheme(), "http");
+    GTEST_LOG_(INFO) << "Uri_CheckScheme_0300 end";
+}
+
+/**
+ * @tc.number: Uri_CheckScheme_0400
+ * @tc.name: CheckScheme
+ * @tc.desc: Verify the function when scheme first character is uppercase letter.
+ * @tc.require: issueI6415N
+ */
+HWTEST_F(UriTest, Uri_CheckScheme_0400, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "Uri_CheckScheme_0400 start";
+    string uriString = "HTTP:";
+    uri_ = std::make_shared<Uri>(uriString);
+    EXPECT_EQ(uri_->uriString_, "HTTP:");
+    EXPECT_EQ(uri_->GetScheme(), "HTTP");
+    GTEST_LOG_(INFO) << "Uri_CheckScheme_0400 end";
+}
+
+/**
+ * @tc.number: Uri_CheckScheme_0500
+ * @tc.name: CheckScheme
+ * @tc.desc: Verify the function when scheme contains '|' character.
+ * @tc.require: issueI6415N
+ */
+HWTEST_F(UriTest, Uri_CheckScheme_0500, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "Uri_CheckScheme_0500 start";
+    string uriString = "ab|c:";
+    uri_ = std::make_shared<Uri>(uriString);
+    EXPECT_EQ(uri_->uriString_, "ab|c:");
+    EXPECT_EQ(uri_->GetScheme(), "ab|c");
+    GTEST_LOG_(INFO) << "Uri_CheckScheme_0500 end";
+}
 }

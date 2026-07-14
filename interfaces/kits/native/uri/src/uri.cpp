@@ -13,14 +13,13 @@
  * limitations under the License.
  */
 
-#include <regex>
 #include <vector>
+#include <cctype>
 #include "hilog/log.h"
 #include "string_ex.h"
 #include "uri.h"
 
 using std::string;
-using std::regex;
 using OHOS::HiviewDFX::HiLog;
 
 namespace OHOS {
@@ -77,14 +76,18 @@ bool Uri::CheckScheme()
     if (scheme_.empty()) {
         return true;
     }
-    try {
-        regex schemeRegex("[a-zA-Z][a-zA-Z|\\d|\\+|\\-|.]*$");
-        if (!regex_match(scheme_, schemeRegex)) {
+    unsigned char first = static_cast<unsigned char>(scheme_[0]);
+    if (!((first >= 'A' && first <= 'Z') || (first >= 'a' && first <= 'z'))) {
+        return false;
+    }
+    for (size_t i = 1; i < scheme_.size(); ++i) {
+        unsigned char c = static_cast<unsigned char>(scheme_[i]);
+        bool is_valid = (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
+                        (c >= '0' && c <= '9') || c == '+' || c == '-' || c == '.' ||
+                        c == '|';
+        if (!is_valid) {
             return false;
         }
-    } catch (std::regex_error &message) {
-        HILOG_IMPL(LOG_CORE, LOG_ERROR, 0xD001305,  "URI", "regex fail,message:%{public}s", message.what());
-        return false;
     }
     return true;
 }

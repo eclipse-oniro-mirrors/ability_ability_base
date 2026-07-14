@@ -140,7 +140,9 @@ public:
      * @return None
      */
     Want(const Want &want);
+    Want(Want &&want) noexcept;
     Want &operator=(const Want &want);
+    Want &operator=(Want &&want) noexcept;
 
     /**
      * @description: Sets a flag in a Want.

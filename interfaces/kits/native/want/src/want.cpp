@@ -275,6 +275,21 @@ Want &Want::operator=(const Want &want)
     return *this;
 }
 
+Want::Want(Want &&want) noexcept
+    : parameters_(std::move(want.parameters_)),
+    operation_(std::move(want.operation_))
+      
+{}
+
+Want &Want::operator=(Want &&want) noexcept
+{
+    if (this != &want) {
+        operation_ = std::move(want.operation_);
+        parameters_ = std::move(want.parameters_);
+    }
+    return *this;
+}
+
 /**
  * @description: Obtains the description of flags in a Want.
  * @return Returns the flag description in the Want.
@@ -2277,7 +2292,7 @@ bool Want::ReadParameters(Parcel &parcel)
         } else {
             auto params = parcel.ReadParcelable<WantParams>();
             if (params != nullptr) {
-                parameters_ = *params;
+                parameters_ = std::move(*params);
                 delete params;
                 params = nullptr;
                 std::string moduleName = GetStringParam(PARAM_MODULE_NAME);

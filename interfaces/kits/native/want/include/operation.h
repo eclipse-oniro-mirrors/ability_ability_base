@@ -40,6 +40,13 @@ public:
     std::string GetAbilityName() const;
 
     /**
+     * @description: Obtains a const reference to the value of the abilityName attribute
+     *               included in this Operation.
+     * @return Returns a const reference to the ability name included in this Operation.
+     */
+    const std::string &GetAbilityNameRef() const;
+
+    /**
      * @description: Obtains the value of the action attribute included in this Operation.
      * @return Returns the action included in this Operation.
      */
@@ -52,10 +59,24 @@ public:
     std::string GetBundleName() const;
 
     /**
+     * @description: Obtains a const reference to the value of the bundleName attribute
+     *               included in this Operation.
+     * @return Returns a const reference to the bundle name included in this Operation.
+     */
+    const std::string &GetBundleNameRef() const;
+
+    /**
      * @description: Obtains the value of the deviceId attribute included in this Operation.
      * @return Returns the device ID included in this Operation.
      */
     std::string GetDeviceId() const;
+
+    /**
+     * @description: Obtains a const reference to the value of the deviceId attribute
+     *               included in this Operation.
+     * @return Returns a const reference to the device ID included in this Operation.
+     */
+    const std::string &GetDeviceIdRef() const;
 
     /**
      * @description: Obtains the value of the entities attribute included in this Operation.
@@ -80,6 +101,13 @@ public:
      * @return Returns the ModuleName description in the Operation.
      */
     std::string GetModuleName() const;
+
+    /**
+     * @description: Obtains a const reference to the value of the moduleName attribute
+     *               included in this Operation.
+     * @return Returns a const reference to the moduleName included in this Operation.
+     */
+    const std::string &GetModuleNameRef() const;
 
     bool operator==(const Operation &other) const;
     Operation &operator=(const Operation &other);

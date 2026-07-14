@@ -432,17 +432,9 @@ WantParams &WantParams::operator=(const WantParams &other)
 WantParams &WantParams::operator=(WantParams &&other) noexcept
 {
     if (this != &other) {
-        // free existing resources.
-        params_.clear();
-        params_ = other.params_;
-        // free other resources.
-        other.params_.clear();
-        fds_.clear();
-        fds_ = other.fds_;
-        other.fds_.clear();
-        cachedUnsupportedData_.clear();
-        cachedUnsupportedData_ = other.cachedUnsupportedData_;
-        other.cachedUnsupportedData_.clear();
+        params_ = std::move(other.params_);
+        fds_ = std::move(other.fds_);
+        cachedUnsupportedData_ = std::move(other.cachedUnsupportedData_);
     }
     return *this;
 }
