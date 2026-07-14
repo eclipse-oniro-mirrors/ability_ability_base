@@ -17,6 +17,7 @@
 #define OHOS_ABILITY_BASE_EXTRACT_RESOURCE_MANAGER_H
 
 #include <memory>
+#include <mutex>
 #include "resource_manager.h"
 
 namespace OHOS {
@@ -39,6 +40,7 @@ private:
     ~ExtractResourceManager();
 
     std::shared_ptr<Global::Resource::ResourceManager> resourceManager_;
+    std::mutex mutex_;
 };
 }  // namespace AbilityBase
 }  // namespace OHOS

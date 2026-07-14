@@ -93,8 +93,12 @@ bool FileMapper::CreateFileMapper(std::shared_ptr<ZipFileReader> fileReader, con
         ABILITYBASE_LOGE("data not empty fileName: %{public}s", fileName_.c_str());
         return false;
     }
-
-    dataPtr_ = std::make_unique<uint8_t[]>(len);
+    try {
+        dataPtr_ = std::make_unique<uint8_t[]>(len);
+    } catch (...) {
+        ABILITYBASE_LOGE("dataPtr error len:%{public}d", len);
+        return false;
+    }
     if (!fileReader->ReadBuffer(dataPtr_.get(), offset, len)) {
         ABILITYBASE_LOGE("read failed, len[%{public}zu]. fileName: %{public}s, "
             "offset: %{public}zu", len, fileName.c_str(), offset);

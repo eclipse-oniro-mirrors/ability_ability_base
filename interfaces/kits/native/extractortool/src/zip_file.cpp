@@ -829,7 +829,12 @@ bool ZipFile::UnzipWithInflatedFromMMap(const ZipEntry &zipEntry, const uint16_t
     uint8_t errorTimes = 0;
 
     len = zipEntry.uncompressedSize;
-    dataPtr = std::make_unique<uint8_t[]>(len);
+    try {
+        dataPtr = std::make_unique<uint8_t[]>(len);
+    } catch (...) {
+        ABILITYBASE_LOGE("dataPtr error len:%{public}d", len);
+        return false;
+    }
     uint8_t *dstDataPtr = static_cast<uint8_t *>(dataPtr.get());
     void *mmapSrcDataPtr = mmapDataPtr;
 
@@ -978,7 +983,13 @@ bool ZipFile::ExtractToBufByName(const std::string &fileName, std::unique_ptr<ui
     }
     ZipPos offset = GetEntryDataOffset(zipEntry, extraSize);
     uint32_t length = zipEntry.compressedSize;
-    auto dataTmp = std::make_unique<uint8_t[]>(length);
+    std::unique_ptr<uint8_t[]> dataTmp = nullptr;
+    try {
+        dataTmp = std::make_unique<uint8_t[]>(length);
+    } catch (...) {
+        ABILITYBASE_LOGE("dataTmp error length:%{public}d", length);
+        return false;
+    }
     if (!zipFileReader_->ReadBuffer(dataTmp.get(), offset, length)) {
         ABILITYBASE_LOGE("read file failed, len[%{public}zu] fileName: %{public}s, offset: %{public}zu",
             len, fileName.c_str(), (size_t)offset);
