@@ -334,8 +334,8 @@ void Want::RemoveFlags(unsigned int flags)
  */
 OHOS::AppExecFwk::ElementName Want::GetElement() const
 {
-    return ElementName(operation_.GetDeviceId(), operation_.GetBundleName(),
-        operation_.GetAbilityName(), operation_.GetModuleName());
+    return ElementName(operation_.GetDeviceIdRef(), operation_.GetBundleNameRef(),
+        operation_.GetAbilityNameRef(), operation_.GetModuleNameRef());
 }
 
 /**
@@ -376,11 +376,11 @@ Want &Want::SetElementName(const std::string &deviceId, const std::string &bundl
  */
 Want &Want::SetElement(const OHOS::AppExecFwk::ElementName &element)
 {
-    operation_.SetDeviceId(element.GetDeviceID());
-    operation_.SetBundleName(element.GetBundleName());
-    operation_.SetAbilityName(element.GetAbilityName());
-    operation_.SetModuleName(element.GetModuleName());
-    SetParam(PARAM_MODULE_NAME, element.GetModuleName());
+    operation_.SetDeviceId(element.GetDeviceIDRef());
+    operation_.SetBundleName(element.GetBundleNameRef());
+    operation_.SetAbilityName(element.GetAbilityNameRef());
+    operation_.SetModuleName(element.GetModuleNameRef());
+    SetParam(PARAM_MODULE_NAME, element.GetModuleNameRef());
     return *this;
 }
 
@@ -439,7 +439,7 @@ int Want::CountEntities()
  */
 std::string Want::GetBundle() const
 {
-    return operation_.GetBundleName();
+    return operation_.GetBundleNameRef();
 }
 
 /**
@@ -572,7 +572,7 @@ std::string Want::FormatMimeType(const std::string &mimeType)
  */
 std::string Want::GetAction() const
 {
-    return operation_.GetAction();
+    return operation_.GetActionRef();
 }
 
 /**
@@ -1516,7 +1516,7 @@ Want *Want::WantParseUri(const char *uri)
  */
 std::string Want::GetUriString() const
 {
-    return operation_.GetUri().ToString();
+    return operation_.GetUriRef().ToString();
 }
 
 /**
@@ -1587,8 +1587,8 @@ std::string Want::ToUri() const
 }
 void Want::ToUriStringInner(std::string &uriString) const
 {
-    if (operation_.GetAction().length() > 0) {
-        uriString += "action=" + Encode(operation_.GetAction()) + ";";
+    if (operation_.GetActionRef().length() > 0) {
+        uriString += "action=" + Encode(operation_.GetActionRef()) + ";";
     }
     if (GetUriString().length() > 0) {
         uriString += "uri=" + Encode(GetUriString()) + ";";
@@ -1598,14 +1598,14 @@ void Want::ToUriStringInner(std::string &uriString) const
             uriString += "entity=" + Encode(entity) + ";";
         }
     }
-    if (operation_.GetDeviceId().length() > 0) {
-        uriString += "device=" + Encode(operation_.GetDeviceId()) + ";";
+    if (operation_.GetDeviceIdRef().length() > 0) {
+        uriString += "device=" + Encode(operation_.GetDeviceIdRef()) + ";";
     }
-    if (operation_.GetBundleName().length() > 0) {
-        uriString += "bundle=" + Encode(operation_.GetBundleName()) + ";";
+    if (operation_.GetBundleNameRef().length() > 0) {
+        uriString += "bundle=" + Encode(operation_.GetBundleNameRef()) + ";";
     }
-    if (operation_.GetAbilityName().length() > 0) {
-        uriString += "ability=" + Encode(operation_.GetAbilityName()) + ";";
+    if (operation_.GetAbilityNameRef().length() > 0) {
+        uriString += "ability=" + Encode(operation_.GetAbilityNameRef()) + ";";
     }
     if (operation_.GetFlags() != 0) {
         uriString += "flag=";
@@ -1617,9 +1617,9 @@ void Want::ToUriStringInner(std::string &uriString) const
             uriString += ";";
         }
     }
-    if (!operation_.GetBundleName().empty()) {
+    if (!operation_.GetBundleNameRef().empty()) {
         uriString.append("package=");
-        uriString.append(Encode(operation_.GetBundleName()));
+        uriString.append(Encode(operation_.GetBundleNameRef()));
         uriString.append(";");
     }
 
@@ -2050,7 +2050,7 @@ Want &Want::SetDeviceId(const std::string &deviceId)
 
 std::string Want::GetDeviceId() const
 {
-    return operation_.GetDeviceId();
+    return operation_.GetDeviceIdRef();
 }
 
 Want& Want::SetModuleName(const std::string &moduleName)
