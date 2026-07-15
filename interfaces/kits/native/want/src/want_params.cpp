@@ -208,6 +208,7 @@ const char* REMOTE_OBJECT = "RemoteObject";
 const char* TYPE_PROPERTY = "type";
 const char* VALUE_PROPERTY = "value";
 constexpr int32_t MAX_RECURSION_DEPTH = 100;
+constexpr int32_t MAX_UNSUPPORTED_DATA_SIZE = 100 * 1024 * 1024;
 UnsupportedData::~UnsupportedData()
 {
     if (buffer != nullptr) {
@@ -220,9 +221,16 @@ UnsupportedData::UnsupportedData() = default;
 
 UnsupportedData::UnsupportedData(const UnsupportedData &other) : key(other.key), type(other.type), size(other.size)
 {
+    if (size < 0 || size > MAX_UNSUPPORTED_DATA_SIZE) {
+        ABILITYBASE_LOGE("invalid size=%{public}d", size);
+        key.clear();
+        type = 0;
+        size = 0;
+        return;
+    }
     buffer = new (std::nothrow) uint8_t[size];
     if (buffer == nullptr) {
-        ABILITYBASE_LOGE("alloc failed, size=%{public}u", size);
+        ABILITYBASE_LOGE("alloc failed, size=%{public}d", size);
         key.clear();
         type = 0;
         size = 0;
@@ -255,6 +263,13 @@ UnsupportedData &UnsupportedData::operator=(const UnsupportedData &other)
     key = other.key;
     type = other.type;
     size = other.size;
+    if (size < 0 || size > MAX_UNSUPPORTED_DATA_SIZE) {
+        ABILITYBASE_LOGE("invalid size=%{public}d", size);
+        key.clear();
+        type = 0;
+        size = 0;
+        return *this;
+    }
     if (buffer != nullptr) {
         ABILITYBASE_LOGI("clean buffer");
         delete[] buffer;
@@ -262,7 +277,7 @@ UnsupportedData &UnsupportedData::operator=(const UnsupportedData &other)
     }
     buffer = new (std::nothrow) uint8_t[size];
     if (buffer == nullptr) {
-        ABILITYBASE_LOGE("alloc failed, size=%{public}u", size);
+        ABILITYBASE_LOGE("alloc failed, size=%{public}d", size);
         key.clear();
         type = 0;
         size = 0;
@@ -1702,8 +1717,7 @@ bool WantParams::ReadUnsupportedData(Parcel &parcel, const std::string &key, int
     if (!parcel.ReadInt32(bufferSize)) {
         return false;
     }
-    static constexpr int32_t maxAllowedSize = 100 * 1024 * 1024;
-    if (bufferSize < 0 || bufferSize > maxAllowedSize) {
+    if (bufferSize < 0 || bufferSize > MAX_UNSUPPORTED_DATA_SIZE) {
         ABILITYBASE_LOGE("invalid size: %{public}d", bufferSize);
         return false;
     }
