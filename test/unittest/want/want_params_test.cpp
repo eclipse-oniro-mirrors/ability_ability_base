@@ -1286,6 +1286,85 @@ HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_GetCachedUnsupportedData_1000, Fun
 }
 
 /**
+ * @tc.number: AaFwk_UnsupportedData_CopyRejectsOutOfRangeSize_1000
+ * @tc.name: UnsupportedData copy ctor range check
+ * @tc.desc: Out-of-range size (negative or above 100 MB) must yield an empty
+ *           copy instead of allocating SIZE_MAX bytes or throwing. Regression
+ *           for the size validation added with the nothrow-new fix.
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_UnsupportedData_CopyRejectsOutOfRangeSize_1000, Function | MediumTest | Level1)
+{
+    {
+        AAFwk::UnsupportedData src;
+        src.size = -1;
+        AAFwk::UnsupportedData copy(src);
+        EXPECT_EQ(copy.size, 0);
+        EXPECT_EQ(copy.type, 0);
+        EXPECT_TRUE(copy.key.empty());
+        EXPECT_EQ(copy.buffer, nullptr);
+    }
+    {
+        AAFwk::UnsupportedData src;
+        src.size = 200 * 1024 * 1024;  // above MAX_UNSUPPORTED_DATA_SIZE (100 MB)
+        AAFwk::UnsupportedData copy(src);
+        EXPECT_EQ(copy.size, 0);
+        EXPECT_EQ(copy.type, 0);
+        EXPECT_EQ(copy.buffer, nullptr);
+    }
+}
+
+/**
+ * @tc.number: AaFwk_UnsupportedData_CopyDeepCopiesBuffer_1000
+ * @tc.name: UnsupportedData copy ctor deep copy
+ * @tc.desc: A valid source must yield an independent deep copy: distinct
+ *           buffer allocation, byte-identical contents, and mutations to the
+ *           source after the copy must not affect the copy.
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_UnsupportedData_CopyDeepCopiesBuffer_1000, Function | MediumTest | Level1)
+{
+    AAFwk::UnsupportedData src;
+    src.key = Str8ToStr16("copyKey");
+    src.type = 7;
+    src.size = 64;
+    src.buffer = new (std::nothrow) uint8_t[src.size];
+    ASSERT_NE(src.buffer, nullptr);
+    std::fill(src.buffer, src.buffer + src.size, static_cast<uint8_t>(0xAB));
+
+    AAFwk::UnsupportedData copy(src);
+    EXPECT_EQ(copy.size, 64);
+    EXPECT_EQ(copy.type, 7);
+    EXPECT_EQ(copy.key, Str8ToStr16("copyKey"));
+    ASSERT_NE(copy.buffer, nullptr);
+    EXPECT_NE(copy.buffer, src.buffer);
+    EXPECT_EQ(copy.buffer[0], 0xAB);
+    EXPECT_EQ(copy.buffer[63], 0xAB);
+
+    std::fill(src.buffer, src.buffer + src.size, static_cast<uint8_t>(0xCD));
+    EXPECT_EQ(copy.buffer[0], 0xAB);
+    delete[] src.buffer;
+    src.buffer = nullptr;
+}
+
+/**
+ * @tc.number: AaFwk_UnsupportedData_AssignmentRejectsOutOfRangeSize_1000
+ * @tc.name: UnsupportedData copy assignment range check
+ * @tc.desc: operator= must mirror the copy ctor's size-range rejection. An
+ *           oversized source must reset scalars and leave the destination
+ *           safe to destruct (~UnsupportedData runs at scope exit).
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_UnsupportedData_AssignmentRejectsOutOfRangeSize_1000,
+    Function | MediumTest | Level1)
+{
+    AAFwk::UnsupportedData src;
+    src.size = 200 * 1024 * 1024;  // above MAX_UNSUPPORTED_DATA_SIZE (100 MB)
+    AAFwk::UnsupportedData dst;
+    dst = src;
+    EXPECT_EQ(dst.size, 0);
+    EXPECT_EQ(dst.type, 0);
+    EXPECT_TRUE(dst.key.empty());
+}
+
+/**
  * @tc.number: AaFwk_WantParams_DupAllFd_1000
  * @tc.name: DupAllFd
  * @tc.desc: Test DupAllFd.

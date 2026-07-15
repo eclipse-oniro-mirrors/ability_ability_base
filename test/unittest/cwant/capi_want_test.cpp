@@ -124,6 +124,65 @@ HWTEST_F(CWantTest, OH_AbilityBase_CreateWant_DeepCopy_001, TestSize.Level0)
 }
 
 /**
+ * @tc.number:OH_AbilityBase_SetWantElement_ReplaceCycle_001
+ * @tc.desc: Regression: repeated SetWantElement must free old copies before storing new ones.
+ * @tc.type: FUNC
+ * Each SetWantElement call routes through AssignElement, which ReplaceElementField's
+ * each field (FreeCString + DuplicateCString). A broken cycle -- either leaking the
+ * previous deep copy or freeing the wrong slot -- surfaces as a sanitizer finding or
+ * a corrupted GetWantElement result. Drive several cycles and verify the final state.
+ */
+HWTEST_F(CWantTest, OH_AbilityBase_SetWantElement_ReplaceCycle_001, TestSize.Level0)
+{
+    AbilityBase_Element element;
+    initElementWithDynamicMemory(element);
+    AbilityBase_Want* want = OH_AbilityBase_CreateWant(element);
+    ASSERT_NE(want, nullptr);
+    ReleaseElementMemory(element);
+
+    for (int i = 0; i < 3; ++i) {
+        AbilityBase_Element next;
+        initElementWithDynamicMemory(next);
+        AbilityBase_ErrorCode errCode = OH_AbilityBase_SetWantElement(want, next);
+        ASSERT_EQ(errCode, ABILITY_BASE_ERROR_CODE_NO_ERROR);
+        ReleaseElementMemory(next);
+    }
+
+    AbilityBase_Element outElement;
+    AbilityBase_ErrorCode errCode = OH_AbilityBase_GetWantElement(want, &outElement);
+    ASSERT_EQ(errCode, ABILITY_BASE_ERROR_CODE_NO_ERROR);
+    EXPECT_STREQ(outElement.bundleName, "testBundleName");
+    EXPECT_STREQ(outElement.moduleName, "testModuleName");
+    EXPECT_STREQ(outElement.abilityName, "testAbilityName");
+
+    OH_AbilityBase_DestroyWant(want);
+}
+
+/**
+ * @tc.number:OH_AbilityBase_CreateWant_NullFields_001
+ * @tc.desc: Regression: null AbilityBase_Element fields must round-trip without crashing.
+ * @tc.type: FUNC
+ * DuplicateCString returns nullptr for nullptr input; FreeCString is a no-op on nullptr.
+ * CreateWant must tolerate an all-null element, GetWantElement must surface the nulls
+ * back, and DestroyWant must not call delete[] on the nulls.
+ */
+HWTEST_F(CWantTest, OH_AbilityBase_CreateWant_NullFields_001, TestSize.Level0)
+{
+    AbilityBase_Element element {};
+    AbilityBase_Want* want = OH_AbilityBase_CreateWant(element);
+    ASSERT_NE(want, nullptr);
+
+    AbilityBase_Element outElement;
+    AbilityBase_ErrorCode errCode = OH_AbilityBase_GetWantElement(want, &outElement);
+    ASSERT_EQ(errCode, ABILITY_BASE_ERROR_CODE_NO_ERROR);
+    EXPECT_EQ(outElement.bundleName, nullptr);
+    EXPECT_EQ(outElement.moduleName, nullptr);
+    EXPECT_EQ(outElement.abilityName, nullptr);
+
+    OH_AbilityBase_DestroyWant(want);
+}
+
+/**
  * @tc.number:OH_AbilityBase_SetWantUri_001
  * @tc.desc: Function test OH_AbilityBase_SetWantUri_001
  * @tc.type: FUNC
