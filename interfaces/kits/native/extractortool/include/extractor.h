@@ -93,6 +93,8 @@ public:
     bool ExtractToBufByName(const std::string &fileName, std::unique_ptr<uint8_t[]> &dataPtr, size_t &len) const;
     /**
      * For abc file only, to mmap to safe region.
+     * Note: The object returned by this interface is not automatically released by default.
+     * To release it, you must explicitly call FileMapper::SetAutoReleaseMem(true)
      */
     std::unique_ptr<FileMapper> GetSafeData(const std::string &fileName);
     void SetCacheMode(CacheMode cacheMode)

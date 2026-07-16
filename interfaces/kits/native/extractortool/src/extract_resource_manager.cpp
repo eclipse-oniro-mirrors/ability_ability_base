@@ -22,6 +22,7 @@ ExtractResourceManager::ExtractResourceManager()
 
 ExtractResourceManager::~ExtractResourceManager()
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     if (!resourceManager_) {
         resourceManager_.reset();
     }
@@ -35,11 +36,13 @@ ExtractResourceManager& ExtractResourceManager::GetExtractResourceManager()
 
 void ExtractResourceManager::SetGlobalObject(const std::shared_ptr<Global::Resource::ResourceManager> &resourceManager)
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     resourceManager_ = resourceManager;
 }
 
 std::shared_ptr<Global::Resource::ResourceManager> ExtractResourceManager::GetGlobalObject()
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     return resourceManager_;
 }
 }  // namespace AbilityBase
