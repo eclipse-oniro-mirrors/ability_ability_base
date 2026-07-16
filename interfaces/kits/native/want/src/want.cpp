@@ -53,21 +53,20 @@ nlohmann::json BuildWantJson(const Want &want)
     WantParamWrapper wrapper(want.GetParams());
     std::string parametersString = wrapper.ToString();
 
+    const auto &entities = want.GetEntities();
     nlohmann::json entitiesJson;
-    std::vector<std::string> entities = want.GetEntities();
     for (const auto &entity : entities) {
         entitiesJson.emplace_back(entity);
     }
 
-    ElementName element = want.GetElement();
     nlohmann::json wantJson = nlohmann::json {
-        {"deviceId", element.GetDeviceID()},
-        {"bundleName", element.GetBundleName()},
-        {"abilityName", element.GetAbilityName()},
+        {"deviceId", want.GetDeviceIdRef()},
+        {"bundleName", want.GetBundleNameRef()},
+        {"abilityName", want.GetAbilityNameRef()},
         {"uri", want.GetUriString()},
         {"type", want.GetType()},
         {"flags", want.GetFlags()},
-        {"action", want.GetAction()},
+        {"action", want.GetActionRef()},
         {"parameters", parametersString},
         {"entities", entitiesJson},
     };
