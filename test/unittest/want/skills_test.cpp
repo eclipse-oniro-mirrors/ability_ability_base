@@ -1101,6 +1101,44 @@ HWTEST_F(SkillsBaseTest, AaFwk_Skills_FindMimeType_0300, Function | MediumTest |
 }
 
 /**
+ * @tc.number: AaFwk_Skills_FindMimeType_0400
+ * @tc.name: FindMimeType
+ * @tc.desc: A type whose slash sits at index 0 has an empty prefix and must
+ *           not match. Locks in the slashpos == 0 branch added by the
+ *           type.find('/') fix; the old unsigned `slashpos <= 0` check was
+ *           always false, so without this case a regression that drops the
+ *           `== 0` half would still pass _0100/_0200/_0300.
+ */
+HWTEST_F(SkillsBaseTest, AaFwk_Skills_FindMimeType_0400, Function | MediumTest | Level1)
+{
+    std::string type = "/png";
+    bool result = base_->FindMimeType(type);
+    EXPECT_EQ(result, false);
+}
+
+/**
+ * @tc.number: AaFwk_Skills_FindMimeType_0500
+ * @tc.name: FindMimeType
+ * @tc.desc: AddType with an image-wildcard MIME pattern registers the image
+ *           prefix and sets hasPartialTypes_. FindMimeType on a concrete
+ *           image subtype must then match via the partial-prefix path.
+ *           Regression for the slashpos-calculation fix: with the old
+ *           type.size() minus typeIt formula slashpos was wrong, typeSubstr
+ *           was wrong, and the prefix lookup never hit (independent of the
+ *           null-deref crash).
+ */
+HWTEST_F(SkillsBaseTest, AaFwk_Skills_FindMimeType_0500, Function | MediumTest | Level1)
+{
+    std::string pattern = "image/*";
+    base_->AddType(pattern);
+    EXPECT_EQ(1, base_->CountTypes());
+
+    std::string type = "image/png";
+    bool result = base_->FindMimeType(type);
+    EXPECT_EQ(result, true);
+}
+
+/**
  * @tc.number: AaFwk_Skills_RegionMatches_0100
  * @tc.name: RegionMatches
  * @tc.desc: Test RegionMatches.

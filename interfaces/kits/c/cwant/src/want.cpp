@@ -14,12 +14,62 @@
  */
 
 #include "want.h"
+#include <cstring>
 #include <map>
+#include <new>
 #include <string>
 #include <unistd.h>
 #include "ability_base_log_wrapper.h"
 #include "securec.h"
 #include "want/include/want.h"
+
+namespace {
+char* DuplicateCString(const char* src)
+{
+    if (src == nullptr) {
+        return nullptr;
+    }
+    size_t len = std::strlen(src);
+    char* dst = new (std::nothrow) char[len + 1];
+    if (dst == nullptr) {
+        ABILITYBASE_LOGE("DuplicateCString: alloc failed, len=%{public}zu", len);
+        return nullptr;
+    }
+    if (strcpy_s(dst, len + 1, src) != EOK) {
+        delete[] dst;
+        return nullptr;
+    }
+    return dst;
+}
+
+void FreeCString(char*& p)
+{
+    if (p != nullptr) {
+        delete[] p;
+    }
+    p = nullptr;
+}
+
+void ReplaceElementField(const char* src, char*& dst)
+{
+    FreeCString(dst);
+    dst = DuplicateCString(src);
+}
+
+void FreeElementFields(AbilityBase_Element& element)
+{
+    FreeCString(element.bundleName);
+    FreeCString(element.moduleName);
+    FreeCString(element.abilityName);
+}
+
+void AssignElement(const AbilityBase_Element& src, AbilityBase_Element& dst)
+{
+    ReplaceElementField(src.bundleName, dst.bundleName);
+    ReplaceElementField(src.moduleName, dst.moduleName);
+    ReplaceElementField(src.abilityName, dst.abilityName);
+}
+}  // namespace
 
 struct AbilityBase_Want {
     AbilityBase_Element element;
@@ -35,9 +85,7 @@ struct AbilityBase_Want {
 AbilityBase_Want* OH_AbilityBase_CreateWant(AbilityBase_Element element)
 {
     std::unique_ptr<AbilityBase_Want> want = std::make_unique<AbilityBase_Want>();
-    want->element.bundleName = element.bundleName;
-    want->element.moduleName = element.moduleName;
-    want->element.abilityName = element.abilityName;
+    AssignElement(element, want->element);
     return want.release();
 }
 
@@ -48,6 +96,7 @@ AbilityBase_ErrorCode OH_AbilityBase_DestroyWant(AbilityBase_Want* want)
         return ABILITY_BASE_ERROR_CODE_PARAM_INVALID;
     }
 
+    FreeElementFields(want->element);
     if (!want->params.empty()) {
         want->params.clear();
     }
@@ -63,9 +112,7 @@ AbilityBase_ErrorCode OH_AbilityBase_SetWantElement(AbilityBase_Want* want, Abil
         ABILITYBASE_LOGE("null want");
         return ABILITY_BASE_ERROR_CODE_PARAM_INVALID;
     }
-    want->element.bundleName = element.bundleName;
-    want->element.moduleName = element.moduleName;
-    want->element.abilityName = element.abilityName;
+    AssignElement(element, want->element);
     return ABILITY_BASE_ERROR_CODE_NO_ERROR;
 }
 
