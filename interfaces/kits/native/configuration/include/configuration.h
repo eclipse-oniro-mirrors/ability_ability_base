@@ -83,7 +83,7 @@ public:
      *
      * @return void
      */
-    void CompareDifferent(std::vector<std::string> &diffKeyV, const Configuration &other);
+    void CompareDifferent(std::vector<std::string> &diffKeyV, const Configuration &other) const;
 
     /**
      * @brief Update the content according to the key.

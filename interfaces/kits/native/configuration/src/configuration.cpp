@@ -163,27 +163,23 @@ std::string Configuration::GetValue(const std::string &key) const
     return ConfigurationInner::EMPTY_STRING;
 }
 
-void Configuration::CompareDifferent(std::vector<std::string> &diffKeyV, const Configuration &other)
+void Configuration::CompareDifferent(std::vector<std::string> &diffKeyV, const Configuration &other) const
 {
+    diffKeyV.clear();
     if (other.GetItemSize() == 0) {
         return;
     }
-
-    diffKeyV.clear();
     std::vector<std::string> otherk;
     other.GetAllKey(otherk);
 
     std::lock_guard<std::recursive_mutex> lock(configParameterMutex_);
     for (const auto &iter : otherk) {
         ABILITYBASE_LOGD("iter:%{public}s,Val:%{public}s", iter.c_str(), other.GetValue(iter).c_str());
-        // Insert new content directly
-        auto pair = configParameter_.insert(std::make_pair(iter, other.GetValue(iter)));
-        if (pair.second) {
-            diffKeyV.push_back(iter); // One of the changes this time
+        auto otherItem = other.GetValue(iter);
+        if (otherItem.empty()) {
             continue;
         }
-        // Compare what you already have
-        if (!other.GetValue(iter).empty() && other.GetValue(iter) != GetValue(iter)) {
+        if (otherItem != GetValue(iter)) {
             diffKeyV.push_back(iter);
         }
     }
@@ -252,12 +248,10 @@ const std::string Configuration::GetName() const
 bool Configuration::ReadFromParcel(Parcel &parcel)
 {
     ABILITYBASE_LOGD("ReadFromParcel");
-    defaultDisplayId_ = parcel.ReadInt32();
+    int32_t defaultDisplayId = parcel.ReadInt32();
     int32_t configSize = parcel.ReadInt32();
     std::vector<std::string> keys;
     std::vector<std::string> values;
-    keys.clear();
-    values.clear();
     if (!parcel.ReadStringVector(&keys)) {
         ABILITYBASE_LOGE("read keys failed");
         return false;
@@ -273,13 +267,11 @@ bool Configuration::ReadFromParcel(Parcel &parcel)
         return false;
     }
 
-    std::string key;
-    std::string val;
     std::lock_guard<std::recursive_mutex> lock(configParameterMutex_);
+    defaultDisplayId_ = defaultDisplayId;
+    configParameter_.clear();
     for (int32_t i = 0; i < configSize; i++) {
-        key = keys.at(i);
-        val = values.at(i);
-        configParameter_.emplace(key, val);
+        configParameter_.emplace(keys.at(i), values.at(i));
     }
     return true;
 }
@@ -297,22 +289,32 @@ Configuration *Configuration::Unmarshalling(Parcel &parcel)
 bool Configuration::Marshalling(Parcel &parcel) const
 {
     ABILITYBASE_LOGD("called");
+    if (!parcel.WriteInt32(defaultDisplayId_)) {
+        ABILITYBASE_LOGE("write defaultDisplayId_ failed");
+        return false;
+    }
+
     std::vector<std::string> keys;
     std::vector<std::string> values;
-    keys.clear();
-    values.clear();
-
-    parcel.WriteInt32(defaultDisplayId_);
 
     std::lock_guard<std::recursive_mutex> lock(configParameterMutex_);
-    parcel.WriteInt32(configParameter_.size());
+    if (!parcel.WriteInt32(configParameter_.size())) {
+        ABILITYBASE_LOGE("write config size failed");
+        return false;
+    }
     for (const auto &config : configParameter_) {
         keys.emplace_back(config.first);
         values.emplace_back(config.second);
     }
 
-    parcel.WriteStringVector(keys);
-    parcel.WriteStringVector(values);
+    if (!parcel.WriteStringVector(keys)) {
+        ABILITYBASE_LOGE("write keys failed");
+        return false;
+    }
+    if (!parcel.WriteStringVector(values)) {
+        ABILITYBASE_LOGE("write values failed");
+        return false;
+    }
     return true;
 }
 
