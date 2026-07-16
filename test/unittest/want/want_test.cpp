@@ -4321,6 +4321,58 @@ HWTEST_F(WantBaseTest, ParseURI_test_001, TestSize.Level1)
 }
 
 /**
+ * @tc.number: ParseURI_test_002
+ * @tc.name: ParseURI rejects empty segments
+ * @tc.desc: Verify ParseURI returns false for URIs whose slash count is 3 but
+ *           that contain an empty segment -- consecutive slashes ("a//c/d"),
+ *           a trailing slash ("a/b/c/"), or a leading slash ("/a/b/c").
+ *           Before the fix the std::count('/')==3 precheck let these through
+ *           and Split silently produced empty deviceId_/bundleName_/etc.
+ */
+HWTEST_F(WantBaseTest, ParseURI_test_002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "ParseURI_test_002 start";
+
+    std::vector<std::string> badUris = {
+        "dev//bundle/ability",   // consecutive slashes -> empty bundleName
+        "dev/bundle/ability/",   // trailing slash -> empty abilityName
+        "/dev/bundle/ability",   // leading slash -> empty deviceId
+        "dev/bundle//ability",   // middle empty moduleName via 3-slash variant
+    };
+    for (const auto &uri : badUris) {
+        OHOS::AppExecFwk::ElementName element;
+        bool result = element.ParseURI(uri);
+        EXPECT_EQ(result, false)
+            << "uri='" << uri << "' should be rejected (empty segment)";
+    }
+
+    GTEST_LOG_(INFO) << "ParseURI_test_002 end";
+}
+
+/**
+ * @tc.number: ParseURI_test_003
+ * @tc.name: ParseURI accepts well-formed four-segment URI
+ * @tc.desc: Positive coverage complementing 002 -- a normal four-segment URI
+ *           with no empty segments must still parse and populate the four
+ *           fields in the documented order (deviceId / bundleName /
+ *           moduleName / abilityName).
+ */
+HWTEST_F(WantBaseTest, ParseURI_test_003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "ParseURI_test_003 start";
+
+    OHOS::AppExecFwk::ElementName element;
+    bool result = element.ParseURI("dev/bundle/module/ability");
+    EXPECT_EQ(result, true);
+    EXPECT_EQ(element.GetDeviceID(), "dev");
+    EXPECT_EQ(element.GetBundleName(), "bundle");
+    EXPECT_EQ(element.GetModuleName(), "module");
+    EXPECT_EQ(element.GetAbilityName(), "ability");
+
+    GTEST_LOG_(INFO) << "ParseURI_test_003 end";
+}
+
+/**
  * @tc.number: Want_test_001
  * @tc.name: FdandEts
  * @tc.desc: FdandEts.

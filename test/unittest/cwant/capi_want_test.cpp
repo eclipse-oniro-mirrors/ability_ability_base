@@ -93,6 +93,37 @@ HWTEST_F(CWantTest, OH_AbilityBase_SetWantElement_002, TestSize.Level0)
 }
 
 /**
+ * @tc.number:OH_AbilityBase_CreateWant_DeepCopy_001
+ * @tc.desc: Regression: want must outlive the caller's element buffers.
+ * @tc.type: FUNC
+ * Before the deep-copy fix CreateWant/SetWantElement stored the caller's
+ * raw char* verbatim; once the caller freed them (ReleaseElementMemory)
+ * want->element.* became dangling pointers and GetWantElement would read
+ * freed memory. Verify the want now owns its own copies.
+ */
+HWTEST_F(CWantTest, OH_AbilityBase_CreateWant_DeepCopy_001, TestSize.Level0)
+{
+    AbilityBase_Element element;
+    initElementWithDynamicMemory(element);
+
+    AbilityBase_Want* want = OH_AbilityBase_CreateWant(element);
+    ASSERT_NE(want, nullptr);
+    AbilityBase_ErrorCode errCode = OH_AbilityBase_SetWantElement(want, element);
+    ASSERT_EQ(errCode, ABILITY_BASE_ERROR_CODE_NO_ERROR);
+
+    ReleaseElementMemory(element);
+
+    AbilityBase_Element outElement;
+    errCode = OH_AbilityBase_GetWantElement(want, &outElement);
+    ASSERT_EQ(errCode, ABILITY_BASE_ERROR_CODE_NO_ERROR);
+    EXPECT_STREQ(outElement.bundleName, "testBundleName");
+    EXPECT_STREQ(outElement.moduleName, "testModuleName");
+    EXPECT_STREQ(outElement.abilityName, "testAbilityName");
+
+    OH_AbilityBase_DestroyWant(want);
+}
+
+/**
  * @tc.number:OH_AbilityBase_SetWantUri_001
  * @tc.desc: Function test OH_AbilityBase_SetWantUri_001
  * @tc.type: FUNC
