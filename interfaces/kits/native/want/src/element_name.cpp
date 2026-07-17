@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+#include <algorithm>
+
 #include "element_name.h"
 
 #include "string_ex.h"
@@ -87,18 +89,14 @@ std::string ElementName::GetURI() const
 bool ElementName::ParseURI(const std::string &uri)
 {
     const size_t memberNum = 4;
-    std::vector<std::string> uriVec;
-    Split(uri, "/", uriVec);
-    if (uriVec.size() != memberNum) {
-        ABILITYBASE_LOGE("Invalid uri (segments=%{public}zu): %{public}s.", uriVec.size(), uri.c_str());
+    if (std::count(uri.begin(), uri.end(), '/') != memberNum - 1) {
+        ABILITYBASE_LOGE("Invalid uri: %{public}s.", uri.c_str());
         return false;
     }
-    for (const auto &seg : uriVec) {
-        if (seg.empty()) {
-            ABILITYBASE_LOGE("Invalid uri (empty segment): %{public}s.", uri.c_str());
-            return false;
-        }
-    }
+
+    std::vector<std::string> uriVec;
+    Split(uri, "/", uriVec);
+    uriVec.resize(memberNum);
 
     int index = 0;
     deviceId_ = uriVec[index++];
