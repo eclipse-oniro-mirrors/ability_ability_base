@@ -96,7 +96,7 @@ bool FileMapper::CreateFileMapper(std::shared_ptr<ZipFileReader> fileReader, con
     try {
         dataPtr_ = std::make_unique<uint8_t[]>(len);
     } catch (...) {
-        ABILITYBASE_LOGE("dataPtr error len:%{public}d", len);
+        ABILITYBASE_LOGE("dataPtr error len:%{public}zu", len);
         return false;
     }
     if (!fileReader->ReadBuffer(dataPtr_.get(), offset, len)) {
