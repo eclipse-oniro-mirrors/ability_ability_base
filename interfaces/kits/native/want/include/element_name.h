@@ -31,6 +31,15 @@ public:
         const std::string &abilityName, const std::string &moduleName = "");
     ElementName();
     ~ElementName();
+    ElementName(const ElementName &) = default;
+    ElementName &operator=(const ElementName &) = default;
+    ElementName(ElementName &&) noexcept = default;
+    ElementName &operator=(ElementName &&) noexcept = default;
+
+    const std::string &GetDeviceIDRef() const { return deviceId_; }
+    const std::string &GetBundleNameRef() const { return bundleName_; }
+    const std::string &GetAbilityNameRef() const { return abilityName_; }
+    const std::string &GetModuleNameRef() const { return moduleName_; }
 
     std::string GetURI() const;
 

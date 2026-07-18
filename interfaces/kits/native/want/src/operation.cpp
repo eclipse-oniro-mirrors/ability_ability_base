@@ -23,7 +23,7 @@ Operation::Operation() : flags_(0), uri_("")
 {
 }
 
-Operation::Operation(const Operation &other) : flags_(0), uri_(other.uri_.ToString())
+Operation::Operation(const Operation &other) : flags_(0), uri_(other.uri_)
 {
     flags_ = other.flags_;
     action_ = other.action_;
@@ -34,6 +34,12 @@ Operation::Operation(const Operation &other) : flags_(0), uri_(other.uri_.ToStri
     moduleName_ = other.moduleName_;
 }
 
+Operation::Operation(Operation &&other) noexcept
+    : abilityName_(std::move(other.abilityName_)), action_(std::move(other.action_)),
+      bundleName_(std::move(other.bundleName_)), deviceId_(std::move(other.deviceId_)),
+      moduleName_(std::move(other.moduleName_)), entities_(std::move(other.entities_)),
+      flags_(other.flags_), uri_(std::move(other.uri_)) {}
+
 Operation::~Operation()
 {}
 
@@ -42,16 +48,6 @@ Operation::~Operation()
  * @return Returns the ability name included in this Operation.
  */
 std::string Operation::GetAbilityName() const
-{
-    return abilityName_;
-}
-
-/**
- * @description: Obtains a const reference to the value of the abilityName attribute
- *               included in this Operation.
- * @return Returns a const reference to the ability name included in this Operation.
- */
-const std::string &Operation::GetAbilityNameRef() const
 {
     return abilityName_;
 }
@@ -86,30 +82,10 @@ std::string Operation::GetBundleName() const
 }
 
 /**
- * @description: Obtains a const reference to the value of the bundleName attribute
- *               included in this Operation.
- * @return Returns a const reference to the bundle name included in this Operation.
- */
-const std::string &Operation::GetBundleNameRef() const
-{
-    return bundleName_;
-}
-
-/**
  * @description: Obtains the value of the deviceId attribute included in this Operation.
  * @return Returns the device ID included in this Operation.
  */
 std::string Operation::GetDeviceId() const
-{
-    return deviceId_;
-}
-
-/**
- * @description: Obtains a const reference to the value of the deviceId attribute
- *               included in this Operation.
- * @return Returns a const reference to the device ID included in this Operation.
- */
-const std::string &Operation::GetDeviceIdRef() const
 {
     return deviceId_;
 }
@@ -124,16 +100,6 @@ const std::vector<std::string> &Operation::GetEntities() const
 }
 
 std::string Operation::GetModuleName() const
-{
-    return moduleName_;
-}
-
-/**
- * @description: Obtains a const reference to the value of the moduleName attribute
- *               included in this Operation.
- * @return Returns a const reference to the moduleName included in this Operation.
- */
-const std::string &Operation::GetModuleNameRef() const
 {
     return moduleName_;
 }
@@ -279,6 +245,21 @@ Operation &Operation::operator=(const Operation &other)
         bundleName_ = other.bundleName_;
         abilityName_ = other.abilityName_;
         moduleName_ = other.moduleName_;
+    }
+    return *this;
+}
+
+Operation &Operation::operator=(Operation &&other) noexcept
+{
+    if (this != &other) {
+        abilityName_ = std::move(other.abilityName_);
+        action_ = std::move(other.action_);
+        bundleName_ = std::move(other.bundleName_);
+        deviceId_ = std::move(other.deviceId_);
+        moduleName_ = std::move(other.moduleName_);
+        entities_ = std::move(other.entities_);
+        flags_ = other.flags_;
+        uri_ = std::move(other.uri_);
     }
     return *this;
 }

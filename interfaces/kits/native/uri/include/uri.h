@@ -25,6 +25,15 @@ class Uri : public Parcelable {
 public:
     explicit Uri(const std::string& uriString);
     ~Uri();
+    Uri(const Uri &other);
+    Uri &operator=(const Uri &other);
+    Uri(Uri &&other) noexcept;
+    Uri &operator=(Uri &&other) noexcept;
+
+    const std::string &GetUriStringRef() const
+    {
+        return uriString_;
+    }
 
     /**
      * Get the Scheme part.
