@@ -163,12 +163,19 @@ WantParams WantParamWrapper::Unbox(IWantParams *object)
 bool WantParamWrapper::ValidateStr(const std::string &str)
 {
     if (str == "" || str == "{}" || str == "{\"\"}") {
+        ABILITYBASE_LOGE("ValidateStr: invalid content, length=%{public}zu", str.size());
         return false;
     }
-    if (count(str.begin(), str.end(), '\"') % WANT_PARAM_WRAPPER_TWO != 0) {
+    size_t quoteCount = count(str.begin(), str.end(), '\"');
+    if (quoteCount % WANT_PARAM_WRAPPER_TWO != 0) {
+        ABILITYBASE_LOGE("ValidateStr: odd quote count=%{public}zu, length=%{public}zu", quoteCount, str.size());
         return false;
     }
-    if (count(str.begin(), str.end(), '{') != count(str.begin(), str.end(), '}')) {
+    size_t leftBrace = count(str.begin(), str.end(), '{');
+    size_t rightBrace = count(str.begin(), str.end(), '}');
+    if (leftBrace != rightBrace) {
+        ABILITYBASE_LOGE("ValidateStr: brace count mismatch, left=%{public}zu right=%{public}zu",
+            leftBrace, rightBrace);
         return false;
     }
     int count = 0;
@@ -180,6 +187,7 @@ bool WantParamWrapper::ValidateStr(const std::string &str)
             count--;
         }
         if (count < 0) {
+            ABILITYBASE_LOGE("ValidateStr: brace order invalid, length=%{public}zu", str.size());
             return false;
         }
     }
@@ -207,6 +215,8 @@ bool WantParamWrapper::ParseNestedWantParams(const std::string &str, size_t &str
     FindNestedWantParamsEnd(str, strnum, num);
     sptr<IWantParams> nested = WantParamWrapper::Parse(str.substr(strnum, num - strnum + 1), depth + 1);
     if (WantParamWrapper::Unbox(nested).Size() == 0) {
+        ABILITYBASE_LOGE("ParseNestedWantParams: nested parse empty, key=%{public}s depth=%{public}d",
+            state.key.c_str(), depth);
         state.wantParams = WantParams();
         return false;
     }
@@ -245,6 +255,7 @@ bool WantParamWrapper::ParseQuotedParam(const std::string &str, size_t &strnum, 
         }
         std::string typeIdStr = str.substr(strnum, pos - strnum);
         if (!ParseTypeId(typeIdStr, state.typeId)) {
+            ABILITYBASE_LOGE("%{public}s: ParseTypeId failed, typeIdStr=%{public}s", func, typeIdStr.c_str());
             state.wantParams = WantParams();
             return false;
         }
@@ -284,6 +295,7 @@ bool WantParamWrapper::ParseQuotedParamWithBrackets(const std::string &str, size
         }
         std::string typeIdStr = str.substr(strnum, pos - strnum);
         if (!ParseTypeId(typeIdStr, state.typeId)) {
+            ABILITYBASE_LOGE("%{public}s: ParseTypeId failed, typeIdStr=%{public}s", func, typeIdStr.c_str());
             state.wantParams = WantParams();
             return false;
         }
@@ -293,6 +305,7 @@ bool WantParamWrapper::ParseQuotedParamWithBrackets(const std::string &str, size
     strnum++;
     auto index = FindMatchingBrackets(str, state.typeIndexBefore - 1);
     if (index == std::string::npos) {
+        ABILITYBASE_LOGE("%{public}s: unmatched brackets, strnum=%{public}zu", func, strnum);
         state.wantParams = WantParams();
         return false;
     }
@@ -314,6 +327,8 @@ bool WantParamWrapper::ParseQuotedParamWithBrackets(const std::string &str, size
 void WantParamWrapper::ResetIfParseIncomplete(ParseState &state)
 {
     if (!state.key.empty() || state.typeId != 0) {
+        ABILITYBASE_LOGE("ResetIfParseIncomplete: truncated input, key=%{public}s typeId=%{public}d",
+            state.key.c_str(), state.typeId);
         state.wantParams = WantParams();
     }
 }
