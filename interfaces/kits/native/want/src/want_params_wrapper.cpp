@@ -213,9 +213,16 @@ bool WantParamWrapper::ParseNestedWantParams(const std::string &str, size_t &str
 {
     size_t num;
     FindNestedWantParamsEnd(str, strnum, num);
-    sptr<IWantParams> nested = WantParamWrapper::Parse(str.substr(strnum, num - strnum + 1), depth + 1);
-    if (WantParamWrapper::Unbox(nested).Size() == 0) {
-        ABILITYBASE_LOGE("ParseNestedWantParams: nested parse empty, key=%{public}s depth=%{public}d",
+    std::string nestedStr = str.substr(strnum, num - strnum + 1);
+    bool isEmptyNested = nestedStr == "{}";
+    sptr<IWantParams> nested;
+    if (isEmptyNested) {
+        nested = WantParamWrapper::Box(WantParams());
+    } else {
+        nested = WantParamWrapper::Parse(nestedStr, depth + 1);
+    }
+    if (nested == nullptr || (!isEmptyNested && WantParamWrapper::Unbox(nested).Size() == 0)) {
+        ABILITYBASE_LOGE("ParseNestedWantParams: nested parse failed, key=%{public}s depth=%{public}d",
             state.key.c_str(), depth);
         state.wantParams = WantParams();
         return false;
