@@ -625,17 +625,36 @@ HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_2800, Function | MediumTes
 
 /**
  * @tc.number: Want_Param_Wrapper_2900
- * @tc.name: Nested parse failure propagates to empty result
- * @tc.desc: Verify that when a nested WantParams fails to parse ("{}" is rejected by
- *           ValidateStr) the failure propagates and the WHOLE result is empty -- the earlier
- *           successfully-parsed entry "good" is discarded too, not just the failing key.
- *           Applies to all three parsers.
+ * @tc.name: Nested empty WantParams keeps outer result non-empty
+ * @tc.desc: Verify an empty nested WantParams is retained as a non-null wrapper while its
+ *           value remains empty. Applies to all three parsers.
  */
 HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_2900, Function | MediumTest | Level1)
 {
-    // "good" parses fine first; then "k"'s nested {} fails -> whole result empty (Size 0),
-    // i.e. "good" is also dropped. Proves it's not a per-key clear but a full reset.
     std::string s = "{\"good\":{\"9\":\"v\"},\"k\":{\"101\":{}}}";
+    auto verifyNestedEmpty = [](const WantParams &wantParams) {
+        EXPECT_EQ(wantParams.Size(), 2u);
+        auto nestedValue = wantParams.GetParam("k");
+        ASSERT_NE(nestedValue, nullptr);
+        auto nested = IWantParams::Query(nestedValue);
+        ASSERT_NE(nested, nullptr);
+        EXPECT_EQ(WantParamWrapper::Unbox(nested).Size(), 0u);
+    };
+
+    verifyNestedEmpty(WantParamWrapper::Unbox(WantParamWrapper::Parse(s)));
+    verifyNestedEmpty(WantParamWrapper::ParseWantParams(s));
+    verifyNestedEmpty(WantParamWrapper::ParseWantParamsWithBrackets(s));
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_2950
+ * @tc.name: Invalid nested WantParams still clears the outer result
+ * @tc.desc: Verify only the exact empty object is accepted. A nested object with an unknown
+ *           typeId remains a parse failure and discards previously parsed outer entries.
+ */
+HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_2950, Function | MediumTest | Level1)
+{
+    std::string s = "{\"good\":{\"9\":\"v\"},\"k\":{\"101\":{\"bad\":{\"999\":\"v\"}}}}";
     EXPECT_EQ(WantParamWrapper::Unbox(WantParamWrapper::Parse(s)).Size(), 0u);
     EXPECT_EQ(WantParamWrapper::ParseWantParams(s).Size(), 0u);
     EXPECT_EQ(WantParamWrapper::ParseWantParamsWithBrackets(s).Size(), 0u);
