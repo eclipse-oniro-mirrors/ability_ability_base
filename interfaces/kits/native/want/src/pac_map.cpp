@@ -230,7 +230,10 @@ PacMap::PacMap(const PacMap &other)
     std::lock_guard<std::mutex> mLock(mapLock_);
     dataList_.clear();
     std::string str = MapListToString(other.dataList_);
-    StringToMapList(str, dataList_);
+    if (!StringToMapList(str, dataList_)) {
+        dataList_.clear();
+        ABILITYBASE_LOGE("PacMap copy constructor: StringToMapList failed");
+    }
 }
 
 PacMap::~PacMap()
@@ -247,7 +250,10 @@ PacMap &PacMap::operator=(const PacMap &other)
         std::lock_guard<std::mutex> mLock(mapLock_);
         dataList_.clear();
         std::string str = MapListToString(other.dataList_);
-        StringToMapList(str, dataList_);
+        if (!StringToMapList(str, dataList_)) {
+            dataList_.clear();
+            ABILITYBASE_LOGE("PacMap operator=: StringToMapList failed");
+        }
     }
     return *this;
 }
@@ -1299,102 +1305,86 @@ bool PacMap::GetBaseJsonValue(PacMapList::const_iterator &it, Json::Value &json)
 bool PacMap::ToJsonArrayShort(std::vector<short> &array, Json::Value &item, int type) const
 {
     ABILITYBASE_LOGD("start");
-    if (array.size() > 0) {
-        for (size_t i = 0; i < array.size(); i++) {
-            item["data"].append(array[i]);
-        }
-        item["type"] = type;
-        return true;
+    item["data"] = Json::Value(Json::arrayValue);
+    for (size_t i = 0; i < array.size(); i++) {
+        item["data"].append(array[i]);
     }
-    return false;
+    item["type"] = type;
+    return true;
 }
 // Base data: Integer
 bool PacMap::ToJsonArrayInt(std::vector<int> &array, Json::Value &item, int type) const
 {
     ABILITYBASE_LOGD("start");
-    if (array.size() > 0) {
-        for (size_t i = 0; i < array.size(); i++) {
-            item["data"].append(array[i]);
-        }
-        item["type"] = type;
-        return true;
+    item["data"] = Json::Value(Json::arrayValue);
+    for (size_t i = 0; i < array.size(); i++) {
+        item["data"].append(array[i]);
     }
-    return false;
+    item["type"] = type;
+    return true;
 }
 // Base data: long:sting
 bool PacMap::ToJsonArrayLong(std::vector<long> &array, Json::Value &item, int type) const
 {
-    if (array.size() > 0) {
-        for (size_t i = 0; i < array.size(); i++) {
-            item["data"].append(std::to_string(array[i]));
-        }
-        item["type"] = type;
-        return true;
+    item["data"] = Json::Value(Json::arrayValue);
+    for (size_t i = 0; i < array.size(); i++) {
+        item["data"].append(std::to_string(array[i]));
     }
-    return false;
+    item["type"] = type;
+    return true;
 }
 
 // Base data: byte
 bool PacMap::ToJsonArrayByte(std::vector<byte> &array, Json::Value &item, int type) const
 {
     ABILITYBASE_LOGD("start");
-    if (array.size() > 0) {
-        for (size_t i = 0; i < array.size(); i++) {
-            item["data"].append(array[i]);
-        }
-        item["type"] = type;
-        return true;
+    item["data"] = Json::Value(Json::arrayValue);
+    for (size_t i = 0; i < array.size(); i++) {
+        item["data"].append(array[i]);
     }
-    return false;
+    item["type"] = type;
+    return true;
 }
 // Base data: bool
 bool PacMap::ToJsonArrayBoolean(std::vector<bool> &array, Json::Value &item, int type) const
 {
-    if (array.size() > 0) {
-        for (size_t i = 0; i < array.size(); i++) {
-            item["data"].append((int)array[i]);
-        }
-        item["type"] = type;
-        return true;
+    item["data"] = Json::Value(Json::arrayValue);
+    for (size_t i = 0; i < array.size(); i++) {
+        item["data"].append((int)array[i]);
     }
-    return false;
+    item["type"] = type;
+    return true;
 }
 // Base data: Float to string
 bool PacMap::ToJsonArrayFloat(std::vector<float> &array, Json::Value &item, int type) const
 {
-    if (array.size() > 0) {
-        for (size_t i = 0; i < array.size(); i++) {
-            item["data"].append(RawTypeToString<float>(array[i], FLOAT_PRECISION));
-        }
-        item["type"] = type;
-        return true;
+    item["data"] = Json::Value(Json::arrayValue);
+    for (size_t i = 0; i < array.size(); i++) {
+        item["data"].append(RawTypeToString<float>(array[i], FLOAT_PRECISION));
     }
-    return false;
+    item["type"] = type;
+    return true;
 }
 // Base data: Double to string
 bool PacMap::ToJsonArrayDouble(std::vector<double> &array, Json::Value &item, int type) const
 {
-    if (array.size() > 0) {
-        for (size_t i = 0; i < array.size(); i++) {
-            item["data"].append(RawTypeToString<double>(array[i], DOUBLE_PRECISION));
-        }
-        item["type"] = type;
-        return true;
+    item["data"] = Json::Value(Json::arrayValue);
+    for (size_t i = 0; i < array.size(); i++) {
+        item["data"].append(RawTypeToString<double>(array[i], DOUBLE_PRECISION));
     }
-    return false;
+    item["type"] = type;
+    return true;
 }
 // Base data: string
 bool PacMap::ToJsonArrayString(std::vector<std::string> &array, Json::Value &item, int type) const
 {
     ABILITYBASE_LOGD("start");
-    if (array.size() > 0) {
-        for (size_t i = 0; i < array.size(); i++) {
-            item["data"].append(array[i]);
-        }
-        item["type"] = type;
-        return true;
+    item["data"] = Json::Value(Json::arrayValue);
+    for (size_t i = 0; i < array.size(); i++) {
+        item["data"].append(array[i]);
     }
-    return false;
+    item["type"] = type;
+    return true;
 }
 
 bool PacMap::GetArrayJsonValue(PacMapList::const_iterator &it, Json::Value &json) const

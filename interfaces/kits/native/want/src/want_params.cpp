@@ -1570,7 +1570,10 @@ bool WantParams::ReadFromParcelWantParamWrapper(Parcel &parcel, const std::strin
             return false;
         }
         wantParams->SetNeedExpansion(CheckNeedExpansion());
-        wantParams->PublicReadFromParcel(parcel, depth + 1);
+        if (!wantParams->PublicReadFromParcel(parcel, depth + 1)) {
+            delete wantParams;
+            return false;
+        }
         sptr<WantParams> value(wantParams);
         if (value != nullptr) {
             sptr<IInterface> intf = WantParamWrapper::Box(*value);

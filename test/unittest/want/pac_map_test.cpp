@@ -1448,9 +1448,37 @@ HWTEST_F(PacMapTest, AppExecFwk_PacMap_ToJsonArrayShort_0100, Function | MediumT
     Json::Value item;
     int type = 1;
     bool result = pacmap_->ToJsonArrayShort(array, item, type);
-    EXPECT_EQ(result, false);
+    EXPECT_EQ(result, true);
+    EXPECT_TRUE(item["data"].isArray());
+    EXPECT_EQ(item["data"].size(), static_cast<Json::ArrayIndex>(0));
+    EXPECT_EQ(item["type"].asInt(), 1);
     
     GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToJsonArrayShort_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_ToJsonArrayShort_0200
+ * @tc.name: ToJsonArrayShort
+ * @tc.desc: Verify ToJsonArrayShort with non-empty array.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_ToJsonArrayShort_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToJsonArrayShort_0200 start";
+
+    std::vector<short> array = {1, 2, 3};
+    Json::Value item;
+    int type = 256;
+    bool result = pacmap_->ToJsonArrayShort(array, item, type);
+    EXPECT_EQ(result, true);
+    EXPECT_TRUE(item["data"].isArray());
+    EXPECT_EQ(item["data"].size(), static_cast<Json::ArrayIndex>(3));
+    EXPECT_EQ(item["type"].asInt(), type);
+    EXPECT_EQ(item["data"][0].asInt(), 1);
+    EXPECT_EQ(item["data"][1].asInt(), 2);
+    EXPECT_EQ(item["data"][2].asInt(), 3);
+    
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToJsonArrayShort_0200 end";
 }
 
 /**
@@ -1467,9 +1495,37 @@ HWTEST_F(PacMapTest, AppExecFwk_PacMap_ToJsonArrayInt_0100, Function | MediumTes
     Json::Value item;
     int type = 1;
     bool result = pacmap_->ToJsonArrayInt(array, item, type);
-    EXPECT_EQ(result, false);
+    EXPECT_EQ(result, true);
+    EXPECT_TRUE(item["data"].isArray());
+    EXPECT_EQ(item["data"].size(), static_cast<Json::ArrayIndex>(0));
+    EXPECT_EQ(item["type"].asInt(), 1);
     
     GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToJsonArrayInt_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_ToJsonArrayInt_0200
+ * @tc.name: ToJsonArrayInt
+ * @tc.desc: Verify ToJsonArrayInt with non-empty array.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_ToJsonArrayInt_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToJsonArrayInt_0200 start";
+
+    std::vector<int> array = {10, 20, 30};
+    Json::Value item;
+    int type = 512;
+    bool result = pacmap_->ToJsonArrayInt(array, item, type);
+    EXPECT_EQ(result, true);
+    EXPECT_TRUE(item["data"].isArray());
+    EXPECT_EQ(item["data"].size(), static_cast<Json::ArrayIndex>(3));
+    EXPECT_EQ(item["type"].asInt(), type);
+    EXPECT_EQ(item["data"][0].asInt(), 10);
+    EXPECT_EQ(item["data"][1].asInt(), 20);
+    EXPECT_EQ(item["data"][2].asInt(), 30);
+    
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToJsonArrayInt_0200 end";
 }
 
 /**
@@ -1486,9 +1542,36 @@ HWTEST_F(PacMapTest, AppExecFwk_PacMap_ToJsonArrayLong_0100, Function | MediumTe
     Json::Value item;
     int type = 1;
     bool result = pacmap_->ToJsonArrayLong(array, item, type);
-    EXPECT_EQ(result, false);
+    EXPECT_EQ(result, true);
+    EXPECT_TRUE(item["data"].isArray());
+    EXPECT_EQ(item["data"].size(), static_cast<Json::ArrayIndex>(0));
+    EXPECT_EQ(item["type"].asInt(), 1);
     
     GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToJsonArrayLong_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_ToJsonArrayLong_0200
+ * @tc.name: ToJsonArrayLong
+ * @tc.desc: Verify ToJsonArrayLong with non-empty array.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_ToJsonArrayLong_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToJsonArrayLong_0200 start";
+
+    std::vector<long> array = {100L, 200L};
+    Json::Value item;
+    int type = 768;
+    bool result = pacmap_->ToJsonArrayLong(array, item, type);
+    EXPECT_EQ(result, true);
+    EXPECT_TRUE(item["data"].isArray());
+    EXPECT_EQ(item["data"].size(), static_cast<Json::ArrayIndex>(2));
+    EXPECT_EQ(item["type"].asInt(), type);
+    EXPECT_STREQ(item["data"][0].asString().c_str(), "100");
+    EXPECT_STREQ(item["data"][1].asString().c_str(), "200");
+    
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToJsonArrayLong_0200 end";
 }
 
 /**
@@ -1505,9 +1588,36 @@ HWTEST_F(PacMapTest, AppExecFwk_PacMap_ToJsonArrayByte_0100, Function | MediumTe
     Json::Value item;
     int type = 1;
     bool result = pacmap_->ToJsonArrayByte(array, item, type);
-    EXPECT_EQ(result, false);
+    EXPECT_EQ(result, true);
+    EXPECT_TRUE(item["data"].isArray());
+    EXPECT_EQ(item["data"].size(), static_cast<Json::ArrayIndex>(0));
+    EXPECT_EQ(item["type"].asInt(), 1);
     
     GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToJsonArrayByte_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_ToJsonArrayByte_0200
+ * @tc.name: ToJsonArrayByte
+ * @tc.desc: Verify ToJsonArrayByte with non-empty array.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_ToJsonArrayByte_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToJsonArrayByte_0200 start";
+
+    std::vector<byte> array = {'a', 'b'};
+    Json::Value item;
+    int type = 1280;
+    bool result = pacmap_->ToJsonArrayByte(array, item, type);
+    EXPECT_EQ(result, true);
+    EXPECT_TRUE(item["data"].isArray());
+    EXPECT_EQ(item["data"].size(), static_cast<Json::ArrayIndex>(2));
+    EXPECT_EQ(item["type"].asInt(), type);
+    EXPECT_EQ(item["data"][0].asInt(), 'a');
+    EXPECT_EQ(item["data"][1].asInt(), 'b');
+    
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToJsonArrayByte_0200 end";
 }
 
 /**
@@ -1524,9 +1634,37 @@ HWTEST_F(PacMapTest, AppExecFwk_PacMap_ToJsonArrayBoolean_0100, Function | Mediu
     Json::Value item;
     int type = 1;
     bool result = pacmap_->ToJsonArrayBoolean(array, item, type);
-    EXPECT_EQ(result, false);
+    EXPECT_EQ(result, true);
+    EXPECT_TRUE(item["data"].isArray());
+    EXPECT_EQ(item["data"].size(), static_cast<Json::ArrayIndex>(0));
+    EXPECT_EQ(item["type"].asInt(), 1);
     
     GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToJsonArrayBoolean_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_ToJsonArrayBoolean_0200
+ * @tc.name: ToJsonArrayBoolean
+ * @tc.desc: Verify ToJsonArrayBoolean with non-empty array.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_ToJsonArrayBoolean_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToJsonArrayBoolean_0200 start";
+
+    std::vector<bool> array = {true, false, true};
+    Json::Value item;
+    int type = 1536;
+    bool result = pacmap_->ToJsonArrayBoolean(array, item, type);
+    EXPECT_EQ(result, true);
+    EXPECT_TRUE(item["data"].isArray());
+    EXPECT_EQ(item["data"].size(), static_cast<Json::ArrayIndex>(3));
+    EXPECT_EQ(item["type"].asInt(), type);
+    EXPECT_EQ(item["data"][0].asInt(), 1);
+    EXPECT_EQ(item["data"][1].asInt(), 0);
+    EXPECT_EQ(item["data"][2].asInt(), 1);
+    
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToJsonArrayBoolean_0200 end";
 }
 
 /**
@@ -1543,9 +1681,36 @@ HWTEST_F(PacMapTest, AppExecFwk_PacMap_ToJsonArrayFloat_0100, Function | MediumT
     Json::Value item;
     int type = 1;
     bool result = pacmap_->ToJsonArrayFloat(array, item, type);
-    EXPECT_EQ(result, false);
+    EXPECT_EQ(result, true);
+    EXPECT_TRUE(item["data"].isArray());
+    EXPECT_EQ(item["data"].size(), static_cast<Json::ArrayIndex>(0));
+    EXPECT_EQ(item["type"].asInt(), 1);
     
     GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToJsonArrayFloat_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_ToJsonArrayFloat_0200
+ * @tc.name: ToJsonArrayFloat
+ * @tc.desc: Verify ToJsonArrayFloat with non-empty array.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_ToJsonArrayFloat_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToJsonArrayFloat_0200 start";
+
+    std::vector<float> array = {1.5f, 2.5f};
+    Json::Value item;
+    int type = 1792;
+    bool result = pacmap_->ToJsonArrayFloat(array, item, type);
+    EXPECT_EQ(result, true);
+    EXPECT_TRUE(item["data"].isArray());
+    EXPECT_EQ(item["data"].size(), static_cast<Json::ArrayIndex>(2));
+    EXPECT_EQ(item["type"].asInt(), type);
+    EXPECT_FALSE(item["data"][0].asString().empty());
+    EXPECT_FALSE(item["data"][1].asString().empty());
+    
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToJsonArrayFloat_0200 end";
 }
 
 /**
@@ -1562,9 +1727,36 @@ HWTEST_F(PacMapTest, AppExecFwk_PacMap_ToJsonArrayDouble_0100, Function | Medium
     Json::Value item;
     int type = 1;
     bool result = pacmap_->ToJsonArrayDouble(array, item, type);
-    EXPECT_EQ(result, false);
+    EXPECT_EQ(result, true);
+    EXPECT_TRUE(item["data"].isArray());
+    EXPECT_EQ(item["data"].size(), static_cast<Json::ArrayIndex>(0));
+    EXPECT_EQ(item["type"].asInt(), 1);
     
     GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToJsonArrayDouble_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_ToJsonArrayDouble_0200
+ * @tc.name: ToJsonArrayDouble
+ * @tc.desc: Verify ToJsonArrayDouble with non-empty array.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_ToJsonArrayDouble_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToJsonArrayDouble_0200 start";
+
+    std::vector<double> array = {3.14, 2.71};
+    Json::Value item;
+    int type = 2048;
+    bool result = pacmap_->ToJsonArrayDouble(array, item, type);
+    EXPECT_EQ(result, true);
+    EXPECT_TRUE(item["data"].isArray());
+    EXPECT_EQ(item["data"].size(), static_cast<Json::ArrayIndex>(2));
+    EXPECT_EQ(item["type"].asInt(), type);
+    EXPECT_FALSE(item["data"][0].asString().empty());
+    EXPECT_FALSE(item["data"][1].asString().empty());
+    
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToJsonArrayDouble_0200 end";
 }
 
 /**
@@ -1581,9 +1773,34 @@ HWTEST_F(PacMapTest, AppExecFwk_PacMap_ToJsonArrayString_0100, Function | Medium
     Json::Value item;
     int type = 1;
     bool result = pacmap_->ToJsonArrayString(array, item, type);
-    EXPECT_EQ(result, false);
+    EXPECT_EQ(result, true);
+    EXPECT_TRUE(item["data"].isArray());
+    EXPECT_EQ(item["data"].size(), static_cast<Json::ArrayIndex>(0));
+    EXPECT_EQ(item["type"].asInt(), 1);
     
     GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToJsonArrayString_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_ToJsonArrayString_0200
+ * @tc.name: ToJsonArrayString
+ * @tc.desc: Verify ToJsonArrayString with non-empty array.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_ToJsonArrayString_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToJsonArrayString_0200 start";
+
+    std::vector<std::string> array = {"hello", "world"};
+    Json::Value item;
+    int type = 2304;
+    bool result = pacmap_->ToJsonArrayString(array, item, type);
+    EXPECT_EQ(result, true);
+    EXPECT_TRUE(item["data"].isArray());
+    EXPECT_EQ(item["data"].size(), static_cast<Json::ArrayIndex>(2));
+    EXPECT_EQ(item["type"].asInt(), type);
+    
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToJsonArrayString_0200 end";
 }
 
 /**
@@ -2121,6 +2338,181 @@ HWTEST_F(PacMapTest, AppExecFwk_PacMap_InnerPutPacMapValue_DepthLimit_0300, Func
     EXPECT_TRUE(serialized.empty());
 
     GTEST_LOG_(INFO) << "AppExecFwk_PacMap_InnerPutPacMapValue_DepthLimit_0300 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_EmptyArray_CopyConstructor_0100
+ * @tc.name: EmptyArrayCopyConstructor
+ * @tc.desc: Verify copy constructor preserves empty array key.
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_EmptyArray_CopyConstructor_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_EmptyArray_CopyConstructor_0100 start";
+
+    PacMap src;
+    src.PutShortValueArray("empty_array", {});
+    src.PutStringValue("normal_key", "keep");
+
+    PacMap dest(src);
+    EXPECT_TRUE(dest.HasKey("empty_array"));
+    EXPECT_TRUE(dest.HasKey("normal_key"));
+    EXPECT_EQ(dest.GetStringValue("normal_key"), "keep");
+
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_EmptyArray_CopyConstructor_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_EmptyArray_OperatorAssign_0100
+ * @tc.name: EmptyArrayOperatorAssign
+ * @tc.desc: Verify operator= preserves empty array key.
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_EmptyArray_OperatorAssign_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_EmptyArray_OperatorAssign_0100 start";
+
+    PacMap src;
+    src.PutIntValueArray("empty_int_array", {});
+    src.PutBooleanValueArray("empty_bool_array", {});
+
+    PacMap dest;
+    dest = src;
+    EXPECT_TRUE(dest.HasKey("empty_int_array"));
+    EXPECT_TRUE(dest.HasKey("empty_bool_array"));
+
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_EmptyArray_OperatorAssign_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_EmptyArray_DeepCopy_0100
+ * @tc.name: EmptyArrayDeepCopy
+ * @tc.desc: Verify DeepCopy preserves empty array key.
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_EmptyArray_DeepCopy_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_EmptyArray_DeepCopy_0100 start";
+
+    PacMap src;
+    src.PutStringValueArray("empty_str_array", {});
+
+    PacMap dest = src.DeepCopy();
+    EXPECT_TRUE(dest.HasKey("empty_str_array"));
+
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_EmptyArray_DeepCopy_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_EmptyArray_Clone_0100
+ * @tc.name: EmptyArrayClone
+ * @tc.desc: Verify Clone preserves empty array key.
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_EmptyArray_Clone_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_EmptyArray_Clone_0100 start";
+
+    PacMap src;
+    src.PutDoubleValueArray("empty_double_array", {});
+
+    PacMap cloned = src.Clone();
+    EXPECT_TRUE(cloned.HasKey("empty_double_array"));
+
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_EmptyArray_Clone_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_EmptyArray_GetAll_0100
+ * @tc.name: EmptyArrayGetAll
+ * @tc.desc: Verify GetAll preserves empty array key.
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_EmptyArray_GetAll_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_EmptyArray_GetAll_0100 start";
+
+    PacMap src;
+    src.PutShortValueArray("empty", {});
+    src.PutIntValue("num", 42);
+
+    auto all = src.GetAll();
+    EXPECT_EQ(all.size(), static_cast<std::size_t>(2));
+    EXPECT_NE(all.find("empty"), all.end());
+    EXPECT_NE(all.find("num"), all.end());
+
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_EmptyArray_GetAll_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_MarshallingRoundTrip_0100
+ * @tc.name: MarshallingRoundTrip
+ * @tc.desc: Verify Marshalling/Unmarshalling preserves mixed data with empty arrays.
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_MarshallingRoundTrip_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_MarshallingRoundTrip_0100 start";
+
+    PacMap src;
+    src.PutIntValue("int_key", 42);
+    src.PutStringValue("string_key", "hello");
+    src.PutShortValueArray("empty_short", {});
+    src.PutIntValueArray("empty_int", {});
+    src.PutLongValueArray("non_empty_long", {100L, 200L});
+    src.PutStringValueArray("empty_str", {});
+
+    Parcel parcel;
+    bool marshallingResult = const_cast<const PacMap&>(src).Marshalling(parcel);
+    EXPECT_TRUE(marshallingResult);
+
+    PacMap *restored = PacMap::Unmarshalling(parcel);
+    ASSERT_NE(restored, nullptr);
+
+    EXPECT_TRUE(restored->HasKey("int_key"));
+    EXPECT_EQ(restored->GetIntValue("int_key"), 42);
+    EXPECT_TRUE(restored->HasKey("string_key"));
+    EXPECT_EQ(restored->GetStringValue("string_key"), "hello");
+
+    EXPECT_TRUE(restored->HasKey("empty_short"));
+    EXPECT_TRUE(restored->HasKey("empty_int"));
+    EXPECT_TRUE(restored->HasKey("empty_str"));
+    EXPECT_TRUE(restored->HasKey("non_empty_long"));
+
+    std::vector<long> longValues;
+    restored->GetLongValueArray("non_empty_long", longValues);
+    EXPECT_EQ(longValues.size(), static_cast<std::size_t>(2));
+    EXPECT_EQ(longValues[0], 100L);
+    EXPECT_EQ(longValues[1], 200L);
+
+    delete restored;
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_MarshallingRoundTrip_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_MarshallingRoundTrip_0200
+ * @tc.name: MarshallingRoundTrip
+ * @tc.desc: Verify Marshalling/Unmarshalling round-trip with only empty arrays.
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_MarshallingRoundTrip_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_MarshallingRoundTrip_0200 start";
+
+    PacMap src;
+    src.PutShortValueArray("empty_short", {});
+    src.PutIntValueArray("empty_int", {});
+    src.PutBooleanValueArray("empty_bool", {});
+    src.PutStringValueArray("empty_str", {});
+
+    Parcel parcel;
+    bool marshallingResult = const_cast<const PacMap&>(src).Marshalling(parcel);
+    EXPECT_TRUE(marshallingResult);
+
+    PacMap *restored = PacMap::Unmarshalling(parcel);
+    ASSERT_NE(restored, nullptr);
+
+    EXPECT_TRUE(restored->HasKey("empty_short"));
+    EXPECT_TRUE(restored->HasKey("empty_int"));
+    EXPECT_TRUE(restored->HasKey("empty_bool"));
+    EXPECT_TRUE(restored->HasKey("empty_str"));
+    EXPECT_EQ(restored->GetSize(), 4);
+
+    delete restored;
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_MarshallingRoundTrip_0200 end";
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
