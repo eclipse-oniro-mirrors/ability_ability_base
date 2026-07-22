@@ -236,7 +236,9 @@ ExtraParams *ExtraParams::Unmarshalling(Parcel &parcel)
 {
     // devType.
     std::vector<string> devtype;
-    parcel.ReadStringVector(&devtype);
+    if (!parcel.ReadStringVector(&devtype)) {
+        return nullptr;
+    }
 
     // targetBundleName
     string targetBundleName = Str16ToStr8(parcel.ReadString16());
