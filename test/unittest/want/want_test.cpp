@@ -193,6 +193,141 @@ HWTEST_F(WantBaseTest, AaFwk_Want_ModuleName_0100, Function | MediumTest | Level
         EXPECT_STREQ(ModuleName.c_str(), want_->GetModuleName().c_str());
     }
 }
+
+/**
+ * @tc.number: AaFwk_Want_GetModuleNameRef_0100
+ * @tc.name: SetModuleName/GetModuleNameRef
+ * @tc.desc: Verify GetModuleNameRef returns a const reference with the correct value.
+ */
+HWTEST_F(WantBaseTest, AaFwk_Want_GetModuleNameRef_0100, Function | MediumTest | Level1)
+{
+    if (want_ != nullptr) {
+        std::string moduleName = "module01";
+        want_->SetModuleName(moduleName);
+        const std::string &ref = want_->GetModuleNameRef();
+        EXPECT_STREQ(moduleName.c_str(), ref.c_str());
+        EXPECT_EQ(&(want_->operation_.moduleName_), &ref);
+    }
+}
+
+/**
+ * @tc.number: AaFwk_Want_GetModuleNameRef_0200
+ * @tc.name: SetModuleName/GetModuleNameRef
+ * @tc.desc: Verify GetModuleNameRef works when the input string is empty.
+ */
+HWTEST_F(WantBaseTest, AaFwk_Want_GetModuleNameRef_0200, Function | MediumTest | Level3)
+{
+    if (want_ != nullptr) {
+        std::string moduleName = "";
+        want_->SetModuleName(moduleName);
+        const std::string &ref = want_->GetModuleNameRef();
+        EXPECT_STREQ(moduleName.c_str(), ref.c_str());
+        EXPECT_EQ(&(want_->operation_.moduleName_), &ref);
+    }
+}
+
+/**
+ * @tc.number: AaFwk_Want_GetOperationRef_0100
+ * @tc.name: SetElementName/GetOperationRef
+ * @tc.desc: Verify GetOperationRef returns a const reference to the internal operation.
+ */
+HWTEST_F(WantBaseTest, AaFwk_Want_GetOperationRef_0100, Function | MediumTest | Level1)
+{
+    if (want_ != nullptr) {
+        std::string deviceId = "device01";
+        std::string bundleName = "bundle01";
+        std::string abilityName = "ability01";
+        want_->SetElementName(deviceId, bundleName, abilityName);
+        const Operation &ref = want_->GetOperationRef();
+        EXPECT_STREQ(deviceId.c_str(), ref.GetDeviceId().c_str());
+        EXPECT_STREQ(bundleName.c_str(), ref.GetBundleName().c_str());
+        EXPECT_STREQ(abilityName.c_str(), ref.GetAbilityName().c_str());
+        EXPECT_EQ(&(want_->operation_), &ref);
+    }
+}
+
+/**
+ * @tc.number: AaFwk_Want_GetOperationRef_0200
+ * @tc.name: SetAction/GetOperationRef
+ * @tc.desc: Verify GetOperationRef reflects changes made to the Want.
+ */
+HWTEST_F(WantBaseTest, AaFwk_Want_GetOperationRef_0200, Function | MediumTest | Level3)
+{
+    if (want_ != nullptr) {
+        std::string action = "test.action";
+        want_->SetAction(action);
+        const Operation &ref = want_->GetOperationRef();
+        EXPECT_STREQ(action.c_str(), ref.GetAction().c_str());
+        EXPECT_EQ(&(want_->operation_), &ref);
+    }
+}
+
+/**
+ * @tc.number: AaFwk_Want_GetUriRef_0100
+ * @tc.name: SetUri/GetUriRef
+ * @tc.desc: Verify GetUriRef returns a const reference to the internal URI.
+ */
+HWTEST_F(WantBaseTest, AaFwk_Want_GetUriRef_0100, Function | MediumTest | Level1)
+{
+    if (want_ != nullptr) {
+        std::string uriValue = "scheme://authority/path";
+        want_->SetUri(uriValue);
+        const Uri &ref = want_->GetUriRef();
+        EXPECT_EQ(Uri(uriValue), ref);
+    }
+}
+
+/**
+ * @tc.number: AaFwk_Want_GetUriRef_0200
+ * @tc.name: SetUri/GetUriRef
+ * @tc.desc: Verify GetUriRef works when the URI is empty.
+ */
+HWTEST_F(WantBaseTest, AaFwk_Want_GetUriRef_0200, Function | MediumTest | Level3)
+{
+    if (want_ != nullptr) {
+        Uri emptyUri("");
+        want_->SetUri(emptyUri);
+        const Uri &ref = want_->GetUriRef();
+        EXPECT_EQ(emptyUri, ref);
+    }
+}
+
+/**
+ * @tc.number: AaFwk_Element_GetModuleName_0100
+ * @tc.name: SetModuleName/GetModuleName
+ * @tc.desc: Verify ElementName::GetModuleName returns the correct value when set via constructor.
+ */
+HWTEST_F(WantBaseTest, AaFwk_Element_GetModuleName_0100, Function | MediumTest | Level1)
+{
+    std::string moduleName = "module01";
+    ElementName element("deviceId", "bundleName", "abilityName", moduleName);
+    EXPECT_STREQ(moduleName.c_str(), element.GetModuleName().c_str());
+}
+
+/**
+ * @tc.number: AaFwk_Element_GetModuleName_0200
+ * @tc.name: SetModuleName/GetModuleName
+ * @tc.desc: Verify ElementName::GetModuleName works with default empty moduleName.
+ */
+HWTEST_F(WantBaseTest, AaFwk_Element_GetModuleName_0200, Function | MediumTest | Level3)
+{
+    ElementName element;
+    EXPECT_STREQ("", element.GetModuleName().c_str());
+}
+
+/**
+ * @tc.number: AaFwk_Element_GetModuleName_0300
+ * @tc.name: SetModuleName/GetModuleName
+ * @tc.desc: Verify ElementName::GetModuleName works when moduleName is set via SetModuleName.
+ */
+HWTEST_F(WantBaseTest, AaFwk_Element_GetModuleName_0300, Function | MediumTest | Level1)
+{
+    std::string moduleName = "testModule";
+    ElementName element;
+    element.SetModuleName(moduleName);
+    EXPECT_STREQ(moduleName.c_str(), element.GetModuleName().c_str());
+}
+
 /**
  * @tc.number: AaFwk_Want_Parcelable_0100
  * @tc.name: Marshalling/Unmarshalling
