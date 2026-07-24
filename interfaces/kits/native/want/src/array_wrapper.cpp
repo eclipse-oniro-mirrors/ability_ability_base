@@ -69,6 +69,8 @@ bool IsInvalidArrayDepth(int depth, const char *func)
 
 bool ScanElement(const std::string &values, std::size_t beginIdx, bool stopAtComma, std::size_t &commaIdx)
 {
+    // The legacy Array format has no escaping contract. Braces are therefore
+    // always treated as structure, including braces that appear between quotes.
     std::size_t braceDepth = 0;
     for (std::size_t i = beginIdx; i < values.length(); ++i) {
         char current = values[i];
@@ -258,6 +260,7 @@ std::string Array::ToString(int depth)
     result += std::to_string(size_) + "{";
     for (long i = 0; i < size_; i++) {
         if (values_[i].GetRefPtr() == nullptr) {
+            ABILITYBASE_LOGE("Array::ToString: null element at index %{public}ld", i);
             return "";
         }
         if (!AppendValueString(values_[i].GetRefPtr(), depth, result)) {
@@ -441,6 +444,9 @@ sptr<IArray> Array::ParseWantParams(const std::string &values, long size, int de
 
 sptr<IArray> Array::ParseBySignature(char signature, const std::string &values, long size, int depth)
 {
+    if (IsInvalidArrayDepth(depth, "Array::ParseBySignature")) {
+        return nullptr;
+    }
     switch (signature) {
         case Char::SIGNATURE:
             return ParseChar(values, size);

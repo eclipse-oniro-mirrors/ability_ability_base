@@ -351,9 +351,15 @@ bool SessionInfo::DoMarshallingSix(Parcel& parcel) const
         return false;
     }
 
-    parcel.WriteInt32(supportWindowModes.size());
+    if (!parcel.WriteInt32(static_cast<int32_t>(supportWindowModes.size()))) {
+        ABILITYBASE_LOGE("Write supportWindowModes size failed");
+        return false;
+    }
     for (auto windowMode : supportWindowModes) {
-        parcel.WriteInt32(static_cast<int32_t>(windowMode));
+        if (!parcel.WriteInt32(static_cast<int32_t>(windowMode))) {
+            ABILITYBASE_LOGE("Write supportWindowModes failed");
+            return false;
+        }
     }
     return true;
 }

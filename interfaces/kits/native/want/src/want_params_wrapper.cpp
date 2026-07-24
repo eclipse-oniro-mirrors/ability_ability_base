@@ -162,7 +162,14 @@ WantParams WantParamWrapper::Unbox(IWantParams *object)
 }
 bool WantParamWrapper::ValidateStr(const std::string &str)
 {
-    if (str == "" || str == "{}" || str == "{\"\"}") {
+    if (str == "{}") {
+        return false;
+    }
+    if (str.empty()) {
+        ABILITYBASE_LOGW("ValidateStr: empty content");
+        return false;
+    }
+    if (str == "{\"\"}") {
         ABILITYBASE_LOGE("ValidateStr: invalid content, length=%{public}zu", str.size());
         return false;
     }
@@ -308,6 +315,11 @@ bool WantParamWrapper::ParseQuotedParamWithBrackets(const std::string &str, size
         }
         strnum = pos;
         return true;
+    }
+    if (state.typeIndexBefore == 0) {
+        ABILITYBASE_LOGE("%{public}s: invalid bracket start index", func);
+        state.wantParams = WantParams();
+        return false;
     }
     strnum++;
     auto index = FindMatchingBrackets(str, state.typeIndexBefore - 1);

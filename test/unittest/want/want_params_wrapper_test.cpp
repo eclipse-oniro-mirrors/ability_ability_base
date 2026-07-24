@@ -624,6 +624,29 @@ HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_2800, Function | MediumTes
 }
 
 /**
+ * @tc.number: Want_Param_Wrapper_2850
+ * @tc.name: Nested WantParams followed by another parameter
+ * @tc.desc: Verify the parser advances over the nested type wrapper and still reads the next key.
+ */
+HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_2850, Function | MediumTest | Level1)
+{
+    std::string s = "{\"nested\":{\"101\":{\"inner\":{\"9\":\"v\"}}},\"after\":{\"5\":\"7\"}}";
+    auto verify = [](const WantParams &wantParams) {
+        EXPECT_EQ(wantParams.Size(), 2u);
+        auto nestedValue = IWantParams::Query(wantParams.GetParam("nested"));
+        ASSERT_NE(nestedValue, nullptr);
+        EXPECT_EQ(WantParamWrapper::Unbox(nestedValue).Size(), 1u);
+        auto afterValue = IInteger::Query(wantParams.GetParam("after"));
+        ASSERT_NE(afterValue, nullptr);
+        EXPECT_EQ(Integer::Unbox(afterValue), 7);
+    };
+
+    verify(WantParamWrapper::Unbox(WantParamWrapper::Parse(s)));
+    verify(WantParamWrapper::ParseWantParams(s));
+    verify(WantParamWrapper::ParseWantParamsWithBrackets(s));
+}
+
+/**
  * @tc.number: Want_Param_Wrapper_2900
  * @tc.name: Nested empty WantParams keeps outer result non-empty
  * @tc.desc: Verify an empty nested WantParams is retained as a non-null wrapper while its
@@ -872,4 +895,26 @@ HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_4200, Function | MediumTes
     overLimit.SetParam("array", BuildNestedArrayObject(WANT_PARAMS_WRAPPER_PARSE_MAX_DEPTH));
     WantParamWrapper overLimitWrapper(std::move(overLimit));
     EXPECT_TRUE(overLimitWrapper.ToString().empty());
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_4300
+ * @tc.name: Empty typed Array round trip
+ * @tc.desc: Verify WantParams preserves the valid I0{} representation of a zero-length Array.
+ */
+HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_4300, Function | MediumTest | Level1)
+{
+    WantParams params;
+    params.SetParam("array", sptr<Array>::MakeSptr(0, g_IID_IInteger));
+    WantParamWrapper wrapper(params);
+
+    std::string serialized = wrapper.ToString();
+    EXPECT_EQ(serialized, "{\"array\":{\"102\":\"I0{}\"}}");
+
+    WantParams parsed = WantParamWrapper::Unbox(WantParamWrapper::Parse(serialized));
+    IArray *array = IArray::Query(parsed.GetParam("array"));
+    ASSERT_NE(array, nullptr);
+    long length = -1;
+    EXPECT_EQ(array->GetLength(length), ERR_OK);
+    EXPECT_EQ(length, 0);
 }
