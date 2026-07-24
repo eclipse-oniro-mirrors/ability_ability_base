@@ -905,8 +905,8 @@ HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_4200, Function | MediumTes
 HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_4300, Function | MediumTest | Level1)
 {
     WantParams params;
-    sptr<IArray> array = sptr<Array>::MakeSptr(static_cast<long>(0), g_IID_IInteger);
-    params.SetParam("array", array);
+    sptr<IArray> emptyArray = sptr<Array>::MakeSptr(static_cast<long>(0), g_IID_IInteger);
+    params.SetParam("array", emptyArray);
     WantParamWrapper wrapper(params);
 
     std::string serialized = wrapper.ToString();
