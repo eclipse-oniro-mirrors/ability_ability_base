@@ -524,6 +524,16 @@ HWTEST_F(ArrayWrapperBaseTest, AaFwk_Array_Wrapper_Parse_0500, Function | Medium
 }
 
 /**
+ * @tc.number: AaFwk_Array_Wrapper_Parse_0550
+ * @tc.name: ParseBySignature enforces depth for every signature
+ * @tc.desc: Verify the common dispatch entry rejects an invalid depth before scalar dispatch.
+ */
+HWTEST_F(ArrayWrapperBaseTest, AaFwk_Array_Wrapper_Parse_0550, Function | MediumTest | Level1)
+{
+    EXPECT_EQ(Array::ParseBySignature(Integer::SIGNATURE, "1", 1, ARRAY_WRAPPER_MAX_DEPTH + 1), nullptr);
+}
+
+/**
  * @tc.number: AaFwk_Array_Wrapper_Parse_0600
  * @tc.name: Parse nested arrays with multiple elements
  * @tc.desc: Verify commas inside nested array braces do not split the outer array.
@@ -580,6 +590,16 @@ HWTEST_F(ArrayWrapperBaseTest, AaFwk_Array_Wrapper_Parse_0700, Function | Medium
 }
 
 /**
+ * @tc.number: AaFwk_Array_Wrapper_Parse_0800
+ * @tc.name: Declared non-empty array without values is invalid
+ * @tc.desc: Verify I5{} is rejected because its declared size does not match its payload.
+ */
+HWTEST_F(ArrayWrapperBaseTest, AaFwk_Array_Wrapper_Parse_0800, Function | MediumTest | Level1)
+{
+    EXPECT_EQ(Array::Parse("I5{}"), nullptr);
+}
+
+/**
  * @tc.number: AaFwk_Array_Wrapper_ToString_0100
  * @tc.name: ToString enforces nested Array depth
  * @tc.desc: Verify Array serialization propagates recursive depth failures.
@@ -609,5 +629,26 @@ HWTEST_F(ArrayWrapperBaseTest, AaFwk_Array_Wrapper_ToString_0200, Function | Med
 
     EXPECT_TRUE(Object::ToString(*array).empty());
 }
+
+/**
+ * @tc.number: AaFwk_Array_Wrapper_ToString_0300
+ * @tc.name: Empty typed array round trip
+ * @tc.desc: Verify a real zero-length array uses I0{} and can be parsed back.
+ */
+HWTEST_F(ArrayWrapperBaseTest, AaFwk_Array_Wrapper_ToString_0300, Function | MediumTest | Level1)
+{
+    sptr<IArray> empty = sptr<Array>::MakeSptr(0, g_IID_IInteger);
+    ASSERT_NE(empty, nullptr);
+
+    std::string serialized = Object::ToString(*empty);
+    EXPECT_EQ(serialized, "I0{}");
+
+    sptr<IArray> parsed = Array::Parse(serialized);
+    ASSERT_NE(parsed, nullptr);
+    long length = -1;
+    EXPECT_EQ(parsed->GetLength(length), ERR_OK);
+    EXPECT_EQ(length, 0);
+}
+
 }
 }

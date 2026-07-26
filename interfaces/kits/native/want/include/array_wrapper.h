@@ -44,6 +44,15 @@ public:
 
     bool Equals(IObject &other) override; /* [in] */
 
+    /**
+     * @brief Serializes this typed array using the legacy Array format.
+     *
+     * A zero-length typed array has a valid representation such as "I0{}".
+     * Serialization fails when any declared element slot is null or when a
+     * nested value cannot be serialized.
+     *
+     * @return The serialized array, or an empty string on failure.
+     */
     std::string ToString() override;
     std::string ToString(int depth);
 

@@ -162,7 +162,14 @@ WantParams WantParamWrapper::Unbox(IWantParams *object)
 }
 bool WantParamWrapper::ValidateStr(const std::string &str)
 {
-    if (str == "" || str == "{}" || str == "{\"\"}") {
+    if (str == "{}") {
+        return false;
+    }
+    if (str.empty()) {
+        ABILITYBASE_LOGW("ValidateStr: empty content");
+        return false;
+    }
+    if (str == "{\"\"}") {
         ABILITYBASE_LOGE("ValidateStr: invalid content, length=%{public}zu", str.size());
         return false;
     }
@@ -285,10 +292,13 @@ bool WantParamWrapper::ParseQuotedParamWithBrackets(const std::string &str, size
     ParseState &state, const char *func)
 {
     size_t pos = 0;
-    if (state.key == "") {
+    auto resetAndFail = [&state]() {
+        state.wantParams = WantParams();
+        return false;
+    };
+    if (state.key.empty()) {
         if (!FindNextQuote(str, strnum, pos, func)) {
-            state.wantParams = WantParams();
-            return false;
+            return resetAndFail();
         }
         state.key = str.substr(strnum, pos - strnum);
         strnum = pos;
@@ -297,31 +307,31 @@ bool WantParamWrapper::ParseQuotedParamWithBrackets(const std::string &str, size
     if (state.typeId == 0) {
         state.typeIndexBefore = strnum;
         if (!FindNextQuote(str, strnum, pos, func)) {
-            state.wantParams = WantParams();
-            return false;
+            return resetAndFail();
         }
         std::string typeIdStr = str.substr(strnum, pos - strnum);
         if (!ParseTypeId(typeIdStr, state.typeId)) {
             ABILITYBASE_LOGE("%{public}s: ParseTypeId failed, typeIdStr=%{public}s", func, typeIdStr.c_str());
-            state.wantParams = WantParams();
-            return false;
+            return resetAndFail();
         }
         strnum = pos;
         return true;
+    }
+    if (state.typeIndexBefore == 0) {
+        ABILITYBASE_LOGE("%{public}s: invalid bracket start index", func);
+        return resetAndFail();
     }
     strnum++;
     auto index = FindMatchingBrackets(str, state.typeIndexBefore - 1);
     if (index == std::string::npos) {
         ABILITYBASE_LOGE("%{public}s: unmatched brackets, strnum=%{public}zu", func, strnum);
-        state.wantParams = WantParams();
-        return false;
+        return resetAndFail();
     }
 
     if (index <= strnum) {
         ABILITYBASE_LOGE("%{public}s: malformed bracketed value, index=%{public}zu strnum=%{public}zu",
             func, index, strnum);
-        state.wantParams = WantParams();
-        return false;
+        return resetAndFail();
     }
     sptr<IInterface> value = ParseValueByType(state.typeId, str.substr(strnum, index - 1 - strnum), depth);
     state.wantParams.SetParam(state.key, value);

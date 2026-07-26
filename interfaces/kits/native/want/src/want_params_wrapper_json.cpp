@@ -238,7 +238,7 @@ bool HasEnvelope(const std::string &text)
 {
     // Match the exact envelope prefix emitted by Serialize. No whitespace is
     // allowed before '{' or between '{', the envelope key, and ':'.
-    const std::string envelopePrefix = "{\"" + std::string(ENVELOPE_KEY) + "\":";
+    static const std::string envelopePrefix = "{\"" + std::string(ENVELOPE_KEY) + "\":";
     return text.compare(0, envelopePrefix.size(), envelopePrefix) == 0;
 }
 
