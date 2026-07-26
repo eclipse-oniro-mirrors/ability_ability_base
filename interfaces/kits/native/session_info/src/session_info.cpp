@@ -351,6 +351,11 @@ bool SessionInfo::DoMarshallingSix(Parcel& parcel) const
         return false;
     }
 
+    return true;
+}
+
+bool SessionInfo::DoMarshallingSeven(Parcel& parcel) const
+{
     if (!parcel.WriteInt32(static_cast<int32_t>(supportWindowModes.size()))) {
         ABILITYBASE_LOGE("Write supportWindowModes size failed");
         return false;
@@ -361,11 +366,7 @@ bool SessionInfo::DoMarshallingSix(Parcel& parcel) const
             return false;
         }
     }
-    return true;
-}
 
-bool SessionInfo::DoMarshallingSeven(Parcel& parcel) const
-{
     if (!parcel.WriteBool(isTargetPlugin)) {
         ABILITYBASE_LOGE("Write isTargetPlugin failed");
         return false;
