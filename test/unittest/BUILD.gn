@@ -395,6 +395,29 @@ ohos_unittest("uri_test") {
   ]
 }
 
+ohos_unittest("uri_base_test") {
+  module_out_path = want_output_path
+  sources = [ "uri/uri_base_test.cpp" ]
+
+  configs = [
+    ":want_private_config",
+    "${ability_base_path}:want_public_config",
+  ]
+
+  deps = [
+    "${ability_base_path}:base",
+    "${ability_base_path}:want",
+    "${ability_base_path}:zuri",
+  ]
+
+  external_deps = [
+    "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
+    "googletest:gtest_main",
+    "hilog:libhilog",
+  ]
+}
+
 ohos_unittest("extra_params_test") {
   module_out_path = want_output_path
   sources = [ "want/extra_params_test.cpp" ]
@@ -803,6 +826,7 @@ group("unittest") {
     ":short_wrapper_test",
     ":skills_test",
     ":string_wrapper_test",
+    ":uri_base_test",
     ":uri_test",
     ":user_object_wrapper_test",
     ":view_data_test",
