@@ -27,6 +27,8 @@ namespace WantParamWrapperJson {
 namespace Internal {
 using Json = nlohmann::json;
 
+// Maximum supported combined WantParams/Array JSON recursion depth. The
+// top-level WantParams object starts at depth 0.
 constexpr uint32_t MAX_RECURSION_DEPTH = 100;
 constexpr size_t MAX_JSON_ARRAY_LENGTH = 50 * 1024 * 1024;
 

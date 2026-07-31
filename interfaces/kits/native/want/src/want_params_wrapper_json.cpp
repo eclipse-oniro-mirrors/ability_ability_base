@@ -37,10 +37,6 @@ constexpr int TYPE_WANT_PARAMS = 101;
 constexpr int TYPE_ARRAY = 102;
 constexpr int TYPE_NULL = -1;
 
-// Maximum supported combined WantParams/Array recursion depth. The top-level
-// WantParams object starts at depth 0.
-constexpr uint32_t MAX_DEPTH = 100;
-
 bool ParseTypeId(const std::string &token, int &typeId)
 {
     errno = 0;
@@ -57,8 +53,9 @@ bool ParseTypeId(const std::string &token, int &typeId)
 namespace Internal {
 bool BuildParamsJson(const WantParams &wp, Json &out, uint32_t depth)
 {
-    if (depth > MAX_DEPTH) {
-        ABILITYBASE_LOGW("serialize failed, depth %{public}u exceeds max depth %{public}u", depth, MAX_DEPTH);
+    if (depth > MAX_RECURSION_DEPTH) {
+        ABILITYBASE_LOGW("serialize failed, depth %{public}u exceeds max depth %{public}u",
+            depth, MAX_RECURSION_DEPTH);
         return false;
     }
 
@@ -173,8 +170,9 @@ bool ParseTypedValueJson(const Json &typedValue, WantParams &parsed, const std::
 namespace Internal {
 bool ParseParamsJson(const Json &jsonObject, WantParams &out, uint32_t depth)
 {
-    if (depth > MAX_DEPTH) {
-        ABILITYBASE_LOGW("parse failed, depth %{public}u exceeds max depth %{public}u", depth, MAX_DEPTH);
+    if (depth > MAX_RECURSION_DEPTH) {
+        ABILITYBASE_LOGW("parse failed, depth %{public}u exceeds max depth %{public}u",
+            depth, MAX_RECURSION_DEPTH);
         return false;
     }
     if (!jsonObject.is_object()) {
