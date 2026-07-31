@@ -187,6 +187,7 @@ ohos_shared_library("want") {
 
   sources = [
     "interfaces/kits/native/want/src/array_wrapper.cpp",
+    "interfaces/kits/native/want/src/array_wrapper_json.cpp",
     "interfaces/kits/native/want/src/element_name.cpp",
     "interfaces/kits/native/want/src/extra_params.cpp",
     "interfaces/kits/native/want/src/operation.cpp",

@@ -150,6 +150,10 @@ void ExerciseSchemaMutations(const std::string &raw)
         envelopePrefix + "{\"k\":{\"9\":\"" + escaped + "\"}}}",
         envelopePrefix + "{\"k\":{\"101\":{\"child\":{\"9\":\"" + escaped + "\"}}}}}",
         envelopePrefix + "{\"k\":{\"102\":\"" + escaped + "\"}}}",
+        envelopePrefix + "{\"k\":{\"102\":{\"101\":[{\"v\":{\"9\":\"" + escaped + "\"}}]}}}}",
+        envelopePrefix + "{\"k\":{\"102\":{\"102\":[{\"101\":[]}]}}}}",
+        envelopePrefix + "{\"k\":{\"102\":{\"101\":" + fragment + "}}}}",
+        envelopePrefix + "{\"k\":{\"102\":{\"elementType\":101,\"items\":[]}}}}",
         "{\"x\":{\"ohos.want.params.json\":{}}}",
         "{\"ohos.want.params.json.extra\":{}}",
         "{\"ohos.want.params.json\":{\"k\":{\"9\":\"v\"}}}{\"ohos.want.params.json\":{}}",
@@ -176,11 +180,31 @@ void ExerciseSerializeRoundTrip(const uint8_t *data, size_t size)
     wp.SetParam("double", Double::Box(static_cast<double>(MakeInt32(data, size))));
     wp.SetParam("nested", WantParamWrapper::Box(std::move(child)));
 
-    sptr<IArray> array = new Array(ARRAY_STRING_SIZE, g_IID_IString);
-    if (array != nullptr) {
-        array->Set(0, String::Box(value));
-        array->Set(1, String::Box(EscapeJsonString(value)));
-        wp.SetParam("array", array);
+    WantParams arrayChild;
+    arrayChild.SetParam("value", String::Box(value));
+    sptr<IArray> wantParamsArray = new Array(1, g_IID_IWantParams);
+    if (wantParamsArray != nullptr) {
+        wantParamsArray->Set(0, WantParamWrapper::Box(std::move(arrayChild)));
+        wp.SetParam("wantParamsArray", wantParamsArray);
+
+        sptr<IArray> nestedArray = new Array(1, g_IID_IArray);
+        if (nestedArray != nullptr) {
+            nestedArray->Set(0, wantParamsArray);
+            wp.SetParam("nestedArray", nestedArray);
+        }
+    }
+
+    sptr<IArray> unsupportedArray = new Array(ARRAY_STRING_SIZE, g_IID_IString);
+    if (unsupportedArray != nullptr) {
+        unsupportedArray->Set(0, String::Box(value));
+        unsupportedArray->Set(1, String::Box(EscapeJsonString(value)));
+        WantParams unsupportedParams;
+        unsupportedParams.SetParam("array", unsupportedArray);
+        std::string unchanged = "unchanged";
+        bool serializeResult = WantParamWrapperJson::Serialize(unsupportedParams, unchanged);
+        if (serializeResult || unchanged != "unchanged") {
+            __builtin_trap();
+        }
     }
 
     std::string serialized;
