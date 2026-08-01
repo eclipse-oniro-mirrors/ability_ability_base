@@ -3772,6 +3772,47 @@ HWTEST_F(WantBaseTest, AaFwk_Want_Want_0100, Function | MediumTest | Level1)
 }
 
 /**
+ * @tc.number: AaFwk_Want_Want_0200
+ * @tc.name: Want(Want&&)
+ * @tc.desc: Verify move constructor.
+ */
+HWTEST_F(WantBaseTest, AaFwk_Want_Want_0200, Function | MediumTest | Level1)
+{
+    Want want;
+    want.SetFlags(10);
+    want.SetAction("system.Action.test");
+    want.AddEntity("system.Entity.test");
+    want.SetType("system.Type.test");
+
+    Want want2(std::move(want));
+    EXPECT_EQ("system.Action.test", want2.GetAction());
+    EXPECT_EQ(true, want2.HasEntity("system.Entity.test"));
+    EXPECT_EQ("system.Type.test", want2.GetType());
+    EXPECT_EQ(want2.GetFlags(), 10);
+}
+
+/**
+ * @tc.number: AaFwk_Want_Want_0300
+ * @tc.name: operator=(Want&&)
+ * @tc.desc: Verify move assignment operator.
+ */
+HWTEST_F(WantBaseTest, AaFwk_Want_Want_0300, Function | MediumTest | Level1)
+{
+    Want want;
+    want.SetFlags(10);
+    want.SetAction("system.Action.test");
+    want.AddEntity("system.Entity.test");
+    want.SetType("system.Type.test");
+
+    Want want2;
+    want2 = std::move(want);
+    EXPECT_EQ("system.Action.test", want2.GetAction());
+    EXPECT_EQ(true, want2.HasEntity("system.Entity.test"));
+    EXPECT_EQ("system.Type.test", want2.GetType());
+    EXPECT_EQ(want2.GetFlags(), 10);
+}
+
+/**
  * @tc.number: AaFwk_Want_Entity_0100
  * @tc.name:    [AddEntity or RemoveEntity] & HasEntity &CountEntities
  * @tc.desc: Verify [AddEntity or RemoveEntity] & HasEntity &CountEntities
