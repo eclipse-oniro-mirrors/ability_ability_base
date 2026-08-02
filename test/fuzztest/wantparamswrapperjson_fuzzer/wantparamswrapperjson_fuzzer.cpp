@@ -249,7 +249,19 @@ void ExerciseDepth(const uint8_t *data, size_t size, uint8_t selector)
 
 bool DoSomethingInterestingWithMyAPI(const uint8_t *data, size_t size)
 {
-    if (data == nullptr || size < PAYLOAD_OFFSET) {
+    if (data == nullptr || size == 0) {
+        return false;
+    }
+
+    // Let corpus files contain a complete JSON document. Without this fast
+    // path, the two selector bytes would remove the leading characters from a
+    // valid JSON seed before it reaches Parse().
+    if (data[0] == '{' && size <= MAX_INPUT_SIZE) {
+        ExerciseParse(MakeString(data, size, MAX_INPUT_SIZE));
+        return true;
+    }
+
+    if (size < PAYLOAD_OFFSET) {
         return false;
     }
 

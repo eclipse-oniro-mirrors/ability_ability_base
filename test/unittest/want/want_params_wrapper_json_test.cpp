@@ -1130,8 +1130,8 @@ HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3665, TestSize.Level1
  */
 HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3670, TestSize.Level1)
 {
-    constexpr int BOUNDARY_ARRAY_DEPTH = FULL_DEPTH - 1;
-    sptr<IArray> boundaryArray = BuildNestedArrayWithWantParamsLeaf(BOUNDARY_ARRAY_DEPTH);
+    constexpr int boundaryArrayDepth = FULL_DEPTH - 1;
+    sptr<IArray> boundaryArray = BuildNestedArrayWithWantParamsLeaf(boundaryArrayDepth);
     ASSERT_NE(boundaryArray, nullptr);
     WantParams boundary;
     boundary.SetParam("array", boundaryArray);
