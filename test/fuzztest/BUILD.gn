@@ -40,6 +40,7 @@ group("fuzztest") {
     "wantparamsfour_fuzzer:fuzztest",
     "wantparamssecond_fuzzer:fuzztest",
     "wantparamsthird_fuzzer:fuzztest",
+    "wantparamswrapperjson_fuzzer:fuzztest",
     "wantsecond_fuzzer:fuzztest",
     "wantseventh_fuzzer:fuzztest",
     "wantsixth_fuzzer:fuzztest",

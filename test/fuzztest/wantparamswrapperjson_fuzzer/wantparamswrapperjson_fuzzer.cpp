@@ -39,6 +39,14 @@ namespace {
 constexpr size_t MAX_INPUT_SIZE = 4096;
 constexpr size_t MAX_FRAGMENT_SIZE = 256;
 constexpr int MAX_FUZZ_DEPTH = 104;
+constexpr int EXERCISE_ROUTE_COUNT = 4;
+constexpr int EXERCISE_ROUTE_PARSE = 0;
+constexpr int EXERCISE_ROUTE_SCHEMA_MUTATIONS = 1;
+constexpr int EXERCISE_ROUTE_SERIALIZE_ROUND_TRIP = 2;
+constexpr size_t ROUTE_SELECTOR_INDEX = 0;
+constexpr size_t SCENARIO_SELECTOR_INDEX = 1;
+constexpr size_t PAYLOAD_OFFSET = 2;
+constexpr size_t KEY_NAME_VARIANT = 17;
 constexpr uint32_t BYTE_SHIFT = CHAR_BIT;
 constexpr unsigned char HIGH_NIBBLE_SHIFT = CHAR_BIT / 2;
 constexpr unsigned char NIBBLE_MASK = (1U << HIGH_NIBBLE_SHIFT) - 1U;
@@ -131,7 +139,7 @@ void ExerciseParse(const std::string &text)
     WantParamWrapperJson::Parse(serialized, reparsed);
 }
 
-void ExerciseSchemaMutations(const std::string &raw)
+void ExerciseSchemaMutations(const std::string &raw, uint8_t selector)
 {
     std::string fragment = raw.substr(0, MAX_FRAGMENT_SIZE);
     std::string escaped = EscapeJsonString(fragment);
@@ -160,15 +168,21 @@ void ExerciseSchemaMutations(const std::string &raw)
         "   {\"'\"y\"102\"{\"[8888888[0{ m}\"!};}",
     };
 
-    for (const auto &candidate : candidates) {
-        ExerciseParse(candidate);
+    // Run only 1-2 candidates per input, selected by the fuzz byte, so each
+    // invocation stays cheap while coverage-guided fuzzing still reaches every
+    // candidate across the corpus.
+    size_t firstIdx = selector % candidates.size();
+    ExerciseParse(candidates[firstIdx]);
+    size_t secondIdx = (firstIdx + 1 + (selector >> HIGH_NIBBLE_SHIFT)) % candidates.size();
+    if (secondIdx != firstIdx) {
+        ExerciseParse(candidates[secondIdx]);
     }
 }
 
 void ExerciseSerializeRoundTrip(const uint8_t *data, size_t size)
 {
     std::string value = MakeString(data, size);
-    std::string key = "k_" + std::to_string(static_cast<unsigned int>(size % 17));
+    std::string key = "k_" + std::to_string(static_cast<unsigned int>(size % KEY_NAME_VARIANT));
 
     WantParams child;
     child.SetParam("child", String::Box(value));
@@ -214,9 +228,9 @@ void ExerciseSerializeRoundTrip(const uint8_t *data, size_t size)
     ExerciseParse(serialized);
 }
 
-void ExerciseDepth(const uint8_t *data, size_t size)
+void ExerciseDepth(const uint8_t *data, size_t size, uint8_t selector)
 {
-    int depth = size == 0 ? 0 : static_cast<int>(data[0] % (MAX_FUZZ_DEPTH + 1));
+    int depth = static_cast<int>(selector % (MAX_FUZZ_DEPTH + 1));
     WantParams inner;
     inner.SetParam("leaf", String::Box(MakeString(data, size)));
     for (int i = 0; i < depth; ++i) {
@@ -235,15 +249,33 @@ void ExerciseDepth(const uint8_t *data, size_t size)
 
 bool DoSomethingInterestingWithMyAPI(const uint8_t *data, size_t size)
 {
-    if (data == nullptr || size > MAX_INPUT_SIZE) {
+    if (data == nullptr || size < PAYLOAD_OFFSET) {
         return false;
     }
 
-    std::string raw = MakeString(data, size, MAX_INPUT_SIZE);
-    ExerciseParse(raw);
-    ExerciseSchemaMutations(raw);
-    ExerciseSerializeRoundTrip(data, size);
-    ExerciseDepth(data, size);
+    const uint8_t *payload = data + PAYLOAD_OFFSET;
+    size_t payloadSize = size - PAYLOAD_OFFSET;
+    if (payloadSize > MAX_INPUT_SIZE) {
+        return false;
+    }
+    std::string raw = MakeString(payload, payloadSize, MAX_INPUT_SIZE);
+
+    // Keep routing and scenario selection separate from the payload so control
+    // bytes do not constrain the first byte of JSON or serialized values.
+    switch (data[ROUTE_SELECTOR_INDEX] % EXERCISE_ROUTE_COUNT) {
+        case EXERCISE_ROUTE_PARSE:
+            ExerciseParse(raw);
+            break;
+        case EXERCISE_ROUTE_SCHEMA_MUTATIONS:
+            ExerciseSchemaMutations(raw, data[SCENARIO_SELECTOR_INDEX]);
+            break;
+        case EXERCISE_ROUTE_SERIALIZE_ROUND_TRIP:
+            ExerciseSerializeRoundTrip(payload, payloadSize);
+            break;
+        default:
+            ExerciseDepth(payload, payloadSize, data[SCENARIO_SELECTOR_INDEX]);
+            break;
+    }
     return true;
 }
 } // namespace OHOS
@@ -253,7 +285,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     if (data == nullptr) {
         return 0;
     }
-
     OHOS::DoSomethingInterestingWithMyAPI(data, size);
     return 0;
 }
