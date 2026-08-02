@@ -105,6 +105,30 @@ sptr<IArray> BuildNestedArrayObject(int arrayDepth)
     return current;
 }
 
+sptr<IArray> BuildNestedArrayWithWantParamsLeaf(int arrayDepth)
+{
+    if (arrayDepth <= 0) {
+        return nullptr;
+    }
+
+    WantParams leaf;
+    leaf.SetParam("leaf", String::Box("value"));
+    sptr<IWantParams> boxedLeaf = WantParamWrapper::Box(std::move(leaf));
+    sptr<IArray> current = sptr<Array>::MakeSptr(1, g_IID_IWantParams);
+    if (boxedLeaf == nullptr || current == nullptr || current->Set(0, boxedLeaf) != ERR_OK) {
+        return nullptr;
+    }
+
+    for (int currentDepth = 1; currentDepth < arrayDepth; ++currentDepth) {
+        sptr<IArray> outer = sptr<Array>::MakeSptr(1, g_IID_IArray);
+        if (outer == nullptr || outer->Set(0, current) != ERR_OK) {
+            return nullptr;
+        }
+        current = outer;
+    }
+    return current;
+}
+
 constexpr int FULL_MEMBER_COUNT = 1024;
 constexpr int FULL_DEPTH = 100;
 constexpr const char *NESTED_KEY = "lv";
@@ -1101,20 +1125,16 @@ HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3665, TestSize.Level1
 /**
  * @tc.number: Want_Param_Wrapper_Json_3670
  * @tc.name: WantParams array depth boundary is shared by serialize and parse
- * @tc.desc: Fifty array/item pairs reach depth 100 and round-trip; one more pair fails atomically.
+ * @tc.desc: Array nesting followed by one WantParams item reaches depth 100 and round-trips;
+ *   one more Array level reaches depth 101 and fails atomically.
  */
 HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3670, TestSize.Level1)
 {
+    constexpr int BOUNDARY_ARRAY_DEPTH = FULL_DEPTH - 1;
+    sptr<IArray> boundaryArray = BuildNestedArrayWithWantParamsLeaf(BOUNDARY_ARRAY_DEPTH);
+    ASSERT_NE(boundaryArray, nullptr);
     WantParams boundary;
-    boundary.SetParam("leaf", String::Box("value"));
-    for (int level = 0; level < 50; ++level) {
-        sptr<IArray> array = sptr<Array>::MakeSptr(1, g_IID_IWantParams);
-        ASSERT_NE(array, nullptr);
-        ASSERT_EQ(array->Set(0, WantParamWrapper::Box(std::move(boundary))), ERR_OK);
-        WantParams outer;
-        outer.SetParam("array", array);
-        boundary = std::move(outer);
-    }
+    boundary.SetParam("array", boundaryArray);
 
     std::string serialized;
     ASSERT_TRUE(WantParamWrapperJson::Serialize(boundary, serialized));
@@ -1122,8 +1142,9 @@ HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3670, TestSize.Level1
     ASSERT_TRUE(WantParamWrapperJson::Parse(serialized, parsed));
 
     const nlohmann::json boundaryRoot = nlohmann::json::parse(serialized);
+    const nlohmann::json &boundaryArrayJson = boundaryRoot.at(ENVELOPE_KEY).at("array").at("102");
     nlohmann::json tooDeepArray = {
-        {"101", nlohmann::json::array({boundaryRoot.at(ENVELOPE_KEY)})},
+        {"102", nlohmann::json::array({boundaryArrayJson})},
     };
     nlohmann::json tooDeepRoot = {
         {ENVELOPE_KEY, {{"array", {{"102", std::move(tooDeepArray)}}}}},
@@ -1132,10 +1153,10 @@ HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3670, TestSize.Level1
     parseOut.SetParam("sentinel", String::Box("keep"));
     EXPECT_FALSE(WantParamWrapperJson::Parse(tooDeepRoot.dump(), parseOut));
     EXPECT_EQ(GetString9(parseOut, "sentinel"), "keep");
+    EXPECT_EQ(parseOut.Size(), 1);
 
-    sptr<IArray> overLimitArray = sptr<Array>::MakeSptr(1, g_IID_IWantParams);
+    sptr<IArray> overLimitArray = BuildNestedArrayWithWantParamsLeaf(FULL_DEPTH);
     ASSERT_NE(overLimitArray, nullptr);
-    ASSERT_EQ(overLimitArray->Set(0, WantParamWrapper::Box(std::move(boundary))), ERR_OK);
     WantParams overLimit;
     overLimit.SetParam("array", overLimitArray);
     std::string unchanged = "unchanged";
