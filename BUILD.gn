@@ -197,6 +197,7 @@ ohos_shared_library("want") {
     "interfaces/kits/native/want/src/want.cpp",
     "interfaces/kits/native/want/src/want_params.cpp",
     "interfaces/kits/native/want/src/want_params_wrapper.cpp",
+    "interfaces/kits/native/want/src/want_params_wrapper_json.cpp",
   ]
 
   deps = [
