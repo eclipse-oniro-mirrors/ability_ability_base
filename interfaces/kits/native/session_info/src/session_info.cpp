@@ -351,15 +351,22 @@ bool SessionInfo::DoMarshallingSix(Parcel& parcel) const
         return false;
     }
 
-    parcel.WriteInt32(supportWindowModes.size());
-    for (auto windowMode : supportWindowModes) {
-        parcel.WriteInt32(static_cast<int32_t>(windowMode));
-    }
     return true;
 }
 
 bool SessionInfo::DoMarshallingSeven(Parcel& parcel) const
 {
+    if (!parcel.WriteInt32(static_cast<int32_t>(supportWindowModes.size()))) {
+        ABILITYBASE_LOGE("Write supportWindowModes size failed");
+        return false;
+    }
+    for (auto windowMode : supportWindowModes) {
+        if (!parcel.WriteInt32(static_cast<int32_t>(windowMode))) {
+            ABILITYBASE_LOGE("Write supportWindowModes failed");
+            return false;
+        }
+    }
+
     if (!parcel.WriteBool(isTargetPlugin)) {
         ABILITYBASE_LOGE("Write isTargetPlugin failed");
         return false;

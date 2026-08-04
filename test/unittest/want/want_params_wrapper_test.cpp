@@ -15,10 +15,12 @@
 
 #include <gtest/gtest.h>
 #include <cstdint>
+#include <utility>
 
 #define private public
 #include "want_params_wrapper.h"
-#undef protected
+#undef private
+#include "array_wrapper.h"
 #include "byte_wrapper.h"
 #include "double_wrapper.h"
 #include "float_wrapper.h"
@@ -40,6 +42,51 @@ const std::string STRING_WANT_PARAMS_KEY_02 = "key02";
 const std::string STRING_WANT_PARAMS_VALUE_02 = "value02";
 const std::string STRING_WANT_PARAMS_STRING_0201 =
     "{\"key01\":{\"101\":{\"key02\":{\"9\":\"value02\"}}},\"key02\":{\"9\":\"value02\"}}";
+constexpr int WANT_PARAMS_WRAPPER_PARSE_MAX_DEPTH = 100;
+
+std::string BuildNestedArrayString(int depth)
+{
+    std::string str = "I1{1}";
+    for (int i = 0; i < depth; i++) {
+        str = "[1{" + str + "}";
+    }
+    return str;
+}
+
+std::string BuildNestedWantParamsString(int depth)
+{
+    std::string str = "{\"leaf\":{\"9\":\"value\"}}";
+    for (int i = 0; i < depth; i++) {
+        str = "{\"key" + std::to_string(i) + "\":{\"101\":" + str + "}}";
+    }
+    return str;
+}
+
+sptr<IWantParams> BuildNestedWantParamWrapper(int depth)
+{
+    WantParams leaf;
+    leaf.SetParam("leaf", String::Box("value"));
+    sptr<IWantParams> current = WantParamWrapper::Box(leaf);
+    for (int i = 0; i < depth; i++) {
+        WantParams outer;
+        outer.SetParam("key" + std::to_string(i), current);
+        current = WantParamWrapper::Box(outer);
+    }
+    return current;
+}
+
+sptr<IArray> BuildNestedArrayObject(int depth)
+{
+    sptr<IArray> current = sptr<Array>::MakeSptr(1, g_IID_IInteger);
+    current->Set(0, Integer::Box(1));
+    for (int i = 0; i < depth; i++) {
+        sptr<IArray> outer = sptr<Array>::MakeSptr(1, g_IID_IArray);
+        outer->Set(0, current);
+        current = outer;
+    }
+    return current;
+}
+
 }  // namespace
 
 class WantParamWrapperBaseTest : public testing::Test {
@@ -577,18 +624,60 @@ HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_2800, Function | MediumTes
 }
 
 /**
+ * @tc.number: Want_Param_Wrapper_2850
+ * @tc.name: Nested WantParams followed by another parameter
+ * @tc.desc: Verify the parser advances over the nested type wrapper and still reads the next key.
+ */
+HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_2850, Function | MediumTest | Level1)
+{
+    std::string s = "{\"nested\":{\"101\":{\"inner\":{\"9\":\"v\"}}},\"after\":{\"5\":\"7\"}}";
+    auto verify = [](const WantParams &wantParams) {
+        EXPECT_EQ(wantParams.Size(), 2u);
+        auto nestedValue = IWantParams::Query(wantParams.GetParam("nested"));
+        ASSERT_NE(nestedValue, nullptr);
+        EXPECT_EQ(WantParamWrapper::Unbox(nestedValue).Size(), 1u);
+        auto afterValue = IInteger::Query(wantParams.GetParam("after"));
+        ASSERT_NE(afterValue, nullptr);
+        EXPECT_EQ(Integer::Unbox(afterValue), 7);
+    };
+
+    verify(WantParamWrapper::Unbox(WantParamWrapper::Parse(s)));
+    verify(WantParamWrapper::ParseWantParams(s));
+    verify(WantParamWrapper::ParseWantParamsWithBrackets(s));
+}
+
+/**
  * @tc.number: Want_Param_Wrapper_2900
- * @tc.name: Nested parse failure propagates to empty result
- * @tc.desc: Verify that when a nested WantParams fails to parse ("{}" is rejected by
- *           ValidateStr) the failure propagates and the WHOLE result is empty -- the earlier
- *           successfully-parsed entry "good" is discarded too, not just the failing key.
- *           Applies to all three parsers.
+ * @tc.name: Nested empty WantParams keeps outer result non-empty
+ * @tc.desc: Verify an empty nested WantParams is retained as a non-null wrapper while its
+ *           value remains empty. Applies to all three parsers.
  */
 HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_2900, Function | MediumTest | Level1)
 {
-    // "good" parses fine first; then "k"'s nested {} fails -> whole result empty (Size 0),
-    // i.e. "good" is also dropped. Proves it's not a per-key clear but a full reset.
     std::string s = "{\"good\":{\"9\":\"v\"},\"k\":{\"101\":{}}}";
+    auto verifyNestedEmpty = [](const WantParams &wantParams) {
+        EXPECT_EQ(wantParams.Size(), 2u);
+        auto nestedValue = wantParams.GetParam("k");
+        ASSERT_NE(nestedValue, nullptr);
+        auto nested = IWantParams::Query(nestedValue);
+        ASSERT_NE(nested, nullptr);
+        EXPECT_EQ(WantParamWrapper::Unbox(nested).Size(), 0u);
+    };
+
+    verifyNestedEmpty(WantParamWrapper::Unbox(WantParamWrapper::Parse(s)));
+    verifyNestedEmpty(WantParamWrapper::ParseWantParams(s));
+    verifyNestedEmpty(WantParamWrapper::ParseWantParamsWithBrackets(s));
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_2950
+ * @tc.name: Invalid nested WantParams still clears the outer result
+ * @tc.desc: Verify only the exact empty object is accepted. A nested object with an unknown
+ *           typeId remains a parse failure and discards previously parsed outer entries.
+ */
+HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_2950, Function | MediumTest | Level1)
+{
+    std::string s = "{\"good\":{\"9\":\"v\"},\"k\":{\"101\":{\"bad\":{\"999\":\"v\"}}}}";
     EXPECT_EQ(WantParamWrapper::Unbox(WantParamWrapper::Parse(s)).Size(), 0u);
     EXPECT_EQ(WantParamWrapper::ParseWantParams(s).Size(), 0u);
     EXPECT_EQ(WantParamWrapper::ParseWantParamsWithBrackets(s).Size(), 0u);
@@ -698,4 +787,128 @@ HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_3500, Function | MediumTes
     EXPECT_EQ(WantParamWrapper::Unbox(WantParamWrapper::Parse(s)).Size(), 1u);
     EXPECT_EQ(WantParamWrapper::ParseWantParams(s).Size(), 1u);
     EXPECT_EQ(WantParamWrapper::ParseWantParamsWithBrackets(s).Size(), 1u);
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_3600
+ * @tc.name: Nested parse within max depth succeeds
+ * @tc.desc: Verify the three parse entrances accept nested WantParams before the depth limit.
+ */
+HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_3600, Function | MediumTest | Level1)
+{
+    std::string s = BuildNestedWantParamsString(WANT_PARAMS_WRAPPER_PARSE_MAX_DEPTH);
+    EXPECT_EQ(WantParamWrapper::Unbox(WantParamWrapper::Parse(s)).Size(), 1u);
+    EXPECT_EQ(WantParamWrapper::ParseWantParams(s).Size(), 1u);
+    EXPECT_EQ(WantParamWrapper::ParseWantParamsWithBrackets(s).Size(), 1u);
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_3700
+ * @tc.name: Nested parse over max depth returns empty
+ * @tc.desc: Verify the three parse entrances propagate recursive Parse depth failures.
+ */
+HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_3700, Function | MediumTest | Level1)
+{
+    std::string s = BuildNestedWantParamsString(WANT_PARAMS_WRAPPER_PARSE_MAX_DEPTH + 1);
+    EXPECT_EQ(WantParamWrapper::Unbox(WantParamWrapper::Parse(s)).Size(), 0u);
+    EXPECT_EQ(WantParamWrapper::ParseWantParams(s).Size(), 0u);
+    EXPECT_EQ(WantParamWrapper::ParseWantParamsWithBrackets(s).Size(), 0u);
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_3800
+ * @tc.name: ToString within max depth succeeds
+ * @tc.desc: Verify ToString serializes nested WantParams before the depth limit. A wrapper
+ *           nested to the max depth (100) must still emit a non-empty string containing the
+ *           leaf value -- the depth guard rejects only depth > MAX, not depth == MAX, and
+ *           none of the recursive calls short-circuit. ToString pairs with Parse's 3600.
+ */
+HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_3800, Function | MediumTest | Level1)
+{
+    auto nested = BuildNestedWantParamWrapper(WANT_PARAMS_WRAPPER_PARSE_MAX_DEPTH);
+    WantParamWrapper wrapper(WantParamWrapper::Unbox(nested));
+
+    auto result = wrapper.ToString();
+
+    EXPECT_FALSE(result.empty());
+    EXPECT_NE(result.find("value"), std::string::npos);
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_3900
+ * @tc.name: ToString over max depth returns empty
+ * @tc.desc: Verify ToString propagates recursive depth failures. A wrapper nested one level
+ *           beyond the max depth (101) makes the innermost call hit ToString(MAX + 1), which
+ *           the depth guard returns as ""; each ancestor then short-circuits on that empty
+ *           child result and also returns "", so the whole serialization collapses to "" and
+ *           recursion cannot run away into a stack overflow. ToString pairs with Parse's
+ *           3700. The over-limit object is built directly because Parse itself enforces the
+ *           same cap and would return empty first.
+ */
+HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_3900, Function | MediumTest | Level1)
+{
+    auto nested = BuildNestedWantParamWrapper(WANT_PARAMS_WRAPPER_PARSE_MAX_DEPTH + 1);
+    WantParamWrapper wrapper(WantParamWrapper::Unbox(nested));
+
+    auto result = wrapper.ToString();
+
+    EXPECT_TRUE(result.empty());
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_4000
+ * @tc.name: Type 102 Array nesting within max depth succeeds
+ * @tc.desc: Verify type-102 parsing shares depth with nested Array parsing.
+ */
+HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_4000, Function | MediumTest | Level1)
+{
+    std::string s = BuildNestedArrayString(WANT_PARAMS_WRAPPER_PARSE_MAX_DEPTH - 1);
+    sptr<IInterface> value = WantParamWrapper::ParseValueByType(WantParams::VALUE_TYPE_ARRAY, s, 0);
+    EXPECT_NE(IArray::Query(value), nullptr);
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_4100
+ * @tc.name: Type 102 Array nesting over max depth fails
+ * @tc.desc: Verify type-102 parsing rejects nested Array depth over the limit.
+ */
+HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_4100, Function | MediumTest | Level1)
+{
+    std::string s = BuildNestedArrayString(WANT_PARAMS_WRAPPER_PARSE_MAX_DEPTH);
+    sptr<IInterface> value = WantParamWrapper::ParseValueByType(WantParams::VALUE_TYPE_ARRAY, s, 0);
+    EXPECT_EQ(IArray::Query(value), nullptr);
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_4200
+ * @tc.name: Type 102 Array ToString depth is shared
+ * @tc.desc: Verify WantParams serialization propagates Array depth failures.
+ */
+HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_4200, Function | MediumTest | Level1)
+{
+    WantParams okParams;
+    okParams.SetParam("array", BuildNestedArrayObject(WANT_PARAMS_WRAPPER_PARSE_MAX_DEPTH - 1));
+    WantParamWrapper okWrapper(std::move(okParams));
+    EXPECT_FALSE(okWrapper.ToString().empty());
+
+    WantParams overLimit;
+    overLimit.SetParam("array", BuildNestedArrayObject(WANT_PARAMS_WRAPPER_PARSE_MAX_DEPTH));
+    WantParamWrapper overLimitWrapper(std::move(overLimit));
+    EXPECT_TRUE(overLimitWrapper.ToString().empty());
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_4300
+ * @tc.name: Empty typed Array serialization
+ * @tc.desc: Verify WantParamWrapper::ToString serializes a zero-length typed Array as I0{}.
+ */
+HWTEST_F(WantParamWrapperBaseTest, Want_Param_Wrapper_4300, Function | MediumTest | Level1)
+{
+    WantParams params;
+    sptr<IArray> emptyArray = sptr<Array>::MakeSptr(static_cast<long>(0), g_IID_IInteger);
+    params.SetParam("array", emptyArray);
+    WantParamWrapper wrapper(std::move(params));
+
+    std::string serialized = wrapper.ToString();
+    EXPECT_EQ("{\"array\":{\"102\":\"I0{}\"}}", serialized);
 }
