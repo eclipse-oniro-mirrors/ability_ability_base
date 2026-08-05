@@ -33,6 +33,7 @@ config("base_exceptions_config") {
 
 ohos_shared_library("base") {
   branch_protector_ret = "pac_ret"
+  branch_protector_frt = "bti"
 
   sources = [
     "interfaces/inner_api/base/src/base.cpp",
@@ -244,6 +245,7 @@ config("view_data_config") {
 
 ohos_shared_library("view_data") {
   branch_protector_ret = "pac_ret"
+  branch_protector_frt = "bti"
 
   sources = [
     "interfaces/kits/native/view_data/src/page_node_info.cpp",
@@ -274,6 +276,7 @@ config("session_info_all_dependent_config") {
 
 ohos_shared_library("session_info") {
   branch_protector_ret = "pac_ret"
+  branch_protector_frt = "bti"
 
   sources = [ "interfaces/kits/native/session_info/src/session_info.cpp" ]
 
@@ -389,6 +392,7 @@ config("ability_extract_resource_manager_config") {
 
 ohos_shared_library("extractresourcemanager") {
   branch_protector_ret = "pac_ret"
+  branch_protector_frt = "bti"
 
   sources = [
     "interfaces/kits/native/extractortool/src/extract_resource_manager.cpp",
