@@ -371,7 +371,6 @@ ohos_shared_library("extractortool") {
   ]
 
   public_external_deps = [
-    "zlib:libz",
     "zlib:shared_libz",
   ]
   subsystem_name = "ability"
