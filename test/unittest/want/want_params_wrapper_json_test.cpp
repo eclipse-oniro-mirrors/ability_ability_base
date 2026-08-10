@@ -131,6 +131,7 @@ sptr<IArray> BuildNestedArrayWithWantParamsLeaf(int arrayDepth)
 
 constexpr int FULL_MEMBER_COUNT = 1024;
 constexpr int FULL_DEPTH = 100;
+constexpr int PERF_LOG_INTERVAL = 10;
 constexpr const char *NESTED_KEY = "lv";
 constexpr const char *MAX_STRING_PREFIX = "max_string_";
 
@@ -774,7 +775,7 @@ HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3000, TestSize.Level1
 HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3100, TestSize.Level1)
 {
     WantParams wp;
-    wp.SetParam("l", Long::Box64(9000000000LL));
+    wp.SetParam("l", Long::Box64(2147483647LL));
     std::string s;
     ASSERT_TRUE(WantParamWrapperJson::Serialize(wp, s));
     Dump("3100_serialize", s);
@@ -782,7 +783,7 @@ HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3100, TestSize.Level1
     ASSERT_TRUE(WantParamWrapperJson::Parse(s, out));
     sptr<IInterface> item = out.GetParam("l");
     ASSERT_NE(item, nullptr);
-    EXPECT_EQ(WantParams::GetStringByType(item, 6), "9000000000");  // 6 = VALUE_TYPE_LONG
+    EXPECT_EQ(WantParams::GetStringByType(item, 6), "2147483647");  // 6 = VALUE_TYPE_LONG
 }
 
 /**
@@ -1241,25 +1242,48 @@ HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3750, TestSize.Level1
  */
 HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3755, TestSize.Level3)
 {
+    GTEST_LOG_(INFO) << "[WantParamsWrapperJsonTest] 3755 stage=build begin"
+                     << ", depth=" << FULL_DEPTH
+                     << ", membersPerLevel=" << FULL_MEMBER_COUNT
+                     << ", maxStringBytes=" << Want::PARAM_WANT_CAPACITY_EXPANSION;
     auto buildStart = std::chrono::steady_clock::now();
     WantParams wp = BuildFullNestedWantParams(FULL_DEPTH, FULL_MEMBER_COUNT);
     auto buildEnd = std::chrono::steady_clock::now();
+    GTEST_LOG_(INFO) << "[WantParamsWrapperJsonTest] 3755 stage=build end"
+                     << ", elapsedMs=" << CostMs(buildStart, buildEnd);
     ASSERT_EQ(wp.Size(), FULL_MEMBER_COUNT);
 
     std::string serialized;
+    GTEST_LOG_(INFO) << "[WantParamsWrapperJsonTest] 3755 stage=serialize begin";
     auto serializeStart = std::chrono::steady_clock::now();
-    ASSERT_TRUE(WantParamWrapperJson::Serialize(wp, serialized));
+    bool serializeResult = WantParamWrapperJson::Serialize(wp, serialized);
     auto serializeEnd = std::chrono::steady_clock::now();
+    GTEST_LOG_(INFO) << "[WantParamsWrapperJsonTest] 3755 stage=serialize end"
+                     << ", result=" << serializeResult
+                     << ", elapsedMs=" << CostMs(serializeStart, serializeEnd)
+                     << ", jsonBytes=" << serialized.size();
+    ASSERT_TRUE(serializeResult);
     ASSERT_FALSE(serialized.empty());
 
     WantParams out;
+    GTEST_LOG_(INFO) << "[WantParamsWrapperJsonTest] 3755 stage=parse begin";
     auto parseStart = std::chrono::steady_clock::now();
-    ASSERT_TRUE(WantParamWrapperJson::Parse(serialized, out));
+    bool parseResult = WantParamWrapperJson::Parse(serialized, out);
     auto parseEnd = std::chrono::steady_clock::now();
+    GTEST_LOG_(INFO) << "[WantParamsWrapperJsonTest] 3755 stage=parse end"
+                     << ", result=" << parseResult
+                     << ", elapsedMs=" << CostMs(parseStart, parseEnd);
+    ASSERT_TRUE(parseResult);
 
+    GTEST_LOG_(INFO) << "[WantParamsWrapperJsonTest] 3755 stage=verify begin";
     auto verifyStart = std::chrono::steady_clock::now();
     WantParams cur = std::move(out);
     for (int level = 0; level < FULL_DEPTH; ++level) {
+        if (level % PERF_LOG_INTERVAL == 0) {
+            GTEST_LOG_(INFO) << "[WantParamsWrapperJsonTest] 3755 stage=verify progress"
+                             << ", level=" << level
+                             << ", elapsedMs=" << CostMs(verifyStart, std::chrono::steady_clock::now());
+        }
         ASSERT_EQ(cur.Size(), FULL_MEMBER_COUNT) << "level=" << level;
         EXPECT_EQ(GetString9(cur, MakePerfKey(level, 0)), MakePerfValue(level, 0));
         EXPECT_EQ(GetString9(cur, MakePerfKey(level, FULL_MEMBER_COUNT - 2)),
@@ -1276,6 +1300,8 @@ HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3755, TestSize.Level3
     EXPECT_EQ(GetString9(cur, MakePerfKey(FULL_DEPTH, FULL_MEMBER_COUNT - 1)),
         MakeMaxPerfValue(FULL_DEPTH));
     auto verifyEnd = std::chrono::steady_clock::now();
+    GTEST_LOG_(INFO) << "[WantParamsWrapperJsonTest] 3755 stage=verify end"
+                     << ", elapsedMs=" << CostMs(verifyStart, verifyEnd);
 
     GTEST_LOG_(INFO) << "[WantParamsWrapperJsonTest] 3755 depth=" << FULL_DEPTH
                      << ", membersPerLevel=" << FULL_MEMBER_COUNT

@@ -116,6 +116,11 @@ bool ParseWantParamsElement(const Json &itemJson, sptr<IInterface> &element, uin
 
 bool ParseArrayElement(const Json &itemJson, sptr<IInterface> &element, uint32_t depth, size_t index)
 {
+    if (!itemJson.is_object()) {
+        ABILITYBASE_LOGW("parse failed, nested Array item is not object, index=%{public}zu", index);
+        return false;
+    }
+
     sptr<IArray> nestedArray;
     if (!Parse(itemJson, nestedArray, depth + 1)) {
         ABILITYBASE_LOGW("parse failed, parse nested array item failed, index=%{public}zu", index);
