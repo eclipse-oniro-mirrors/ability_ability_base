@@ -41,18 +41,23 @@ constexpr char ENVELOPE_KEY[] = "ohos.want.paramsStringEnvelope";
  * Serialize. It does not support arbitrary JSON strings or JSON strings produced
  * by other serializers. The envelope key must be ENVELOPE_KEY. The combined
  * recursive nesting depth across WantParams and Array values must not exceed
- * 100. The top-level WantParams starts at depth 0. Non-WantParams values,
- * including Array values, must be encoded as JSON strings; nested WantParams
- * values must be encoded as JSON objects.
+ * 100. The top-level WantParams starts at depth 0. Scalar values are encoded as
+ * JSON strings and nested WantParams values are encoded as JSON objects. Array
+ * values use an object whose only member declares the element type and whose
+ * value is a JSON array. This phase supports element type 101 (WantParams) and
+ * 102 (Array), including nested Arrays that eventually contain WantParams
+ * arrays. Array element types 1 through 9 are reserved for future serialization
+ * rules and are rejected.
+ * Legacy type-102 strings and the obsolete elementType/items object are rejected.
  *
  * This parser is strict: malformed JSON, invalid or unknown typeId, non-string
- * scalar values, unsupported scalar type restoration, trailing members outside
- * the envelope, VALUE_TYPE_NULL typed values, and combined WantParams/Array
- * nesting beyond the depth limit all fail without updating out. Each typed-value
- * object must resolve to exactly one typeId member after JSON object parsing.
- * Typed-value objects with zero members or multiple different typeId members
- * fail. Duplicate member names follow JSON object and WantParams map overwrite
- * semantics.
+ * scalar values, invalid WantParams array schema or item, unsupported scalar
+ * type restoration, trailing members outside the envelope, VALUE_TYPE_NULL
+ * typed values, and combined WantParams/Array nesting beyond the depth limit
+ * all fail without updating out. Each typed-value object must resolve to exactly
+ * one typeId member after JSON object parsing. Typed-value objects with zero
+ * members or multiple different typeId members fail. Duplicate member names
+ * follow JSON object and WantParams map overwrite semantics.
  *
  * If the data source may contain multiple formats, callers should use
  * HasEnvelope to select this parser path. Parse also validates the envelope and
@@ -87,7 +92,8 @@ bool HasEnvelope(const std::string &text);
  * instead of raw string concatenation, so keys, typeId strings, scalar values,
  * backslashes, quotes, control characters, and nested WantParams delimiters are
  * represented through JSON escaping instead of the legacy parser's delimiter
- * conventions.
+ * conventions. WantParams and nested Array elements are recursively encoded as
+ * JSON objects instead of using a legacy Array string format.
  *
  * This function only serializes WantParams. The combined recursive nesting depth
  * across WantParams and Array values must not exceed 100. The top-level
@@ -95,10 +101,15 @@ bool HasEnvelope(const std::string &text);
  * WantParams::GetStringByType; null values and values that cannot be represented
  * by those helper APIs are skipped, matching existing WantParams unwrap behavior.
  *
- * The output uses the format
+ * Scalar and nested WantParams output uses the format
  * {"ohos.want.paramsStringEnvelope":{"key":{"typeId":"value"}}}.
  * For nested WantParams, the typeId is "101" and the value is a JSON object,
  * for example {"ohos.want.paramsStringEnvelope":{"key":{"101":{"child":{"9":"value"}}}}}.
+ * For a WantParams array, typeId is "102" and the value is
+ * {"101":[...]}, where each item is a WantParams JSON object without another
+ * envelope. For an Array of Arrays, the value is {"102":[...]}, where each item
+ * is another Array object. Array element types 1 through 9 are not serialized
+ * in this phase; serialization fails without updating out.
  *
  * @param wp Indicates the WantParams to serialize.
  * @param out Indicates the serialized string. The value is updated only when

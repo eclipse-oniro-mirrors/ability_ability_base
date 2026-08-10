@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "wantparamswrapperjson_fuzzer.h"
+#include "wantparamswrapperjsonserialize_fuzzer.h"
 
 #include <algorithm>
 #include <climits>
@@ -21,7 +21,6 @@
 #include <cstdint>
 #include <string>
 #include <utility>
-#include <vector>
 
 #include "array_wrapper.h"
 #include "bool_wrapper.h"
@@ -38,14 +37,6 @@ namespace OHOS {
 namespace {
 constexpr size_t MAX_INPUT_SIZE = 4096;
 constexpr size_t MAX_FRAGMENT_SIZE = 256;
-constexpr int MAX_FUZZ_DEPTH = 104;
-constexpr int EXERCISE_ROUTE_COUNT = 4;
-constexpr int EXERCISE_ROUTE_PARSE = 0;
-constexpr int EXERCISE_ROUTE_SCHEMA_MUTATIONS = 1;
-constexpr int EXERCISE_ROUTE_SERIALIZE_ROUND_TRIP = 2;
-constexpr size_t ROUTE_SELECTOR_INDEX = 0;
-constexpr size_t SCENARIO_SELECTOR_INDEX = 1;
-constexpr size_t PAYLOAD_OFFSET = 2;
 constexpr size_t KEY_NAME_VARIANT = 17;
 constexpr uint32_t BYTE_SHIFT = CHAR_BIT;
 constexpr unsigned char HIGH_NIBBLE_SHIFT = CHAR_BIT / 2;
@@ -53,11 +44,10 @@ constexpr unsigned char NIBBLE_MASK = (1U << HIGH_NIBBLE_SHIFT) - 1U;
 constexpr unsigned char JSON_CONTROL_CHAR_LIMIT = 0x20;
 constexpr unsigned char ASCII_DELETE = 0x7F;
 constexpr int ARRAY_STRING_SIZE = 2;
-constexpr char ENVELOPE_KEY[] = "ohos.want.paramsStringEnvelope";
 
-std::string MakeString(const uint8_t *data, size_t size, size_t maxSize = MAX_FRAGMENT_SIZE)
+std::string MakeString(const uint8_t *data, size_t size)
 {
-    size_t realSize = std::min(size, maxSize);
+    size_t realSize = std::min(size, MAX_FRAGMENT_SIZE);
     return std::string(reinterpret_cast<const char *>(data), realSize);
 }
 
@@ -139,46 +129,6 @@ void ExerciseParse(const std::string &text)
     WantParamWrapperJson::Parse(serialized, reparsed);
 }
 
-void ExerciseSchemaMutations(const std::string &raw, uint8_t selector)
-{
-    std::string fragment = raw.substr(0, MAX_FRAGMENT_SIZE);
-    std::string escaped = EscapeJsonString(fragment);
-    std::string envelopePrefix = "{\"";
-    envelopePrefix += ENVELOPE_KEY;
-    envelopePrefix += "\":";
-
-    std::vector<std::string> candidates = {
-        raw,
-        "   " + raw,
-        envelopePrefix + fragment + "}",
-        envelopePrefix + "{\"k\":" + fragment + "}}",
-        envelopePrefix + "{\"k\":{\"9\":" + fragment + "}}}",
-        envelopePrefix + "{\"k\":{\"101\":" + fragment + "}}}",
-        envelopePrefix + "{\"" + escaped + "\":{\"9\":\"" + escaped + "\"}}}",
-        envelopePrefix + "{\"k\":{\"9\":\"" + escaped + "\"}}}",
-        envelopePrefix + "{\"k\":{\"101\":{\"child\":{\"9\":\"" + escaped + "\"}}}}}",
-        envelopePrefix + "{\"k\":{\"102\":\"" + escaped + "\"}}}",
-        envelopePrefix + "{\"k\":{\"102\":{\"101\":[{\"v\":{\"9\":\"" + escaped + "\"}}]}}}}",
-        envelopePrefix + "{\"k\":{\"102\":{\"102\":[{\"101\":[]}]}}}}",
-        envelopePrefix + "{\"k\":{\"102\":{\"101\":" + fragment + "}}}}",
-        envelopePrefix + "{\"k\":{\"102\":{\"elementType\":101,\"items\":[]}}}}",
-        "{\"x\":{\"ohos.want.params.json\":{}}}",
-        "{\"ohos.want.params.json.extra\":{}}",
-        "{\"ohos.want.params.json\":{\"k\":{\"9\":\"v\"}}}{\"ohos.want.params.json\":{}}",
-        "   {\"'\"y\"102\"{\"[8888888[0{ m}\"!};}",
-    };
-
-    // Run only 1-2 candidates per input, selected by the fuzz byte, so each
-    // invocation stays cheap while coverage-guided fuzzing still reaches every
-    // candidate across the corpus.
-    size_t firstIdx = selector % candidates.size();
-    ExerciseParse(candidates[firstIdx]);
-    size_t secondIdx = (firstIdx + 1 + (selector >> HIGH_NIBBLE_SHIFT)) % candidates.size();
-    if (secondIdx != firstIdx) {
-        ExerciseParse(candidates[secondIdx]);
-    }
-}
-
 void ExerciseSerializeRoundTrip(const uint8_t *data, size_t size)
 {
     std::string value = MakeString(data, size);
@@ -227,67 +177,15 @@ void ExerciseSerializeRoundTrip(const uint8_t *data, size_t size)
     }
     ExerciseParse(serialized);
 }
-
-void ExerciseDepth(const uint8_t *data, size_t size, uint8_t selector)
-{
-    int depth = static_cast<int>(selector % (MAX_FUZZ_DEPTH + 1));
-    WantParams inner;
-    inner.SetParam("leaf", String::Box(MakeString(data, size)));
-    for (int i = 0; i < depth; ++i) {
-        WantParams outer;
-        outer.SetParam("lv", WantParamWrapper::Box(std::move(inner)));
-        inner = std::move(outer);
-    }
-
-    std::string serialized;
-    if (WantParamWrapperJson::Serialize(inner, serialized)) {
-        ExerciseParse(serialized);
-    }
-}
-
 } // namespace
 
 bool DoSomethingInterestingWithMyAPI(const uint8_t *data, size_t size)
 {
-    if (data == nullptr || size == 0) {
+    if (data == nullptr || size > MAX_INPUT_SIZE) {
         return false;
     }
 
-    // Let corpus files contain a complete JSON document. Without this fast
-    // path, the two selector bytes would remove the leading characters from a
-    // valid JSON seed before it reaches Parse().
-    if (data[0] == '{' && size <= MAX_INPUT_SIZE) {
-        ExerciseParse(MakeString(data, size, MAX_INPUT_SIZE));
-        return true;
-    }
-
-    if (size < PAYLOAD_OFFSET) {
-        return false;
-    }
-
-    const uint8_t *payload = data + PAYLOAD_OFFSET;
-    size_t payloadSize = size - PAYLOAD_OFFSET;
-    if (payloadSize > MAX_INPUT_SIZE) {
-        return false;
-    }
-    std::string raw = MakeString(payload, payloadSize, MAX_INPUT_SIZE);
-
-    // Keep routing and scenario selection separate from the payload so control
-    // bytes do not constrain the first byte of JSON or serialized values.
-    switch (data[ROUTE_SELECTOR_INDEX] % EXERCISE_ROUTE_COUNT) {
-        case EXERCISE_ROUTE_PARSE:
-            ExerciseParse(raw);
-            break;
-        case EXERCISE_ROUTE_SCHEMA_MUTATIONS:
-            ExerciseSchemaMutations(raw, data[SCENARIO_SELECTOR_INDEX]);
-            break;
-        case EXERCISE_ROUTE_SERIALIZE_ROUND_TRIP:
-            ExerciseSerializeRoundTrip(payload, payloadSize);
-            break;
-        default:
-            ExerciseDepth(payload, payloadSize, data[SCENARIO_SELECTOR_INDEX]);
-            break;
-    }
+    ExerciseSerializeRoundTrip(data, size);
     return true;
 }
 } // namespace OHOS

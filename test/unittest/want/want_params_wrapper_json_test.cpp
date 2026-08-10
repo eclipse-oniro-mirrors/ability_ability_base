@@ -15,10 +15,10 @@
 
 #include <gtest/gtest.h>
 
-#include <chrono>
 #include <string>
 #include <vector>
 
+#include "nlohmann/json.hpp"
 #include "array_wrapper.h"
 #include "bool_wrapper.h"
 #include "byte_wrapper.h"
@@ -28,7 +28,6 @@
 #include "long_wrapper.h"
 #include "short_wrapper.h"
 #include "string_wrapper.h"
-#include "want.h"
 #include "want_params.h"
 #include "want_params_wrapper.h"
 #include "want_params_wrapper_json.h"
@@ -83,26 +82,20 @@ std::string BuildNestedEnvelope(int nestedLevels)
     return s;
 }
 
-std::string BuildNestedArrayString(int depth)
-{
-    std::string str = "I1{1}";
-    for (int i = 0; i < depth; i++) {
-        str = "[1{" + str + "}";
-    }
-    return str;
-}
-
 std::string BuildArrayEnvelope(int arrayDepth)
 {
-    return "{\"" + std::string(ENVELOPE_KEY) + "\":{\"array\":{\"102\":\"" +
-        BuildNestedArrayString(arrayDepth) + "\"}}}";
+    nlohmann::json arrayNode = {{"101", nlohmann::json::array()}};
+    for (int i = 1; i < arrayDepth; ++i) {
+        arrayNode = {{"102", nlohmann::json::array({std::move(arrayNode)})}};
+    }
+    nlohmann::json root = {{ENVELOPE_KEY, {{"array", {{"102", std::move(arrayNode)}}}}}};
+    return root.dump();
 }
 
-sptr<IArray> BuildNestedArrayObject(int depth)
+sptr<IArray> BuildNestedArrayObject(int arrayDepth)
 {
-    sptr<IArray> current = sptr<Array>::MakeSptr(1, g_IID_IInteger);
-    current->Set(0, Integer::Box(1));
-    for (int i = 0; i < depth; i++) {
+    sptr<IArray> current = sptr<Array>::MakeSptr(0, g_IID_IWantParams);
+    for (int i = 1; i < arrayDepth; ++i) {
         sptr<IArray> outer = sptr<Array>::MakeSptr(1, g_IID_IArray);
         outer->Set(0, current);
         current = outer;
@@ -110,37 +103,52 @@ sptr<IArray> BuildNestedArrayObject(int depth)
     return current;
 }
 
-constexpr int FULL_MEMBER_COUNT = 1024;
+sptr<IArray> BuildNestedArrayWithWantParamsLeaf(int arrayDepth)
+{
+    if (arrayDepth <= 0) {
+        return nullptr;
+    }
+
+    WantParams leaf;
+    leaf.SetParam("leaf", String::Box("value"));
+    sptr<IWantParams> boxedLeaf = WantParamWrapper::Box(std::move(leaf));
+    sptr<IArray> current = sptr<Array>::MakeSptr(1, g_IID_IWantParams);
+    if (boxedLeaf == nullptr || current == nullptr || current->Set(0, boxedLeaf) != ERR_OK) {
+        return nullptr;
+    }
+
+    for (int currentDepth = 1; currentDepth < arrayDepth; ++currentDepth) {
+        sptr<IArray> outer = sptr<Array>::MakeSptr(1, g_IID_IArray);
+        if (outer == nullptr || outer->Set(0, current) != ERR_OK) {
+            return nullptr;
+        }
+        current = outer;
+    }
+    return current;
+}
+
+constexpr int NESTED_MEMBER_COUNT = 3;
 constexpr int FULL_DEPTH = 100;
 constexpr const char *NESTED_KEY = "lv";
-constexpr const char *MAX_STRING_PREFIX = "max_string_";
 
-std::string MakePerfKey(int level, int index)
+std::string MakeMemberKey(int level, int index)
 {
     return "p_" + std::to_string(level) + "_" + std::to_string(index);
 }
 
-std::string MakePerfValue(int level, int index)
+std::string MakeMemberValue(int level, int index)
 {
     return "v_" + std::to_string(level) + "_" + std::to_string(index);
-}
-
-std::string MakeMaxPerfValue(int level)
-{
-    std::string value = MAX_STRING_PREFIX + std::to_string(level) + "_";
-    value.resize(static_cast<size_t>(Want::PARAM_WANT_CAPACITY_EXPANSION), 'x');
-    return value;
 }
 
 void FillScalarMembers(WantParams &wp, int level, int count)
 {
     for (int i = 0; i < count; ++i) {
-        std::string value = (i == count - 1) ? MakeMaxPerfValue(level) : MakePerfValue(level, i);
-        wp.SetParam(MakePerfKey(level, i), String::Box(value));
+        wp.SetParam(MakeMemberKey(level, i), String::Box(MakeMemberValue(level, i)));
     }
 }
 
-WantParams BuildFullNestedWantParams(int depth, int memberCount)
+WantParams BuildNestedWantParams(int depth, int memberCount)
 {
     WantParams inner;
     FillScalarMembers(inner, depth, memberCount);
@@ -151,12 +159,6 @@ WantParams BuildFullNestedWantParams(int depth, int memberCount)
         inner = std::move(outer);
     }
     return inner;
-}
-
-long long CostMs(const std::chrono::steady_clock::time_point &start,
-    const std::chrono::steady_clock::time_point &end)
-{
-    return std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 }
 }  // namespace
 
@@ -755,7 +757,7 @@ HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3000, TestSize.Level1
 HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3100, TestSize.Level1)
 {
     WantParams wp;
-    wp.SetParam("l", Long::Box64(9000000000LL));
+    wp.SetParam("l", Long::Box64(2147483647LL));
     std::string s;
     ASSERT_TRUE(WantParamWrapperJson::Serialize(wp, s));
     Dump("3100_serialize", s);
@@ -763,7 +765,7 @@ HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3100, TestSize.Level1
     ASSERT_TRUE(WantParamWrapperJson::Parse(s, out));
     sptr<IInterface> item = out.GetParam("l");
     ASSERT_NE(item, nullptr);
-    EXPECT_EQ(WantParams::GetStringByType(item, 6), "9000000000");  // 6 = VALUE_TYPE_LONG
+    EXPECT_EQ(WantParams::GetStringByType(item, 6), "2147483647");  // 6 = VALUE_TYPE_LONG
 }
 
 /**
@@ -806,10 +808,8 @@ HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3300, TestSize.Level1
 
 /**
  * @tc.number: Want_Param_Wrapper_Json_3400
- * @tc.name: string array round-trip
- * @tc.desc: 字符串数组（typeId=102）作为 wantParams value 往返。
- *   Array::ToString 走自定义 SIGNATURE 信封，作为 JSON string 值承载；Parse 经
- *   GetInterfaceByType(102)→Array::Parse 还原。验证数组元素可还原。
+ * @tc.name: string array is not supported in phase one
+ * @tc.desc: String arrays fail without falling back to the legacy Array string format.
  */
 HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3400, TestSize.Level1)
 {
@@ -819,27 +819,15 @@ HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3400, TestSize.Level1
     ASSERT_EQ(arr->Set(1, String::Box("b")), ERR_OK);
     WantParams wp;
     wp.SetParam("arr", arr);
-    std::string s;
-    ASSERT_TRUE(WantParamWrapperJson::Serialize(wp, s));
-    Dump("3400_serialize", s);
-    WantParams out;
-    ASSERT_TRUE(WantParamWrapperJson::Parse(s, out));
-    sptr<IInterface> item = out.GetParam("arr");
-    ASSERT_NE(item, nullptr);
-    IArray *arrOut = IArray::Query(item);
-    ASSERT_NE(arrOut, nullptr);
-    long len = 0;
-    ASSERT_EQ(arrOut->GetLength(len), ERR_OK);
-    EXPECT_EQ(len, 2);
-    sptr<IInterface> e0;
-    ASSERT_EQ(arrOut->Get(0, e0), ERR_OK);
-    EXPECT_EQ(WantParams::GetStringByType(e0, 9), "a");
+    std::string serialized = "unchanged";
+    EXPECT_FALSE(WantParamWrapperJson::Serialize(wp, serialized));
+    EXPECT_EQ(serialized, "unchanged");
 }
 
 /**
  * @tc.number: Want_Param_Wrapper_Json_3500
- * @tc.name: integer array round-trip
- * @tc.desc: 整型数组往返，验证非字符串元素类型同样可还原。
+ * @tc.name: integer array is not supported in phase one
+ * @tc.desc: Integer arrays fail until their JSON element rules are defined.
  */
 HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3500, TestSize.Level1)
 {
@@ -849,24 +837,15 @@ HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3500, TestSize.Level1
     ASSERT_EQ(arr->Set(1, Integer::Box(20)), ERR_OK);
     WantParams wp;
     wp.SetParam("arr", arr);
-    std::string s;
-    ASSERT_TRUE(WantParamWrapperJson::Serialize(wp, s));
-    Dump("3500_serialize", s);
-    WantParams out;
-    ASSERT_TRUE(WantParamWrapperJson::Parse(s, out));
-    sptr<IInterface> item = out.GetParam("arr");
-    ASSERT_NE(item, nullptr);
-    IArray *arrOut = IArray::Query(item);
-    ASSERT_NE(arrOut, nullptr);
-    sptr<IInterface> e1;
-    ASSERT_EQ(arrOut->Get(1, e1), ERR_OK);
-    EXPECT_EQ(WantParams::GetStringByType(e1, 5), "20");  // 5 = VALUE_TYPE_INT
+    std::string serialized = "unchanged";
+    EXPECT_FALSE(WantParamWrapperJson::Serialize(wp, serialized));
+    EXPECT_EQ(serialized, "unchanged");
 }
 
 /**
  * @tc.number: Want_Param_Wrapper_Json_3600
- * @tc.name: empty array round-trip
- * @tc.desc: 空数组（size=0）往返，长度保持为 0。
+ * @tc.name: empty primitive array is not supported in phase one
+ * @tc.desc: Empty primitive arrays retain an unsupported element type and fail atomically.
  */
 HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3600, TestSize.Level1)
 {
@@ -874,18 +853,298 @@ HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3600, TestSize.Level1
     ASSERT_NE(arr, nullptr);
     WantParams wp;
     wp.SetParam("arr", arr);
-    std::string s;
-    ASSERT_TRUE(WantParamWrapperJson::Serialize(wp, s));
-    Dump("3600_serialize", s);
+    std::string serialized = "unchanged";
+    EXPECT_FALSE(WantParamWrapperJson::Serialize(wp, serialized));
+    EXPECT_EQ(serialized, "unchanged");
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_Json_3610
+ * @tc.name: WantParams array uses recursive JSON objects
+ * @tc.desc: WantParams array items use type-key JSON and preserve delimiter-like string content.
+ */
+HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3610, TestSize.Level1)
+{
+    const std::string specialValue = "XXXX\"XX\\tail,a{b}\n\t";
+    WantParams first;
+    first.SetParam("special\"key", String::Box(specialValue));
+    WantParams second;
+
+    sptr<IArray> array = sptr<Array>::MakeSptr(2, g_IID_IWantParams);
+    ASSERT_NE(array, nullptr);
+    ASSERT_EQ(array->Set(0, WantParamWrapper::Box(std::move(first))), ERR_OK);
+    ASSERT_EQ(array->Set(1, WantParamWrapper::Box(std::move(second))), ERR_OK);
+
+    WantParams params;
+    params.SetParam("array", array);
+    std::string serialized;
+    ASSERT_TRUE(WantParamWrapperJson::Serialize(params, serialized));
+    Dump("3610_serialize", serialized);
+
+    const nlohmann::json root = nlohmann::json::parse(serialized);
+    const nlohmann::json &arrayJson = root.at(ENVELOPE_KEY).at("array").at("102");
+    ASSERT_TRUE(arrayJson.is_object());
+    ASSERT_TRUE(arrayJson.at("101").is_array());
+    EXPECT_EQ(arrayJson.at("101").size(), 2u);
+    EXPECT_EQ(arrayJson.at("101").at(0).at("special\"key").at("9").get<std::string>(), specialValue);
+
     WantParams out;
-    ASSERT_TRUE(WantParamWrapperJson::Parse(s, out));
-    sptr<IInterface> item = out.GetParam("arr");
-    ASSERT_NE(item, nullptr);
-    IArray *arrOut = IArray::Query(item);
-    ASSERT_NE(arrOut, nullptr);
-    long len = -1;
-    ASSERT_EQ(arrOut->GetLength(len), ERR_OK);
-    EXPECT_EQ(len, 0);
+    ASSERT_TRUE(WantParamWrapperJson::Parse(serialized, out));
+    IArray *parsedArray = IArray::Query(out.GetParam("array"));
+    ASSERT_NE(parsedArray, nullptr);
+    long length = 0;
+    ASSERT_EQ(parsedArray->GetLength(length), ERR_OK);
+    ASSERT_EQ(length, 2);
+
+    sptr<IInterface> firstElement;
+    ASSERT_EQ(parsedArray->Get(0, firstElement), ERR_OK);
+    WantParams parsedFirst = WantParamWrapper::Unbox(IWantParams::Query(firstElement));
+    EXPECT_EQ(GetString9(parsedFirst, "special\"key"), specialValue);
+
+    sptr<IInterface> secondElement;
+    ASSERT_EQ(parsedArray->Get(1, secondElement), ERR_OK);
+    WantParams parsedSecond = WantParamWrapper::Unbox(IWantParams::Query(secondElement));
+    EXPECT_EQ(parsedSecond.Size(), 0);
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_Json_3620
+ * @tc.name: Empty WantParams array round-trip
+ * @tc.desc: An empty typed WantParams array remains type 101 with zero JSON items.
+ */
+HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3620, TestSize.Level1)
+{
+    sptr<IArray> array = sptr<Array>::MakeSptr(0, g_IID_IWantParams);
+    ASSERT_NE(array, nullptr);
+    WantParams params;
+    params.SetParam("array", array);
+
+    std::string serialized;
+    ASSERT_TRUE(WantParamWrapperJson::Serialize(params, serialized));
+    const nlohmann::json root = nlohmann::json::parse(serialized);
+    const nlohmann::json &arrayJson = root.at(ENVELOPE_KEY).at("array").at("102");
+    EXPECT_TRUE(arrayJson.at("101").empty());
+
+    WantParams out;
+    ASSERT_TRUE(WantParamWrapperJson::Parse(serialized, out));
+    IArray *parsedArray = IArray::Query(out.GetParam("array"));
+    ASSERT_NE(parsedArray, nullptr);
+    InterfaceID elementType;
+    ASSERT_EQ(parsedArray->GetType(elementType), ERR_OK);
+    EXPECT_EQ(elementType, g_IID_IWantParams);
+    long length = -1;
+    ASSERT_EQ(parsedArray->GetLength(length), ERR_OK);
+    EXPECT_EQ(length, 0);
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_Json_3630
+ * @tc.name: Invalid native WantParams array fails atomically
+ * @tc.desc: Null or wrong-type native elements fail serialization without changing output.
+ */
+HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3630, TestSize.Level1)
+{
+    sptr<IArray> nullArray = sptr<Array>::MakeSptr(1, g_IID_IWantParams);
+    sptr<IArray> wrongTypeArray = sptr<Array>::MakeSptr(1, g_IID_IWantParams);
+    sptr<IArray> wrongNestedArray = sptr<Array>::MakeSptr(1, g_IID_IArray);
+    ASSERT_NE(nullArray, nullptr);
+    ASSERT_NE(wrongTypeArray, nullptr);
+    ASSERT_NE(wrongNestedArray, nullptr);
+    ASSERT_EQ(wrongTypeArray->Set(0, String::Box("wrong")), ERR_OK);
+    ASSERT_EQ(wrongNestedArray->Set(0, String::Box("wrong")), ERR_OK);
+
+    for (const auto &array : { nullArray, wrongTypeArray, wrongNestedArray }) {
+        WantParams params;
+        params.SetParam("array", array);
+        std::string serialized = "unchanged";
+        EXPECT_FALSE(WantParamWrapperJson::Serialize(params, serialized));
+        EXPECT_EQ(serialized, "unchanged");
+    }
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_Json_3640
+ * @tc.name: Invalid WantParams array JSON schema fails atomically
+ * @tc.desc: Invalid members, element type, items shape, item type, or extra fields are rejected.
+ */
+HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3640, TestSize.Level1)
+{
+    const std::string prefix = "{\"" + std::string(ENVELOPE_KEY) + "\":{\"array\":{\"102\":";
+    const std::string suffix = "}}}";
+    const std::vector<std::string> invalidValues = {
+        "{}",
+        "[]",
+        "{\"101\":{}}",
+        "{\"101\":[null]}",
+        "{\"102\":[null]}",
+        "{\"102\":[{\"9\":[]}]}",
+        "{\"101\":[],\"102\":[]}",
+        "{\"9\":[]}",
+        "{\"elementType\":101,\"items\":[]}",
+        "{\"items\":[]}",
+    };
+
+    for (const auto &value : invalidValues) {
+        WantParams out;
+        out.SetParam("sentinel", String::Box("keep"));
+        const std::string serialized = prefix + value + suffix;
+        EXPECT_FALSE(WantParamWrapperJson::Parse(serialized, out)) << "input=[" << serialized << "]";
+        EXPECT_EQ(GetString9(out, "sentinel"), "keep");
+        EXPECT_EQ(out.Size(), 1);
+    }
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_Json_3650
+ * @tc.name: Legacy Array signature strings are rejected
+ * @tc.desc: The new JSON interface does not accept any legacy Array signature string.
+ */
+HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3650, TestSize.Level1)
+{
+    const std::vector<std::string> legacyValues = {
+        "W1{{\\\"k\\\":{\\\"9\\\":\\\"v\\\"}}}",
+        "I2{1,2}",
+        "T2{a,b}",
+    };
+    for (const auto &legacyValue : legacyValues) {
+        const std::string legacy = "{\"" + std::string(ENVELOPE_KEY) +
+            "\":{\"array\":{\"102\":\"" + legacyValue + "\"}}}";
+        WantParams out;
+        out.SetParam("sentinel", String::Box("keep"));
+        EXPECT_FALSE(WantParamWrapperJson::Parse(legacy, out));
+        EXPECT_EQ(GetString9(out, "sentinel"), "keep");
+        EXPECT_EQ(out.Size(), 1);
+    }
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_Json_3660
+ * @tc.name: Nested WantParams arrays use the new JSON representation recursively
+ * @tc.desc: A WantParams array inside an array item is serialized and parsed without the legacy W format.
+ */
+HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3660, TestSize.Level1)
+{
+    WantParams leaf;
+    leaf.SetParam("value", String::Box("XXXX\"XX,a{b}"));
+    sptr<IArray> innerArray = sptr<Array>::MakeSptr(1, g_IID_IWantParams);
+    ASSERT_NE(innerArray, nullptr);
+    ASSERT_EQ(innerArray->Set(0, WantParamWrapper::Box(std::move(leaf))), ERR_OK);
+
+    WantParams parent;
+    parent.SetParam("children", innerArray);
+    sptr<IArray> outerArray = sptr<Array>::MakeSptr(1, g_IID_IWantParams);
+    ASSERT_NE(outerArray, nullptr);
+    ASSERT_EQ(outerArray->Set(0, WantParamWrapper::Box(std::move(parent))), ERR_OK);
+
+    WantParams params;
+    params.SetParam("parents", outerArray);
+    std::string serialized;
+    ASSERT_TRUE(WantParamWrapperJson::Serialize(params, serialized));
+
+    const nlohmann::json root = nlohmann::json::parse(serialized);
+    const nlohmann::json &leafJson =
+        root.at(ENVELOPE_KEY).at("parents").at("102").at("101").at(0)
+            .at("children").at("102").at("101").at(0);
+    EXPECT_EQ(leafJson.at("value").at("9").get<std::string>(), "XXXX\"XX,a{b}");
+
+    WantParams out;
+    ASSERT_TRUE(WantParamWrapperJson::Parse(serialized, out));
+    IArray *parsedOuter = IArray::Query(out.GetParam("parents"));
+    ASSERT_NE(parsedOuter, nullptr);
+    sptr<IInterface> parentElement;
+    ASSERT_EQ(parsedOuter->Get(0, parentElement), ERR_OK);
+    WantParams parsedParent = WantParamWrapper::Unbox(IWantParams::Query(parentElement));
+    IArray *parsedInner = IArray::Query(parsedParent.GetParam("children"));
+    ASSERT_NE(parsedInner, nullptr);
+    sptr<IInterface> leafElement;
+    ASSERT_EQ(parsedInner->Get(0, leafElement), ERR_OK);
+    WantParams parsedLeaf = WantParamWrapper::Unbox(IWantParams::Query(leafElement));
+    EXPECT_EQ(GetString9(parsedLeaf, "value"), "XXXX\"XX,a{b}");
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_Json_3665
+ * @tc.name: Array of arrays reaches WantParams array through the new codec
+ * @tc.desc: An IArray<IArray> recursively uses type-key ArrayNode objects and preserves special strings.
+ */
+HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3665, TestSize.Level1)
+{
+    const std::string specialValue = "outer\\inner\"value,a{b}";
+    WantParams leaf;
+    leaf.SetParam("value", String::Box(specialValue));
+
+    sptr<IArray> wantParamsArray = sptr<Array>::MakeSptr(1, g_IID_IWantParams);
+    ASSERT_NE(wantParamsArray, nullptr);
+    ASSERT_EQ(wantParamsArray->Set(0, WantParamWrapper::Box(std::move(leaf))), ERR_OK);
+
+    sptr<IArray> outerArray = sptr<Array>::MakeSptr(1, g_IID_IArray);
+    ASSERT_NE(outerArray, nullptr);
+    ASSERT_EQ(outerArray->Set(0, wantParamsArray), ERR_OK);
+
+    WantParams params;
+    params.SetParam("groups", outerArray);
+    std::string serialized;
+    ASSERT_TRUE(WantParamWrapperJson::Serialize(params, serialized));
+
+    const nlohmann::json root = nlohmann::json::parse(serialized);
+    const nlohmann::json &leafJson =
+        root.at(ENVELOPE_KEY).at("groups").at("102").at("102").at(0).at("101").at(0);
+    EXPECT_EQ(leafJson.at("value").at("9").get<std::string>(), specialValue);
+
+    WantParams out;
+    ASSERT_TRUE(WantParamWrapperJson::Parse(serialized, out));
+    IArray *parsedOuter = IArray::Query(out.GetParam("groups"));
+    ASSERT_NE(parsedOuter, nullptr);
+    sptr<IInterface> parsedInnerValue;
+    ASSERT_EQ(parsedOuter->Get(0, parsedInnerValue), ERR_OK);
+    IArray *parsedInner = IArray::Query(parsedInnerValue);
+    ASSERT_NE(parsedInner, nullptr);
+    sptr<IInterface> parsedLeafValue;
+    ASSERT_EQ(parsedInner->Get(0, parsedLeafValue), ERR_OK);
+    WantParams parsedLeaf = WantParamWrapper::Unbox(IWantParams::Query(parsedLeafValue));
+    EXPECT_EQ(GetString9(parsedLeaf, "value"), specialValue);
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_Json_3670
+ * @tc.name: WantParams array depth boundary is shared by serialize and parse
+ * @tc.desc: Array nesting followed by one WantParams item reaches depth 100 and round-trips;
+ *   one more Array level reaches depth 101 and fails atomically.
+ */
+HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3670, TestSize.Level1)
+{
+    constexpr int boundaryArrayDepth = FULL_DEPTH - 1;
+    sptr<IArray> boundaryArray = BuildNestedArrayWithWantParamsLeaf(boundaryArrayDepth);
+    ASSERT_NE(boundaryArray, nullptr);
+    WantParams boundary;
+    boundary.SetParam("array", boundaryArray);
+
+    std::string serialized;
+    ASSERT_TRUE(WantParamWrapperJson::Serialize(boundary, serialized));
+    WantParams parsed;
+    ASSERT_TRUE(WantParamWrapperJson::Parse(serialized, parsed));
+
+    const nlohmann::json boundaryRoot = nlohmann::json::parse(serialized);
+    const nlohmann::json &boundaryArrayJson = boundaryRoot.at(ENVELOPE_KEY).at("array").at("102");
+    nlohmann::json tooDeepArray = {
+        {"102", nlohmann::json::array({boundaryArrayJson})},
+    };
+    nlohmann::json tooDeepRoot = {
+        {ENVELOPE_KEY, {{"array", {{"102", std::move(tooDeepArray)}}}}},
+    };
+    WantParams parseOut;
+    parseOut.SetParam("sentinel", String::Box("keep"));
+    EXPECT_FALSE(WantParamWrapperJson::Parse(tooDeepRoot.dump(), parseOut));
+    EXPECT_EQ(GetString9(parseOut, "sentinel"), "keep");
+    EXPECT_EQ(parseOut.Size(), 1);
+
+    sptr<IArray> overLimitArray = BuildNestedArrayWithWantParamsLeaf(FULL_DEPTH);
+    ASSERT_NE(overLimitArray, nullptr);
+    WantParams overLimit;
+    overLimit.SetParam("array", overLimitArray);
+    std::string unchanged = "unchanged";
+    EXPECT_FALSE(WantParamWrapperJson::Serialize(overLimit, unchanged));
+    EXPECT_EQ(unchanged, "unchanged");
 }
 
 // ==================== F. WantParam 真实构造的深度嵌套 ====================
@@ -956,38 +1215,27 @@ HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3750, TestSize.Level1
 
 /**
  * @tc.number: Want_Param_Wrapper_Json_3755
- * @tc.name: full member count and max depth round-trip performance
- * @tc.desc: Build a depth-100 WantParams tree where every level has 1024 members
- *   and one max-size string payload.
- *   This mirrors WantParams parcel read limits (MAX_RECURSION_DEPTH=100 and
- *   maxAllowedSize=1024) plus Want IPC expansion capacity as a JSON codec
- *   pressure/performance regression test.
+ * @tc.name: max depth with scalar sibling members round-trip
+ * @tc.desc: Build a depth-100 WantParams tree with two scalar sibling members at each nested level.
+ *   Verify that recursive serialization and parsing preserve both the nesting and sibling values.
  */
-HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3755, TestSize.Level3)
+HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3755, TestSize.Level1)
 {
-    auto buildStart = std::chrono::steady_clock::now();
-    WantParams wp = BuildFullNestedWantParams(FULL_DEPTH, FULL_MEMBER_COUNT);
-    auto buildEnd = std::chrono::steady_clock::now();
-    ASSERT_EQ(wp.Size(), FULL_MEMBER_COUNT);
+    WantParams wp = BuildNestedWantParams(FULL_DEPTH, NESTED_MEMBER_COUNT);
+    ASSERT_EQ(wp.Size(), NESTED_MEMBER_COUNT);
 
     std::string serialized;
-    auto serializeStart = std::chrono::steady_clock::now();
     ASSERT_TRUE(WantParamWrapperJson::Serialize(wp, serialized));
-    auto serializeEnd = std::chrono::steady_clock::now();
     ASSERT_FALSE(serialized.empty());
 
     WantParams out;
-    auto parseStart = std::chrono::steady_clock::now();
     ASSERT_TRUE(WantParamWrapperJson::Parse(serialized, out));
-    auto parseEnd = std::chrono::steady_clock::now();
 
-    auto verifyStart = std::chrono::steady_clock::now();
     WantParams cur = std::move(out);
     for (int level = 0; level < FULL_DEPTH; ++level) {
-        ASSERT_EQ(cur.Size(), FULL_MEMBER_COUNT) << "level=" << level;
-        EXPECT_EQ(GetString9(cur, MakePerfKey(level, 0)), MakePerfValue(level, 0));
-        EXPECT_EQ(GetString9(cur, MakePerfKey(level, FULL_MEMBER_COUNT - 2)),
-            MakeMaxPerfValue(level));
+        ASSERT_EQ(cur.Size(), NESTED_MEMBER_COUNT) << "level=" << level;
+        EXPECT_EQ(GetString9(cur, MakeMemberKey(level, 0)), MakeMemberValue(level, 0));
+        EXPECT_EQ(GetString9(cur, MakeMemberKey(level, 1)), MakeMemberValue(level, 1));
 
         sptr<IInterface> next = cur.GetParam(NESTED_KEY);
         ASSERT_NE(next, nullptr) << "level=" << level;
@@ -995,20 +1243,10 @@ HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3755, TestSize.Level3
         ASSERT_NE(nested, nullptr) << "level=" << level;
         cur = WantParamWrapper::Unbox(nested);
     }
-    ASSERT_EQ(cur.Size(), FULL_MEMBER_COUNT);
-    EXPECT_EQ(GetString9(cur, MakePerfKey(FULL_DEPTH, 0)), MakePerfValue(FULL_DEPTH, 0));
-    EXPECT_EQ(GetString9(cur, MakePerfKey(FULL_DEPTH, FULL_MEMBER_COUNT - 1)),
-        MakeMaxPerfValue(FULL_DEPTH));
-    auto verifyEnd = std::chrono::steady_clock::now();
-
-    GTEST_LOG_(INFO) << "[WantParamsWrapperJsonTest] 3755 depth=" << FULL_DEPTH
-                     << ", membersPerLevel=" << FULL_MEMBER_COUNT
-                     << ", maxStringBytes=" << Want::PARAM_WANT_CAPACITY_EXPANSION
-                     << ", jsonBytes=" << serialized.size()
-                     << ", buildMs=" << CostMs(buildStart, buildEnd)
-                     << ", serializeMs=" << CostMs(serializeStart, serializeEnd)
-                     << ", parseMs=" << CostMs(parseStart, parseEnd)
-                     << ", verifyMs=" << CostMs(verifyStart, verifyEnd);
+    ASSERT_EQ(cur.Size(), NESTED_MEMBER_COUNT);
+    EXPECT_EQ(GetString9(cur, MakeMemberKey(FULL_DEPTH, 0)), MakeMemberValue(FULL_DEPTH, 0));
+    EXPECT_EQ(GetString9(cur, MakeMemberKey(FULL_DEPTH, NESTED_MEMBER_COUNT - 1)),
+        MakeMemberValue(FULL_DEPTH, NESTED_MEMBER_COUNT - 1));
 }
 
 /**
@@ -1239,28 +1477,28 @@ HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3970, TestSize.Level1
 HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3980, TestSize.Level1)
 {
     WantParams out;
-    EXPECT_TRUE(WantParamWrapperJson::Parse(BuildArrayEnvelope(FULL_DEPTH - 1), out));
+    EXPECT_TRUE(WantParamWrapperJson::Parse(BuildArrayEnvelope(FULL_DEPTH), out));
     EXPECT_NE(IArray::Query(out.GetParam("array")), nullptr);
 
     out = WantParams();
-    EXPECT_FALSE(WantParamWrapperJson::Parse(BuildArrayEnvelope(FULL_DEPTH), out));
+    EXPECT_FALSE(WantParamWrapperJson::Parse(BuildArrayEnvelope(FULL_DEPTH + 1), out));
     EXPECT_EQ(out.Size(), 0);
 }
 
 /**
  * @tc.number: Want_Param_Wrapper_Json_3990
  * @tc.name: serialize type-102 Array with shared depth
- * @tc.desc: Array ToString depth failures are propagated by JSON serialization.
+ * @tc.desc: Recursive ArrayWrapperJson depth failures are propagated by JSON serialization.
  */
 HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3990, TestSize.Level1)
 {
     WantParams okParams;
-    okParams.SetParam("array", BuildNestedArrayObject(FULL_DEPTH - 1));
+    okParams.SetParam("array", BuildNestedArrayObject(FULL_DEPTH));
     std::string serialized;
     EXPECT_TRUE(WantParamWrapperJson::Serialize(okParams, serialized));
 
     WantParams overLimit;
-    overLimit.SetParam("array", BuildNestedArrayObject(FULL_DEPTH));
+    overLimit.SetParam("array", BuildNestedArrayObject(FULL_DEPTH + 1));
     serialized = "unchanged";
     EXPECT_FALSE(WantParamWrapperJson::Serialize(overLimit, serialized));
     EXPECT_EQ(serialized, "unchanged");

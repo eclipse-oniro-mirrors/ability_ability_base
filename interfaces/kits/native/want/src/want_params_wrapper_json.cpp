@@ -22,9 +22,10 @@
 #include <utility>
 
 #include "ability_base_log_wrapper.h"
-#include "array_wrapper.h"
+#include "array_wrapper_json.h"
 #include "nlohmann/json.hpp"
 #include "want_params_wrapper.h"
+#include "want_params_wrapper_json_internal.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -35,10 +36,6 @@ using Json = nlohmann::json;
 constexpr int TYPE_WANT_PARAMS = 101;
 constexpr int TYPE_ARRAY = 102;
 constexpr int TYPE_NULL = -1;
-
-// Maximum supported combined WantParams/Array recursion depth. The top-level
-// WantParams object starts at depth 0.
-constexpr uint32_t MAX_DEPTH = 100;
 
 bool ParseTypeId(const std::string &token, int &typeId)
 {
@@ -51,16 +48,20 @@ bool ParseTypeId(const std::string &token, int &typeId)
     typeId = static_cast<int>(parsed);
     return typeId != TYPE_NULL && WantParams::IsKnownTypeId(typeId);
 }
+}  // namespace
 
+namespace Internal {
 bool BuildParamsJson(const WantParams &wp, Json &out, uint32_t depth)
 {
-    if (depth > MAX_DEPTH) {
-        ABILITYBASE_LOGW("serialize failed, depth %{public}u exceeds max depth %{public}u", depth, MAX_DEPTH);
+    if (depth > MAX_RECURSION_DEPTH) {
+        ABILITYBASE_LOGW("serialize failed, depth %{public}u exceeds max depth %{public}u",
+            depth, MAX_RECURSION_DEPTH);
         return false;
     }
 
-    // Each parameter is encoded as {"typeId": value}. Nested WantParams are
-    // encoded as JSON objects, while scalar values are encoded as strings.
+    // Each parameter is encoded as {"typeId": value}. Nested WantParams and
+    // Array values are encoded as JSON objects, while scalar values are encoded
+    // as strings.
     Json params = Json::object();
     for (const auto &it : wp.GetParams()) {
         int typeId = WantParams::GetDataType(it.second);
@@ -85,13 +86,11 @@ bool BuildParamsJson(const WantParams &wp, Json &out, uint32_t depth)
             }
             typedValue[std::to_string(typeId)] = std::move(childJson);
         } else if (nestedArray != nullptr) {
-            std::string value = static_cast<Array *>(nestedArray)->ToString(depth + 1);
-            if (value.empty()) {
-                ABILITYBASE_LOGW("serialize failed, array depth exceeds max depth, keyLen=%{public}zu",
-                    it.first.size());
+            Json arrayJson;
+            if (!ArrayWrapperJson::Serialize(nestedArray, arrayJson, depth + 1)) {
                 return false;
             }
-            typedValue[std::to_string(typeId)] = std::move(value);
+            typedValue[std::to_string(typeId)] = std::move(arrayJson);
         } else {
             typedValue[std::to_string(typeId)] = WantParams::GetStringByType(it.second, typeId);
         }
@@ -101,15 +100,12 @@ bool BuildParamsJson(const WantParams &wp, Json &out, uint32_t depth)
     out = std::move(params);
     return true;
 }
+}  // namespace Internal
 
-bool ParseParamsJson(const Json &jsonObject, WantParams &out, uint32_t depth);
-
-sptr<IInterface> RestoreScalarValueJson(int typeId, const Json &valueJson, uint32_t depth)
+namespace {
+sptr<IInterface> RestoreScalarValueJson(int typeId, const Json &valueJson)
 {
     std::string valueStr = valueJson.get<std::string>();
-    if (typeId == TYPE_ARRAY) {
-        return Array::Parse(valueStr, depth + 1);
-    }
     return WantParams::GetInterfaceByType(typeId, valueStr);
 }
 
@@ -134,7 +130,7 @@ bool ParseTypedValueJson(const Json &typedValue, WantParams &parsed, const std::
 
     if (typeId == TYPE_WANT_PARAMS) {
         WantParams child;
-        if (!ParseParamsJson(item.value(), child, depth + 1)) {
+        if (!Internal::ParseParamsJson(item.value(), child, depth + 1)) {
             return false;
         }
         sptr<IWantParams> value = WantParamWrapper::Box(std::move(child));
@@ -146,12 +142,21 @@ bool ParseTypedValueJson(const Json &typedValue, WantParams &parsed, const std::
         return true;
     }
 
+    if (typeId == TYPE_ARRAY) {
+        sptr<IArray> value;
+        if (!Internal::ArrayWrapperJson::Parse(item.value(), value, depth + 1)) {
+            return false;
+        }
+        parsed.SetParam(key, value);
+        return true;
+    }
+
     if (!item.value().is_string()) {
         ABILITYBASE_LOGW("parse failed, scalar value is not string, keyLen=%{public}zu, typeId=%{public}d",
             key.size(), typeId);
         return false;
     }
-    sptr<IInterface> value = RestoreScalarValueJson(typeId, item.value(), depth);
+    sptr<IInterface> value = RestoreScalarValueJson(typeId, item.value());
     if (value == nullptr) {
         ABILITYBASE_LOGW("parse failed, restore value failed, keyLen=%{public}zu, typeId=%{public}d",
             key.size(), typeId);
@@ -160,11 +165,14 @@ bool ParseTypedValueJson(const Json &typedValue, WantParams &parsed, const std::
     parsed.SetParam(key, value);
     return true;
 }
+}  // namespace
 
+namespace Internal {
 bool ParseParamsJson(const Json &jsonObject, WantParams &out, uint32_t depth)
 {
-    if (depth > MAX_DEPTH) {
-        ABILITYBASE_LOGW("parse failed, depth %{public}u exceeds max depth %{public}u", depth, MAX_DEPTH);
+    if (depth > MAX_RECURSION_DEPTH) {
+        ABILITYBASE_LOGW("parse failed, depth %{public}u exceeds max depth %{public}u",
+            depth, MAX_RECURSION_DEPTH);
         return false;
     }
     if (!jsonObject.is_object()) {
@@ -183,7 +191,9 @@ bool ParseParamsJson(const Json &jsonObject, WantParams &out, uint32_t depth)
     out = std::move(parsed);
     return true;
 }
+}  // namespace Internal
 
+namespace {
 bool ParseEnvelopeJson(const Json &jsonObject, WantParams &out)
 {
     // The envelope is a fixed wrapper object and must not contain extra members.
@@ -197,7 +207,7 @@ bool ParseEnvelopeJson(const Json &jsonObject, WantParams &out)
     }
 
     WantParams parsed;
-    if (!ParseParamsJson(jsonObject.at(ENVELOPE_KEY), parsed, 0)) {
+    if (!Internal::ParseParamsJson(jsonObject.at(ENVELOPE_KEY), parsed, 0)) {
         return false;
     }
     out = std::move(parsed);
@@ -247,7 +257,7 @@ bool Serialize(const WantParams &wp, std::string &out)
     try {
         // Build the complete JSON tree before assigning to out.
         Json params;
-        if (!BuildParamsJson(wp, params, 0)) {
+        if (!Internal::BuildParamsJson(wp, params, 0)) {
             return false;
         }
 
