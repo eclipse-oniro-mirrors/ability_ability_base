@@ -21,12 +21,7 @@ ExtractResourceManager::ExtractResourceManager()
 {}
 
 ExtractResourceManager::~ExtractResourceManager()
-{
-    std::lock_guard<std::mutex> lock(mutex_);
-    if (!resourceManager_) {
-        resourceManager_.reset();
-    }
-}
+{}
 
 ExtractResourceManager& ExtractResourceManager::GetExtractResourceManager()
 {

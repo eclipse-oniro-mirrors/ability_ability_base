@@ -141,8 +141,8 @@ bool ZipFile::ParseEndDirectory()
     size_t endFilePos = fileStartPos_ + fileLength_;
 
     if (fileLength_ <= endDirLen) {
-        ABILITYBASE_LOGE("fileStartPos_:(%{public}llu) <= fileLength_:(%{public}llu)",
-            fileStartPos_, fileLength_);
+        ABILITYBASE_LOGE("fileLength_:(%{public}llu) <= endDirLen:(%{public}zu)",
+            fileLength_, endDirLen);
         return false;
     }
 

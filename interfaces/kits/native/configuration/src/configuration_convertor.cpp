@@ -96,6 +96,9 @@ Global::Resource::ScreenDensity ConvertDensity(float density)
     };
 
     float deviceDpi = density * DPI_BASE;
+    if (deviceDpi != deviceDpi || deviceDpi < 0.0) {
+        return Global::Resource::ScreenDensity::SCREEN_DENSITY_NOT_SET;
+    }
     auto resolution = Global::Resource::ScreenDensity::SCREEN_DENSITY_NOT_SET;
     for (const auto& [dpi, value] : resolutions) {
         resolution = value;

@@ -70,6 +70,11 @@ bool ZipFileReader::init()
     if (filePath_.empty()) {
         return false;
     }
+    if (filePath_.length() > PATH_MAX) {
+        ABILITYBASE_LOGE("failed:filePath_ length:%{public}u",
+            static_cast<unsigned int>(filePath_.length()));
+        return false;
+    }
     std::string resolvePath;
     resolvePath.reserve(PATH_MAX);
     resolvePath.resize(PATH_MAX - 1);
