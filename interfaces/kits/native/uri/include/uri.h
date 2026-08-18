@@ -36,6 +36,22 @@ public:
     }
 
     /**
+     * Set the uri string directly without scheme validation.
+     * Used to pass through non-standard scheme URIs (e.g. containing '_') from
+     * the in-lake environment to the outside-lake environment.
+     *
+     * @param originString Indicates the original uri string to set.
+     */
+    void SetUriWithOriginString(const std::string &originString);
+
+    /**
+     * Get the original uri string kept before scheme validation.
+     *
+     * @return the original uri string.
+     */
+    const std::string &GetOriginString() const;
+
+    /**
      * Get the Scheme part.
      *
      * @return the scheme string.
@@ -198,6 +214,7 @@ private:
     size_t FindFragmentSeparator();
 
     std::string uriString_;
+    std::string originString_;
     std::string scheme_;
     std::string ssp_;
     std::string authority_;

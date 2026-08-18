@@ -446,6 +446,227 @@ HWTEST_F(WantBaseTest, AaFwk_Want_Parcelable_0200, Function | MediumTest | Level
 }
 
 /**
+ * @tc.number: AaFwk_Want_Parcelable_OrigUri_0100
+ * @tc.name: Marshalling/Unmarshalling with setUriWithOriginString
+ * @tc.desc: uri with non-standard scheme ('_') survives round-trip when flag is set.
+ */
+HWTEST_F(WantBaseTest, AaFwk_Want_Parcelable_OrigUri_0100, Function | MediumTest | Level1)
+{
+    const std::string nonStdUri = "in_lake_app://com.example/page";
+    std::shared_ptr<Want> WantIn_ = std::make_shared<Want>();
+    ASSERT_NE(WantIn_, nullptr);
+    WantIn_->SetUri(nonStdUri);
+    WantIn_->operation_.uri_.SetUriWithOriginString(nonStdUri);
+    WantIn_->SetParam(Want::PARAM_SET_URI_WITH_ORIGIN_STRING, true);
+
+    Parcel in;
+    EXPECT_EQ(WantIn_->Marshalling(in), true);
+
+    std::shared_ptr<Want> WantOut_(Want::Unmarshalling(in));
+    ASSERT_NE(WantOut_, nullptr);
+    EXPECT_EQ(WantOut_->GetUriString(), nonStdUri);
+    EXPECT_EQ(WantOut_->GetScheme(), "in_lake_app");
+}
+
+/**
+ * @tc.number: AaFwk_Want_Parcelable_OrigUri_0200
+ * @tc.name: Marshalling/Unmarshalling without setUriWithOriginString
+ * @tc.desc: uri with non-standard scheme is still cleared when flag is not set.
+ */
+HWTEST_F(WantBaseTest, AaFwk_Want_Parcelable_OrigUri_0200, Function | MediumTest | Level1)
+{
+    const std::string nonStdUri = "in_lake_app://com.example/page";
+    std::shared_ptr<Want> WantIn_ = std::make_shared<Want>();
+    ASSERT_NE(WantIn_, nullptr);
+    WantIn_->SetUri(nonStdUri);
+
+    Parcel in;
+    EXPECT_EQ(WantIn_->Marshalling(in), true);
+
+    std::shared_ptr<Want> WantOut_(Want::Unmarshalling(in));
+    ASSERT_NE(WantOut_, nullptr);
+    EXPECT_TRUE(WantOut_->GetUriString().empty());
+}
+
+/**
+ * @tc.number: AaFwk_Want_Parcelable_OrigUri_0300
+ * @tc.name: Uri constructor keeps originString_ when scheme validation fails
+ * @tc.desc: non-standard scheme uri is cleared in uriString_ but kept in originString_.
+ */
+HWTEST_F(WantBaseTest, AaFwk_Want_Parcelable_OrigUri_0300, Function | MediumTest | Level1)
+{
+    const std::string nonStdUri = "in_lake_app://com.example/page";
+    Uri uri(nonStdUri);
+    EXPECT_TRUE(uri.GetUriStringRef().empty());
+    EXPECT_EQ(uri.GetOriginString(), nonStdUri);
+
+    uri.SetUriWithOriginString(nonStdUri);
+    EXPECT_EQ(uri.GetUriStringRef(), nonStdUri);
+    EXPECT_EQ(uri.GetScheme(), "in_lake_app");
+}
+
+/**
+ * @tc.number: AaFwk_Want_Parcelable_OrigUri_0400
+ * @tc.name: setUriWithOriginString passes through any raw origin string
+ * @tc.desc: scheme check is no longer applied on the pass-through path.
+ */
+HWTEST_F(WantBaseTest, AaFwk_Want_Parcelable_OrigUri_0400, Function | MediumTest | Level1)
+{
+    const std::string badUri = "1bad://com.example/page";
+    std::shared_ptr<Want> WantIn_ = std::make_shared<Want>();
+    ASSERT_NE(WantIn_, nullptr);
+    WantIn_->SetUri(badUri);
+    WantIn_->operation_.uri_.SetUriWithOriginString(badUri);
+    WantIn_->SetParam(Want::PARAM_SET_URI_WITH_ORIGIN_STRING, true);
+
+    Parcel in;
+    EXPECT_EQ(WantIn_->Marshalling(in), true);
+
+    std::shared_ptr<Want> WantOut_(Want::Unmarshalling(in));
+    ASSERT_NE(WantOut_, nullptr);
+    EXPECT_EQ(WantOut_->GetUriString(), badUri);
+}
+
+/**
+ * @tc.number: AaFwk_Want_Parcelable_OrigUri_0600
+ * @tc.name: Marshalling/Unmarshalling with setUriWithOriginString but no uri
+ * @tc.desc: flag set but uri empty: origin-empty branch keeps uri empty after round-trip.
+ */
+HWTEST_F(WantBaseTest, AaFwk_Want_Parcelable_OrigUri_0600, Function | MediumTest | Level1)
+{
+    std::shared_ptr<Want> WantIn_ = std::make_shared<Want>();
+    ASSERT_NE(WantIn_, nullptr);
+    WantIn_->SetParam(Want::PARAM_SET_URI_WITH_ORIGIN_STRING, true);
+
+    Parcel in;
+    EXPECT_EQ(WantIn_->Marshalling(in), true);
+
+    std::shared_ptr<Want> WantOut_(Want::Unmarshalling(in));
+    ASSERT_NE(WantOut_, nullptr);
+    EXPECT_TRUE(WantOut_->GetUriString().empty());
+}
+
+/**
+ * @tc.number: AaFwk_Want_Parcelable_OrigUri_0700
+ * @tc.name: Marshalling/Unmarshalling with setUriWithOriginString and standard scheme
+ * @tc.desc: flag set on a standard-scheme uri still survives round-trip unchanged.
+ */
+HWTEST_F(WantBaseTest, AaFwk_Want_Parcelable_OrigUri_0700, Function | MediumTest | Level1)
+{
+    const std::string stdUri = "file:///data/storage/el2/base";
+    std::shared_ptr<Want> WantIn_ = std::make_shared<Want>();
+    ASSERT_NE(WantIn_, nullptr);
+    WantIn_->SetUri(stdUri);
+    WantIn_->SetParam(Want::PARAM_SET_URI_WITH_ORIGIN_STRING, true);
+
+    Parcel in;
+    EXPECT_EQ(WantIn_->Marshalling(in), true);
+
+    std::shared_ptr<Want> WantOut_(Want::Unmarshalling(in));
+    ASSERT_NE(WantOut_, nullptr);
+    EXPECT_EQ(WantOut_->GetUriString(), stdUri);
+    EXPECT_EQ(WantOut_->GetScheme(), "file");
+}
+
+/**
+ * @tc.number: AaFwk_Want_Parcelable_OrigUri_0800
+ * @tc.name: Marshalling/Unmarshalling with utf8 expansion and setUriWithOriginString
+ * @tc.desc: non-standard uri pass-through also works in utf8(expansion) parcel mode.
+ */
+HWTEST_F(WantBaseTest, AaFwk_Want_Parcelable_OrigUri_0800, Function | MediumTest | Level1)
+{
+    const std::string nonStdUri = "in_lake_app://com.example/page";
+    std::shared_ptr<Want> WantIn_ = std::make_shared<Want>();
+    ASSERT_NE(WantIn_, nullptr);
+    WantIn_->SetUri(nonStdUri);
+    WantIn_->operation_.uri_.SetUriWithOriginString(nonStdUri);
+    WantIn_->SetParam(Want::PARAM_SET_URI_WITH_ORIGIN_STRING, true);
+    WantIn_->SetParam(Want::PARAM_STRING_TRANS_FORMAT_UTF8, true);
+
+    Parcel in;
+    EXPECT_EQ(WantIn_->Marshalling(in), true);
+
+    std::shared_ptr<Want> WantOut_(Want::Unmarshalling(in));
+    ASSERT_NE(WantOut_, nullptr);
+    EXPECT_EQ(WantOut_->GetUriString(), nonStdUri);
+    EXPECT_EQ(WantOut_->GetScheme(), "in_lake_app");
+}
+
+/**
+ * @tc.number: AaFwk_Want_Parcelable_OrigUri_1000
+ * @tc.name: SetUriWithOriginString rebuilds all cached fields
+ * @tc.desc: after restoring origin string, every getter parses from the raw string.
+ */
+HWTEST_F(WantBaseTest, AaFwk_Want_Parcelable_OrigUri_1000, Function | MediumTest | Level1)
+{
+    const std::string nonStdUri = "in_lake_app://user@host:8080/path?q=1#frag";
+    Uri uri(nonStdUri);
+    EXPECT_TRUE(uri.GetUriStringRef().empty());
+    EXPECT_EQ(uri.GetOriginString(), nonStdUri);
+
+    uri.SetUriWithOriginString(nonStdUri);
+    EXPECT_EQ(uri.GetUriStringRef(), nonStdUri);
+    EXPECT_EQ(uri.GetScheme(), "in_lake_app");
+    EXPECT_EQ(uri.GetAuthority(), "user@host:8080");
+    EXPECT_EQ(uri.GetUserInfo(), "user");
+    EXPECT_EQ(uri.GetHost(), "host");
+    EXPECT_EQ(uri.GetPort(), 8080);
+    EXPECT_EQ(uri.GetPath(), "/path");
+    EXPECT_EQ(uri.GetQuery(), "q=1");
+    EXPECT_EQ(uri.GetFragment(), "frag");
+    EXPECT_TRUE(uri.IsHierarchical());
+}
+
+/**
+ * @tc.number: AaFwk_Want_Parcelable_OrigUri_1100
+ * @tc.name: CheckScheme charset branches on non-standard schemes
+ * @tc.desc: '+'/'-'/'.'/'|' valid and kept; '_' and other invalid chars rejected.
+ */
+HWTEST_F(WantBaseTest, AaFwk_Want_Parcelable_OrigUri_1100, Function | MediumTest | Level1)
+{
+    Uri plusMinusDot("a+b-c.d|e://host");
+    EXPECT_EQ(plusMinusDot.GetUriStringRef(), "a+b-c.d|e://host");
+    EXPECT_EQ(plusMinusDot.GetScheme(), "a+b-c.d|e");
+
+    Uri relative("relative/path/to/file");
+    EXPECT_EQ(relative.GetUriStringRef(), "relative/path/to/file");
+
+    Uri underscore("a_b://host");
+    EXPECT_TRUE(underscore.GetUriStringRef().empty());
+
+    Uri invalidMiddle("a$b://host");
+    EXPECT_TRUE(invalidMiddle.GetUriStringRef().empty());
+}
+
+/**
+ * @tc.number: AaFwk_Want_Parcelable_OrigUri_1200
+ * @tc.name: multi-hop re-marshalling after origin uri restored
+ * @tc.desc: flag stays in params and the pass-through keeps applying on every hop.
+ */
+HWTEST_F(WantBaseTest, AaFwk_Want_Parcelable_OrigUri_1200, Function | MediumTest | Level1)
+{
+    const std::string nonStdUri = "in_lake_app://com.example/page";
+    std::shared_ptr<Want> WantIn_ = std::make_shared<Want>();
+    ASSERT_NE(WantIn_, nullptr);
+    WantIn_->SetUri(nonStdUri);
+    WantIn_->operation_.uri_.SetUriWithOriginString(nonStdUri);
+    WantIn_->SetParam(Want::PARAM_SET_URI_WITH_ORIGIN_STRING, true);
+
+    Parcel first;
+    EXPECT_EQ(WantIn_->Marshalling(first), true);
+    std::shared_ptr<Want> WantMiddle_(Want::Unmarshalling(first));
+    ASSERT_NE(WantMiddle_, nullptr);
+    EXPECT_EQ(WantMiddle_->GetUriString(), nonStdUri);
+
+    Parcel second;
+    EXPECT_EQ(WantMiddle_->Marshalling(second), true);
+    std::shared_ptr<Want> WantOut_(Want::Unmarshalling(second));
+    ASSERT_NE(WantOut_, nullptr);
+    EXPECT_EQ(WantOut_->GetUriString(), nonStdUri);
+    EXPECT_EQ(WantOut_->GetScheme(), "in_lake_app");
+}
+
+/**
  * @tc.number: AaFwk_Want_Parcelable_0300
  * @tc.name: Marshalling/Unmarshalling
  * @tc.desc: marshalling Want, and then check result.

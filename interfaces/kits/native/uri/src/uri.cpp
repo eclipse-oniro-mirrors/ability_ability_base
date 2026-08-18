@@ -52,6 +52,7 @@ Uri::Uri(const string& uriString)
     }
 
     uriString_ = uriString;
+    originString_ = uriString;
     scheme_ = NOT_CACHED;
     ssp_ = NOT_CACHED;
     authority_ = NOT_CACHED;
@@ -71,7 +72,7 @@ Uri::~Uri()
 {}
 
 Uri::Uri(const Uri &other)
-    : uriString_(other.uriString_), scheme_(other.scheme_),
+    : uriString_(other.uriString_), originString_(other.originString_), scheme_(other.scheme_),
       ssp_(other.ssp_), authority_(other.authority_),
       host_(other.host_), port_(other.port_),
       userInfo_(other.userInfo_), query_(other.query_),
@@ -82,6 +83,7 @@ Uri &Uri::operator=(const Uri &other)
 {
     if (this != &other) {
         uriString_ = other.uriString_;
+        originString_ = other.originString_;
         scheme_ = other.scheme_;
         ssp_ = other.ssp_;
         authority_ = other.authority_;
@@ -98,7 +100,8 @@ Uri &Uri::operator=(const Uri &other)
 }
 
 Uri::Uri(Uri &&other) noexcept
-    : uriString_(std::move(other.uriString_)), scheme_(std::move(other.scheme_)),
+    : uriString_(std::move(other.uriString_)), originString_(std::move(other.originString_)),
+      scheme_(std::move(other.scheme_)),
       ssp_(std::move(other.ssp_)), authority_(std::move(other.authority_)),
       host_(std::move(other.host_)), port_(other.port_),
       userInfo_(std::move(other.userInfo_)), query_(std::move(other.query_)),
@@ -109,6 +112,7 @@ Uri &Uri::operator=(Uri &&other) noexcept
 {
     if (this != &other) {
         uriString_ = std::move(other.uriString_);
+        originString_ = std::move(other.originString_);
         scheme_ = std::move(other.scheme_);
         ssp_ = std::move(other.ssp_);
         authority_ = std::move(other.authority_);
@@ -549,6 +553,16 @@ string Uri::ToString() const
 bool Uri::operator==(const Uri& other) const
 {
     return uriString_ == other.ToString();
+}
+
+void Uri::SetUriWithOriginString(const std::string& originString)
+{
+    uriString_ = originString;
+}
+
+const std::string& Uri::GetOriginString() const
+{
+    return originString_;
 }
 
 bool Uri::Marshalling(Parcel& parcel) const
