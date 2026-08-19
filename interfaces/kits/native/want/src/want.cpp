@@ -237,6 +237,7 @@ const std::string Want::PARAM_APP_KEEP_ALIVE_ENABLED("ohos.param.app.keepAliveEn
 const std::string Want::PARAM_ABILITY_UNIFIED_DATA_KEY("ohos.param.ability.udKey");
 const std::string Want::PARAM_WANT_EXPANSION_TAG("ohos.want.IPC.string8:");
 const std::string Want::UI_EXTENSION_ROOT_TOKEN("ohos.param.uiExtension.rootHostToken");
+const std::string Want::PARAM_SET_URI_WITH_ORIGIN_STRING("ohos.want.setUriWithOriginString");
 const int32_t Want::PARAM_WANT_CAPACITY_EXPANSION(512 * 1024);
 
 /**
@@ -2285,6 +2286,8 @@ bool Want::ReadParameters(Parcel &parcel)
             } else {
                 return false;
             }
+            // Restore the raw uri when the pass-through flag is set.
+            SetUriFromParameter();
         } else {
             auto params = parcel.ReadParcelable<WantParams>();
             if (params != nullptr) {
@@ -2296,9 +2299,23 @@ bool Want::ReadParameters(Parcel &parcel)
             } else {
                 return false;
             }
+            // Restore the raw uri when the pass-through flag is set.
+            SetUriFromParameter();
         }
     }
     return true;
+}
+
+void Want::SetUriFromParameter()
+{
+    if (!GetBoolParam(PARAM_SET_URI_WITH_ORIGIN_STRING, false)) {
+        return;
+    }
+    const std::string &originString = operation_.uri_.GetOriginString();
+    if (originString.empty()) {
+        return;
+    }
+    operation_.uri_.SetUriWithOriginString(originString);
 }
 
 void Want::CloseAllFd()

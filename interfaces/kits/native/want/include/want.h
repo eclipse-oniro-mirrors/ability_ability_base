@@ -948,6 +948,8 @@ public:
     static const int32_t PARAM_WANT_CAPACITY_EXPANSION;
 
     static const std::string UI_EXTENSION_ROOT_TOKEN;
+    // pass-through non-standard scheme uri in want from in-lake to outside-lake
+    static const std::string PARAM_SET_URI_WITH_ORIGIN_STRING;
 private:
     WantParams parameters_;
     Operation operation_;
@@ -983,6 +985,7 @@ private:
     bool ReadEntities(Parcel &parcel);
     bool ReadElement(Parcel &parcel);
     bool ReadParameters(Parcel &parcel);
+    void SetUriFromParameter();
     /*  enum Flags {
             FLAG_AUTH_READ_URI_PERMISSION = 0x00000001,
             FLAG_AUTH_WRITE_URI_PERMISSION = 0x00000002,
