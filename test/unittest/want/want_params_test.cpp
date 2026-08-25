@@ -1641,7 +1641,7 @@ HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_PublicReadFromParcel_0800, Functio
 HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_PublicReadFromParcel_0900, Function | MediumTest | Level1)
 {
     WantParams paramsIn;
-    byte byteValue = 255;
+    byte byteValue = static_cast<byte>(255);
     paramsIn.SetParam("byteKey", Byte::Box(byteValue));
 
     Parcel parcel;
