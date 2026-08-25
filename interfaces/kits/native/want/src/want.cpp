@@ -47,6 +47,7 @@ namespace OHOS {
 namespace AAFwk {
 namespace {
 const std::regex NUMBER_REGEX("^[-+]?([0-9]+)([.]([0-9]+))?$");
+const int32_t MAX_ALLOWED_SIZE(512 * 1024);
 
 nlohmann::json BuildWantJson(const Want &want)
 {
@@ -238,7 +239,7 @@ const std::string Want::PARAM_ABILITY_UNIFIED_DATA_KEY("ohos.param.ability.udKey
 const std::string Want::PARAM_WANT_EXPANSION_TAG("ohos.want.IPC.string8:");
 const std::string Want::UI_EXTENSION_ROOT_TOKEN("ohos.param.uiExtension.rootHostToken");
 const std::string Want::PARAM_SET_URI_WITH_ORIGIN_STRING("ohos.want.setUriWithOriginString");
-const int32_t Want::PARAM_WANT_CAPACITY_EXPANSION(512 * 1024);
+const int32_t Want::PARAM_WANT_CAPACITY_EXPANSION(MAX_ALLOWED_SIZE);
 
 /**
  * @description:Default construcotr of Want class, which is used to initialzie flags and URI.
@@ -2277,7 +2278,7 @@ bool Want::ReadParameters(Parcel &parcel)
     if (empty == VALUE_OBJECT) {
         if (parameters_.CheckNeedExpansion()) {
             int32_t size = parcel.ReadInt32(); // compatible with IPC ReadFromParcel<WantParams>
-            if (size == 0) {
+            if (size == 0 || size > MAX_ALLOWED_SIZE) {
                 return false;
             }
             if (parameters_.PublicReadFromParcel(parcel)) {
