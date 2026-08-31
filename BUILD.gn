@@ -62,6 +62,8 @@ ohos_shared_library("base") {
     "ipc:ipc_core",
   ]
 
+  version_script = "libbase.map"
+
   subsystem_name = "ability"
   innerapi_tags = [
     "platformsdk",
@@ -107,6 +109,8 @@ ohos_shared_library("configuration") {
   ]
   public_external_deps = [ "resource_management:global_resmgr" ]
 
+  version_script = "libconfiguration.map"
+
   subsystem_name = "ability"
   innerapi_tags = [ "platformsdk" ]
   part_name = "ability_base"
@@ -141,6 +145,8 @@ ohos_shared_library("zuri") {
     "c_utils:utils",
     "hilog:libhilog",
   ]
+
+  version_script = "libzuri.map"
 
   subsystem_name = "ability"
   innerapi_tags = [
@@ -228,6 +234,7 @@ ohos_shared_library("want") {
     ":want_exceptions_config",
   ]
   public_configs += [ ":want_public_config" ]
+  version_script = "libwant.map"
   subsystem_name = "ability"
   innerapi_tags = [
     "platformsdk",
