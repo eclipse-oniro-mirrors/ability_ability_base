@@ -1,0 +1,41 @@
+# Copyright (c) 2026 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+{
+  global:
+    extern "C++" {
+      /* classes defined in want.h, want_params.h and want_params_wrapper.h */
+      *Want*;
+      *UnsupportedData*;
+      *g_IID_*;
+      /* extern globals declared in want_params.h */
+      OHOS::AAFwk::FD;
+      OHOS::AAFwk::REMOTE_OBJECT;
+      OHOS::AAFwk::TYPE_PROPERTY;
+      OHOS::AAFwk::VALUE_PROPERTY;
+      /* class defined in array_wrapper.h */
+      *Array*;
+      /* classes defined in operation.h and operation_builder.h */
+      *Operation*;
+      /* class defined in patterns_matcher.h */
+      *PatternsMatcher*;
+      /* class defined in skills.h */
+      *Skills*;
+      /* classes defined in element_name.h, extra_params.h and pac_map.h */
+      *ElementName*;
+      *ExtraParams*;
+      *PacMap*;
+    };
+  local:
+    *;
+};
