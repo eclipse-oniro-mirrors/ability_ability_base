@@ -12,45 +12,5 @@
 # limitations under the License.
 
 {
-  global:
-    extern "C++" {
-      /* interfaces defined in base_interfaces.h and base_obj.h */
-      *IInterface*;
-      *IObject*;
-      *IBoolean*;
-      *IChar*;
-      *IByte*;
-      *IShort*;
-      *IInteger*;
-      *ILong*;
-      *IFloat*;
-      *IDouble*;
-      *IString*;
-      *IArray*;
-      *IPacMap*;
-      *IUserObject*;
-      *IRemoteObjectWrap*;
-      *IWeakReference*;
-      *IWeakReferenceSource*;
-      /* implementation classes */
-      *Object*;
-      *Boolean*;
-      *Byte*;
-      *Short*;
-      *Integer*;
-      *Long*;
-      *Float*;
-      *Double*;
-      *String*;
-      *Char*;
-      *UserObject*;
-      *UserObjectBase*;
-      *UserObjectBaseLoader*;
-      *RemoteObjectWrap*;
-      /* global constants */
-      *g_IID_*;
-      *Uuid*;
-    };
-  local:
-    *;
+  global: *;
 };
