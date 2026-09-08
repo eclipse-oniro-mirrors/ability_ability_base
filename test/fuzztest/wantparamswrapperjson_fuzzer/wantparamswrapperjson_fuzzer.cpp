@@ -125,8 +125,13 @@ void ExerciseParse(const std::string &text)
 
     WantParams out;
     out.SetParam("sentinel", String::Box("keep"));
-    if (!WantParamWrapperJson::Parse(text, out)) {
-        return;
+    if (!WantParamWrapperJson::Parse(
+        text, out, WantParamWrapperJson::UnsupportedTypePolicy::FAIL)) {
+        out = WantParams();
+        out.SetParam("sentinel", String::Box("keep"));
+        if (!WantParamWrapperJson::Parse(text, out)) {
+            return;
+        }
     }
 
     std::string serialized;
@@ -160,6 +165,8 @@ void ExerciseSchemaMutations(const std::string &raw, uint8_t selector)
         envelopePrefix + "{\"k\":{\"102\":\"" + escaped + "\"}}}",
         envelopePrefix + "{\"k\":{\"102\":{\"101\":[{\"v\":{\"9\":\"" + escaped + "\"}}]}}}}",
         envelopePrefix + "{\"k\":{\"102\":{\"102\":[{\"101\":[]}]}}}}",
+        envelopePrefix + "{\"keep\":{\"9\":\"v\"},\"future\":{\"999\":\"" + escaped + "\"}}}",
+        envelopePrefix + "{\"keep\":{\"9\":\"v\"},\"array\":{\"102\":{\"9\":[]}}}}",
         envelopePrefix + "{\"k\":{\"102\":{\"101\":" + fragment + "}}}}",
         envelopePrefix + "{\"k\":{\"102\":{\"elementType\":101,\"items\":[]}}}}",
         "{\"x\":{\"ohos.want.params.json\":{}}}",
@@ -208,15 +215,33 @@ void ExerciseSerializeRoundTrip(const uint8_t *data, size_t size)
         }
     }
 
-    sptr<IArray> unsupportedArray = new Array(ARRAY_STRING_SIZE, g_IID_IString);
+    sptr<IArray> stringArray = new Array(ARRAY_STRING_SIZE, g_IID_IString);
+    if (stringArray != nullptr) {
+        stringArray->Set(0, String::Box(value));
+        stringArray->Set(1, String::Box(EscapeJsonString(value)));
+        wp.SetParam("stringArray", stringArray);
+
+        sptr<IArray> nestedScalarArray = new Array(1, g_IID_IArray);
+        if (nestedScalarArray != nullptr) {
+            nestedScalarArray->Set(0, stringArray);
+            wp.SetParam("nestedScalarArray", nestedScalarArray);
+        }
+    }
+
+    sptr<IArray> unsupportedArray = new Array(0, g_IID_IObject);
     if (unsupportedArray != nullptr) {
-        unsupportedArray->Set(0, String::Box(value));
-        unsupportedArray->Set(1, String::Box(EscapeJsonString(value)));
         WantParams unsupportedParams;
         unsupportedParams.SetParam("array", unsupportedArray);
         std::string unchanged = "unchanged";
-        bool serializeResult = WantParamWrapperJson::Serialize(unsupportedParams, unchanged);
+        bool serializeResult = WantParamWrapperJson::Serialize(
+            unsupportedParams, unchanged, WantParamWrapperJson::UnsupportedTypePolicy::FAIL);
         if (serializeResult || unchanged != "unchanged") {
+            __builtin_trap();
+        }
+
+        std::string skipped = "unchanged";
+        serializeResult = WantParamWrapperJson::Serialize(unsupportedParams, skipped);
+        if (!serializeResult || skipped != "{\"ohos.want.paramsStringEnvelope\":{}}") {
             __builtin_trap();
         }
     }

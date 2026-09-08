@@ -17,9 +17,10 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <string>
 
 #include "nlohmann/json.hpp"
-#include "want_params.h"
+#include "want_params_wrapper_json.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -32,8 +33,14 @@ using Json = nlohmann::json;
 constexpr uint32_t MAX_RECURSION_DEPTH = 100;
 constexpr size_t MAX_JSON_ARRAY_LENGTH = 50 * 1024 * 1024;
 
-bool BuildParamsJson(const WantParams &params, Json &out, uint32_t depth);
-bool ParseParamsJson(const Json &jsonObject, WantParams &out, uint32_t depth);
+// Parses a canonical decimal typeId without redundant leading zeros, a leading plus sign, or whitespace.
+bool ParseTypeId(const std::string &value, int &typeId);
+// Restores a scalar JSON string and verifies that it already uses the canonical representation.
+bool ParseScalarValueJson(int typeId, const Json &valueJson, sptr<IInterface> &value);
+bool BuildParamsJson(
+    const WantParams &params, Json &out, uint32_t depth, UnsupportedTypePolicy policy);
+bool ParseParamsJson(
+    const Json &jsonObject, WantParams &out, uint32_t depth, UnsupportedTypePolicy policy);
 }  // namespace Internal
 }  // namespace WantParamWrapperJson
 }  // namespace AAFwk

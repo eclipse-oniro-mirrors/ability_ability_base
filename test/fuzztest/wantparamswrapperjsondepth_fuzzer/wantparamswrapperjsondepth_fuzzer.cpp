@@ -47,8 +47,13 @@ void ExerciseParse(const std::string &text)
 
     WantParams out;
     out.SetParam("sentinel", String::Box("keep"));
-    if (!WantParamWrapperJson::Parse(text, out)) {
-        return;
+    if (!WantParamWrapperJson::Parse(
+        text, out, WantParamWrapperJson::UnsupportedTypePolicy::FAIL)) {
+        out = WantParams();
+        out.SetParam("sentinel", String::Box("keep"));
+        if (!WantParamWrapperJson::Parse(text, out)) {
+            return;
+        }
     }
 
     std::string serialized;

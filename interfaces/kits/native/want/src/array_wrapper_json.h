@@ -19,14 +19,23 @@
 
 #include "array_wrapper.h"
 #include "nlohmann/json.hpp"
+#include "want_params_wrapper_json.h"
 
 namespace OHOS {
 namespace AAFwk {
 namespace WantParamWrapperJson {
 namespace Internal {
 namespace ArrayWrapperJson {
-bool Serialize(IArray *array, nlohmann::json &out, uint32_t depth);
-bool Parse(const nlohmann::json &jsonObject, sptr<IArray> &out, uint32_t depth);
+enum class ConvertResult {
+    SUCCESS,
+    UNSUPPORTED,
+    ERROR,
+};
+
+ConvertResult Serialize(
+    IArray *array, nlohmann::json &out, uint32_t depth, UnsupportedTypePolicy policy);
+ConvertResult Parse(const nlohmann::json &jsonObject, sptr<IArray> &out,
+    uint32_t depth, UnsupportedTypePolicy policy);
 }  // namespace ArrayWrapperJson
 }  // namespace Internal
 }  // namespace WantParamWrapperJson

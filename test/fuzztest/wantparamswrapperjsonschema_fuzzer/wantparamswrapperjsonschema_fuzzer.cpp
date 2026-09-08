@@ -98,8 +98,13 @@ void ExerciseParse(const std::string &text)
 
     WantParams out;
     out.SetParam("sentinel", String::Box("keep"));
-    if (!WantParamWrapperJson::Parse(text, out)) {
-        return;
+    if (!WantParamWrapperJson::Parse(
+        text, out, WantParamWrapperJson::UnsupportedTypePolicy::FAIL)) {
+        out = WantParams();
+        out.SetParam("sentinel", String::Box("keep"));
+        if (!WantParamWrapperJson::Parse(text, out)) {
+            return;
+        }
     }
 
     std::string serialized;
@@ -133,6 +138,8 @@ void ExerciseSchemaMutations(const std::string &raw, uint8_t selector)
         envelopePrefix + "{\"k\":{\"102\":\"" + escaped + "\"}}}",
         envelopePrefix + "{\"k\":{\"102\":{\"101\":[{\"v\":{\"9\":\"" + escaped + "\"}}]}}}}",
         envelopePrefix + "{\"k\":{\"102\":{\"102\":[{\"101\":[]}]}}}}",
+        envelopePrefix + "{\"keep\":{\"9\":\"v\"},\"future\":{\"999\":\"" + escaped + "\"}}}",
+        envelopePrefix + "{\"keep\":{\"9\":\"v\"},\"array\":{\"102\":{\"9\":[]}}}}",
         envelopePrefix + "{\"k\":{\"102\":{\"101\":" + fragment + "}}}}",
         envelopePrefix + "{\"k\":{\"102\":{\"elementType\":101,\"items\":[]}}}}",
         "{\"x\":{\"ohos.want.params.json\":{}}}",
