@@ -20,12 +20,14 @@
 
 #include "nlohmann/json.hpp"
 #include "array_wrapper.h"
+#include "base_obj.h"
 #include "bool_wrapper.h"
 #include "byte_wrapper.h"
 #include "double_wrapper.h"
 #include "float_wrapper.h"
 #include "int_wrapper.h"
 #include "long_wrapper.h"
+#include "remote_object_wrapper.h"
 #include "short_wrapper.h"
 #include "string_wrapper.h"
 #include "want_params.h"
@@ -61,6 +63,39 @@ std::string GetString9(const WantParams &out, const std::string &key)
         return "<null>";
     }
     return WantParams::GetStringByType(item, 9);  // 9 = VALUE_TYPE_STRING
+}
+
+sptr<IArray> BuildTypedArray(const InterfaceID &typeId, const std::vector<sptr<IInterface>> &values)
+{
+    sptr<IArray> array = sptr<Array>::MakeSptr(static_cast<long>(values.size()), typeId);
+    if (array == nullptr) {
+        return nullptr;
+    }
+    for (size_t index = 0; index < values.size(); ++index) {
+        if (array->Set(static_cast<long>(index), values[index].GetRefPtr()) != ERR_OK) {
+            return nullptr;
+        }
+    }
+    return array;
+}
+
+void ExpectArrayValues(const WantParams &params, const std::string &key,
+    const InterfaceID &expectedType, int elementTypeId, const std::vector<std::string> &expectedValues)
+{
+    IArray *array = IArray::Query(params.GetParam(key));
+    ASSERT_NE(array, nullptr);
+    InterfaceID actualType;
+    ASSERT_EQ(array->GetType(actualType), ERR_OK);
+    EXPECT_TRUE(actualType == expectedType);
+    long length = 0;
+    ASSERT_EQ(array->GetLength(length), ERR_OK);
+    ASSERT_EQ(length, static_cast<long>(expectedValues.size()));
+    for (size_t index = 0; index < expectedValues.size(); ++index) {
+        sptr<IInterface> element;
+        ASSERT_EQ(array->Get(static_cast<long>(index), element), ERR_OK);
+        ASSERT_NE(element, nullptr);
+        EXPECT_EQ(WantParams::GetStringByType(element, elementTypeId), expectedValues[index]);
+    }
 }
 
 // 构造嵌套层数为 nestedLevels 的带信封字符串，用于深度边界测试。
@@ -509,21 +544,80 @@ HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_1800, TestSize.Level1
 /**
  * @tc.number: Want_Param_Wrapper_Json_1900
  * @tc.name: invalid typeId variants
- * @tc.desc: 非法 typeId（非数字/未知/0/尾随字符）应失败。
+ * @tc.desc: Malformed and non-canonical typeIds fail atomically under both policies.
  */
 HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_1900, TestSize.Level1)
 {
     const std::vector<std::string> bad = {
         "{\"ohos.want.paramsStringEnvelope\":{\"k\":{\"abc\":\"v\"}}}",   // 非数字
-        "{\"ohos.want.paramsStringEnvelope\":{\"k\":{\"999\":\"v\"}}}",   // 未知 typeId
-        "{\"ohos.want.paramsStringEnvelope\":{\"k\":{\"0\":\"v\"}}}",     // 0（哨兵/未知）
         "{\"ohos.want.paramsStringEnvelope\":{\"k\":{\"5abc\":\"v\"}}}",  // 尾随字符
+        "{\"ohos.want.paramsStringEnvelope\":{\"k\":{\"2147483648\":\"v\"}}}",  // 超出 int 范围
+        "{\"ohos.want.paramsStringEnvelope\":{\"k\":{\"09\":\"v\"}}}",    // 前导零
+        "{\"ohos.want.paramsStringEnvelope\":{\"k\":{\"0101\":{}}}}",      // 嵌套类型前导零
+        "{\"ohos.want.paramsStringEnvelope\":{\"k\":{\"+9\":\"v\"}}}",    // 显式正号
+        "{\"ohos.want.paramsStringEnvelope\":{\"k\":{\" 9\":\"v\"}}}",    // 前导空格
     };
     for (const auto &s : bad) {
         Dump("1900_input", s);
         WantParams out;
+        out.SetParam("sentinel", String::Box("keep"));
         EXPECT_FALSE(WantParamWrapperJson::Parse(s, out));
+        EXPECT_EQ(GetString9(out, "sentinel"), "keep");
+        EXPECT_EQ(out.Size(), 1);
+
+        WantParams skippedOut;
+        skippedOut.SetParam("sentinel", String::Box("keep"));
+        EXPECT_FALSE(WantParamWrapperJson::Parse(
+            s, skippedOut, WantParamWrapperJson::UnsupportedTypePolicy::SKIP));
+        EXPECT_EQ(GetString9(skippedOut, "sentinel"), "keep");
+        EXPECT_EQ(skippedOut.Size(), 1);
     }
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_Json_1910
+ * @tc.name: unsupported numeric typeId policy
+ * @tc.desc: Strict mode fails atomically; skip mode warns, drops unsupported fields, and keeps supported fields.
+ */
+HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_1910, TestSize.Level1)
+{
+    const std::string s = "{\"ohos.want.paramsStringEnvelope\":{"
+        "\"keep\":{\"9\":\"v\"},\"future\":{\"999\":{\"payload\":true}},\"zero\":{\"0\":[]}}}";
+
+    WantParams strictOut;
+    strictOut.SetParam("sentinel", String::Box("keep"));
+    EXPECT_FALSE(WantParamWrapperJson::Parse(
+        s, strictOut, WantParamWrapperJson::UnsupportedTypePolicy::FAIL));
+    EXPECT_EQ(GetString9(strictOut, "sentinel"), "keep");
+    EXPECT_EQ(strictOut.Size(), 1);
+
+    WantParams skippedOut;
+    skippedOut.SetParam("sentinel", String::Box("old"));
+    ASSERT_TRUE(WantParamWrapperJson::Parse(
+        s, skippedOut, WantParamWrapperJson::UnsupportedTypePolicy::SKIP));
+    EXPECT_EQ(GetString9(skippedOut, "keep"), "v");
+    EXPECT_EQ(skippedOut.GetParam("future"), nullptr);
+    EXPECT_EQ(skippedOut.GetParam("zero"), nullptr);
+    EXPECT_EQ(skippedOut.GetParam("sentinel"), nullptr);
+    EXPECT_EQ(skippedOut.Size(), 1);
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_Json_1920
+ * @tc.name: all unsupported parameters produce empty result
+ * @tc.desc: Skip mode succeeds and replaces the previous output when every parameter is unsupported.
+ */
+HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_1920, TestSize.Level1)
+{
+    const std::string s = "{\"ohos.want.paramsStringEnvelope\":{\"future\":{\"999\":null}}}";
+    WantParams out;
+    out.SetParam("sentinel", String::Box("old"));
+
+    ASSERT_TRUE(WantParamWrapperJson::Parse(
+        s, out, WantParamWrapperJson::UnsupportedTypePolicy::SKIP));
+    EXPECT_EQ(out.GetParam("future"), nullptr);
+    EXPECT_EQ(out.GetParam("sentinel"), nullptr);
+    EXPECT_EQ(out.Size(), 0);
 }
 
 /**
@@ -615,15 +709,54 @@ HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_2300, TestSize.Level1
 
 /**
  * @tc.number: Want_Param_Wrapper_Json_2400
- * @tc.name: typeId known but unconstructable
- * @tc.desc: typeId 已知但 GetInterfaceByType 无法构造（如 10）应失败。
+ * @tc.name: known but unsupported typeId policy
+ * @tc.desc: A known typeId without JSON restoration support follows the selected policy.
  */
 HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_2400, TestSize.Level1)
 {
-    const std::string s = "{\"ohos.want.paramsStringEnvelope\":{\"k\":{\"10\":\"v\"}}}";
+    const std::string s = "{\"ohos.want.paramsStringEnvelope\":{"
+        "\"keep\":{\"9\":\"v\"},\"unsupported\":{\"10\":\"ignored\"}}}";
     Dump("2400_input", s);
-    WantParams out;
-    EXPECT_FALSE(WantParamWrapperJson::Parse(s, out));
+
+    WantParams strictOut;
+    strictOut.SetParam("sentinel", String::Box("keep"));
+    EXPECT_FALSE(WantParamWrapperJson::Parse(
+        s, strictOut, WantParamWrapperJson::UnsupportedTypePolicy::FAIL));
+    EXPECT_EQ(GetString9(strictOut, "sentinel"), "keep");
+    EXPECT_EQ(strictOut.Size(), 1);
+
+    WantParams defaultOut;
+    ASSERT_TRUE(WantParamWrapperJson::Parse(s, defaultOut));
+    EXPECT_EQ(GetString9(defaultOut, "keep"), "v");
+    EXPECT_EQ(defaultOut.GetParam("unsupported"), nullptr);
+    EXPECT_EQ(defaultOut.Size(), 1);
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_Json_2410
+ * @tc.name: invalid supported values ignore unsupported policy
+ * @tc.desc: Skip mode must not hide malformed values whose type is supported.
+ */
+HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_2410, TestSize.Level1)
+{
+    const std::vector<std::string> invalidValues = {
+        "{\"ohos.want.paramsStringEnvelope\":{\"k\":{\"5\":\"not-int\"}}}",
+        "{\"ohos.want.paramsStringEnvelope\":{\"k\":{\"5\":\"1abc\"}}}",
+        "{\"ohos.want.paramsStringEnvelope\":{\"k\":{\"5\":\"01\"}}}",
+        "{\"ohos.want.paramsStringEnvelope\":{\"k\":{\"7\":\"1.0x\"}}}",
+        "{\"ohos.want.paramsStringEnvelope\":{\"k\":{\"3\":\"ab\"}}}",
+        "{\"ohos.want.paramsStringEnvelope\":{\"k\":{\"9\":7}}}",
+        "{\"ohos.want.paramsStringEnvelope\":{\"k\":{\"101\":\"not-object\"}}}",
+    };
+
+    for (const auto &value : invalidValues) {
+        WantParams out;
+        out.SetParam("sentinel", String::Box("keep"));
+        EXPECT_FALSE(WantParamWrapperJson::Parse(
+            value, out, WantParamWrapperJson::UnsupportedTypePolicy::SKIP));
+        EXPECT_EQ(GetString9(out, "sentinel"), "keep");
+        EXPECT_EQ(out.Size(), 1);
+    }
 }
 
 // ==================== D. HasEnvelope / Validate ====================
@@ -638,7 +771,7 @@ HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_2500, TestSize.Level1
     const std::string ok = "{\"ohos.want.paramsStringEnvelope\":{\"k\":{\"9\":\"v\"}}}";
     Dump("2500_ok", ok);
     EXPECT_TRUE(Validate(ok));
-    const std::string bad = "{\"ohos.want.paramsStringEnvelope\":{\"k\":{\"999\":\"v\"}}}";
+    const std::string bad = "{\"ohos.want.paramsStringEnvelope\":{\"k\":{\"09\":\"v\"}}}";
     Dump("2500_bad", bad);
     EXPECT_FALSE(Validate(bad));
 }
@@ -807,45 +940,118 @@ HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3300, TestSize.Level1
 }
 
 /**
+ * @tc.number: Want_Param_Wrapper_Json_3350
+ * @tc.name: unsupported native object policy
+ * @tc.desc: A non-null object without a WantParams type follows the selected unsupported-type policy.
+ */
+HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3350, TestSize.Level1)
+{
+    sptr<Object> unsupported = sptr<Object>::MakeSptr();
+    ASSERT_NE(unsupported, nullptr);
+    WantParams params;
+    params.SetParam("keep", String::Box("v"));
+    params.SetParam("drop", static_cast<IObject *>(unsupported.GetRefPtr()));
+
+    std::string strictOut = "unchanged";
+    EXPECT_FALSE(WantParamWrapperJson::Serialize(
+        params, strictOut, WantParamWrapperJson::UnsupportedTypePolicy::FAIL));
+    EXPECT_EQ(strictOut, "unchanged");
+
+    std::string defaultOut;
+    ASSERT_TRUE(WantParamWrapperJson::Serialize(params, defaultOut));
+    EXPECT_EQ(defaultOut, "{\"ohos.want.paramsStringEnvelope\":{\"keep\":{\"9\":\"v\"}}}");
+}
+
+/**
  * @tc.number: Want_Param_Wrapper_Json_3400
- * @tc.name: string array is not supported in phase one
- * @tc.desc: String arrays fail without falling back to the legacy Array string format.
+ * @tc.name: string array round-trip
+ * @tc.desc: String arrays use JSON strings and preserve delimiter-like content.
  */
 HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3400, TestSize.Level1)
 {
-    sptr<IArray> arr = new Array(2, g_IID_IString);
+    const std::string first = "a,b{c}\"d\\tail";
+    const std::string second = "\n\t";
+    sptr<IArray> arr = BuildTypedArray(g_IID_IString, {String::Box(first), String::Box(second)});
     ASSERT_NE(arr, nullptr);
-    ASSERT_EQ(arr->Set(0, String::Box("a")), ERR_OK);
-    ASSERT_EQ(arr->Set(1, String::Box("b")), ERR_OK);
     WantParams wp;
     wp.SetParam("arr", arr);
-    std::string serialized = "unchanged";
-    EXPECT_FALSE(WantParamWrapperJson::Serialize(wp, serialized));
-    EXPECT_EQ(serialized, "unchanged");
+    std::string serialized;
+    ASSERT_TRUE(WantParamWrapperJson::Serialize(wp, serialized));
+    std::string skipped;
+    ASSERT_TRUE(WantParamWrapperJson::Serialize(
+        wp, skipped, WantParamWrapperJson::UnsupportedTypePolicy::SKIP));
+    EXPECT_EQ(skipped, serialized);
+    const nlohmann::json root = nlohmann::json::parse(serialized);
+    const nlohmann::json &items = root.at(ENVELOPE_KEY).at("arr").at("102").at("9");
+    ASSERT_EQ(items.size(), 2u);
+    EXPECT_EQ(items.at(0).get<std::string>(), first);
+    EXPECT_EQ(items.at(1).get<std::string>(), second);
+
+    WantParams out;
+    ASSERT_TRUE(WantParamWrapperJson::Parse(serialized, out));
+    ExpectArrayValues(out, "arr", g_IID_IString, 9, {first, second});
 }
 
 /**
  * @tc.number: Want_Param_Wrapper_Json_3500
- * @tc.name: integer array is not supported in phase one
- * @tc.desc: Integer arrays fail until their JSON element rules are defined.
+ * @tc.name: integer array round-trip
+ * @tc.desc: Integer arrays use canonical scalar strings and round-trip through JSON.
  */
 HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3500, TestSize.Level1)
 {
-    sptr<IArray> arr = new Array(2, g_IID_IInteger);
+    sptr<IArray> arr = BuildTypedArray(g_IID_IInteger, {Integer::Box(10), Integer::Box(-20)});
     ASSERT_NE(arr, nullptr);
-    ASSERT_EQ(arr->Set(0, Integer::Box(10)), ERR_OK);
-    ASSERT_EQ(arr->Set(1, Integer::Box(20)), ERR_OK);
     WantParams wp;
     wp.SetParam("arr", arr);
-    std::string serialized = "unchanged";
-    EXPECT_FALSE(WantParamWrapperJson::Serialize(wp, serialized));
-    EXPECT_EQ(serialized, "unchanged");
+    std::string serialized;
+    ASSERT_TRUE(WantParamWrapperJson::Serialize(wp, serialized));
+    EXPECT_EQ(nlohmann::json::parse(serialized).at(ENVELOPE_KEY).at("arr").at("102").at("5"),
+        nlohmann::json::array({"10", "-20"}));
+
+    WantParams out;
+    ASSERT_TRUE(WantParamWrapperJson::Parse(serialized, out));
+    ExpectArrayValues(out, "arr", g_IID_IInteger, 5, {"10", "-20"});
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_Json_3550
+ * @tc.name: all scalar array types round-trip
+ * @tc.desc: Array element typeIds 1 through 9 share the strict scalar JSON representation.
+ */
+HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3550, TestSize.Level1)
+{
+    WantParams params;
+    params.SetParam("boolean", BuildTypedArray(g_IID_IBoolean, {Boolean::Box(true), Boolean::Box(false)}));
+    params.SetParam("byte", BuildTypedArray(g_IID_IByte,
+        {Byte::Box(static_cast<byte>(8)), Byte::Box(static_cast<byte>(7))}));
+    params.SetParam("char", BuildTypedArray(g_IID_IChar, {Char::Box(U'天'), Char::Box(U'Z')}));
+    params.SetParam("short", BuildTypedArray(g_IID_IShort,
+        {Short::Box(static_cast<short>(-12)), Short::Box(static_cast<short>(34))}));
+    params.SetParam("int", BuildTypedArray(g_IID_IInteger, {Integer::Box(-56), Integer::Box(78)}));
+    params.SetParam("long", BuildTypedArray(g_IID_ILong, {Long::Box64(-90), Long::Box64(123456789)}));
+    params.SetParam("float", BuildTypedArray(g_IID_IFloat, {Float::Box(1.5f), Float::Box(-2.25f)}));
+    params.SetParam("double", BuildTypedArray(g_IID_IDouble, {Double::Box(3.5), Double::Box(-4.75)}));
+    params.SetParam("string", BuildTypedArray(g_IID_IString, {String::Box("a,b"), String::Box("")}));
+
+    std::string serialized;
+    ASSERT_TRUE(WantParamWrapperJson::Serialize(params, serialized));
+    WantParams out;
+    ASSERT_TRUE(WantParamWrapperJson::Parse(serialized, out));
+    ExpectArrayValues(out, "boolean", g_IID_IBoolean, 1, {"true", "false"});
+    ExpectArrayValues(out, "byte", g_IID_IByte, 2, {"8", "7"});
+    ExpectArrayValues(out, "char", g_IID_IChar, 3, {"天", "Z"});
+    ExpectArrayValues(out, "short", g_IID_IShort, 4, {"-12", "34"});
+    ExpectArrayValues(out, "int", g_IID_IInteger, 5, {"-56", "78"});
+    ExpectArrayValues(out, "long", g_IID_ILong, 6, {"-90", "123456789"});
+    ExpectArrayValues(out, "float", g_IID_IFloat, 7, {"1.500000", "-2.250000"});
+    ExpectArrayValues(out, "double", g_IID_IDouble, 8, {"3.500000", "-4.750000"});
+    ExpectArrayValues(out, "string", g_IID_IString, 9, {"a,b", ""});
 }
 
 /**
  * @tc.number: Want_Param_Wrapper_Json_3600
- * @tc.name: empty primitive array is not supported in phase one
- * @tc.desc: Empty primitive arrays retain an unsupported element type and fail atomically.
+ * @tc.name: empty scalar array round-trip
+ * @tc.desc: An empty scalar array preserves its declared element type.
  */
 HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3600, TestSize.Level1)
 {
@@ -853,9 +1059,151 @@ HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3600, TestSize.Level1
     ASSERT_NE(arr, nullptr);
     WantParams wp;
     wp.SetParam("arr", arr);
-    std::string serialized = "unchanged";
-    EXPECT_FALSE(WantParamWrapperJson::Serialize(wp, serialized));
-    EXPECT_EQ(serialized, "unchanged");
+    std::string serialized;
+    ASSERT_TRUE(WantParamWrapperJson::Serialize(wp, serialized));
+    EXPECT_TRUE(nlohmann::json::parse(serialized).at(ENVELOPE_KEY)
+        .at("arr").at("102").at("5").empty());
+
+    WantParams out;
+    ASSERT_TRUE(WantParamWrapperJson::Parse(serialized, out));
+    ExpectArrayValues(out, "arr", g_IID_IInteger, 5, {});
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_Json_3605
+ * @tc.name: nested WantParams skips unsupported member
+ * @tc.desc: Skip mode omits an unsupported value inside nested WantParams while preserving its supported member.
+ */
+HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3605, TestSize.Level1)
+{
+    // RemoteObjectWrap survives WantParams copying but remains unsupported by the JSON codec.
+    sptr<IRemoteObjectWrap> unsupported = RemoteObjectWrap::Box(nullptr);
+    ASSERT_NE(unsupported, nullptr);
+    WantParams child;
+    child.SetParam("keep", String::Box("child"));
+    child.SetParam("drop", unsupported);
+    WantParams params;
+    params.SetParam("child", WantParamWrapper::Box(std::move(child)));
+
+    std::string strictOut = "unchanged";
+    EXPECT_FALSE(WantParamWrapperJson::Serialize(
+        params, strictOut, WantParamWrapperJson::UnsupportedTypePolicy::FAIL));
+    EXPECT_EQ(strictOut, "unchanged");
+
+    std::string skippedOut;
+    ASSERT_TRUE(WantParamWrapperJson::Serialize(
+        params, skippedOut, WantParamWrapperJson::UnsupportedTypePolicy::SKIP));
+    EXPECT_EQ(skippedOut, "{\"ohos.want.paramsStringEnvelope\":{"
+        "\"child\":{\"101\":{\"keep\":{\"9\":\"child\"}}}}}");
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_Json_3607
+ * @tc.name: unsupported nested array skips owning parameter
+ * @tc.desc: An unsupported leaf in an Array of Arrays propagates to the nearest named array parameter.
+ */
+HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3607, TestSize.Level1)
+{
+    sptr<IArray> unsupportedLeaf = new Array(0, g_IID_IObject);
+    sptr<IArray> outerArray = new Array(1, g_IID_IArray);
+    ASSERT_NE(unsupportedLeaf, nullptr);
+    ASSERT_NE(outerArray, nullptr);
+    ASSERT_EQ(outerArray->Set(0, unsupportedLeaf), ERR_OK);
+    WantParams params;
+    params.SetParam("keep", String::Box("v"));
+    params.SetParam("drop", outerArray);
+
+    std::string strictOut = "unchanged";
+    EXPECT_FALSE(WantParamWrapperJson::Serialize(
+        params, strictOut, WantParamWrapperJson::UnsupportedTypePolicy::FAIL));
+    EXPECT_EQ(strictOut, "unchanged");
+
+    std::string skippedOut;
+    ASSERT_TRUE(WantParamWrapperJson::Serialize(
+        params, skippedOut, WantParamWrapperJson::UnsupportedTypePolicy::SKIP));
+    EXPECT_EQ(skippedOut, "{\"ohos.want.paramsStringEnvelope\":{\"keep\":{\"9\":\"v\"}}}");
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_Json_3608
+ * @tc.name: WantParams array forwards serialize policy
+ * @tc.desc: Skip mode applies inside WantParams array elements without removing the array item.
+ */
+HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3608, TestSize.Level1)
+{
+    // RemoteObjectWrap survives WantParams copying but remains unsupported by the JSON codec.
+    sptr<IRemoteObjectWrap> unsupported = RemoteObjectWrap::Box(nullptr);
+    ASSERT_NE(unsupported, nullptr);
+    WantParams child;
+    child.SetParam("keep", String::Box("v"));
+    child.SetParam("drop", unsupported);
+    sptr<IArray> array = new Array(1, g_IID_IWantParams);
+    ASSERT_NE(array, nullptr);
+    ASSERT_EQ(array->Set(0, WantParamWrapper::Box(std::move(child))), ERR_OK);
+    WantParams params;
+    params.SetParam("array", array);
+
+    std::string strictOut = "unchanged";
+    EXPECT_FALSE(WantParamWrapperJson::Serialize(
+        params, strictOut, WantParamWrapperJson::UnsupportedTypePolicy::FAIL));
+    EXPECT_EQ(strictOut, "unchanged");
+
+    std::string skippedOut;
+    ASSERT_TRUE(WantParamWrapperJson::Serialize(
+        params, skippedOut, WantParamWrapperJson::UnsupportedTypePolicy::SKIP));
+    const nlohmann::json root = nlohmann::json::parse(skippedOut);
+    const nlohmann::json &item = root.at(ENVELOPE_KEY).at("array").at("102").at("101").at(0);
+    EXPECT_EQ(item.at("keep").at("9").get<std::string>(), "v");
+    EXPECT_FALSE(item.contains("drop"));
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_Json_3609
+ * @tc.name: nested arrays terminate in a scalar array
+ * @tc.desc: Array<Array<BooleanArray>> uses recursive Array nodes and a Boolean scalar leaf.
+ */
+HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3609, TestSize.Level1)
+{
+    sptr<IArray> booleanArray = BuildTypedArray(
+        g_IID_IBoolean, {Boolean::Box(true), Boolean::Box(false)});
+    sptr<IArray> middleArray = BuildTypedArray(g_IID_IArray, {booleanArray});
+    sptr<IArray> outerArray = BuildTypedArray(g_IID_IArray, {middleArray});
+    ASSERT_NE(booleanArray, nullptr);
+    ASSERT_NE(middleArray, nullptr);
+    ASSERT_NE(outerArray, nullptr);
+
+    WantParams params;
+    params.SetParam("array", outerArray);
+    std::string serialized;
+    ASSERT_TRUE(WantParamWrapperJson::Serialize(params, serialized));
+    const nlohmann::json root = nlohmann::json::parse(serialized);
+    const nlohmann::json &booleanItems = root.at(ENVELOPE_KEY).at("array").at("102")
+        .at("102").at(0).at("102").at(0).at("1");
+    EXPECT_EQ(booleanItems, nlohmann::json::array({"true", "false"}));
+
+    WantParams out;
+    ASSERT_TRUE(WantParamWrapperJson::Parse(serialized, out));
+    IArray *parsedOuter = IArray::Query(out.GetParam("array"));
+    ASSERT_NE(parsedOuter, nullptr);
+    sptr<IInterface> middleValue;
+    ASSERT_EQ(parsedOuter->Get(0, middleValue), ERR_OK);
+    IArray *parsedMiddle = IArray::Query(middleValue);
+    ASSERT_NE(parsedMiddle, nullptr);
+    sptr<IInterface> booleanValue;
+    ASSERT_EQ(parsedMiddle->Get(0, booleanValue), ERR_OK);
+    IArray *parsedBooleanArray = IArray::Query(booleanValue);
+    ASSERT_NE(parsedBooleanArray, nullptr);
+    InterfaceID elementType;
+    ASSERT_EQ(parsedBooleanArray->GetType(elementType), ERR_OK);
+    EXPECT_TRUE(elementType == g_IID_IBoolean);
+    long length = 0;
+    ASSERT_EQ(parsedBooleanArray->GetLength(length), ERR_OK);
+    ASSERT_EQ(length, 2);
+    for (long index = 0; index < length; ++index) {
+        sptr<IInterface> item;
+        ASSERT_EQ(parsedBooleanArray->Get(index, item), ERR_OK);
+        EXPECT_EQ(WantParams::GetStringByType(item, 1), index == 0 ? "true" : "false");
+    }
 }
 
 /**
@@ -939,33 +1287,41 @@ HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3620, TestSize.Level1
 
 /**
  * @tc.number: Want_Param_Wrapper_Json_3630
- * @tc.name: Invalid native WantParams array fails atomically
- * @tc.desc: Null or wrong-type native elements fail serialization without changing output.
+ * @tc.name: Invalid native array fails atomically
+ * @tc.desc: Null or wrong-type native Array elements fail serialization without changing output.
  */
 HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3630, TestSize.Level1)
 {
     sptr<IArray> nullArray = sptr<Array>::MakeSptr(1, g_IID_IWantParams);
     sptr<IArray> wrongTypeArray = sptr<Array>::MakeSptr(1, g_IID_IWantParams);
     sptr<IArray> wrongNestedArray = sptr<Array>::MakeSptr(1, g_IID_IArray);
+    sptr<IArray> wrongScalarArray = sptr<Array>::MakeSptr(1, g_IID_IBoolean);
     ASSERT_NE(nullArray, nullptr);
     ASSERT_NE(wrongTypeArray, nullptr);
     ASSERT_NE(wrongNestedArray, nullptr);
+    ASSERT_NE(wrongScalarArray, nullptr);
     ASSERT_EQ(wrongTypeArray->Set(0, String::Box("wrong")), ERR_OK);
     ASSERT_EQ(wrongNestedArray->Set(0, String::Box("wrong")), ERR_OK);
+    ASSERT_EQ(wrongScalarArray->Set(0, String::Box("wrong")), ERR_OK);
 
-    for (const auto &array : { nullArray, wrongTypeArray, wrongNestedArray }) {
+    for (const auto &array : { nullArray, wrongTypeArray, wrongNestedArray, wrongScalarArray }) {
         WantParams params;
         params.SetParam("array", array);
         std::string serialized = "unchanged";
         EXPECT_FALSE(WantParamWrapperJson::Serialize(params, serialized));
         EXPECT_EQ(serialized, "unchanged");
+
+        std::string skippedOut = "unchanged";
+        EXPECT_FALSE(WantParamWrapperJson::Serialize(
+            params, skippedOut, WantParamWrapperJson::UnsupportedTypePolicy::SKIP));
+        EXPECT_EQ(skippedOut, "unchanged");
     }
 }
 
 /**
  * @tc.number: Want_Param_Wrapper_Json_3640
  * @tc.name: Invalid WantParams array JSON schema fails atomically
- * @tc.desc: Invalid members, element type, items shape, item type, or extra fields are rejected.
+ * @tc.desc: Invalid members, type tokens, items shape, item type, or extra fields fail under both policies.
  */
 HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3640, TestSize.Level1)
 {
@@ -977,9 +1333,14 @@ HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3640, TestSize.Level1
         "{\"101\":{}}",
         "{\"101\":[null]}",
         "{\"102\":[null]}",
-        "{\"102\":[{\"9\":[]}]}",
         "{\"101\":[],\"102\":[]}",
-        "{\"9\":[]}",
+        "{\"abc\":[]}",
+        "{\"0101\":[]}",
+        "{\"9\":{}}",
+        "{\"1\":[true]}",
+        "{\"5\":[5]}",
+        "{\"5\":[\"05\"]}",
+        "{\"9\":[null]}",
         "{\"elementType\":101,\"items\":[]}",
         "{\"items\":[]}",
     };
@@ -991,7 +1352,79 @@ HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3640, TestSize.Level1
         EXPECT_FALSE(WantParamWrapperJson::Parse(serialized, out)) << "input=[" << serialized << "]";
         EXPECT_EQ(GetString9(out, "sentinel"), "keep");
         EXPECT_EQ(out.Size(), 1);
+
+        WantParams skippedOut;
+        skippedOut.SetParam("sentinel", String::Box("keep"));
+        EXPECT_FALSE(WantParamWrapperJson::Parse(serialized, skippedOut,
+            WantParamWrapperJson::UnsupportedTypePolicy::SKIP)) << "input=[" << serialized << "]";
+        EXPECT_EQ(GetString9(skippedOut, "sentinel"), "keep");
+        EXPECT_EQ(skippedOut.Size(), 1);
     }
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_Json_3645
+ * @tc.name: Unsupported array JSON element type policy
+ * @tc.desc: Strict mode fails atomically; skip mode drops the owning array and keeps supported parameters.
+ */
+HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3645, TestSize.Level1)
+{
+    const std::string prefix = "{\"" + std::string(ENVELOPE_KEY) +
+        "\":{\"keep\":{\"9\":\"v\"},\"array\":{\"102\":";
+    const std::string suffix = "}}}";
+    const std::vector<std::string> unsupportedValues = {
+        "{\"10\":[]}",
+        "{\"102\":[{\"10\":[]}]}",
+    };
+
+    for (const auto &value : unsupportedValues) {
+        const std::string serialized = prefix + value + suffix;
+        WantParams strictOut;
+        strictOut.SetParam("sentinel", String::Box("keep"));
+        EXPECT_FALSE(WantParamWrapperJson::Parse(
+            serialized, strictOut, WantParamWrapperJson::UnsupportedTypePolicy::FAIL));
+        EXPECT_EQ(GetString9(strictOut, "sentinel"), "keep");
+        EXPECT_EQ(strictOut.Size(), 1);
+
+        WantParams skippedOut;
+        skippedOut.SetParam("sentinel", String::Box("old"));
+        ASSERT_TRUE(WantParamWrapperJson::Parse(serialized, skippedOut,
+            WantParamWrapperJson::UnsupportedTypePolicy::SKIP));
+        EXPECT_EQ(GetString9(skippedOut, "keep"), "v");
+        EXPECT_EQ(skippedOut.GetParam("array"), nullptr);
+        EXPECT_EQ(skippedOut.GetParam("sentinel"), nullptr);
+        EXPECT_EQ(skippedOut.Size(), 1);
+    }
+}
+
+/**
+ * @tc.number: Want_Param_Wrapper_Json_3647
+ * @tc.name: WantParams array forwards parse policy
+ * @tc.desc: Skip mode applies inside WantParams array items without removing the array item.
+ */
+HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3647, TestSize.Level1)
+{
+    const std::string serialized = "{\"ohos.want.paramsStringEnvelope\":{"
+        "\"array\":{\"102\":{\"101\":[{\"keep\":{\"9\":\"v\"},\"drop\":{\"10\":\"ignored\"}}]}}}}";
+
+    WantParams strictOut;
+    strictOut.SetParam("sentinel", String::Box("keep"));
+    EXPECT_FALSE(WantParamWrapperJson::Parse(
+        serialized, strictOut, WantParamWrapperJson::UnsupportedTypePolicy::FAIL));
+    EXPECT_EQ(GetString9(strictOut, "sentinel"), "keep");
+    EXPECT_EQ(strictOut.Size(), 1);
+
+    WantParams skippedOut;
+    ASSERT_TRUE(WantParamWrapperJson::Parse(
+        serialized, skippedOut, WantParamWrapperJson::UnsupportedTypePolicy::SKIP));
+    IArray *parsedArray = IArray::Query(skippedOut.GetParam("array"));
+    ASSERT_NE(parsedArray, nullptr);
+    sptr<IInterface> element;
+    ASSERT_EQ(parsedArray->Get(0, element), ERR_OK);
+    WantParams child = WantParamWrapper::Unbox(IWantParams::Query(element));
+    EXPECT_EQ(GetString9(child, "keep"), "v");
+    EXPECT_EQ(child.GetParam("drop"), nullptr);
+    EXPECT_EQ(child.Size(), 1);
 }
 
 /**
@@ -1318,6 +1751,11 @@ HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3810, TestSize.Level1
     Dump("3810_serialize", s);
     EXPECT_EQ(s.find("\"drop\""), std::string::npos);
 
+    std::string skipped;
+    ASSERT_TRUE(WantParamWrapperJson::Serialize(
+        wp, skipped, WantParamWrapperJson::UnsupportedTypePolicy::SKIP));
+    EXPECT_EQ(skipped, s);
+
     WantParams out;
     ASSERT_TRUE(WantParamWrapperJson::Parse(s, out));
     EXPECT_EQ(GetString9(out, "keep"), "v");
@@ -1327,20 +1765,30 @@ HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3810, TestSize.Level1
 
 /**
  * @tc.number: Want_Param_Wrapper_Json_3820
- * @tc.name: parse rejects null typeId
- * @tc.desc: typeId -1 is not generated by Serialize, so it is rejected.
+ * @tc.name: parse applies policy to null typeId
+ * @tc.desc: typeId -1 is unsupported: strict mode fails and skip mode omits the field.
  */
 HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3820, TestSize.Level1)
 {
     const std::string s = "{\"ohos.want.paramsStringEnvelope\":{\"keep\":{\"9\":\"v\"},\"drop\":{\"-1\":\"\"}}}";
     Dump("3820_input", s);
 
-    WantParams out;
-    out.SetParam("sentinel", String::Box("keep"));
-    EXPECT_FALSE(WantParamWrapperJson::Parse(s, out));
-    EXPECT_EQ(GetString9(out, "sentinel"), "keep");
-    EXPECT_EQ(out.GetParam("drop"), nullptr);
-    EXPECT_EQ(out.Size(), 1);
+    WantParams strictOut;
+    strictOut.SetParam("sentinel", String::Box("keep"));
+    EXPECT_FALSE(WantParamWrapperJson::Parse(
+        s, strictOut, WantParamWrapperJson::UnsupportedTypePolicy::FAIL));
+    EXPECT_EQ(GetString9(strictOut, "sentinel"), "keep");
+    EXPECT_EQ(strictOut.GetParam("drop"), nullptr);
+    EXPECT_EQ(strictOut.Size(), 1);
+
+    WantParams skippedOut;
+    skippedOut.SetParam("sentinel", String::Box("old"));
+    ASSERT_TRUE(WantParamWrapperJson::Parse(
+        s, skippedOut, WantParamWrapperJson::UnsupportedTypePolicy::SKIP));
+    EXPECT_EQ(GetString9(skippedOut, "keep"), "v");
+    EXPECT_EQ(skippedOut.GetParam("drop"), nullptr);
+    EXPECT_EQ(skippedOut.GetParam("sentinel"), nullptr);
+    EXPECT_EQ(skippedOut.Size(), 1);
 }
 
 /**
@@ -1483,6 +1931,12 @@ HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3980, TestSize.Level1
     out = WantParams();
     EXPECT_FALSE(WantParamWrapperJson::Parse(BuildArrayEnvelope(FULL_DEPTH + 1), out));
     EXPECT_EQ(out.Size(), 0);
+
+    out.SetParam("sentinel", String::Box("keep"));
+    EXPECT_FALSE(WantParamWrapperJson::Parse(BuildArrayEnvelope(FULL_DEPTH + 1), out,
+        WantParamWrapperJson::UnsupportedTypePolicy::SKIP));
+    EXPECT_EQ(GetString9(out, "sentinel"), "keep");
+    EXPECT_EQ(out.Size(), 1);
 }
 
 /**
@@ -1501,5 +1955,9 @@ HWTEST_F(WantParamWrapperJsonTest, Want_Param_Wrapper_Json_3990, TestSize.Level1
     overLimit.SetParam("array", BuildNestedArrayObject(FULL_DEPTH + 1));
     serialized = "unchanged";
     EXPECT_FALSE(WantParamWrapperJson::Serialize(overLimit, serialized));
+    EXPECT_EQ(serialized, "unchanged");
+
+    EXPECT_FALSE(WantParamWrapperJson::Serialize(
+        overLimit, serialized, WantParamWrapperJson::UnsupportedTypePolicy::SKIP));
     EXPECT_EQ(serialized, "unchanged");
 }
