@@ -1186,5 +1186,27 @@ HWTEST_F(PageNodeInfoTest, ToJsonString_004, TestSize.Level1)
     nlohmann::json jsonResult = nlohmann::json::parse(result);
     EXPECT_FALSE(jsonResult.is_null());
 }
+
+/**
+ * @tc.name: ToJsonString_InvalidUtf8_0100
+ * @tc.desc: Verify ToJsonString survives invalid UTF-8 bytes in string fields.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PageNodeInfoTest, ToJsonString_InvalidUtf8_0100, TestSize.Level1)
+{
+    PageNodeInfo testNode;
+    std::string invalidUtf8;
+    invalidUtf8.push_back(static_cast<char>(0xFF));
+    invalidUtf8.push_back(static_cast<char>(0xFE));
+    invalidUtf8.push_back(static_cast<char>(0x80));
+    testNode.value = invalidUtf8;
+    testNode.tag = "valid";
+
+    std::string result = testNode.ToJsonString();
+    nlohmann::json jsonResult = nlohmann::json::parse(result);
+    ASSERT_FALSE(jsonResult.is_discarded());
+    ASSERT_TRUE(jsonResult.contains(PAGE_NODE_INFO_TAG));
+    EXPECT_EQ(jsonResult[PAGE_NODE_INFO_TAG], "valid");
+}
 }  // namespace AbilityBase
 }  // namespace OHOS
