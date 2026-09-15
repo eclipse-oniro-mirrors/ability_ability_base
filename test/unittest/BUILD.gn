@@ -295,6 +295,8 @@ ohos_unittest("want_test") {
     "${ability_base_path}:want_public_config",
   ]
 
+  ldflags = [ "-Wl,--wrap=getuid" ]
+
   deps = [
     "${ability_base_path}:base",
     "${ability_base_path}:want",

@@ -14,7 +14,9 @@
  */
 
 #include <gtest/gtest.h>
+#include <unistd.h>
 
+#include "string_ex.h"
 #include "string_wrapper.h"
 #include "base_obj.h"
 #include "bool_wrapper.h"
@@ -36,6 +38,20 @@ using namespace OHOS::AAFwk;
 using namespace OHOS;
 using OHOS::Parcel;
 using OHOS::AppExecFwk::ElementName;
+
+namespace {
+constexpr int32_t BROKER_UID = 5557;
+int32_t g_mockUid = -1;
+}
+
+extern "C" uid_t __real_getuid(void);
+extern "C" uid_t __wrap_getuid(void)
+{
+    if (g_mockUid >= 0) {
+        return static_cast<uid_t>(g_mockUid);
+    }
+    return __real_getuid();
+}
 
 namespace OHOS {
 namespace AAFwk {
@@ -4741,6 +4757,104 @@ HWTEST_F(WantBaseTest, Fd_test_001, TestSize.Level1)
     EXPECT_EQ(1, want1->Action_ConvertNative2Ets("ohos.want.action.dial"));
     EXPECT_EQ(-1, want1->Action_ConvertNative2Ets("ohos"));
     GTEST_LOG_(INFO) << "Fd_test_001 end";
+}
+
+/**
+ * @tc.number: AaFwk_Want_Marshalling_NonBroker_Expansion_0100
+ * @tc.name: Non-broker process with UTF8 flag triggers expansion
+ * @tc.desc: uid != BROKER_UID 时 action 带 PARAM_WANT_EXPANSION_TAG 前缀, 字符串参数走 UTF-8 序列化.
+ */
+HWTEST_F(WantBaseTest, AaFwk_Want_Marshalling_NonBroker_Expansion_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_Want_Marshalling_NonBroker_Expansion_0100 start";
+    g_mockUid = 1000;
+    const std::string action = "test.action.expansion";
+    auto want = std::make_shared<Want>();
+    ASSERT_NE(want, nullptr);
+    want->SetAction(action);
+    want->SetParam(Want::PARAM_STRING_TRANS_FORMAT_UTF8, true);
+
+    Parcel parcel;
+    EXPECT_EQ(want->Marshalling(parcel), true);
+
+    parcel.RewindRead(0);
+    std::u16string rawActionU16 = parcel.ReadString16();
+    std::string rawAction = Str16ToStr8(rawActionU16);
+    EXPECT_EQ(rawAction.find(Want::PARAM_WANT_EXPANSION_TAG), 0u);
+    EXPECT_EQ(rawAction, Want::PARAM_WANT_EXPANSION_TAG + action);
+
+    parcel.RewindRead(0);
+    auto wantOut = std::shared_ptr<Want>(Want::Unmarshalling(parcel));
+    ASSERT_NE(wantOut, nullptr);
+    EXPECT_EQ(wantOut->GetAction(), action);
+
+    g_mockUid = -1;
+    GTEST_LOG_(INFO) << "AaFwk_Want_Marshalling_NonBroker_Expansion_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_Want_Marshalling_Broker_SkipExpansion_0200
+ * @tc.name: Broker process (UID 5557) with UTF8 flag skips expansion
+ * @tc.desc: uid == BROKER_UID 时 action 不加前缀, 字符串参数走 UTF-16 序列化.
+ */
+HWTEST_F(WantBaseTest, AaFwk_Want_Marshalling_Broker_SkipExpansion_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_Want_Marshalling_Broker_SkipExpansion_0200 start";
+    g_mockUid = BROKER_UID;
+    const std::string action = "test.action.broker";
+    auto want = std::make_shared<Want>();
+    ASSERT_NE(want, nullptr);
+    want->SetAction(action);
+    want->SetParam(Want::PARAM_STRING_TRANS_FORMAT_UTF8, true);
+
+    Parcel parcel;
+    EXPECT_EQ(want->Marshalling(parcel), true);
+
+    parcel.RewindRead(0);
+    std::u16string rawActionU16 = parcel.ReadString16();
+    std::string rawAction = Str16ToStr8(rawActionU16);
+    EXPECT_NE(rawAction.find(Want::PARAM_WANT_EXPANSION_TAG), 0u);
+    EXPECT_EQ(rawAction, action);
+
+    parcel.RewindRead(0);
+    auto wantOut = std::shared_ptr<Want>(Want::Unmarshalling(parcel));
+    ASSERT_NE(wantOut, nullptr);
+    EXPECT_EQ(wantOut->GetAction(), action);
+
+    g_mockUid = -1;
+    GTEST_LOG_(INFO) << "AaFwk_Want_Marshalling_Broker_SkipExpansion_0200 end";
+}
+
+/**
+ * @tc.number: AaFwk_Want_Marshalling_NoUtf8_NoExpansion_0300
+ * @tc.name: Without UTF8 flag, expansion block is skipped entirely
+ * @tc.desc: PARAM_STRING_TRANS_FORMAT_UTF8 未设置时 action 无前缀, needExpansion 始终 false.
+ */
+HWTEST_F(WantBaseTest, AaFwk_Want_Marshalling_NoUtf8_NoExpansion_0300, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_Want_Marshalling_NoUtf8_NoExpansion_0300 start";
+    g_mockUid = 1000;
+    const std::string action = "test.action.noutf8";
+    auto want = std::make_shared<Want>();
+    ASSERT_NE(want, nullptr);
+    want->SetAction(action);
+
+    Parcel parcel;
+    EXPECT_EQ(want->Marshalling(parcel), true);
+
+    parcel.RewindRead(0);
+    std::u16string rawActionU16 = parcel.ReadString16();
+    std::string rawAction = Str16ToStr8(rawActionU16);
+    EXPECT_NE(rawAction.find(Want::PARAM_WANT_EXPANSION_TAG), 0u);
+    EXPECT_EQ(rawAction, action);
+
+    parcel.RewindRead(0);
+    auto wantOut = std::shared_ptr<Want>(Want::Unmarshalling(parcel));
+    ASSERT_NE(wantOut, nullptr);
+    EXPECT_EQ(wantOut->GetAction(), action);
+
+    g_mockUid = -1;
+    GTEST_LOG_(INFO) << "AaFwk_Want_Marshalling_NoUtf8_NoExpansion_0300 end";
 }
 }  // namespace AAFwk
 }  // namespace OHOS
