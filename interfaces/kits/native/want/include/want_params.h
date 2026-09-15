@@ -235,7 +235,9 @@ void ParseWantParamsFromJsonString(const std::string &jsonString, WantParams &wa
 template<typename JsonType>
 void from_json(const JsonType &jsonObject, WantParams &wantParams)
 {
-    ParseWantParamsFromJsonString(jsonObject.dump(), wantParams);
+    using ErrorHandler = typename JsonType::error_handler_t;
+    ParseWantParamsFromJsonString(
+        jsonObject.dump(-1, ' ', false, ErrorHandler::ignore), wantParams);
 }
 
 template<typename JsonType>

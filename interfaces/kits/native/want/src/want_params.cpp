@@ -2371,7 +2371,7 @@ std::string WantParams::ToString() const
 {
     nlohmann::json jsonObject;
     WantParamsToJson(jsonObject, *this);
-    return jsonObject.dump();
+    return jsonObject.dump(-1, ' ', false, nlohmann::json::error_handler_t::ignore);
 }
 
 void ParseWantParamsFromJsonString(const std::string &jsonString, WantParams &wantParams)
@@ -2386,7 +2386,8 @@ void ParseWantParamsFromJsonString(const std::string &jsonString, WantParams &wa
 
 void from_json(const nlohmann::json &jsonObject, WantParams &wantParams)
 {
-    ParseWantParamsFromJsonString(jsonObject.dump(), wantParams);
+    ParseWantParamsFromJsonString(
+        jsonObject.dump(-1, ' ', false, nlohmann::json::error_handler_t::ignore), wantParams);
 }
 
 void to_json(nlohmann::json &jsonObject, const WantParams &wantParams)

@@ -98,7 +98,7 @@ std::string PageNodeInfo::ToJsonString() const
         {PAGE_NODE_INFO_RECT, rect.ToJsonString()},
         {PAGE_NODE_INFO_IS_FOCUS, isFocus}
     };
-    return jsonObject.dump();
+    return jsonObject.dump(-1, ' ', false, nlohmann::json::error_handler_t::ignore);
 }
 }  // namespace AbilityBase
 }  // namespace OHOS

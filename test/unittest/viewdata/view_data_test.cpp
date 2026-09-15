@@ -785,5 +785,27 @@ HWTEST_F(ViewDataTest, ToJsonString_1010, TestSize.Level1)
     EXPECT_NE(jsonResult[VIEW_DATA_ABILITY_NAME], "Ability1\twith\ttabs");
     EXPECT_EQ(jsonResult[VIEW_DATA_PAGE_URL], "pages/\\escaped");
 }
+
+/**
+ * @tc.name: ToJsonString_InvalidUtf8_0100
+ * @tc.desc: Verify ToJsonString survives invalid UTF-8 bytes in string fields.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ViewDataTest, ToJsonString_InvalidUtf8_0100, TestSize.Level1)
+{
+    ViewData viewData;
+    std::string invalidUtf8;
+    invalidUtf8.push_back(static_cast<char>(0xFF));
+    invalidUtf8.push_back(static_cast<char>(0xFE));
+    invalidUtf8.push_back(static_cast<char>(0x80));
+    viewData.bundleName = invalidUtf8;
+    viewData.pageUrl = "valid";
+
+    std::string result = viewData.ToJsonString();
+    nlohmann::json jsonResult = nlohmann::json::parse(result);
+    ASSERT_FALSE(jsonResult.is_discarded());
+    ASSERT_TRUE(jsonResult.contains(VIEW_DATA_PAGE_URL));
+    EXPECT_EQ(jsonResult[VIEW_DATA_PAGE_URL], "valid");
+}
 }  // namespace AbilityBase
 }  // namespace OHOS

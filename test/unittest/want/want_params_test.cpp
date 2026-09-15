@@ -1447,6 +1447,56 @@ HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_ToString_Nested_0100, Function | M
 }
 
 /**
+ * @tc.number: AaFwk_WantParams_ToString_InvalidUtf8_0100
+ * @tc.name: ToString
+ * @tc.desc: Verify ToString survives param values that are not valid UTF-8. The value
+ *           may come from an untrusted Parcel across processes, so ToString must not
+ *           throw on invalid UTF-8 bytes. In the original code, dump() uses the strict
+ *           error handler and throws nlohmann::json::type_error (id 316) which, under
+ *           -fno-exceptions, terminates the process. After the fix (error_handler_t::
+ *           ignore), ToString returns parseable JSON with the bad bytes ignored.
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_ToString_InvalidUtf8_0100, Function | MediumTest | Level1)
+{
+    WantParams params;
+    std::string invalidUtf8;
+    invalidUtf8.push_back(static_cast<char>(0xFF));
+    invalidUtf8.push_back(static_cast<char>(0xFE));
+    invalidUtf8.push_back(static_cast<char>(0x80));
+    params.SetParam("badKey", OHOS::AAFwk::String::Box(invalidUtf8));
+
+    std::string jsonString = params.ToString();
+    auto jsonObj = nlohmann::json::parse(jsonString, nullptr, false);
+    ASSERT_FALSE(jsonObj.is_discarded());
+    ASSERT_TRUE(jsonObj.contains("badKey"));
+    EXPECT_TRUE(jsonObj["badKey"].is_string());
+}
+
+/**
+ * @tc.number: AaFwk_WantParams_ToString_InvalidUtf8_0200
+ * @tc.name: ToString
+ * @tc.desc: Verify ToString survives invalid UTF-8 bytes embedded inside a longer
+ *           string (mixed with valid multi-byte UTF-8). Guards against the same
+ *           strict-error-handler throw on dump().
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_ToString_InvalidUtf8_0200, Function | MediumTest | Level1)
+{
+    WantParams params;
+    std::string mixed = "hello";
+    mixed.push_back(static_cast<char>(0xE4)); // lead byte of a 3-byte seq
+    mixed.push_back(static_cast<char>(0xBD)); // continuation, but sequence truncated
+    mixed.push_back(static_cast<char>(0xFF));
+    mixed += "world";
+    params.SetParam("mixedKey", OHOS::AAFwk::String::Box(mixed));
+
+    std::string jsonString = params.ToString();
+    auto jsonObj = nlohmann::json::parse(jsonString, nullptr, false);
+    ASSERT_FALSE(jsonObj.is_discarded());
+    ASSERT_TRUE(jsonObj.contains("mixedKey"));
+    EXPECT_TRUE(jsonObj["mixedKey"].is_string());
+}
+
+/**
  * @tc.number: AaFwk_WantParams_PublicReadFromParcel_0100
  * @tc.name: PublicReadFromParcel
  * @tc.desc: Test PublicReadFromParcel with simple string parameter.

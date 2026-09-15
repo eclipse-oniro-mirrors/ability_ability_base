@@ -89,7 +89,7 @@ std::string ViewData::ToJsonString() const
         {VIEW_DATA_OTHER_ACCOUNT, isOtherAccount},
         {VIEW_DATA_PAGE_RECT, pageRect.ToJsonString()}
     };
-    return jsonObject.dump();
+    return jsonObject.dump(-1, ' ', false, nlohmann::json::error_handler_t::ignore);
 }
 }  // namespace AbilityBase
 }  // namespace OHOS
