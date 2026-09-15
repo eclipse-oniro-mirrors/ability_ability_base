@@ -17,6 +17,5 @@
 #define UID_MOCK_H
 
 void SetMockUid(int uid);
-int GetMockUid(void);
 
 #endif  // UID_MOCK_H
