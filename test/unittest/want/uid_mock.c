@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-#define _GNU_SOURCE
 #include <dlfcn.h>
 #include <unistd.h>
 #include "uid_mock.h"
@@ -36,7 +35,9 @@ static GetUidFunc GetRealGetUid(void)
     return realGetUid;
 }
 
-uid_t getuid(void)
+uid_t MockGetUid(void) __asm__("getuid");
+
+uid_t MockGetUid(void)
 {
     if (g_mockUid >= 0) {
         return (uid_t)g_mockUid;
