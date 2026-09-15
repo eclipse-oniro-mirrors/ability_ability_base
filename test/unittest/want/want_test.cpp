@@ -25,6 +25,7 @@
 #include "long_wrapper.h"
 #include "array_wrapper.h"
 #include "zchar_wrapper.h"
+#include "uid_mock.h"
 
 #define private public
 #define protected public
@@ -41,16 +42,6 @@ using OHOS::AppExecFwk::ElementName;
 
 namespace {
 constexpr int32_t BROKER_UID = 5557;
-int32_t g_mockUid = -1;
-}
-
-extern "C" uid_t __real_getuid(void);
-extern "C" uid_t __wrap_getuid(void)
-{
-    if (g_mockUid >= 0) {
-        return static_cast<uid_t>(g_mockUid);
-    }
-    return __real_getuid();
 }
 
 namespace OHOS {
@@ -136,7 +127,7 @@ void WantBaseTest::SetUp(void)
 
 void WantBaseTest::TearDown(void)
 {
-    g_mockUid = -1;
+    SetMockUid(-1);
 }
 
 const std::string WantBaseTest::URI_STRING_HEAD("#Intent;");
@@ -4769,7 +4760,7 @@ HWTEST_F(WantBaseTest, Fd_test_001, TestSize.Level1)
 HWTEST_F(WantBaseTest, AaFwk_Want_Marshalling_NonBroker_Expansion_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_Want_Marshalling_NonBroker_Expansion_0100 start";
-    g_mockUid = 1000;
+    SetMockUid(1000);
     const std::string action = "test.action.expansion";
     auto want = std::make_shared<Want>();
     ASSERT_NE(want, nullptr);
@@ -4790,7 +4781,7 @@ HWTEST_F(WantBaseTest, AaFwk_Want_Marshalling_NonBroker_Expansion_0100, Function
     ASSERT_NE(wantOut, nullptr);
     EXPECT_EQ(wantOut->GetAction(), action);
 
-    g_mockUid = -1;
+    SetMockUid(-1);
     GTEST_LOG_(INFO) << "AaFwk_Want_Marshalling_NonBroker_Expansion_0100 end";
 }
 
@@ -4802,7 +4793,7 @@ HWTEST_F(WantBaseTest, AaFwk_Want_Marshalling_NonBroker_Expansion_0100, Function
 HWTEST_F(WantBaseTest, AaFwk_Want_Marshalling_Broker_SkipExpansion_0200, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_Want_Marshalling_Broker_SkipExpansion_0200 start";
-    g_mockUid = BROKER_UID;
+    SetMockUid(BROKER_UID);
     const std::string action = "test.action.broker";
     auto want = std::make_shared<Want>();
     ASSERT_NE(want, nullptr);
@@ -4823,7 +4814,7 @@ HWTEST_F(WantBaseTest, AaFwk_Want_Marshalling_Broker_SkipExpansion_0200, Functio
     ASSERT_NE(wantOut, nullptr);
     EXPECT_EQ(wantOut->GetAction(), action);
 
-    g_mockUid = -1;
+    SetMockUid(-1);
     GTEST_LOG_(INFO) << "AaFwk_Want_Marshalling_Broker_SkipExpansion_0200 end";
 }
 
@@ -4835,7 +4826,7 @@ HWTEST_F(WantBaseTest, AaFwk_Want_Marshalling_Broker_SkipExpansion_0200, Functio
 HWTEST_F(WantBaseTest, AaFwk_Want_Marshalling_NoUtf8_NoExpansion_0300, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_Want_Marshalling_NoUtf8_NoExpansion_0300 start";
-    g_mockUid = 1000;
+    SetMockUid(1000);
     const std::string action = "test.action.noutf8";
     auto want = std::make_shared<Want>();
     ASSERT_NE(want, nullptr);
@@ -4855,7 +4846,7 @@ HWTEST_F(WantBaseTest, AaFwk_Want_Marshalling_NoUtf8_NoExpansion_0300, Function 
     ASSERT_NE(wantOut, nullptr);
     EXPECT_EQ(wantOut->GetAction(), action);
 
-    g_mockUid = -1;
+    SetMockUid(-1);
     GTEST_LOG_(INFO) << "AaFwk_Want_Marshalling_NoUtf8_NoExpansion_0300 end";
 }
 }  // namespace AAFwk
