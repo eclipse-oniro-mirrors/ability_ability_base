@@ -16,6 +16,14 @@
 #ifndef UID_MOCK_H
 #define UID_MOCK_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void SetMockUid(int uid);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  // UID_MOCK_H
