@@ -135,7 +135,9 @@ void WantBaseTest::SetUp(void)
 }
 
 void WantBaseTest::TearDown(void)
-{}
+{
+    g_mockUid = -1;
+}
 
 const std::string WantBaseTest::URI_STRING_HEAD("#Intent;");
 const std::string WantBaseTest::URI_STRING_END(";end");
