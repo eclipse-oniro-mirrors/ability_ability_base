@@ -48,6 +48,7 @@ namespace AAFwk {
 namespace {
 const std::regex NUMBER_REGEX("^[-+]?([0-9]+)([.]([0-9]+))?$");
 const int32_t MAX_ALLOWED_SIZE(512 * 1024);
+constexpr int32_t BROKER_UID = 5557;
 
 nlohmann::json BuildWantJson(const Want &want)
 {
@@ -1720,9 +1721,12 @@ bool Want::Marshalling(Parcel &parcel) const
     std::string ipcAction = GetAction();
     parcel.SetMaxCapacity(PARAM_WANT_CAPACITY_EXPANSION);
     if (GetBoolParam(Want::PARAM_STRING_TRANS_FORMAT_UTF8, false)) {
-        bool needExpansion = true;
-        ipcAction = PARAM_WANT_EXPANSION_TAG + ipcAction;
-        parameters_.SetNeedExpansion(needExpansion); // add expand capacity flag
+        int32_t selfUID = static_cast<int32_t>(getuid());
+        if (selfUID != BROKER_UID) {
+            bool needExpansion = true;
+            ipcAction = PARAM_WANT_EXPANSION_TAG + ipcAction;
+            parameters_.SetNeedExpansion(needExpansion); // add expand capacity flag
+        }
     }
 
     // write action
