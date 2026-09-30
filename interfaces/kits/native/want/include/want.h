@@ -939,6 +939,9 @@ public:
     // keep-alive
     static const std::string PARAM_APP_KEEP_ALIVE_ENABLED;
 
+    // promote background process priority for service extension
+    static const std::string PARAM_PROMOTE_BACKGROUND_PROCESS_PRIORITY;
+
     static const std::string START_ABILITY_WITH_WAIT_OBSERVER_ID_KEY;
     // unified data key
     static const std::string PARAM_ABILITY_UNIFIED_DATA_KEY;
