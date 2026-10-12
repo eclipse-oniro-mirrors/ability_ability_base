@@ -48,6 +48,17 @@ public:
     virtual void Parse(const std::string &str) = 0;
 
     /**
+     * @brief Parse the current object parameter from a string, with a parse result.
+     * @param str indicates string of current object parameter
+     * @return Returns true if the parsing succeeds or false if any error occur.
+     */
+    virtual bool ParseWithResult(const std::string &str)
+    {
+        Parse(str);
+        return true;
+    }
+
+    /**
      * @brief Copy the data of the specified object to the current object with deepcopy
      */
     virtual void DeepCopy(std::shared_ptr<UserObjectBase> &other) = 0;
@@ -76,9 +87,11 @@ public:
      */
     virtual bool Unmarshalling(Parcel &parcel)
     {
-        std::string tostring = Str16ToStr8(parcel.ReadString16());
-        Parse(tostring);
-        return true;
+        std::u16string value;
+        if (!parcel.ReadString16(value)) {
+            return false;
+        }
+        return ParseWithResult(Str16ToStr8(value));
     }
 
 protected:

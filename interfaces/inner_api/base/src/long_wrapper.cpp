@@ -23,14 +23,12 @@ IINTERFACE_IMPL_1(Long, Object, ILong);
 
 ErrCode Long::GetValue(long &value) /* [out] */
 {
-    VALIDATE_NOT_NULL(&value);
     value = static_cast<long>(value_);
     return ERR_OK;
 }
 
 ErrCode Long::GetValue64(int64_t &value) /* [out] */
 {
-    VALIDATE_NOT_NULL(&value);
     value = value_;
     return ERR_OK;
 }
@@ -89,7 +87,7 @@ sptr<ILong> Long::Parse(const std::string &str) /* [in] */
     std::size_t idx;
     try {
         long value = std::stol(str, &idx);
-        if (idx != 0) {
+        if (idx == str.length()) {
             object = sptr<Long>::MakeSptr(value);
         }
     } catch (...) {

@@ -128,13 +128,21 @@ HWTEST_F(AAFwkBaseObjectTest, BaseObject_test_005, TestSize.Level1)
 /**
  * @tc.number: BaseObject_test_006
  * @tc.name: GetWeakReference
- * @tc.desc: test GetWeakReference function and addr is not nullptr.
+ * @tc.desc: test weak reference cleanup after the referenced object is destroyed.
  */
 HWTEST_F(AAFwkBaseObjectTest, BaseObject_test_006, TestSize.Level1)
 {
-    Object object;
+    sptr<Object> object = new (std::nothrow) Object();
+    ASSERT_NE(nullptr, object);
     sptr<IWeakReference> weakRef = nullptr;
-    EXPECT_EQ(ERR_OK, object.GetWeakReference(weakRef));
+    ASSERT_EQ(ERR_OK, object->GetWeakReference(weakRef));
+    ASSERT_NE(nullptr, weakRef);
+
+    object = nullptr;
+    IInterface *resolved = nullptr;
+    EXPECT_EQ(ERR_OK, weakRef->Resolve(g_IID_IObject, &resolved));
+    EXPECT_EQ(nullptr, resolved);
+    weakRef = nullptr;
 }
 
 /**

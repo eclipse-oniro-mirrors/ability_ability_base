@@ -21,6 +21,8 @@
 #undef private
 #undef protected
 
+#include <limits>
+
 using namespace OHOS;
 using namespace OHOS::AAFwk;
 using testing::ext::TestSize;
@@ -119,6 +121,58 @@ HWTEST_F(AAfWKFloatWrapperTest, FloatWrapperTest_Parse_004, TestSize.Level1)
 {
     sptr<IFloat> result = Float::Parse("abc123");
     EXPECT_EQ(result, nullptr);
+}
+
+/**
+ * @tc.number: FloatWrapperTest_Parse_005
+ * @tc.name: Parse
+ * @tc.desc: partially consumed input is rejected (full-string consumption required).
+ */
+HWTEST_F(AAfWKFloatWrapperTest, FloatWrapperTest_Parse_005, TestSize.Level1)
+{
+    EXPECT_EQ(Float::Parse("1.5f"), nullptr);
+    EXPECT_EQ(Float::Parse("3.14 "), nullptr);
+}
+
+/**
+ * @tc.number: FloatWrapperTest_Equals_001
+ * @tc.name: Equals
+ * @tc.desc: mathematically equal floats computed by different paths are equal within relative epsilon.
+ */
+HWTEST_F(AAfWKFloatWrapperTest, FloatWrapperTest_Equals_001, TestSize.Level1)
+{
+    Float left(0.3f + 0.6f);
+    Float right(0.9f);
+    EXPECT_TRUE(left.Equals(right));
+}
+
+/**
+ * @tc.number: FloatWrapperTest_Equals_002
+ * @tc.name: Equals
+ * @tc.desc: distinct near-zero floats are not equal (no absolute tolerance floor).
+ */
+HWTEST_F(AAfWKFloatWrapperTest, FloatWrapperTest_Equals_002, TestSize.Level1)
+{
+    Float zero(0.0f);
+    Float small(1e-8f);
+    EXPECT_FALSE(zero.Equals(small));
+}
+
+/**
+ * @tc.number: FloatWrapperTest_Equals_003
+ * @tc.name: Equals
+ * @tc.desc: NaN is not equal to anything; same infinities are equal; infinity differs from finite.
+ */
+HWTEST_F(AAfWKFloatWrapperTest, FloatWrapperTest_Equals_003, TestSize.Level1)
+{
+    Float nanLeft(std::numeric_limits<float>::quiet_NaN());
+    Float nanRight(std::numeric_limits<float>::quiet_NaN());
+    EXPECT_FALSE(nanLeft.Equals(nanRight));
+    Float infLeft(std::numeric_limits<float>::infinity());
+    Float infRight(std::numeric_limits<float>::infinity());
+    EXPECT_TRUE(infLeft.Equals(infRight));
+    Float finite(1.0f);
+    EXPECT_FALSE(infLeft.Equals(finite));
 }
 }
 }

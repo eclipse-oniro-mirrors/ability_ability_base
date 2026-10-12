@@ -27,8 +27,6 @@ IINTERFACE_IMPL_1(Short, Object, IShort);
 
 ErrCode Short::GetValue(short &value) /* [out] */
 {
-    VALIDATE_NOT_NULL(&value);
-
     value = value_;
     return ERR_OK;
 }

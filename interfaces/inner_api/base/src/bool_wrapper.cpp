@@ -20,8 +20,6 @@ namespace AAFwk {
 IINTERFACE_IMPL_1(Boolean, Object, IBoolean);
 ErrCode Boolean::GetValue(bool &value) /* [out] */
 {
-    VALIDATE_NOT_NULL(&value);
-
     value = value_;
     return ERR_OK;
 }

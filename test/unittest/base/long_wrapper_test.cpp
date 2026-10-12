@@ -134,5 +134,16 @@ HWTEST_F(AAfWKLongWrapperTest, LongWrapperTest_Parse_004, TestSize.Level1)
     sptr<ILong> result = Long::Parse("abc123");
     EXPECT_EQ(result, nullptr);
 }
+
+/**
+ * @tc.number: LongWrapperTest_Parse_005
+ * @tc.name: Parse
+ * @tc.desc: partially consumed input is rejected (full-string consumption required).
+ */
+HWTEST_F(AAfWKLongWrapperTest, LongWrapperTest_Parse_005, TestSize.Level1)
+{
+    EXPECT_EQ(Long::Parse("123abc"), nullptr);
+    EXPECT_EQ(Long::Parse("42 "), nullptr);
+}
 }
 }

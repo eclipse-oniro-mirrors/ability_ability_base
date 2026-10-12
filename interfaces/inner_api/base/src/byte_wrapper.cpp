@@ -27,8 +27,6 @@ IINTERFACE_IMPL_1(Byte, Object, IByte);
 
 ErrCode Byte::GetValue(byte &value) /* [out] */
 {
-    VALIDATE_NOT_NULL(&value);
-
     value = value_;
     return ERR_OK;
 }

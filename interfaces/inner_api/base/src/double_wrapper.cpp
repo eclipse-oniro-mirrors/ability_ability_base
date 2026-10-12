@@ -15,6 +15,10 @@
 
 #include "double_wrapper.h"
 
+#include <algorithm>
+#include <cmath>
+#include <limits>
+
 #include "ability_base_log_wrapper.h"
 
 namespace OHOS {
@@ -23,8 +27,6 @@ IINTERFACE_IMPL_1(Double, Object, IDouble);
 
 ErrCode Double::GetValue(double &value) /* [out] */
 {
-    VALIDATE_NOT_NULL(&value);
-
     value = value_;
     return ERR_OK;
 }
@@ -32,7 +34,19 @@ ErrCode Double::GetValue(double &value) /* [out] */
 bool Double::Equals(IObject &other) /* [in] */
 {
     Double *otherObj = static_cast<Double *>(IDouble::Query(&other));
-    return otherObj != nullptr && otherObj->value_ == value_;
+    if (otherObj == nullptr) {
+        return false;
+    }
+    if (value_ == otherObj->value_) {
+        return true;
+    }
+    if (!std::isfinite(value_) || !std::isfinite(otherObj->value_)) {
+        return false;
+    }
+    constexpr double EPSILON = std::numeric_limits<double>::epsilon();
+    double diff = std::abs(otherObj->value_ - value_);
+    double maxVal = std::max(std::abs(value_), std::abs(otherObj->value_));
+    return diff <= EPSILON * maxVal;
 }
 
 std::string Double::ToString()
@@ -62,7 +76,7 @@ sptr<IDouble> Double::Parse(const std::string &str) /* [in] */
     std::size_t idx;
     try {
         double value = std::stod(str, &idx);
-        if (idx != 0) {
+        if (idx == str.length()) {
             object = sptr<Double>::MakeSptr(value);
         }
     } catch (...) {

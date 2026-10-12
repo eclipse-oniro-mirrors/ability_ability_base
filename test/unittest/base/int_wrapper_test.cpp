@@ -107,5 +107,16 @@ HWTEST_F(AAfWKIntWrapperTest, IntWrapperTest_Parse_004, TestSize.Level1)
     sptr<IInteger> result = Integer::Parse("abc123");
     EXPECT_EQ(result, nullptr);
 }
+
+/**
+ * @tc.number: IntWrapperTest_Parse_005
+ * @tc.name: Parse
+ * @tc.desc: partially consumed input is rejected (full-string consumption required).
+ */
+HWTEST_F(AAfWKIntWrapperTest, IntWrapperTest_Parse_005, TestSize.Level1)
+{
+    EXPECT_EQ(Integer::Parse("123abc"), nullptr);
+    EXPECT_EQ(Integer::Parse("42 "), nullptr);
+}
 }
 }

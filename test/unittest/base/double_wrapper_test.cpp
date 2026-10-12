@@ -21,6 +21,11 @@
 #undef private
 #undef protected
 
+#include <cmath>
+#include <limits>
+
+#include "int_wrapper.h"
+
 using namespace OHOS;
 using namespace OHOS::AAFwk;
 using testing::ext::TestSize;
@@ -119,6 +124,72 @@ HWTEST_F(AAfWKDoubleWrapperTest, DoubleWrapperTest_Parse_004, TestSize.Level1)
 {
     sptr<IDouble> result = Double::Parse("abc123");
     EXPECT_EQ(result, nullptr);
+}
+
+/**
+ * @tc.number: DoubleWrapperTest_Parse_005
+ * @tc.name: Parse
+ * @tc.desc: partially consumed input is rejected (full-string consumption required).
+ */
+HWTEST_F(AAfWKDoubleWrapperTest, DoubleWrapperTest_Parse_005, TestSize.Level1)
+{
+    EXPECT_EQ(Double::Parse("1.5.2"), nullptr);
+    EXPECT_EQ(Double::Parse("3.14 "), nullptr);
+}
+
+/**
+ * @tc.number: DoubleWrapperTest_Equals_001
+ * @tc.name: Equals
+ * @tc.desc: mathematically equal doubles computed by different paths are equal within relative epsilon.
+ */
+HWTEST_F(AAfWKDoubleWrapperTest, DoubleWrapperTest_Equals_001, TestSize.Level1)
+{
+    Double left(0.1 + 0.2);
+    Double right(0.3);
+    EXPECT_TRUE(left.Equals(right));
+}
+
+/**
+ * @tc.number: DoubleWrapperTest_Equals_002
+ * @tc.name: Equals
+ * @tc.desc: distinct near-zero doubles are not equal (no absolute tolerance floor).
+ */
+HWTEST_F(AAfWKDoubleWrapperTest, DoubleWrapperTest_Equals_002, TestSize.Level1)
+{
+    Double zero(0.0);
+    Double small(1e-300);
+    Double small2(2e-300);
+    EXPECT_FALSE(zero.Equals(small));
+    EXPECT_FALSE(small.Equals(small2));
+}
+
+/**
+ * @tc.number: DoubleWrapperTest_Equals_003
+ * @tc.name: Equals
+ * @tc.desc: NaN is not equal to anything; same infinities are equal; infinity differs from finite.
+ */
+HWTEST_F(AAfWKDoubleWrapperTest, DoubleWrapperTest_Equals_003, TestSize.Level1)
+{
+    Double nanLeft(std::numeric_limits<double>::quiet_NaN());
+    Double nanRight(std::numeric_limits<double>::quiet_NaN());
+    EXPECT_FALSE(nanLeft.Equals(nanRight));
+    Double infLeft(HUGE_VAL);
+    Double infRight(HUGE_VAL);
+    EXPECT_TRUE(infLeft.Equals(infRight));
+    Double finite(1.0);
+    EXPECT_FALSE(infLeft.Equals(finite));
+}
+
+/**
+ * @tc.number: DoubleWrapperTest_Equals_004
+ * @tc.name: Equals
+ * @tc.desc: comparing with a different wrapper type returns false.
+ */
+HWTEST_F(AAfWKDoubleWrapperTest, DoubleWrapperTest_Equals_004, TestSize.Level1)
+{
+    Double doubleObj(1.5);
+    Integer intObj(1);
+    EXPECT_FALSE(doubleObj.Equals(intObj));
 }
 }
 }

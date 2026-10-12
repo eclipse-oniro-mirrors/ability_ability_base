@@ -15,6 +15,10 @@
 
 #include "float_wrapper.h"
 
+#include <algorithm>
+#include <cmath>
+#include <limits>
+
 #include "ability_base_log_wrapper.h"
 
 namespace OHOS {
@@ -23,8 +27,6 @@ IINTERFACE_IMPL_1(Float, Object, IFloat);
 
 ErrCode Float::GetValue(float &value) /* [out] */
 {
-    VALIDATE_NOT_NULL(&value);
-
     value = value_;
     return ERR_OK;
 }
@@ -32,7 +34,19 @@ ErrCode Float::GetValue(float &value) /* [out] */
 bool Float::Equals(IObject &other) /* [in] */
 {
     Float *otherObj = static_cast<Float *>(IFloat::Query(&other));
-    return otherObj != nullptr && otherObj->value_ == value_;
+    if (otherObj == nullptr) {
+        return false;
+    }
+    if (value_ == otherObj->value_) {
+        return true;
+    }
+    if (!std::isfinite(value_) || !std::isfinite(otherObj->value_)) {
+        return false;
+    }
+    constexpr float EPSILON = std::numeric_limits<float>::epsilon();
+    float diff = std::abs(otherObj->value_ - value_);
+    float maxVal = std::max(std::abs(value_), std::abs(otherObj->value_));
+    return diff <= EPSILON * maxVal;
 }
 
 std::string Float::ToString()
@@ -62,7 +76,7 @@ sptr<IFloat> Float::Parse(const std::string &str) /* [in] */
     std::size_t idx;
     try {
         float value = std::stof(str, &idx);
-        if (idx != 0) {
+        if (idx == str.length()) {
             object = sptr<Float>::MakeSptr(value);
         }
     } catch (...) {
