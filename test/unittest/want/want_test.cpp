@@ -1954,7 +1954,7 @@ HWTEST_F(WantBaseTest, AaFwk_Want_ParseUri_ToUri_0900, Function | MediumTest | L
  */
 HWTEST_F(WantBaseTest, AaFwk_Want_ParseUri_ParamReject_0100, Function | MediumTest | Level1)
 {
-    std::string uri = "#Intent;I.count=42;end";
+    std::string uri = WantBaseTest::URI_STRING_HEAD + "I.count=42" + WantBaseTest::URI_STRING_END;
     Want *want = Want::ParseUri(uri);
     EXPECT_NE(want, nullptr);
     if (want != nullptr) {
@@ -1971,7 +1971,7 @@ HWTEST_F(WantBaseTest, AaFwk_Want_ParseUri_ParamReject_0100, Function | MediumTe
  */
 HWTEST_F(WantBaseTest, AaFwk_Want_ParseUri_ParamReject_0200, Function | MediumTest | Level1)
 {
-    std::string uri = "#Intent;I.count=12abc;end";
+    std::string uri = WantBaseTest::URI_STRING_HEAD + "I.count=12abc" + WantBaseTest::URI_STRING_END;
     Want *want = Want::ParseUri(uri);
     EXPECT_EQ(want, nullptr);
     if (want != nullptr) {
@@ -1987,7 +1987,7 @@ HWTEST_F(WantBaseTest, AaFwk_Want_ParseUri_ParamReject_0200, Function | MediumTe
  */
 HWTEST_F(WantBaseTest, AaFwk_Want_ParseUri_ParamReject_0300, Function | MediumTest | Level1)
 {
-    std::string uri = "#Intent;D.ratio=3.14 ;end";
+    std::string uri = WantBaseTest::URI_STRING_HEAD + "D.ratio=3.14 " + WantBaseTest::URI_STRING_END;
     Want *want = Want::ParseUri(uri);
     EXPECT_EQ(want, nullptr);
     if (want != nullptr) {
