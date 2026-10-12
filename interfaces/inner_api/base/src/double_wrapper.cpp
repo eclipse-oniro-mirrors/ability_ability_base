@@ -43,10 +43,11 @@ bool Double::Equals(IObject &other) /* [in] */
     if (!std::isfinite(value_) || !std::isfinite(otherObj->value_)) {
         return false;
     }
-    constexpr double EPSILON = std::numeric_limits<double>::epsilon();
+    constexpr double REL_EPSILON = 4.0 * std::numeric_limits<double>::epsilon();
+    constexpr double ABS_EPSILON = 1e-12;
     double diff = std::abs(otherObj->value_ - value_);
     double maxVal = std::max(std::abs(value_), std::abs(otherObj->value_));
-    return diff <= EPSILON * maxVal;
+    return diff <= ABS_EPSILON + REL_EPSILON * maxVal;
 }
 
 std::string Double::ToString()

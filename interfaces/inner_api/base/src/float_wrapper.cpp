@@ -43,10 +43,11 @@ bool Float::Equals(IObject &other) /* [in] */
     if (!std::isfinite(value_) || !std::isfinite(otherObj->value_)) {
         return false;
     }
-    constexpr float EPSILON = std::numeric_limits<float>::epsilon();
+    constexpr float REL_EPSILON = 4.0f * std::numeric_limits<float>::epsilon();
+    constexpr float ABS_EPSILON = 1e-5f;
     float diff = std::abs(otherObj->value_ - value_);
     float maxVal = std::max(std::abs(value_), std::abs(otherObj->value_));
-    return diff <= EPSILON * maxVal;
+    return diff <= ABS_EPSILON + REL_EPSILON * maxVal;
 }
 
 std::string Float::ToString()
