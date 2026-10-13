@@ -21,8 +21,6 @@ IINTERFACE_IMPL_1(Char, Object, IChar);
 
 ErrCode Char::GetValue(zchar &value)
 {
-    VALIDATE_NOT_NULL(&value);
-
     value = value_;
     return ERR_OK;
 }

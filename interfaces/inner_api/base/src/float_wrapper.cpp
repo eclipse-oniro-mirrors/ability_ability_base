@@ -23,8 +23,6 @@ IINTERFACE_IMPL_1(Float, Object, IFloat);
 
 ErrCode Float::GetValue(float &value) /* [out] */
 {
-    VALIDATE_NOT_NULL(&value);
-
     value = value_;
     return ERR_OK;
 }
@@ -62,7 +60,7 @@ sptr<IFloat> Float::Parse(const std::string &str) /* [in] */
     std::size_t idx;
     try {
         float value = std::stof(str, &idx);
-        if (idx != 0) {
+        if (idx == str.length()) {
             object = sptr<Float>::MakeSptr(value);
         }
     } catch (...) {

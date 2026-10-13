@@ -190,8 +190,6 @@ ErrCode Array::GetLength(long &size) /* [out] */
 
 ErrCode Array::GetType(InterfaceID &id) /* [out] */
 {
-    VALIDATE_NOT_NULL(&id);
-
     id = typeId_;
     return ERR_OK;
 }

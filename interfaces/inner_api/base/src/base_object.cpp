@@ -33,13 +33,21 @@ const InterfaceID g_IID_IWeakReferenceSource = {
     0xbc3f5250, 0x34d7, 0x42d2, 0x9b40, {0xf, 0xf, 0xc, 0xe, 0x8, 0x3, 0xf, 0xd, 0x4, 0x0, 0x6, 0x1}
 };
 
-class WeakReferenceImpl final : public RefCounter, public IWeakReference {
+class WeakReferenceImpl final : public RefBase, public IWeakReference {
 public:
     WeakReferenceImpl(IInterface *object, WeakRefCounter *wkRef) : object_(object), wkRef_(wkRef)
-    {}
+    {
+        if (wkRef_ != nullptr) {
+            wkRef_->IncWeakRefCount(this);
+        }
+    }
 
-    virtual ~WeakReferenceImpl()
-    {}
+    ~WeakReferenceImpl() override
+    {
+        if (wkRef_ != nullptr) {
+            wkRef_->DecWeakRefCount(this);
+        }
+    }
 
     void IncStrongRef(const void *id = nullptr) override;
 
@@ -52,18 +60,23 @@ public:
     ErrCode Resolve(const InterfaceID &iid, IInterface **object) override;
 
 private:
+    WeakReferenceImpl(const WeakReferenceImpl &) = delete;
+    WeakReferenceImpl(WeakReferenceImpl &&) = delete;
+    WeakReferenceImpl &operator=(const WeakReferenceImpl &) = delete;
+    WeakReferenceImpl &operator=(WeakReferenceImpl &&) = delete;
+
     IInterface *object_ = nullptr;
     WeakRefCounter *wkRef_ = nullptr;
 };
 
 void WeakReferenceImpl::IncStrongRef(const void *id)
 {
-    RefCounter::IncStrongRefCount(id);
+    RefBase::IncStrongRef(id);
 }
 
 void WeakReferenceImpl::DecStrongRef(const void *id)
 {
-    RefCounter::DecStrongRefCount(id);
+    RefBase::DecStrongRef(id);
 }
 
 IInterface *WeakReferenceImpl::Query(const InterfaceID &iid)
@@ -86,7 +99,7 @@ ErrCode WeakReferenceImpl::Resolve(const InterfaceID &iid, IInterface **object)
 {
     VALIDATE_NOT_NULL(object);
 
-    if ((object_ != nullptr) && wkRef_->AttemptIncStrongRef(this)) {
+    if ((object_ != nullptr) && (wkRef_ != nullptr) && wkRef_->AttemptIncStrongRef(this)) {
         *object = object_->Query(iid);
         if (*object == nullptr) {
             object_->DecStrongRef(this);
@@ -151,11 +164,16 @@ bool Object::Equals(IObject &other)
 
 ErrCode Object::GetWeakReference(sptr<IWeakReference> &weakRef)
 {
-    void *addr = calloc(sizeof(WeakReferenceImpl), 1);
-    if (addr == nullptr) {
+    WeakRefCounter *wkRef = CreateWeakRef(this);
+    if (wkRef == nullptr) {
         return ERR_NO_MEMORY;
     }
-    weakRef = new (addr) WeakReferenceImpl(static_cast<IObject *>(this), CreateWeakRef(addr));
+    WeakReferenceImpl *impl = new (std::nothrow) WeakReferenceImpl(static_cast<IObject *>(this), wkRef);
+    if (impl == nullptr) {
+        delete wkRef;
+        return ERR_NO_MEMORY;
+    }
+    weakRef = impl;
     return ERR_OK;
 }
 

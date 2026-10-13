@@ -113,6 +113,37 @@ private:
 };
 REGISTER_USER_OBJECT_BASE(TUserObjectTest);
 
+class PacMapFailingObject : public UserObjectBase {
+public:
+    PacMapFailingObject() : UserObjectBase("PacMapFailingObject"), strData_("failing_object_data")
+    {}
+    ~PacMapFailingObject()
+    {}
+
+    std::string ToString() const override
+    {
+        return strData_;
+    }
+
+    void Parse(const std::string& str) override {}
+
+    bool ParseWithResult(const std::string& str) override
+    {
+        return false;
+    }
+
+    bool Equals(std::shared_ptr<UserObjectBase>& other) override
+    {
+        return false;
+    }
+
+    void DeepCopy(std::shared_ptr<UserObjectBase>& other) override {}
+
+private:
+    std::string strData_ = "";
+};
+REGISTER_USER_OBJECT_BASE(PacMapFailingObject);
+
 /*
  * Description：Test for data type of base: like int, short, long std::string etc.
  */
@@ -813,6 +844,38 @@ HWTEST_F(PacMapTest, AppExecFwk_PacMap_FromString_0200, Function | MediumTest | 
     auto result = pacmap_->FromString(str);
     EXPECT_TRUE(!result);
     GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_0200 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_FromStringUserObject_0100
+ * @tc.name: FromString
+ * @tc.desc: user object whose ParseWithResult fails is skipped but FromString still returns true.
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_FromStringUserObject_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromStringUserObject_0100 start";
+    std::string str =
+        "{\"pacmap\":{\"key_object\":{\"type\":65536,\"class\":\"PacMapFailingObject\",\"data\":\"content\"}}}";
+    auto result = pacmap_->FromString(str);
+    EXPECT_TRUE(result);
+    EXPECT_EQ(nullptr, pacmap_->GetObject("key_object"));
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromStringUserObject_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_FromStringUserObject_0200
+ * @tc.name: FromString
+ * @tc.desc: user object with unregistered class name is skipped but FromString still returns true.
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_FromStringUserObject_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromStringUserObject_0200 start";
+    std::string str =
+        "{\"pacmap\":{\"key_object\":{\"type\":65536,\"class\":\"NoSuchRegisteredUserObject\",\"data\":\"content\"}}}";
+    auto result = pacmap_->FromString(str);
+    EXPECT_TRUE(result);
+    EXPECT_EQ(nullptr, pacmap_->GetObject("key_object"));
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromStringUserObject_0200 end";
 }
 
 /**

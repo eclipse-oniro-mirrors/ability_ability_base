@@ -21,8 +21,6 @@ IINTERFACE_IMPL_1(String, Object, IString);
 
 ErrCode String::GetString(std::string &str) /* [out] */
 {
-    VALIDATE_NOT_NULL(&str);
-
     str = string_;
     return ERR_OK;
 }

@@ -23,8 +23,6 @@ IINTERFACE_IMPL_1(Integer, Object, IInteger);
 
 ErrCode Integer::GetValue(int &value) /* [out] */
 {
-    VALIDATE_NOT_NULL(&value);
-
     value = value_;
     return ERR_OK;
 }
@@ -62,7 +60,7 @@ sptr<IInteger> Integer::Parse(const std::string &str) /* [in] */
     std::size_t idx;
     try {
         int value = std::stoi(str, &idx);
-        if (idx != 0) {
+        if (idx == str.length()) {
             object = sptr<Integer>::MakeSptr(value);
         }
     } catch (...) {

@@ -23,8 +23,6 @@ IINTERFACE_IMPL_1(Double, Object, IDouble);
 
 ErrCode Double::GetValue(double &value) /* [out] */
 {
-    VALIDATE_NOT_NULL(&value);
-
     value = value_;
     return ERR_OK;
 }
@@ -62,7 +60,7 @@ sptr<IDouble> Double::Parse(const std::string &str) /* [in] */
     std::size_t idx;
     try {
         double value = std::stod(str, &idx);
-        if (idx != 0) {
+        if (idx == str.length()) {
             object = sptr<Double>::MakeSptr(value);
         }
     } catch (...) {

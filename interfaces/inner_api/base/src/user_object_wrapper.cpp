@@ -37,6 +37,9 @@ bool UserObject::Equals(IObject &other)
     if (otherObj == nullptr) {
         return false;
     }
+    if (otherObj->value_ == nullptr) {
+        return false;
+    }
     if (value_->GetClassName() == otherObj->value_->GetClassName()) {
         return otherObj->value_->Equals(value_);
     }
@@ -91,8 +94,11 @@ sptr<IUserObject> UserObject::Parse(const std::string &str)
     UserObjectBase *userObjectBase =
         static_cast<UserObjectBase *>(UserObjectBaseLoader::GetInstance().GetUserObjectByName(className));
     if (userObjectBase != nullptr) {
-        userObjectBase->Parse(content);
-        sptr<IUserObject> ret = sptr<UserObject>::MakeSptr(std::shared_ptr<UserObjectBase>(userObjectBase));
+        std::shared_ptr<UserObjectBase> userObject(userObjectBase);
+        if (!userObjectBase->ParseWithResult(content)) {
+            return nullptr;
+        }
+        sptr<IUserObject> ret = sptr<UserObject>::MakeSptr(userObject);
         return ret;
     }
     return nullptr;

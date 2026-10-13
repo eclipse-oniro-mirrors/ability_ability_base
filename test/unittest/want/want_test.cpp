@@ -1948,6 +1948,55 @@ HWTEST_F(WantBaseTest, AaFwk_Want_ParseUri_ToUri_0900, Function | MediumTest | L
 }
 
 /**
+ * @tc.number:  AaFwk_Want_ParseUri_ParamReject_0100
+ * @tc.name: ParseUri
+ * @tc.desc: Verify the function when integer parameter is well-formed.
+ */
+HWTEST_F(WantBaseTest, AaFwk_Want_ParseUri_ParamReject_0100, Function | MediumTest | Level1)
+{
+    std::string uri = WantBaseTest::URI_STRING_HEAD + "I.count=42" + WantBaseTest::URI_STRING_END;
+    Want *want = Want::ParseUri(uri);
+    EXPECT_NE(want, nullptr);
+    if (want != nullptr) {
+        EXPECT_EQ(want->GetIntParam("count", 0), 42);
+        delete want;
+        want = nullptr;
+    }
+}
+
+/**
+ * @tc.number:  AaFwk_Want_ParseUri_ParamReject_0200
+ * @tc.name: ParseUri
+ * @tc.desc: Verify the function when integer parameter has trailing garbage.
+ */
+HWTEST_F(WantBaseTest, AaFwk_Want_ParseUri_ParamReject_0200, Function | MediumTest | Level1)
+{
+    std::string uri = WantBaseTest::URI_STRING_HEAD + "I.count=12abc" + WantBaseTest::URI_STRING_END;
+    Want *want = Want::ParseUri(uri);
+    EXPECT_EQ(want, nullptr);
+    if (want != nullptr) {
+        delete want;
+        want = nullptr;
+    }
+}
+
+/**
+ * @tc.number:  AaFwk_Want_ParseUri_ParamReject_0300
+ * @tc.name: ParseUri
+ * @tc.desc: Verify the function when double parameter has trailing space.
+ */
+HWTEST_F(WantBaseTest, AaFwk_Want_ParseUri_ParamReject_0300, Function | MediumTest | Level1)
+{
+    std::string uri = WantBaseTest::URI_STRING_HEAD + "D.ratio=3.14 " + WantBaseTest::URI_STRING_END;
+    Want *want = Want::ParseUri(uri);
+    EXPECT_EQ(want, nullptr);
+    if (want != nullptr) {
+        delete want;
+        want = nullptr;
+    }
+}
+
+/**
  * @tc.number:  AaFwk_Want_ParseUri_ToUri_1000
  * @tc.name: ParseUri and ToUri
  * @tc.desc: Verify the function when head is not "#Intent".

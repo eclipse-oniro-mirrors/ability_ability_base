@@ -1844,20 +1844,25 @@ bool PacMap::InnerPutObjectValue(PacMapList &mapList, const std::string &key, Js
 {
     std::string className = item["class"].asString();
     if (className.empty()) {
+        ABILITYBASE_LOGW("PacMap parse user object failed: empty class name, key: %{private}s", key.c_str());
         return false;
     }
 
     UserObjectBase *userObjectIns = UserObjectBaseLoader::GetInstance().GetUserObjectByName(className);
     if (userObjectIns == nullptr) {
+        ABILITYBASE_LOGW("PacMap parse user object failed: class not registered, key: %{private}s, class: %{private}s",
+            key.c_str(), className.c_str());
         return false;
     }
 
+    std::shared_ptr<UserObjectBase> userObject(userObjectIns);
     std::string userObjectString = item["data"].asString();
-    if (!userObjectString.empty()) {
-        userObjectIns->Parse(userObjectString);
+    if (!userObjectString.empty() && !userObjectIns->ParseWithResult(userObjectString)) {
+        ABILITYBASE_LOGW("PacMap parse user object failed: ParseWithResult returns false, key: %{private}s, "
+            "class: %{private}s", key.c_str(), className.c_str());
+        return false;
     }
 
-    std::shared_ptr<UserObjectBase> userObject(userObjectIns);
     InnerPutObject(mapList, key, userObject);
     return true;
 }
