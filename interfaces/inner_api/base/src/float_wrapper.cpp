@@ -15,10 +15,6 @@
 
 #include "float_wrapper.h"
 
-#include <algorithm>
-#include <cmath>
-#include <limits>
-
 #include "ability_base_log_wrapper.h"
 
 namespace OHOS {
@@ -34,20 +30,7 @@ ErrCode Float::GetValue(float &value) /* [out] */
 bool Float::Equals(IObject &other) /* [in] */
 {
     Float *otherObj = static_cast<Float *>(IFloat::Query(&other));
-    if (otherObj == nullptr) {
-        return false;
-    }
-    if (value_ == otherObj->value_) {
-        return true;
-    }
-    if (!std::isfinite(value_) || !std::isfinite(otherObj->value_)) {
-        return false;
-    }
-    constexpr float REL_EPSILON = 4.0f * std::numeric_limits<float>::epsilon();
-    constexpr float ABS_EPSILON = 1e-5f;
-    float diff = std::abs(otherObj->value_ - value_);
-    float maxVal = std::max(std::abs(value_), std::abs(otherObj->value_));
-    return diff <= ABS_EPSILON + REL_EPSILON * maxVal;
+    return otherObj != nullptr && otherObj->value_ == value_;
 }
 
 std::string Float::ToString()

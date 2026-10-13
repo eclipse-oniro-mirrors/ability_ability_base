@@ -15,10 +15,6 @@
 
 #include "double_wrapper.h"
 
-#include <algorithm>
-#include <cmath>
-#include <limits>
-
 #include "ability_base_log_wrapper.h"
 
 namespace OHOS {
@@ -34,20 +30,7 @@ ErrCode Double::GetValue(double &value) /* [out] */
 bool Double::Equals(IObject &other) /* [in] */
 {
     Double *otherObj = static_cast<Double *>(IDouble::Query(&other));
-    if (otherObj == nullptr) {
-        return false;
-    }
-    if (value_ == otherObj->value_) {
-        return true;
-    }
-    if (!std::isfinite(value_) || !std::isfinite(otherObj->value_)) {
-        return false;
-    }
-    constexpr double REL_EPSILON = 4.0 * std::numeric_limits<double>::epsilon();
-    constexpr double ABS_EPSILON = 1e-12;
-    double diff = std::abs(otherObj->value_ - value_);
-    double maxVal = std::max(std::abs(value_), std::abs(otherObj->value_));
-    return diff <= ABS_EPSILON + REL_EPSILON * maxVal;
+    return otherObj != nullptr && otherObj->value_ == value_;
 }
 
 std::string Double::ToString()
