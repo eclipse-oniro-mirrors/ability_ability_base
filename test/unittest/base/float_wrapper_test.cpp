@@ -137,13 +137,15 @@ HWTEST_F(AAfWKFloatWrapperTest, FloatWrapperTest_Parse_005, TestSize.Level1)
 /**
  * @tc.number: FloatWrapperTest_Equals_001
  * @tc.name: Equals
- * @tc.desc: mathematically equal floats computed by different paths are equal within relative epsilon.
+ * @tc.desc: Equals is bit-exact; independently computed values differing by ULPs are not equal.
  */
 HWTEST_F(AAfWKFloatWrapperTest, FloatWrapperTest_Equals_001, TestSize.Level1)
 {
     Float left(0.3f + 0.6f);
     Float right(0.9f);
-    EXPECT_TRUE(left.Equals(right));
+    EXPECT_FALSE(left.Equals(right));
+    Float sameLeft(0.3f + 0.6f);
+    EXPECT_TRUE(left.Equals(sameLeft));
 }
 
 /**

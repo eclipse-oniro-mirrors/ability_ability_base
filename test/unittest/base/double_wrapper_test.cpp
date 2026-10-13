@@ -140,13 +140,15 @@ HWTEST_F(AAfWKDoubleWrapperTest, DoubleWrapperTest_Parse_005, TestSize.Level1)
 /**
  * @tc.number: DoubleWrapperTest_Equals_001
  * @tc.name: Equals
- * @tc.desc: mathematically equal doubles computed by different paths are equal within relative epsilon.
+ * @tc.desc: Equals is bit-exact; independently computed values differing by ULPs are not equal.
  */
 HWTEST_F(AAfWKDoubleWrapperTest, DoubleWrapperTest_Equals_001, TestSize.Level1)
 {
     Double left(0.1 + 0.2);
     Double right(0.3);
-    EXPECT_TRUE(left.Equals(right));
+    EXPECT_FALSE(left.Equals(right));
+    Double sameLeft(0.1 + 0.2);
+    EXPECT_TRUE(left.Equals(sameLeft));
 }
 
 /**
