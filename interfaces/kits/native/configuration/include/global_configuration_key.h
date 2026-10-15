@@ -56,7 +56,8 @@
     /* ConfigurationInner app/display-level keys (merged for single source) */ \
     X(APPLICATION_DIRECTION,        "ohos.application.direction") \
     X(APPLICATION_DENSITYDPI,       "ohos.application.densitydpi") \
-    X(APPLICATION_DISPLAYID,        "ohos.application.displayid")
+    X(APPLICATION_DISPLAYID,        "ohos.application.displayid") \
+    X(APPLICATION_FONT_ANIMATION,   "ohos.application.font.animation")
 
 namespace OHOS {
 namespace AAFwk {
