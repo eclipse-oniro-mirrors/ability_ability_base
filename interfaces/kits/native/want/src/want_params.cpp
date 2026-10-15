@@ -1521,20 +1521,9 @@ bool WantParams::ReadArrayWantParamsElement(Parcel &parcel, int depth, sptr<Want
             delete wantParams;
             return false;
         }
-        if (IsStrictFdMarker(*wantParams)) {
-            ABILITYBASE_LOGE("reject injected fd marker via nested WantParams array");
-            wantParams->CloseAllFdWithStatus(FdTraversalMode::RECURSIVE);
-            delete wantParams;
-            return false;
-        }
         outValue = sptr<WantParams>(wantParams);
     } else {
         outValue = sptr<WantParams>(Unmarshalling(parcel, depth));
-        if (outValue != nullptr && IsStrictFdMarker(*outValue)) {
-            ABILITYBASE_LOGE("reject injected fd marker via nested WantParams array");
-            outValue->CloseAllFdWithStatus(FdTraversalMode::RECURSIVE);
-            return false;
-        }
     }
     return true;
 }

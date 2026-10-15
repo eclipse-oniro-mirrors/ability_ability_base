@@ -1884,5 +1884,49 @@ HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_PublicReadFromParcel_1400, Functio
     arrayOut->GetLength(size);
     EXPECT_EQ(size, 2);
 }
+
+/**
+ * @tc.number: AaFwk_WantParams_PublicReadFromParcel_1500
+ * @tc.name: PublicReadFromParcel
+ * @tc.desc: Array element with flat fd-marker shape is accepted as plain data for compatibility.
+ */
+HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_PublicReadFromParcel_1500, Function | MediumTest | Level1)
+{
+    WantParams elem;
+    elem.SetParam("type", String::Box("FD"));
+    elem.SetParam("value", Integer::Box(7));
+    sptr<IWantParams> boxed = WantParamWrapper::Box(std::move(elem));
+    ASSERT_NE(boxed, nullptr);
+    sptr<IArray> ao = new (std::nothrow) Array(1, g_IID_IWantParams);
+    ASSERT_NE(ao, nullptr);
+    ASSERT_EQ(ao->Set(0, boxed.GetRefPtr()), ERR_OK);
+    WantParams paramsIn;
+    paramsIn.SetParam("arr", ao.GetRefPtr());
+
+    Parcel parcel;
+    EXPECT_TRUE(paramsIn.Marshalling(parcel));
+
+    WantParams paramsOut;
+    EXPECT_TRUE(paramsOut.PublicReadFromParcel(parcel));
+
+    IArray *arrayOut = IArray::Query(paramsOut.GetParam("arr"));
+    ASSERT_NE(arrayOut, nullptr);
+    long outSize = 0;
+    arrayOut->GetLength(outSize);
+    EXPECT_EQ(outSize, 1);
+    sptr<IInterface> item;
+    ASSERT_EQ(arrayOut->Get(0, item), ERR_OK);
+    ASSERT_NE(item, nullptr);
+    IWantParams *elemOut = IWantParams::Query(item);
+    ASSERT_NE(elemOut, nullptr);
+    WantParams elemParsed = WantParamWrapper::Unbox(elemOut);
+    EXPECT_EQ(elemParsed.Size(), 2);
+    IString *typeOut = IString::Query(elemParsed.GetParam("type"));
+    ASSERT_NE(typeOut, nullptr);
+    EXPECT_EQ(String::Unbox(typeOut), "FD");
+    IInteger *valueOut = IInteger::Query(elemParsed.GetParam("value"));
+    ASSERT_NE(valueOut, nullptr);
+    EXPECT_EQ(Integer::Unbox(valueOut), 7);
+}
 }
 }
