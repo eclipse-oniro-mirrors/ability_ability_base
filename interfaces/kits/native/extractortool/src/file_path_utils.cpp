@@ -15,8 +15,11 @@
 
 #include "file_path_utils.h"
 
+#include <algorithm>
+#include <cstdlib>
 #include <fstream>
-#include <vector>
+#include <climits>
+#include <utility>
 
 #include "constants.h"
 
