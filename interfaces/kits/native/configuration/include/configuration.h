@@ -36,6 +36,7 @@ namespace ConfigurationInner {
     constexpr const char* APPLICATION_DENSITYDPI = OHOS::AAFwk::GlobalConfigurationKey::APPLICATION_DENSITYDPI;
     constexpr const char* APPLICATION_DISPLAYID = OHOS::AAFwk::GlobalConfigurationKey::APPLICATION_DISPLAYID;
     constexpr const char* APPLICATION_FONT = OHOS::AAFwk::GlobalConfigurationKey::APPLICATION_FONT;
+    constexpr const char* APPLICATION_FONT_ANIMATION = OHOS::AAFwk::GlobalConfigurationKey::APPLICATION_FONT_ANIMATION;
 
     constexpr const char* COLOR_MODE_LIGHT = "light";
     constexpr const char* COLOR_MODE_DARK = "dark";
