@@ -53,6 +53,8 @@
     X(APP_FONT_SIZE_SCALE,          "ohos.app.fontSizeScale") \
     X(APP_FONT_MAX_SCALE,           "ohos.app.fontMaxScale") \
     X(SYSTEM_SMART_GESTURE_SWITCH,  "ohos.system.smartGesture") \
+    X(BRAND_COLOR_ID,               "ohos.application.brandColorNum") \
+    X(BRAND_COLOR_CHANGED,          "ohos.application.hasBrandColorChanged") \
     /* ConfigurationInner app/display-level keys (merged for single source) */ \
     X(APPLICATION_DIRECTION,        "ohos.application.direction") \
     X(APPLICATION_DENSITYDPI,       "ohos.application.densitydpi") \
