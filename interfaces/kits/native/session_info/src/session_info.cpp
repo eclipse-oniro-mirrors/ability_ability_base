@@ -341,6 +341,11 @@ bool SessionInfo::DoMarshallingSix(Parcel& parcel) const
         return false;
     }
 
+    if (!parcel.WriteString(brandColorStr)) {
+        ABILITYBASE_LOGE("Write brandColorStr failed");
+        return false;
+    }
+
     if (!parcel.WriteInt32(specifiedReason)) {
         ABILITYBASE_LOGE("Write specifiedReason failed");
         return false;
@@ -472,6 +477,7 @@ SessionInfo* SessionInfo::ReadParcelOne(SessionInfo* info, Parcel& parcel)
     info->scenarios = parcel.ReadInt32();
     info->isPrelaunch = parcel.ReadBool();
     info->targetGrantBundleName = parcel.ReadString();
+    info->brandColorStr = parcel.ReadString();
     info->specifiedReason = parcel.ReadInt32();
 
     return info;

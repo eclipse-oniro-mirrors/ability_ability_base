@@ -111,6 +111,7 @@ public:
     int32_t specifiedReason = 0;
     int32_t frameNum = 0;
     bool nativeHideWindow = false;
+    std::string brandColorStr = "";
 
 private:
     bool DoMarshallingOne(Parcel& parcel) const;

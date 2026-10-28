@@ -68,6 +68,11 @@ enum class ConfigUpdateReason : uint8_t {
     CONFIG_UPDATE_REASON_IN_WHITE_LIST,
 };
 
+enum class BrandColorStrategy : int32_t {
+    BRAND_COLOR_FOLLOW_SYSTEM = 0,
+    BRAND_COLOR_FOLLOW_UEC = 1
+};
+
 class Configuration final: public Parcelable {
 public:
     Configuration();
