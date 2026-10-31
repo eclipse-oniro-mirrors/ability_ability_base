@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include <climits>
 #include <gtest/gtest.h>
 
 #include "nlohmann/json.hpp"
@@ -38,6 +39,8 @@
 using namespace testing::ext;
 using namespace OHOS::AAFwk;
 using OHOS::Parcel;
+
+constexpr int TEST_BYTE_VALUE = (CHAR_MAX > 127) ? 129 : 127;
 
 namespace OHOS {
 namespace AAFwk {
@@ -445,10 +448,10 @@ HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_GetStringByType_0300, Function | M
  */
 HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_GetStringByType_0400, Function | MediumTest | Level1)
 {
-    const std::string value = "129";
+    const std::string value = std::to_string(TEST_BYTE_VALUE);
     sptr<IInterface> byteObj = WantParams::GetInterfaceByType(WantParams::VALUE_TYPE_BYTE, value);
     std::string byteVal = WantParams::GetStringByType(byteObj, WantParams::VALUE_TYPE_BYTE);
-    EXPECT_EQ(byteVal, "129");
+    EXPECT_EQ(byteVal, value);
 }
 
 /**
@@ -589,7 +592,7 @@ HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_GetDataType_0200, Function | Mediu
  */
 HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_GetDataType_0300, Function | MediumTest | Level1)
 {
-    const std::string value = "129";
+    const std::string value = std::to_string(TEST_BYTE_VALUE);
     sptr<IInterface> byteObj = WantParams::GetInterfaceByType(WantParams::VALUE_TYPE_BYTE, value);
     int type = WantParams::GetDataType(byteObj);
     EXPECT_EQ(type, WantParams::VALUE_TYPE_BYTE);
@@ -718,9 +721,9 @@ HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_GetInterfaceByType_0100, Function 
  */
 HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_GetInterfaceByType_0200, Function | MediumTest | Level1)
 {
-    const std::string value = "129";
+    const std::string value = std::to_string(TEST_BYTE_VALUE);
     sptr<IInterface> byteObj = WantParams::GetInterfaceByType(WantParams::VALUE_TYPE_BYTE, value);
-    EXPECT_EQ(Byte::Unbox(IByte::Query(byteObj)), 129);
+    EXPECT_EQ(Byte::Unbox(IByte::Query(byteObj)), static_cast<byte>(TEST_BYTE_VALUE));
 }
 
 /**
@@ -862,7 +865,7 @@ HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_CompareInterface_0100, Function | 
  */
 HWTEST_F(WantParamsBaseTest, AaFwk_WantParams_CompareInterface_0200, Function | MediumTest | Level1)
 {
-    const std::string value = "129";
+    const std::string value = std::to_string(TEST_BYTE_VALUE);
     sptr<IInterface> interfaceObj = WantParams::GetInterfaceByType(WantParams::VALUE_TYPE_BYTE, value);
     bool result = WantParams::CompareInterface(interfaceObj, interfaceObj, WantParams::VALUE_TYPE_BYTE);
     EXPECT_TRUE(result);
