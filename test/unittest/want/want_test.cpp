@@ -4896,5 +4896,17 @@ HWTEST_F(WantBaseTest, AaFwk_Want_Marshalling_NoUtf8_NoExpansion_0300, Function 
     SetMockUid(-1);
     GTEST_LOG_(INFO) << "AaFwk_Want_Marshalling_NoUtf8_NoExpansion_0300 end";
 }
+
+/**
+ * @tc.number: AaFwk_Want_ParamResvAgentTaskId_0100
+ * @tc.name: reserved taskId param literal anchor
+ * @tc.desc: PARAM_RESV_AGENT_TASK_ID must stay aligned with the reserved-param family
+ *           spelling consumed by ability_runtime and sdk-js.
+ */
+HWTEST_F(WantBaseTest, AaFwk_Want_ParamResvAgentTaskId_0100, Function | MediumTest | Level1)
+{
+    EXPECT_STREQ(Want::PARAM_RESV_AGENT_TASK_ID.c_str(), "ohos.aafwk.param.agent.taskId");
+}
+
 }  // namespace AAFwk
 }  // namespace OHOS
