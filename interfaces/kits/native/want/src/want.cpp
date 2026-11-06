@@ -209,7 +209,7 @@ const std::string Want::PARAM_RESV_REQUEST_TOKEN_CODE("ohos.aafwk.param.requestT
 const std::string Want::PARAM_RESV_ABILITY_INFO_CALLBACK("ohos.aafwk.param.abilityInfoCallback");
 const std::string Want::PARAM_RESV_APP_REQUEST_ID("ohos.aafwk.param.app.requestId");
 const std::string Want::PARAM_RESV_SCB_REQUEST_ID("ohos.aafwk.param.scb.requestId");
-const std::string Want::PARAM_RESV_TASK_ID("ohos.aafwk.param.taskId");
+const std::string Want::PARAM_RESV_AGENT_TASK_ID("ohos.aafwk.param.agent.taskId");
 const std::string Want::PARAM_ABILITY_ACQUIRE_SHARE_DATA("ohos.aafwk.param.AbilityAcquireShareData");
 const std::string Want::PARAM_ABILITY_RECOVERY_RESTART("ohos.ability.params.abilityRecoveryRestart");
 const std::string Want::PARAM_MODULE_NAME("moduleName");
