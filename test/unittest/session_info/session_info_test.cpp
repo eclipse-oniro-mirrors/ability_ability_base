@@ -488,6 +488,7 @@ HWTEST_F(SessionInfoTest, SessionInfo_RoundTripRemoteObjectsNull_001, TestSize.L
     EXPECT_EQ(dst->startSetting, nullptr);
     EXPECT_EQ(dst->processOptions, nullptr);
     EXPECT_EQ(dst->windowCreateParams, nullptr);
+    EXPECT_EQ(dst->showParams, nullptr);
     EXPECT_EQ(dst->startWindowOption, nullptr);
     delete dst;
 }

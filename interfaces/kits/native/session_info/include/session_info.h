@@ -28,6 +28,7 @@
 namespace OHOS {
 namespace Rosen {
 struct WindowCreateParams;
+struct WindowShowParams;
 }
 
 namespace AAFwk {
@@ -105,6 +106,7 @@ public:
     bool reuseDelegatorWindow = false;
     int32_t splitRatioPreference = 0;
     std::shared_ptr<Rosen::WindowCreateParams> windowCreateParams = nullptr;
+    std::shared_ptr<Rosen::WindowShowParams> showParams = nullptr;
     int32_t scenarios = 0;
     std::string targetGrantBundleName = "";
     bool isPrelaunch = false;
