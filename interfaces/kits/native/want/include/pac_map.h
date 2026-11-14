@@ -491,7 +491,7 @@ public:
 
 private:
     PacMapList dataList_;
-    std::mutex mapLock_;
+    mutable std::mutex mapLock_;
     bool GetBaseJsonValue(PacMapList::const_iterator &it, Json::Value &json) const;
     bool GetArrayJsonValue(PacMapList::const_iterator &it, Json::Value &json) const;
     bool GetUserObjectJsonValue(PacMapList::const_iterator &it, Json::Value &json) const;

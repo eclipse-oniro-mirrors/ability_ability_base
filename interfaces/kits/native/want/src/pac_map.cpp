@@ -1085,6 +1085,7 @@ bool PacMap::Equals(const PacMap &pacMap)
  */
 bool PacMap::IsEmpty(void) const
 {
+    std::lock_guard<std::mutex> mLock(mapLock_);
     return dataList_.empty();
 }
 
@@ -1094,6 +1095,7 @@ bool PacMap::IsEmpty(void) const
  */
 int PacMap::GetSize(void) const
 {
+    std::lock_guard<std::mutex> mLock(mapLock_);
     return dataList_.size();
 }
 
@@ -1152,10 +1154,20 @@ bool PacMap::ReadFromParcel(Parcel &parcel)
  */
 bool PacMap::Marshalling(Parcel &parcel) const
 {
+    PacMapList snapshot;
+    {
+        std::lock_guard<std::mutex> mLock(mapLock_);
+        snapshot = dataList_;
+    }
+
+    std::string str = MapListToString(snapshot);
+    if (str.empty()) {
+        return false;
+    }
+
     if (!parcel.WriteString("PACMAP")) {
         return false;
     }
-    std::string str = MapListToString(dataList_);
     return parcel.WriteString(str);
 }
 

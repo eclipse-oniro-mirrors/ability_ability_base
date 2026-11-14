@@ -782,6 +782,31 @@ HWTEST_F(PacMapTest, AppExecFwk_PacMap_Marshalling_0300, Function | MediumTest |
 }
 
 /**
+ * @tc.number: AppExecFwk_PacMap_Marshalling_0400
+ * @tc.name: Marshalling DepthLimit
+ * @tc.desc: Verify Marshalling() returns false when serialization exceeds PACMAP_MAX_DEPTH.
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_Marshalling_0400, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_Marshalling_0400 start";
+
+    PacMap root;
+    PacMap *current = &root;
+    for (int i = 0; i < PACMAP_MAX_DEPTH + 1; i++) {
+        PacMap inner;
+        inner.PutIntValue("val", i);
+        current->PutPacMap("nested", inner);
+        auto it = current->dataList_.find("nested");
+        current = static_cast<PacMap *>(IPacMap::Query(it->second.GetRefPtr()));
+    }
+
+    Parcel parcel;
+    EXPECT_FALSE(const_cast<const PacMap&>(root).Marshalling(parcel));
+
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_Marshalling_0400 end";
+}
+
+/**
  * @tc.number: AppExecFwk_PacMap_PutCharValue_0100
  * @tc.name: PutCharValue and GetCharValue
  * @tc.desc: Verify PutCharValue() and GetCharValue().
