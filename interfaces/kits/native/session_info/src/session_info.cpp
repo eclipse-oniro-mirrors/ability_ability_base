@@ -54,6 +54,34 @@ bool SessionInfo::Marshalling(Parcel& parcel) const
     return DoMarshallingSeven(parcel);
 }
 
+sptr<SessionInfo> SessionInfo::Clone() const
+{
+    auto sessionInfo = sptr<SessionInfo>::MakeSptr(*this);
+    if (sessionInfo == nullptr) {
+        return nullptr;
+    }
+    // Deep-copy every member whose pointee is marshalled field by field, so that later
+    // reassignments or in-place writes on the original never race with marshalling of the
+    // clone. Remote objects (sessionToken, callerSession, ...) are binder handles shared by
+    // design and are NOT duplicated; want is already deep-copied by the copy constructor.
+    if (startSetting != nullptr) {
+        sessionInfo->startSetting = std::make_shared<AbilityStartSetting>(*startSetting);
+    }
+    if (processOptions != nullptr) {
+        sessionInfo->processOptions = std::make_shared<ProcessOptions>(*processOptions);
+    }
+    if (startWindowOption != nullptr) {
+        sessionInfo->startWindowOption = std::make_shared<StartWindowOption>(*startWindowOption);
+    }
+    if (windowCreateParams != nullptr) {
+        sessionInfo->windowCreateParams = std::make_shared<Rosen::WindowCreateParams>(*windowCreateParams);
+    }
+    if (showParams != nullptr) {
+        sessionInfo->showParams = std::make_shared<Rosen::WindowShowParams>(*showParams);
+    }
+    return sessionInfo;
+}
+
 bool SessionInfo::DoMarshallingOne(Parcel& parcel) const
 {
     if (sessionToken) {
