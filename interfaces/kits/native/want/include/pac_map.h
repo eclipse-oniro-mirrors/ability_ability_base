@@ -254,6 +254,7 @@ public:
      * @brief Inserts all key-value pairs of a map object into the built-in data object.
      * Duplicate key values will be replaced.
      * @param mapData Store a list of key-value pairs.
+     * @note The caller must ensure @a mapData is not modified concurrently during this call.
      */
     void PutAll(std::map<std::string, PacMapObject::INTERFACE> &mapData);
 
@@ -491,13 +492,20 @@ public:
 
 private:
     PacMapList dataList_;
-    std::mutex mapLock_;
+    mutable std::mutex mapLock_;
     bool GetBaseJsonValue(PacMapList::const_iterator &it, Json::Value &json) const;
     bool GetArrayJsonValue(PacMapList::const_iterator &it, Json::Value &json) const;
     bool GetUserObjectJsonValue(PacMapList::const_iterator &it, Json::Value &json) const;
     void ShallowCopyData(PacMapList &desPacMap, const PacMapList &srcPacMap);
     void RemoveData(PacMapList &srcPacMap, const std::string &key);
     bool EqualPacMapData(const PacMapList &leftPacMapList, const PacMapList &rightPacMapList);
+    static std::string SnapshotToString(const PacMap &source);
+
+    /**
+     * @brief Restores data from a parcel.
+     * @note This method is only called by Unmarshalling on a newly created PacMap. It is not
+     *       synchronized and must not be called on a PacMap shared with other threads.
+     */
     bool ReadFromParcel(Parcel &parcel);
 
     bool ParseJson(Json::Value &data, PacMapList &mapList, int depth = 0);
@@ -531,7 +539,7 @@ private:
     void InnerPutDoubleValue(PacMapList &mapList, const std::string &key, double value);
     void InnerPutStringValue(PacMapList &mapList, const std::string &key, const std::string &value);
     void InnerPutObject(PacMapList &mapList, const std::string &key, const std::shared_ptr<UserObjectBase> &value);
-    bool InnerPutPacMap(PacMapList &mapList, const std::string &key, PacMap &value);
+    bool InnerPutPacMap(PacMapList &mapList, const std::string &key, const sptr<IPacMap> &pacMap);
 
     void InnerPutShortValueArray(PacMapList &mapList, const std::string &key, const std::vector<short> &value);
     void InnerPutIntValueArray(PacMapList &mapList, const std::string &key, const std::vector<int> &value);

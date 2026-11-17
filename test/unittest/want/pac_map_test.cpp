@@ -782,6 +782,31 @@ HWTEST_F(PacMapTest, AppExecFwk_PacMap_Marshalling_0300, Function | MediumTest |
 }
 
 /**
+ * @tc.number: AppExecFwk_PacMap_Marshalling_0400
+ * @tc.name: Marshalling DepthLimit
+ * @tc.desc: Verify Marshalling() returns false when serialization exceeds PACMAP_MAX_DEPTH.
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_Marshalling_0400, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_Marshalling_0400 start";
+
+    PacMap root;
+    PacMap *current = &root;
+    for (int i = 0; i < PACMAP_MAX_DEPTH + 1; i++) {
+        PacMap inner;
+        inner.PutIntValue("val", i);
+        current->PutPacMap("nested", inner);
+        auto it = current->dataList_.find("nested");
+        current = static_cast<PacMap *>(IPacMap::Query(it->second.GetRefPtr()));
+    }
+
+    Parcel parcel;
+    EXPECT_FALSE(const_cast<const PacMap&>(root).Marshalling(parcel));
+
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_Marshalling_0400 end";
+}
+
+/**
  * @tc.number: AppExecFwk_PacMap_PutCharValue_0100
  * @tc.name: PutCharValue and GetCharValue
  * @tc.desc: Verify PutCharValue() and GetCharValue().
@@ -1203,6 +1228,24 @@ HWTEST_F(PacMapTest, AppExecFwk_PacMap_DeepCopy_0200, Function | MediumTest | Le
 }
 
 /**
+ * @tc.number: AppExecFwk_PacMap_DeepCopy_0300
+ * @tc.name: DeepCopy self
+ * @tc.desc: Verify DeepCopy() with the same object preserves data.
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_DeepCopy_0300, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_DeepCopy_0300 start";
+
+    PacMap map;
+    FillData(map);
+    int size = map.GetSize();
+    map.DeepCopy(map);
+    EXPECT_EQ(size, map.GetSize());
+
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_DeepCopy_0300 end";
+}
+
+/**
  * @tc.number: AppExecFwk_PacMap_InnerPutObject_0100
  * @tc.name: InnerPutObject
  * @tc.desc: Verify InnerPutObject.
@@ -1239,6 +1282,44 @@ HWTEST_F(PacMapTest, AppExecFwk_PacMap_PutAll_0200, Function | MediumTest | Leve
     EXPECT_EQ(result, defaultValue);
 
     GTEST_LOG_(INFO) << "AppExecFwk_PacMap_PutAll_0200 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_PutAll_0300
+ * @tc.name: PutAll self
+ * @tc.desc: Verify PutAll() with the same object preserves data.
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_PutAll_0300, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_PutAll_0300 start";
+
+    PacMap map;
+    FillData(map);
+    int size = map.GetSize();
+    map.PutAll(map);
+    EXPECT_EQ(size, map.GetSize());
+
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_PutAll_0300 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_PutPacMap_0100
+ * @tc.name: PutPacMap self
+ * @tc.desc: Verify PutPacMap() with the same object does not deadlock.
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_PutPacMap_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_PutPacMap_0100 start";
+
+    PacMap map;
+    map.PutIntValue("x", 1);
+    EXPECT_TRUE(map.PutPacMap("self", map));
+
+    PacMap nested = map.GetPacMap("self");
+    EXPECT_EQ(1, nested.GetIntValue("x"));
+    EXPECT_EQ(1, map.GetIntValue("x"));
+
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_PutPacMap_0100 end";
 }
 
 /**

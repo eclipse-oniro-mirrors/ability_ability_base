@@ -222,14 +222,23 @@ static void PacmapGetArrayVal(OHOS::AAFwk::IInterface *ao, std::vector<valueType
 
 using namespace OHOS::AAFwk;
 IINTERFACE_IMPL_1(PacMap, Object, IPacMap);
+
+std::string PacMap::SnapshotToString(const PacMap &source)
+{
+    PacMapList snapshot;
+    {
+        std::lock_guard<std::mutex> mLock(source.mapLock_);
+        snapshot = source.dataList_;
+    }
+    return source.MapListToString(snapshot);
+}
+
 /**
  * @brief A replication structure with deep copy.
  */
 PacMap::PacMap(const PacMap &other)
 {
-    std::lock_guard<std::mutex> mLock(mapLock_);
-    dataList_.clear();
-    std::string str = MapListToString(other.dataList_);
+    std::string str = SnapshotToString(other);
     if (!StringToMapList(str, dataList_)) {
         dataList_.clear();
         ABILITYBASE_LOGE("PacMap copy constructor: StringToMapList failed");
@@ -246,15 +255,18 @@ PacMap::~PacMap()
  */
 PacMap &PacMap::operator=(const PacMap &other)
 {
-    if (&other != this) {
-        std::lock_guard<std::mutex> mLock(mapLock_);
-        dataList_.clear();
-        std::string str = MapListToString(other.dataList_);
-        if (!StringToMapList(str, dataList_)) {
-            dataList_.clear();
-            ABILITYBASE_LOGE("PacMap operator=: StringToMapList failed");
-        }
+    if (this == &other) {
+        return *this;
     }
+
+    PacMapList parsed;
+    if (!StringToMapList(SnapshotToString(other), parsed)) {
+        parsed.clear();
+        ABILITYBASE_LOGE("PacMap operator=: StringToMapList failed");
+    }
+
+    std::lock_guard<std::mutex> mLock(mapLock_);
+    dataList_.swap(parsed);
     return *this;
 }
 
@@ -297,9 +309,15 @@ PacMap PacMap::DeepCopy(void)
 
 void PacMap::DeepCopy(PacMap &other)
 {
+    if (this == &other) {
+        return;
+    }
+
+    PacMapList parsed;
+    StringToMapList(SnapshotToString(other), parsed);
+
     std::lock_guard<std::mutex> mLock(mapLock_);
-    dataList_.clear();
-    StringToMapList(MapListToString(other.dataList_), dataList_);
+    dataList_.swap(parsed);
 }
 
 /**
@@ -460,13 +478,17 @@ void PacMap::InnerPutObject(PacMapList &mapList, const std::string &key, const s
  */
 bool PacMap::PutPacMap(const std::string &key, const PacMap &value)
 {
+    sptr<IPacMap> pacMap = new (std::nothrow) PacMap(value);
     std::lock_guard<std::mutex> mLock(mapLock_);
-    return InnerPutPacMap(dataList_, key, const_cast<PacMap &>(value));
+    if (pacMap == nullptr) {
+        RemoveData(dataList_, key);
+        return false;
+    }
+    return InnerPutPacMap(dataList_, key, pacMap);
 }
-bool PacMap::InnerPutPacMap(PacMapList &mapList, const std::string &key, PacMap &value)
+bool PacMap::InnerPutPacMap(PacMapList &mapList, const std::string &key, const sptr<IPacMap> &pacMap)
 {
     RemoveData(mapList, key);
-    sptr<IPacMap> pacMap = new (std::nothrow) PacMap(value);
     if (pacMap != nullptr) {
         mapList.emplace(key, pacMap);
         return true;
@@ -618,9 +640,15 @@ void PacMap::PutAll(std::map<std::string, PacMapObject::INTERFACE> &mapData)
  */
 void PacMap::PutAll(PacMap &pacMap)
 {
+    if (this == &pacMap) {
+        return;
+    }
+
+    PacMapList parsed;
+    StringToMapList(SnapshotToString(pacMap), parsed);
+
     std::lock_guard<std::mutex> mLock(mapLock_);
-    dataList_.clear();
-    StringToMapList(MapListToString(pacMap.dataList_), dataList_);
+    dataList_.swap(parsed);
 }
 
 /**
@@ -1054,7 +1082,6 @@ bool PacMap::CompareArrayData(AAFwk::IInterface *one_interface, AAFwk::IInterfac
  */
 bool PacMap::Equals(const PacMap *pacMap)
 {
-    std::lock_guard<std::mutex> mLock(mapLock_);
     if (pacMap == nullptr) {
         return false;
     }
@@ -1063,15 +1090,19 @@ bool PacMap::Equals(const PacMap *pacMap)
         return true;
     }
 
-    if (dataList_.size() != pacMap->dataList_.size()) {
+    PacMapList left;
+    PacMapList right;
+    {
+        std::scoped_lock mLock(mapLock_, pacMap->mapLock_);
+        left = dataList_;
+        right = pacMap->dataList_;
+    }
+
+    if (left.size() != right.size()) {
         return false;
     }
 
-    if (!EqualPacMapData(dataList_, pacMap->dataList_)) {
-        return false;
-    }
-
-    return true;
+    return EqualPacMapData(left, right);
 }
 
 bool PacMap::Equals(const PacMap &pacMap)
@@ -1085,6 +1116,7 @@ bool PacMap::Equals(const PacMap &pacMap)
  */
 bool PacMap::IsEmpty(void) const
 {
+    std::lock_guard<std::mutex> mLock(mapLock_);
     return dataList_.empty();
 }
 
@@ -1094,6 +1126,7 @@ bool PacMap::IsEmpty(void) const
  */
 int PacMap::GetSize(void) const
 {
+    std::lock_guard<std::mutex> mLock(mapLock_);
     return dataList_.size();
 }
 
@@ -1152,10 +1185,18 @@ bool PacMap::ReadFromParcel(Parcel &parcel)
  */
 bool PacMap::Marshalling(Parcel &parcel) const
 {
+    PacMapList snapshot;
+    {
+        std::lock_guard<std::mutex> mLock(mapLock_);
+        snapshot = dataList_;
+    }
     if (!parcel.WriteString("PACMAP")) {
         return false;
     }
-    std::string str = MapListToString(dataList_);
+    std::string str = MapListToString(snapshot);
+    if (str.empty()) {
+        return false;
+    }
     return parcel.WriteString(str);
 }
 
