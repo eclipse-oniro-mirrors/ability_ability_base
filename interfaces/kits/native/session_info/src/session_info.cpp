@@ -402,6 +402,12 @@ bool SessionInfo::DoMarshallingSeven(Parcel& parcel) const
         ABILITYBASE_LOGE("Write want failed");
         return false;
     }
+
+    if (!parcel.WriteParcelable(showParams.get())) {
+        ABILITYBASE_LOGE("Write showParams failed");
+        return false;
+    }
+
     return true;
 }
 
@@ -501,6 +507,7 @@ SessionInfo* SessionInfo::ReadParcelTwo(SessionInfo* info, Parcel& parcel)
     if (want != nullptr) {
         info->want = *want;
     }
+    info->showParams.reset(parcel.ReadParcelable<Rosen::WindowShowParams>());
     return info;
 }
 }  // namespace AAFwk
