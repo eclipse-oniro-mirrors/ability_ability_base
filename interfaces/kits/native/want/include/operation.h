@@ -23,10 +23,7 @@
 
 namespace OHOS {
 namespace AAFwk {
-class OperationBuilder;
-
 class Operation : public Parcelable {
-    friend class OperationBuilder;
     friend class Want;
 
 public:
@@ -212,7 +209,6 @@ private:
     std::vector<std::string> entities_;
     unsigned int flags_;
     Uri uri_;
-    friend class OperationBuilder;
 
     // no object in parcel
     static constexpr int VALUE_NULL = -1;

@@ -2658,5 +2658,118 @@ HWTEST_F(PacMapTest, AppExecFwk_PacMap_MarshallingRoundTrip_0200, Function | Med
     delete restored;
     GTEST_LOG_(INFO) << "AppExecFwk_PacMap_MarshallingRoundTrip_0200 end";
 }
+/**
+ * @tc.number: AppExecFwk_PacMap_CopyFloatDouble_0100
+ * @tc.name: copy/assign/DeepCopy/PutAll/GetPacMap float & double round-trip
+ * @tc.desc: float/double values must survive all JSON round-trip based copies (W-007).
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_CopyFloatDouble_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_CopyFloatDouble_0100 start";
+    PacMap src;
+    src.PutDoubleValue("doubleKey", 2.25);
+    src.PutFloatValue("floatKey", 2.5f);
+
+    PacMap copied = src;
+    ASSERT_DOUBLE_EQ(2.25, copied.GetDoubleValue("doubleKey"));
+    ASSERT_FLOAT_EQ(2.5f, copied.GetFloatValue("floatKey"));
+
+    PacMap assigned;
+    assigned = src;
+    ASSERT_DOUBLE_EQ(2.25, assigned.GetDoubleValue("doubleKey"));
+    ASSERT_FLOAT_EQ(2.5f, assigned.GetFloatValue("floatKey"));
+
+    PacMap deep;
+    deep.DeepCopy(src);
+    ASSERT_DOUBLE_EQ(2.25, deep.GetDoubleValue("doubleKey"));
+
+    PacMap merged;
+    merged.PutAll(src);
+    ASSERT_FLOAT_EQ(2.5f, merged.GetFloatValue("floatKey"));
+
+    PacMap nested;
+    nested.PutDoubleValue("nestedDouble", 1.5);
+    src.PutPacMap("nestedKey", nested);
+    PacMap got = src.GetPacMap("nestedKey");
+    ASSERT_DOUBLE_EQ(1.5, got.GetDoubleValue("nestedDouble"));
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_CopyFloatDouble_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_EqualsArray_0100
+ * @tc.name: Equals with int arrays
+ * @tc.desc: non-empty vs empty array must not be equal (W-181).
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_EqualsArray_0100, Function | MediumTest | Level1)
+{
+    PacMap left;
+    PacMap right;
+    left.PutIntValueArray("arr", std::vector<int>{1, 2});
+    right.PutIntValueArray("arr", std::vector<int>{});
+    EXPECT_FALSE(left.Equals(right));
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_EqualsArray_0200
+ * @tc.name: Equals with duplicate-element arrays
+ * @tc.desc: multiset semantics: {1,1} vs {1,2} must not be equal (W-182).
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_EqualsArray_0200, Function | MediumTest | Level1)
+{
+    PacMap left;
+    PacMap right;
+    left.PutIntValueArray("arr", std::vector<int>{1, 1});
+    right.PutIntValueArray("arr", std::vector<int>{1, 2});
+    EXPECT_FALSE(left.Equals(right));
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_EqualsArray_0300
+ * @tc.name: Equals with order-insensitive arrays
+ * @tc.desc: same elements in different order must be equal.
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_EqualsArray_0300, Function | MediumTest | Level1)
+{
+    PacMap left;
+    PacMap right;
+    left.PutIntValueArray("arr", std::vector<int>{2, 1});
+    right.PutIntValueArray("arr", std::vector<int>{1, 2});
+    EXPECT_TRUE(left.Equals(right));
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_EqualsArray_0400
+ * @tc.name: Equals with empty arrays
+ * @tc.desc: empty vs empty must be equal.
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_EqualsArray_0400, Function | MediumTest | Level1)
+{
+    PacMap left;
+    PacMap right;
+    left.PutIntValueArray("arr", std::vector<int>{});
+    right.PutIntValueArray("arr", std::vector<int>{});
+    EXPECT_TRUE(left.Equals(right));
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_ParseShortArray_0100
+ * @tc.name: Parse short array with valid values
+ * @tc.desc: in-range values must round-trip.
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_ParseShortArray_0100, Function | MediumTest | Level1)
+{
+    const int arrayShortType = 0x00000100; // PACMAP_DATA_ARRAY_SHORT
+    std::string json = R"({"pacmap":{"s":{"type":)" + std::to_string(arrayShortType) + R"(,"data":[1,2,32767]}}})";
+    sptr<IPacMap> parsed = PacMap::Parse(json);
+    ASSERT_NE(parsed, nullptr);
+    auto *pacmap = static_cast<PacMap *>(parsed.GetRefPtr());
+    ASSERT_NE(pacmap, nullptr);
+    std::vector<short> out;
+    pacmap->GetShortValueArray("s", out);
+    ASSERT_EQ(static_cast<size_t>(3), out.size());
+    EXPECT_EQ(1, out[0]);
+    EXPECT_EQ(2, out[1]);
+    EXPECT_EQ(32767, out[2]);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

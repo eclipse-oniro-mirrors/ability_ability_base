@@ -1470,23 +1470,12 @@ Want *Want::ParseUri(const std::string &uri)
         pos = uri.find(";", begin);
     }
     if (inPicker) {
-        sptr<Want> pickerWant = new (std::nothrow) Want();
-        if (pickerWant == nullptr) {
-            delete want;
-            want = nullptr;
-            return nullptr;
-        }
-        ElementName pickerElement;
+        // picker segment is parsed-and-discarded by design (no storage in Want);
+        // consume remaining segments without affecting the main want result
         while (pos != std::string::npos) {
-            content = uri.substr(begin, pos - begin);
-            ret = ParseUriInternal(content, pickerElement, *pickerWant);
-            if (!ret) {
-                break;
-            }
             begin = pos + 1;
             pos = uri.find(";", begin);
         }
-        pickerWant->SetElement(pickerElement);
     }
     if (ret) {
         want->SetElement(element);
@@ -2178,7 +2167,6 @@ bool Want::WriteElement(Parcel &parcel) const
     if (element == emptyElement) {
         if (!parcel.WriteInt32(VALUE_NULL)) {
             return false;
-            ABILITYBASE_LOGD("write int filed");
         }
     } else {
         if (!parcel.WriteInt32(VALUE_OBJECT)) {
@@ -2382,7 +2370,7 @@ int32_t Want::Action_ConvertNative2Ets(const std::string nativeValue)
             return index;
         }
     }
-    ABILITYBASE_LOGE("Action_ConvertEts2Native failed nativeValue:%{public}s", nativeValue.c_str());
+    ABILITYBASE_LOGE("Action_ConvertNative2Ets failed nativeValue:%{public}s", nativeValue.c_str());
     return -1;
 }
 }  // namespace AAFwk

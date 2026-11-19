@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <algorithm>
+
 #include "extra_params.h"
 #include "string_ex.h"
 
@@ -57,22 +59,18 @@ ExtraParams &ExtraParams::operator=(const ExtraParams &other)
  */
 bool ExtraParams::operator==(const ExtraParams &other) const
 {
-    if (targetBundleName_ == other.targetBundleName_ && description_ == other.description_ &&
-        jsonParams_ == other.jsonParams_) {
-        if (devType_.size() != other.devType_.size()) {
-            return false;
-        } else if (devType_.size() > 0 && other.devType_.size() > 0 && devType_.size() == other.devType_.size()) {
-            for (std::vector<string>::const_iterator it1 = devType_.cbegin(); it1 != devType_.cend(); it1++) {
-                std::vector<string>::const_iterator it2 =
-                    std::find(other.devType_.cbegin(), other.devType_.cend(), *it1);
-                if (it2 == other.devType_.cend()) {
-                    return false;
-                }
-            }
-            return true;
-        }
+    if (targetBundleName_ != other.targetBundleName_ || description_ != other.description_ ||
+        jsonParams_ != other.jsonParams_) {
+        return false;
     }
-    return false;
+    if (devType_.size() != other.devType_.size()) {
+        return false;
+    }
+    std::vector<string> left = devType_;
+    std::vector<string> right = other.devType_;
+    std::sort(left.begin(), left.end());
+    std::sort(right.begin(), right.end());
+    return left == right;
 }
 /**
  * @brief A constructor used to create an {@code ExtraParams} instance based on the input parameters{@code devType},
@@ -241,13 +239,25 @@ ExtraParams *ExtraParams::Unmarshalling(Parcel &parcel)
     }
 
     // targetBundleName
-    string targetBundleName = Str16ToStr8(parcel.ReadString16());
+    std::u16string targetBundleName16;
+    if (!parcel.ReadString16(targetBundleName16)) {
+        return nullptr;
+    }
+    string targetBundleName = Str16ToStr8(targetBundleName16);
 
     // description
-    string description = Str16ToStr8(parcel.ReadString16());
+    std::u16string description16;
+    if (!parcel.ReadString16(description16)) {
+        return nullptr;
+    }
+    string description = Str16ToStr8(description16);
 
     // jsonParams
-    string jsonParams = Str16ToStr8(parcel.ReadString16());
+    std::u16string jsonParams16;
+    if (!parcel.ReadString16(jsonParams16)) {
+        return nullptr;
+    }
+    string jsonParams = Str16ToStr8(jsonParams16);
 
     ExtraParams *extraParams = new (std::nothrow) ExtraParams(devtype, targetBundleName, description, jsonParams);
 

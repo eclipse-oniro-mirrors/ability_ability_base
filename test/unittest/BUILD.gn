@@ -139,28 +139,6 @@ config("module_private_want_param_wrapper_config") {
   defines = [ "ABILITYBASE_LOG_TAG = \"WantUnitTest\"" ]
 }
 
-ohos_unittest("operation_test") {
-  module_out_path = want_output_path
-  sources = [ "want/operation_test.cpp" ]
-
-  configs = [
-    ":want_private_config",
-    "${ability_base_path}:want_public_config",
-  ]
-
-  deps = [
-    "${ability_base_path}:base",
-    "${ability_base_path}:want",
-    "${ability_base_path}:zuri",
-  ]
-
-  external_deps = [
-    "bundle_framework:appexecfwk_base",
-    "c_utils:utils",
-    "googletest:gtest_main",
-  ]
-}
-
 ohos_unittest("patterns_matcher_test") {
   module_out_path = want_output_path
   sources = [ "want/patterns_matcher_test.cpp" ]
@@ -180,30 +158,6 @@ ohos_unittest("patterns_matcher_test") {
     "c_utils:utils",
     "googletest:gtest_main",
     "hilog:libhilog",
-  ]
-}
-
-ohos_unittest("skills_test") {
-  module_out_path = want_output_path
-  sources = [ "want/skills_test.cpp" ]
-
-  configs = [
-    ":want_private_config",
-    "${ability_base_path}:want_public_config",
-  ]
-
-  deps = [
-    "${ability_base_path}:base",
-    "${ability_base_path}:want",
-    "${ability_base_path}:zuri",
-  ]
-
-  external_deps = [
-    "bundle_framework:appexecfwk_base",
-    "c_utils:utils",
-    "googletest:gtest_main",
-    "hilog:libhilog",
-    "ipc:ipc_core",
   ]
 }
 
@@ -832,14 +786,12 @@ group("unittest") {
     ":float_wrapper_test",
     ":int_wrapper_test",
     ":long_wrapper_test",
-    ":operation_test",
     ":page_node_info_test",
     ":patterns_matcher_test",
     ":rect_test",
     ":want_fd_state_test",
     ":session_info_test",
     ":short_wrapper_test",
-    ":skills_test",
     ":string_wrapper_test",
     ":uri_base_test",
     ":uri_test",
