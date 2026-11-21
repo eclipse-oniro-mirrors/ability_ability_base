@@ -237,6 +237,7 @@ const std::string Want::START_ABILITY_WITH_WAIT_OBSERVER_ID_KEY("ohos.ability.pa
 const std::string Want::ATOMIC_SERVICE_SHARE_ROUTER("ohos.params.atomicservice.shareRouter");
 
 const std::string Want::PARAM_APP_KEEP_ALIVE_ENABLED("ohos.param.app.keepAliveEnabled");
+const std::string Want::PARAM_PROMOTE_BACKGROUND_PROCESS_PRIORITY("ohos.param.promoteBackgroundProcessPriority");
 const std::string Want::PARAM_ABILITY_UNIFIED_DATA_KEY("ohos.param.ability.udKey");
 const std::string Want::PARAM_WANT_EXPANSION_TAG("ohos.want.IPC.string8:");
 const std::string Want::UI_EXTENSION_ROOT_TOKEN("ohos.param.uiExtension.rootHostToken");
