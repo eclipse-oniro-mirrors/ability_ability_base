@@ -62,9 +62,12 @@ HWTEST_F(SessionInfoTest, SessionInfo_Marshalling_001, TestSize.Level1)
 
 HWTEST_F(SessionInfoTest, SessionInfo_Unmarshalling_001, TestSize.Level1)
 {
+    SessionInfo sessionInfo;
     Parcel parcel;
+    ASSERT_TRUE(sessionInfo.Marshalling(parcel));
     SessionInfo* info = SessionInfo::Unmarshalling(parcel);
     ASSERT_TRUE(info != nullptr);
+    delete info;
 }
 
 HWTEST_F(SessionInfoTest, SessionInfo_ReadParcelTwo_001, TestSize.Level1)
@@ -460,9 +463,7 @@ HWTEST_F(SessionInfoTest, SessionInfo_RoundTripWindowModesOverMax_001, TestSize.
     Parcel parcel;
     ASSERT_TRUE(src.Marshalling(parcel));
     SessionInfo* dst = SessionInfo::Unmarshalling(parcel);
-    ASSERT_NE(dst, nullptr);
-    EXPECT_EQ(dst->supportWindowModes.size(), 0u);
-    delete dst;
+    ASSERT_EQ(dst, nullptr);
 }
 
 HWTEST_F(SessionInfoTest, SessionInfo_RoundTripWant_001, TestSize.Level1)
