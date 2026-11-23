@@ -15,6 +15,11 @@
 
 #include <gtest/gtest.h>
 
+#include <cstdint>
+
+#include "ipc_object_stub.h"
+#include "message_parcel.h"
+
 #define private public
 #include "session_info.h"
 #undef private
@@ -491,6 +496,146 @@ HWTEST_F(SessionInfoTest, SessionInfo_RoundTripRemoteObjectsNull_001, TestSize.L
     EXPECT_EQ(dst->showParams, nullptr);
     EXPECT_EQ(dst->startWindowOption, nullptr);
     delete dst;
+}
+
+/**
+ * @tc.name: SessionInfo_DoMarshallingEight_001
+ * @tc.desc: DoMarshallingEight writes presence-bool false and two fields in order (null token)
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(SessionInfoTest, SessionInfo_DoMarshallingEight_001, TestSize.Level1)
+{
+    SessionInfo src;
+    src.originalCallerInfo.callerToken = nullptr;
+    src.originalCallerInfo.persistentId = 10;
+    src.callerPersistentId = 20;
+    Parcel parcel;
+    ASSERT_TRUE(src.DoMarshallingEight(parcel));
+    EXPECT_FALSE(parcel.ReadBool());
+    EXPECT_EQ(parcel.ReadInt32(), 10);
+    EXPECT_EQ(parcel.ReadInt32(), 20);
+}
+
+/**
+ * @tc.name: SessionInfo_DoMarshallingEight_002
+ * @tc.desc: DoMarshallingEight with a non-null callerToken writes the presence flag and the object
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(SessionInfoTest, SessionInfo_DoMarshallingEight_002, TestSize.Level1)
+{
+    SessionInfo src;
+    src.originalCallerInfo.callerToken = new IPCObjectStub(u"session.info.test.token");
+    src.originalCallerInfo.persistentId = 1;
+    src.callerPersistentId = 3;
+    MessageParcel parcel;
+    ASSERT_TRUE(src.DoMarshallingEight(parcel));
+    EXPECT_TRUE(parcel.ReadBool());
+    EXPECT_NE(parcel.ReadRemoteObject(), nullptr);
+    EXPECT_EQ(parcel.ReadInt32(), 1);
+    EXPECT_EQ(parcel.ReadInt32(), 3);
+}
+
+/**
+ * @tc.name: SessionInfo_RoundTripOriginalCallerInfo_001
+ * @tc.desc: Migration declaration fields survive a full marshalling round trip
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(SessionInfoTest, SessionInfo_RoundTripOriginalCallerInfo_001, TestSize.Level1)
+{
+    SessionInfo src;
+    src.persistentId = 10;
+    src.originalCallerInfo.callerToken = nullptr;
+    src.originalCallerInfo.persistentId = 10;
+    src.callerPersistentId = 21;
+    Parcel parcel;
+    ASSERT_TRUE(src.Marshalling(parcel));
+    SessionInfo* dst = SessionInfo::Unmarshalling(parcel);
+    ASSERT_NE(dst, nullptr);
+    EXPECT_EQ(dst->originalCallerInfo.callerToken, nullptr);
+    EXPECT_EQ(dst->originalCallerInfo.persistentId, 10);
+    EXPECT_EQ(dst->callerPersistentId, 21);
+    delete dst;
+}
+
+/**
+ * @tc.name: SessionInfo_RoundTripOriginalCallerInfo_002
+ * @tc.desc: Migration declaration fields default to zero on round trip (plain request)
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(SessionInfoTest, SessionInfo_RoundTripOriginalCallerInfo_002, TestSize.Level1)
+{
+    SessionInfo src;
+    Parcel parcel;
+    ASSERT_TRUE(src.Marshalling(parcel));
+    SessionInfo* dst = SessionInfo::Unmarshalling(parcel);
+    ASSERT_NE(dst, nullptr);
+    EXPECT_EQ(dst->originalCallerInfo.callerToken, nullptr);
+    EXPECT_EQ(dst->originalCallerInfo.persistentId, 0);
+    EXPECT_EQ(dst->callerPersistentId, 0);
+    delete dst;
+}
+
+/**
+ * @tc.name: SessionInfo_RoundTripOriginalCallerInfo_003
+ * @tc.desc: Full round trip with a NON-NULL caller token — the WriteRemoteObject /
+ *           ReadRemoteObject branches in DoMarshallingEight / ReadParcelThree are
+ *           exercised end-to-end (BASE-05 fix)
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(SessionInfoTest, SessionInfo_RoundTripOriginalCallerInfo_003, TestSize.Level1)
+{
+    SessionInfo src;
+    src.originalCallerInfo.callerToken = new IPCObjectStub(u"session.info.roundtrip.token");
+    src.originalCallerInfo.persistentId = 42;
+    src.callerPersistentId = 99;
+    MessageParcel parcel;
+    ASSERT_TRUE(src.Marshalling(parcel));
+    SessionInfo* dst = SessionInfo::Unmarshalling(parcel);
+    ASSERT_NE(dst, nullptr);
+    // Token round-trips as a non-null binder proxy (remote object slot consumed).
+    EXPECT_NE(dst->originalCallerInfo.callerToken, nullptr);
+    EXPECT_EQ(dst->originalCallerInfo.persistentId, 42);
+    EXPECT_EQ(dst->callerPersistentId, 99);
+    delete dst;
+}
+
+/**
+ * @tc.name: SessionInfo_RoundTripOriginalCallerBoundary_001
+ * @tc.desc: Boundary values of caller ids survive the round trip
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(SessionInfoTest, SessionInfo_RoundTripOriginalCallerBoundary_001, TestSize.Level1)
+{
+    SessionInfo src;
+    src.originalCallerInfo.persistentId = INT32_MAX;
+    src.callerPersistentId = INT32_MIN;
+    Parcel parcel;
+    ASSERT_TRUE(src.Marshalling(parcel));
+    SessionInfo* dst = SessionInfo::Unmarshalling(parcel);
+    ASSERT_NE(dst, nullptr);
+    EXPECT_EQ(dst->originalCallerInfo.persistentId, INT32_MAX);
+    EXPECT_EQ(dst->callerPersistentId, INT32_MIN);
+    delete dst;
+}
+
+/**
+ * @tc.name: SessionInfo_UnmarshallingTruncatedParcel_001
+ * @tc.desc: A truncated/garbage parcel makes Unmarshalling fail visibly (nullptr)
+ *           instead of silently defaulting the migration fields
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(SessionInfoTest, SessionInfo_UnmarshallingTruncatedParcel_001, TestSize.Level1)
+{
+    Parcel parcel;
+    SessionInfo* dst = SessionInfo::Unmarshalling(parcel);
+    EXPECT_EQ(dst, nullptr);
 }
 
 /**

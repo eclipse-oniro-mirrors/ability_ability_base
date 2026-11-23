@@ -29,6 +29,7 @@ group("fuzztest") {
     "operationfirst_fuzzer:fuzztest",
     "operationsecond_fuzzer:fuzztest",
     "remoteobjectwrapper_fuzzer:fuzztest",
+    "sessioninfo_fuzzer:fuzztest",
     "stringwrapper_fuzzer:fuzztest",
     "wanteighth_fuzzer:fuzztest",
     "wantfifth_fuzzer:fuzztest",

@@ -42,6 +42,11 @@ enum class CallerTypeForAnco : int32_t {
     QUERY = 2
 };
 
+struct OriginalCallerInfo {
+    sptr<IRemoteObject> callerToken = nullptr;
+    int32_t persistentId = 0;
+};
+
 class SessionInfo : public Parcelable {
 public:
     SessionInfo() = default;
@@ -124,6 +129,8 @@ public:
     int32_t frameNum = 0;
     bool nativeHideWindow = false;
     std::string brandColorStr = "";
+    int32_t callerPersistentId = 0;
+    OriginalCallerInfo originalCallerInfo {};
 
 private:
     bool DoMarshallingOne(Parcel& parcel) const;
@@ -133,9 +140,12 @@ private:
     bool DoMarshallingFive(Parcel& parcel) const;
     bool DoMarshallingSix(Parcel& parcel) const;
     bool DoMarshallingSeven(Parcel& parcel) const;
+    bool DoMarshallingEight(Parcel& parcel) const;
     static SessionInfo* ReadParcelOne(SessionInfo* info, Parcel& parcel);
     static SessionInfo* ReadParcelTwo(SessionInfo* info, Parcel& parcel);
+    static SessionInfo* ReadParcelThree(SessionInfo* info, Parcel& parcel);
 };
+
 } // namespace AAFwk
 } // namespace OHOS
 #endif // OHOS_ABILITY_SESSION_INFO_H
