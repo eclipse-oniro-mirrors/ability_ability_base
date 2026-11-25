@@ -15,6 +15,9 @@
 
 #include <gtest/gtest.h>
 
+#include "ipc_object_stub.h"
+#include "message_parcel.h"
+
 #define private public
 #include "session_info.h"
 #undef private
@@ -541,6 +544,276 @@ HWTEST_F(SessionInfoTest, SessionInfo_Clone_002, TestSize.Level1)
     EXPECT_NE(clonedEmpty.GetRefPtr(), &empty);
     EXPECT_EQ(clonedEmpty->processOptions, nullptr);
     EXPECT_EQ(clonedEmpty->want.GetAction(), "");
+}
+
+// Minimal local binder object so the clone tests can exercise the sptr<IRemoteObject>
+// members without pulling in headers of other components.
+class SessionInfoCloneStub : public IPCObjectStub {
+public:
+    SessionInfoCloneStub() : IPCObjectStub(std::u16string()) {}
+    ~SessionInfoCloneStub() override = default;
+
+    int OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option) override
+    {
+        return 0;
+    }
+};
+
+/**
+ * @tc.name: SessionInfo_Clone_0300
+ * @tc.desc: The sptr members follow binder sharing semantics: the clone must point to the
+ *           same remote object as the source (identity), and a later reassignment of the
+ *           source field must never affect or free the object held by the clone (write
+ *           isolation via an independent strong reference)
+ * @tc.type: FUNC
+ */
+HWTEST_F(SessionInfoTest, SessionInfo_Clone_003, TestSize.Level1)
+{
+    auto firstStub = sptr<SessionInfoCloneStub>::MakeSptr();
+    auto secondStub = sptr<SessionInfoCloneStub>::MakeSptr();
+    ASSERT_NE(firstStub, nullptr);
+    ASSERT_NE(secondStub, nullptr);
+
+    SessionInfo src;
+    src.sessionToken = firstStub;
+    src.callerSession = firstStub;
+    src.callerToken = secondStub;
+    src.parentToken = secondStub;
+    auto cloned = src.Clone();
+    ASSERT_NE(cloned, nullptr);
+
+    // (a) Identity: binder pointees are shared by design, so the clone must reference the
+    // exact same remote objects as the source at clone time.
+    EXPECT_EQ(cloned->sessionToken.GetRefPtr(), firstStub.GetRefPtr());
+    EXPECT_EQ(cloned->callerSession.GetRefPtr(), firstStub.GetRefPtr());
+    EXPECT_EQ(cloned->callerToken.GetRefPtr(), secondStub.GetRefPtr());
+    EXPECT_EQ(cloned->parentToken.GetRefPtr(), secondStub.GetRefPtr());
+
+    // (b) Write isolation: reassigning the source fields after the clone (as in-lock
+    // writers do) must not be visible through the clone; the clone keeps its own strong
+    // references, so the original binders stay alive and usable.
+    auto replacementStub = sptr<SessionInfoCloneStub>::MakeSptr();
+    ASSERT_NE(replacementStub, nullptr);
+    IRemoteObject *firstRaw = firstStub.GetRefPtr();
+    IRemoteObject *secondRaw = secondStub.GetRefPtr();
+    src.sessionToken = replacementStub;
+    src.callerSession = nullptr;
+    src.callerToken = nullptr;
+    src.parentToken = nullptr;
+    firstStub = nullptr;
+    secondStub = nullptr;
+    // firstRaw/secondRaw are now kept alive only by the clone's strong references.
+    EXPECT_EQ(cloned->sessionToken.GetRefPtr(), firstRaw);
+    EXPECT_EQ(cloned->callerSession.GetRefPtr(), firstRaw);
+    EXPECT_EQ(cloned->callerToken.GetRefPtr(), secondRaw);
+    EXPECT_EQ(cloned->parentToken.GetRefPtr(), secondRaw);
+    EXPECT_NE(cloned->sessionToken, nullptr);
+    EXPECT_NE(cloned->callerSession, nullptr);
+    EXPECT_NE(cloned->callerToken, nullptr);
+    EXPECT_NE(cloned->parentToken, nullptr);
+    // Virtual calls through the clone's references prove the objects are still alive.
+    EXPECT_FALSE(cloned->sessionToken->IsProxyObject());
+    EXPECT_FALSE(cloned->callerSession->IsProxyObject());
+    EXPECT_FALSE(cloned->callerToken->IsProxyObject());
+    EXPECT_FALSE(cloned->parentToken->IsProxyObject());
+}
+
+/**
+ * @tc.name: SessionInfo_Clone_0400
+ * @tc.desc: Clone preserves every value field (including the want parameters) and keeps
+ *           every pointee field null when the source ones are null, so no null branch is
+ *           accidentally copied as a bogus non-null value
+ * @tc.type: FUNC
+ */
+HWTEST_F(SessionInfoTest, SessionInfo_Clone_004, TestSize.Level1)
+{
+    SessionInfo src;
+    src.persistentId = 100;
+    src.instanceKey = "instance_key_004";
+    src.requestId = 11;
+    src.identityToken = "identity_token_004";
+    src.hostWindowId = 200;
+    src.realHostWindowId = -5;
+    src.parentWindowType = 3;
+    src.hideStartWindow = true;
+    src.shouldSkipKillInStartup = true;
+    src.isTargetPlugin = true;
+    src.hostBundleName = "host_bundle_004";
+    src.callerTypeForAnco = static_cast<int32_t>(CallerTypeForAnco::QUERY);
+    src.state = CallToState::FOREGROUND;
+    src.resultCode = 7;
+    src.requestCode = 9;
+    src.errorReason = "error_reason_004";
+    src.errorCode = 42;
+    src.uiAbilityId = 123456;
+    src.supportWindowModes = {
+        static_cast<AppExecFwk::SupportWindowMode>(0),
+        static_cast<AppExecFwk::SupportWindowMode>(1),
+        static_cast<AppExecFwk::SupportWindowMode>(2),
+    };
+    src.userId = 33;
+    src.isNewWant = false;
+    src.isClearSession = true;
+    src.callingTokenId = 88;
+    src.reuse = true;
+    src.canStartAbilityFromBackground = true;
+    src.collaboratorType = 2;
+    src.sessionName = "session_name_004";
+    src.isAsyncModalBinding = true;
+    src.isAtomicService = true;
+    src.isBackTransition = true;
+    src.uiExtensionUsage = UIExtensionUsage::EMBEDDED;
+    src.uiExtensionComponentId = 999;
+    src.displayId = 7;
+    src.density = 2.5f;
+    src.orientation = 90;
+    src.needClearInNotShowRecent = true;
+    src.isMinimizedDuringFreeInstall = true;
+    src.scbRequestId = 22;
+    src.dpiFollowStrategy = 1;
+    src.specifiedFlag = "specified_flag_004";
+    src.reuseDelegatorWindow = true;
+    src.splitRatioPreference = 4;
+    src.scenarios = 5;
+    src.targetGrantBundleName = "target_grant_004";
+    src.isPrelaunch = true;
+    src.specifiedReason = 6;
+    src.frameNum = 50;
+    src.nativeHideWindow = true;
+    src.brandColorStr = "brand_color_004";
+    src.want.SetAction("action.session.clone004");
+    src.want.SetParam("clone004IntKey", 321);
+
+    auto cloned = src.Clone();
+    ASSERT_NE(cloned, nullptr);
+    EXPECT_NE(cloned.GetRefPtr(), &src);
+    EXPECT_EQ(cloned->persistentId, 100);
+    EXPECT_EQ(cloned->instanceKey, "instance_key_004");
+    EXPECT_EQ(cloned->requestId, 11);
+    EXPECT_EQ(cloned->identityToken, "identity_token_004");
+    EXPECT_EQ(cloned->hostWindowId, 200u);
+    EXPECT_EQ(cloned->realHostWindowId, -5);
+    EXPECT_EQ(cloned->parentWindowType, 3u);
+    EXPECT_EQ(cloned->hideStartWindow, true);
+    EXPECT_EQ(cloned->shouldSkipKillInStartup, true);
+    EXPECT_EQ(cloned->isTargetPlugin, true);
+    EXPECT_EQ(cloned->hostBundleName, "host_bundle_004");
+    EXPECT_EQ(cloned->callerTypeForAnco, static_cast<int32_t>(CallerTypeForAnco::QUERY));
+    EXPECT_EQ(cloned->state, CallToState::FOREGROUND);
+    EXPECT_EQ(cloned->resultCode, 7);
+    EXPECT_EQ(cloned->requestCode, 9);
+    EXPECT_EQ(cloned->errorReason, "error_reason_004");
+    EXPECT_EQ(cloned->errorCode, 42);
+    EXPECT_EQ(cloned->uiAbilityId, 123456);
+    EXPECT_EQ(cloned->supportWindowModes.size(), 3u);
+    EXPECT_EQ(static_cast<int32_t>(cloned->supportWindowModes[0]), 0);
+    EXPECT_EQ(static_cast<int32_t>(cloned->supportWindowModes[1]), 1);
+    EXPECT_EQ(static_cast<int32_t>(cloned->supportWindowModes[2]), 2);
+    EXPECT_EQ(cloned->userId, 33);
+    EXPECT_EQ(cloned->isNewWant, false);
+    EXPECT_EQ(cloned->isClearSession, true);
+    EXPECT_EQ(cloned->callingTokenId, 88u);
+    EXPECT_EQ(cloned->reuse, true);
+    EXPECT_EQ(cloned->canStartAbilityFromBackground, true);
+    EXPECT_EQ(cloned->collaboratorType, 2);
+    EXPECT_EQ(cloned->sessionName, "session_name_004");
+    EXPECT_EQ(cloned->isAsyncModalBinding, true);
+    EXPECT_EQ(cloned->isAtomicService, true);
+    EXPECT_EQ(cloned->isBackTransition, true);
+    EXPECT_EQ(cloned->uiExtensionUsage, UIExtensionUsage::EMBEDDED);
+    EXPECT_EQ(cloned->uiExtensionComponentId, 999u);
+    EXPECT_EQ(cloned->displayId, 7u);
+    EXPECT_FLOAT_EQ(cloned->density, 2.5f);
+    EXPECT_EQ(cloned->orientation, 90);
+    EXPECT_EQ(cloned->needClearInNotShowRecent, true);
+    EXPECT_EQ(cloned->isMinimizedDuringFreeInstall, true);
+    EXPECT_EQ(cloned->scbRequestId, 22);
+    EXPECT_EQ(cloned->dpiFollowStrategy, 1);
+    EXPECT_EQ(cloned->specifiedFlag, "specified_flag_004");
+    EXPECT_EQ(cloned->reuseDelegatorWindow, true);
+    EXPECT_EQ(cloned->splitRatioPreference, 4);
+    EXPECT_EQ(cloned->scenarios, 5);
+    EXPECT_EQ(cloned->targetGrantBundleName, "target_grant_004");
+    EXPECT_EQ(cloned->isPrelaunch, true);
+    EXPECT_EQ(cloned->specifiedReason, 6);
+    EXPECT_EQ(cloned->frameNum, 50);
+    EXPECT_EQ(cloned->nativeHideWindow, true);
+    EXPECT_EQ(cloned->brandColorStr, "brand_color_004");
+    EXPECT_EQ(cloned->want.GetAction(), "action.session.clone004");
+    EXPECT_EQ(cloned->want.GetIntParam("clone004IntKey", -1), 321);
+
+    // All pointee fields were null in the source: the null branches must keep them null.
+    EXPECT_EQ(cloned->sessionToken, nullptr);
+    EXPECT_EQ(cloned->callerSession, nullptr);
+    EXPECT_EQ(cloned->callerToken, nullptr);
+    EXPECT_EQ(cloned->parentToken, nullptr);
+    EXPECT_EQ(cloned->requestCallback, nullptr);
+    EXPECT_EQ(cloned->startSetting, nullptr);
+    EXPECT_EQ(cloned->processOptions, nullptr);
+    EXPECT_EQ(cloned->startWindowOption, nullptr);
+    EXPECT_EQ(cloned->windowCreateParams, nullptr);
+    EXPECT_EQ(cloned->showParams, nullptr);
+}
+
+/**
+ * @tc.name: SessionInfo_Clone_0500
+ * @tc.desc: The want carried by the clone round-trips through Marshalling/Unmarshalling
+ *           identical to the source's one, and stays stable even when the source want is
+ *           mutated after the clone, so the clone can be safely marshalled for IPC
+ *           outside the lock
+ * @tc.type: FUNC
+ */
+HWTEST_F(SessionInfoTest, SessionInfo_Clone_005, TestSize.Level1)
+{
+    SessionInfo src;
+    src.want.SetAction("action.session.clone005");
+    src.want.AddEntity("entity.clone005");
+    src.want.SetParam("clone005IntKey", 111);
+    src.want.SetParam("clone005StringKey", std::string("value005"));
+    src.want.SetParam("clone005BoolKey", true);
+    src.want.SetParam("clone005LongKey", 222L);
+    auto cloned = src.Clone();
+    ASSERT_NE(cloned, nullptr);
+
+    // Round-trip the source want and the clone want separately and compare the results.
+    Parcel srcParcel;
+    ASSERT_TRUE(src.want.Marshalling(srcParcel));
+    std::unique_ptr<Want> wantFromSrc(Want::Unmarshalling(srcParcel));
+    Parcel cloneParcel;
+    ASSERT_TRUE(cloned->want.Marshalling(cloneParcel));
+    std::unique_ptr<Want> wantFromClone(Want::Unmarshalling(cloneParcel));
+    ASSERT_NE(wantFromSrc, nullptr);
+    ASSERT_NE(wantFromClone, nullptr);
+    EXPECT_EQ(wantFromClone->GetAction(), wantFromSrc->GetAction());
+    EXPECT_EQ(wantFromClone->HasEntity("entity.clone005"), wantFromSrc->HasEntity("entity.clone005"));
+    EXPECT_EQ(wantFromClone->GetIntParam("clone005IntKey", -1), wantFromSrc->GetIntParam("clone005IntKey", -1));
+    EXPECT_EQ(wantFromClone->GetStringParam("clone005StringKey"), wantFromSrc->GetStringParam("clone005StringKey"));
+    EXPECT_EQ(wantFromClone->GetBoolParam("clone005BoolKey", false),
+        wantFromSrc->GetBoolParam("clone005BoolKey", false));
+    EXPECT_EQ(wantFromClone->GetLongParam("clone005LongKey", -1L),
+        wantFromSrc->GetLongParam("clone005LongKey", -1L));
+    EXPECT_EQ(wantFromClone->GetAction(), "action.session.clone005");
+    EXPECT_TRUE(wantFromClone->HasEntity("entity.clone005"));
+    EXPECT_EQ(wantFromClone->GetIntParam("clone005IntKey", -1), 111);
+    EXPECT_EQ(wantFromClone->GetStringParam("clone005StringKey"), "value005");
+    EXPECT_EQ(wantFromClone->GetBoolParam("clone005BoolKey", false), true);
+    EXPECT_EQ(wantFromClone->GetLongParam("clone005LongKey", -1L), 222L);
+
+    // Mutating the source want after the clone must not leak into the clone's round trip:
+    // the clone can be marshalled outside the lock while in-lock writers touch the original.
+    src.want.SetAction("action.session.clone005.mutated");
+    src.want.SetParam("clone005IntKey", 999);
+    Parcel lateParcel;
+    ASSERT_TRUE(cloned->want.Marshalling(lateParcel));
+    std::unique_ptr<Want> wantFromCloneLate(Want::Unmarshalling(lateParcel));
+    ASSERT_NE(wantFromCloneLate, nullptr);
+    EXPECT_EQ(wantFromCloneLate->GetAction(), "action.session.clone005");
+    EXPECT_EQ(wantFromCloneLate->GetIntParam("clone005IntKey", -1), 111);
+    EXPECT_TRUE(wantFromCloneLate->HasEntity("entity.clone005"));
+    EXPECT_EQ(wantFromCloneLate->GetStringParam("clone005StringKey"), "value005");
+    EXPECT_EQ(wantFromCloneLate->GetBoolParam("clone005BoolKey", false), true);
+    EXPECT_EQ(wantFromCloneLate->GetLongParam("clone005LongKey", -1L), 222L);
 }
 } // namespace AAFwk
 } // namespace OHOS
