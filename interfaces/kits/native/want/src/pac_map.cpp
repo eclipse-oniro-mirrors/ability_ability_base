@@ -972,7 +972,21 @@ bool PacMap::EqualPacMapData(const PacMapList &leftPacMapList, const PacMapList 
             continue;
         }
 
-        if (!Object::Equals(*(right->second.GetRefPtr()), *(left->second.GetRefPtr()))) {
+        // Arrays are compared order-insensitively via CompareArrayData, which is
+        // otherwise unreachable from Equals. CompareArrayData falls through to
+        // "return true" when either side is not an array, so both sides must be
+        // checked explicitly to avoid a false positive on mixed types.
+        auto *leftObject = left->second.GetRefPtr();
+        auto *rightObject = right->second.GetRefPtr();
+        if (IArray::Query(leftObject) != nullptr || IArray::Query(rightObject) != nullptr) {
+            if (IArray::Query(leftObject) == nullptr || IArray::Query(rightObject) == nullptr ||
+                !CompareArrayData(leftObject, rightObject)) {
+                return false;
+            }
+            continue;
+        }
+
+        if (!Object::Equals(*rightObject, *leftObject)) {
             return false;
         }
     }
@@ -1030,7 +1044,10 @@ bool PacMap::CompareArrayData(AAFwk::IInterface *one_interface, AAFwk::IInterfac
                 return false;
             }
         } else if (AAFwk::Array::IsCharArray(AAFwk::IArray::Query(one_interface))) {
-            return false;
+            if (!CompareTwoArrayData<AAFwk::IChar, AAFwk::Char, zchar>(
+                one_interface, two_interface, AAFwk::Array::IsCharArray)) {
+                return false;
+            }
         } else if (AAFwk::Array::IsByteArray(IArray::Query(one_interface))) {
             if (!CompareTwoArrayData<AAFwk::IByte, AAFwk::Byte, byte>(
                 one_interface, two_interface, AAFwk::Array::IsByteArray)) {

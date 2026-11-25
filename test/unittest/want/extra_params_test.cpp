@@ -141,7 +141,8 @@ HWTEST_F(ExtraParamsBaseTest, AppExecFwk_ExtraParams_OperatorEqual_0100, Functio
 {
     ExtraParams extraParams;
     ExtraParams other(extraParams);
-    EXPECT_FALSE(extraParams == other);
+    // Two default-constructed objects have empty devType_ and must compare equal.
+    EXPECT_TRUE(extraParams == other);
 
     std::vector<string> devType;
     devType.push_back("SetDevType");
