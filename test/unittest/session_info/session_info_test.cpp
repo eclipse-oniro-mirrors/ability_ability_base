@@ -492,5 +492,55 @@ HWTEST_F(SessionInfoTest, SessionInfo_RoundTripRemoteObjectsNull_001, TestSize.L
     EXPECT_EQ(dst->startWindowOption, nullptr);
     delete dst;
 }
+
+/**
+ * @tc.name: SessionInfo_Clone_0100
+ * @tc.desc: Clone returns an independent deep copy: later mutations of either want do not
+ *           affect the other one
+ * @tc.type: FUNC
+ */
+HWTEST_F(SessionInfoTest, SessionInfo_Clone_001, TestSize.Level1)
+{
+    SessionInfo src;
+    src.want.SetAction("action.session.clone");
+    src.want.SetParam("cloneIntKey", 100);
+    src.persistentId = 42;
+    src.instanceKey = "app_instance_0";
+    auto cloned = src.Clone();
+    ASSERT_NE(cloned, nullptr);
+    EXPECT_NE(cloned.GetRefPtr(), &src);
+    EXPECT_EQ(cloned->want.GetAction(), "action.session.clone");
+    EXPECT_EQ(cloned->want.GetIntParam("cloneIntKey", -1), 100);
+    EXPECT_EQ(cloned->persistentId, 42);
+    EXPECT_EQ(cloned->instanceKey, "app_instance_0");
+
+    // want is deep-copplied: mutating either copy must not affect the other one.
+    src.want.SetParam("cloneIntKey", 200);
+    src.want.SetParam("cloneSrcOnlyKey", 1);
+    cloned->want.SetParam("cloneCloneOnlyKey", 2);
+    EXPECT_EQ(cloned->want.GetIntParam("cloneIntKey", -1), 100);
+    EXPECT_FALSE(cloned->want.HasParameter("cloneSrcOnlyKey"));
+    EXPECT_EQ(src.want.GetIntParam("cloneIntKey", -1), 200);
+    EXPECT_FALSE(src.want.HasParameter("cloneCloneOnlyKey"));
+}
+
+/**
+ * @tc.name: SessionInfo_Clone_0200
+ * @tc.desc: Clone keeps a null processOptions null; the deep copy of a non-null processOptions
+ *           (distinct pointee, no in-place write leakage) is covered by
+ *           ChangeAbilityVisibility_001 in ability_runtime's
+ *           ui_ability_lifecycle_manager_third_test, where the process_options header is
+ *           reachable
+ * @tc.type: FUNC
+ */
+HWTEST_F(SessionInfoTest, SessionInfo_Clone_002, TestSize.Level1)
+{
+    SessionInfo empty;
+    auto clonedEmpty = empty.Clone();
+    ASSERT_NE(clonedEmpty, nullptr);
+    EXPECT_NE(clonedEmpty.GetRefPtr(), &empty);
+    EXPECT_EQ(clonedEmpty->processOptions, nullptr);
+    EXPECT_EQ(clonedEmpty->want.GetAction(), "");
+}
 } // namespace AAFwk
 } // namespace OHOS

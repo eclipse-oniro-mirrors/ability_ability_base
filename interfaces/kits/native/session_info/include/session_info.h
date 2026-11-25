@@ -49,6 +49,16 @@ public:
     bool Marshalling(Parcel& parcel) const override;
     static SessionInfo* Unmarshalling(Parcel& parcel);
 
+    // Deep copy for use outside the lock protecting the original. A SessionInfo owned by an
+    // ability record is shared between in-lock writers and out-of-lock IPC marshallers, so
+    // out-of-lock users must clone it and touch only the clone. The default copy constructor
+    // already deep-copies want; every member whose pointee is marshalled field by field
+    // (startSetting, processOptions, startWindowOption, windowCreateParams, showParams)
+    // is deep-copied too, because the original can be reassigned or mutated in place after
+    // publication. Remote objects (sessionToken, callerSession, ...) are binder handles
+    // shared by design and keep pointing to the same objects in the clone.
+    sptr<SessionInfo> Clone() const;
+
     sptr<IRemoteObject> sessionToken = nullptr;
     sptr<IRemoteObject> callerSession = nullptr;
     sptr<IRemoteObject> callerToken = nullptr;
