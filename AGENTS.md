@@ -45,7 +45,7 @@ cd <源码树根>   # 本仓向上三级
 | GN target | 源码路径 | 职责 / 风险特征 |
 |---|---|---|
 | `base` | `interfaces/inner_api/base/` | Want 基础类型 wrapper（bool/int/string/byte/long/short/float/double/zchar/remote_object/user_object）；Parcel 序列化密集，高频调用 |
-| `want` | `interfaces/kits/native/want/` | Want / WantParams / Skills / Operation / PacMap；反序列化历史缺陷热区 |
+| `want` | `interfaces/kits/native/want/` | Want / WantParams / Operation / PacMap；反序列化历史缺陷热区 |
 | `zuri` | `interfaces/kits/native/uri/` | URI 解析（scheme / SSP / fragment） |
 | `configuration` | `interfaces/kits/native/configuration/` | 系统环境参数（JSON 转换） |
 | `view_data` | `interfaces/kits/native/view_data/` | 页面节点 / Rect 视图数据 |
@@ -115,7 +115,7 @@ cd <源码树根>   # 本仓向上三级
 | WantParams | Want 自定义参数容器，Parcel 序列化核心，历史缺陷热区 | `interfaces/kits/native/want/include/want_params.h` |
 | wrapper（*_wrapper） | 基础类型装箱类（bool/int/string 等 11 个），支持 Marshalling | `interfaces/inner_api/base/include/base_interfaces.h` |
 | PacMap | 键值对容器（支持 JSON 转换） | `interfaces/kits/native/want/include/pac_map.h` |
-| Skills / PatternsMatcher | 隐式启动匹配（action / entity / uri 过滤） | `interfaces/kits/native/want/include/skills.h` |
+| PatternsMatcher | 匹配器（Skills 已于 2026-11 死代码下线，仅存本类） | `interfaces/kits/native/want/include/patterns_matcher.h` |
 | ElementName | 目标组件标识（deviceId / abilityName / bundleName） | `interfaces/kits/native/want/include/element_name.h` |
 | SSP | URI 的 scheme-specific part（GetSchemeSpecificPart()） | `interfaces/kits/native/uri/include/uri.h` |
 | cwant / ability_base_want | C API（libability_base_want.so，@since 15） | `interfaces/kits/c/cwant/include/want.h` |

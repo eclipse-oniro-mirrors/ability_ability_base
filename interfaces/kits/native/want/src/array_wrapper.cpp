@@ -162,6 +162,9 @@ bool GetArraySignature(const InterfaceID &typeId, char &signature)
 
 Array::Array(long size, const InterfaceID &id) : typeId_(id)
 {
+    if (size < 0) {
+        size = 0;
+    }
     size_ = size > MAX_ARRAY_SIZE ? MAX_ARRAY_SIZE : size;
     for (long i = 0; i < size_; i++) {
         values_.push_back(nullptr);

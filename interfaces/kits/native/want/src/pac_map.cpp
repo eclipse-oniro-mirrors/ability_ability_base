@@ -15,6 +15,7 @@
 
 #include "pac_map.h"
 
+#include <algorithm>
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>
@@ -971,7 +972,21 @@ bool PacMap::EqualPacMapData(const PacMapList &leftPacMapList, const PacMapList 
             continue;
         }
 
-        if (!Object::Equals(*(right->second.GetRefPtr()), *(left->second.GetRefPtr()))) {
+        // Arrays are compared order-insensitively via CompareArrayData, which is
+        // otherwise unreachable from Equals. CompareArrayData falls through to
+        // "return true" when either side is not an array, so both sides must be
+        // checked explicitly to avoid a false positive on mixed types.
+        auto *leftObject = left->second.GetRefPtr();
+        auto *rightObject = right->second.GetRefPtr();
+        if (IArray::Query(leftObject) != nullptr || IArray::Query(rightObject) != nullptr) {
+            if (IArray::Query(leftObject) == nullptr || IArray::Query(rightObject) == nullptr ||
+                !CompareArrayData(leftObject, rightObject)) {
+                return false;
+            }
+            continue;
+        }
+
+        if (!Object::Equals(*rightObject, *leftObject)) {
             return false;
         }
     }
@@ -1003,16 +1018,12 @@ static bool CompareTwoArrayData(
     }
     typename std::vector<value> otherArray;
     GetArrayData<iid, id, value>(IArray::Query(two_interface), otherArray, IsArrayfunc);
-    if (array.size() != 0 && otherArray.size() != 0 && array.size() != otherArray.size()) {
+    if (array.size() != otherArray.size()) {
         return false;
     }
-    for (std::size_t i = 0; i < array.size(); i++) {
-        auto it = std::find(otherArray.begin(), otherArray.end(), array[i]);
-        if (it == array.end()) {
-            return false;
-        }
-    }
-    return true;
+    std::sort(array.begin(), array.end());
+    std::sort(otherArray.begin(), otherArray.end());
+    return std::equal(array.begin(), array.end(), otherArray.begin(), otherArray.end());
 }
 bool PacMap::CompareArrayData(AAFwk::IInterface *one_interface, AAFwk::IInterface *two_interface)
 {
@@ -1024,7 +1035,7 @@ bool PacMap::CompareArrayData(AAFwk::IInterface *one_interface, AAFwk::IInterfac
         long size2 = 0;
         array_two->GetLength(size2);
 
-        if (size1 != 0 && size2 != 0 && size1 != size2) {
+        if (size1 != size2) {
             return false;
         }
         if (AAFwk::Array::IsBooleanArray(IArray::Query(one_interface))) {
@@ -1033,7 +1044,10 @@ bool PacMap::CompareArrayData(AAFwk::IInterface *one_interface, AAFwk::IInterfac
                 return false;
             }
         } else if (AAFwk::Array::IsCharArray(AAFwk::IArray::Query(one_interface))) {
-            return false;
+            if (!CompareTwoArrayData<AAFwk::IChar, AAFwk::Char, zchar>(
+                one_interface, two_interface, AAFwk::Array::IsCharArray)) {
+                return false;
+            }
         } else if (AAFwk::Array::IsByteArray(IArray::Query(one_interface))) {
             if (!CompareTwoArrayData<AAFwk::IByte, AAFwk::Byte, byte>(
                 one_interface, two_interface, AAFwk::Array::IsByteArray)) {
@@ -1286,7 +1300,7 @@ bool PacMap::ToJson(const PacMapList &mapList, Json::Value &dataObject, int dept
 template<typename RawType>
 static std::string RawTypeToString(const RawType value, unsigned int precisionAfterPoint)
 {
-    std::ostringstream out("RawTypeToString");
+    std::ostringstream out;
     out << std::setw(0) << std::setprecision(precisionAfterPoint) << value;
 
     std::string res = out.str();

@@ -79,7 +79,6 @@
                       "header_files": [
                         "element_name.h",
                         "want.h",
-                        "skills.h",
                         "want_params.h",
                         "match_type.h",
                         "operation.h",

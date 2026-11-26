@@ -141,7 +141,8 @@ HWTEST_F(ExtraParamsBaseTest, AppExecFwk_ExtraParams_OperatorEqual_0100, Functio
 {
     ExtraParams extraParams;
     ExtraParams other(extraParams);
-    EXPECT_FALSE(extraParams == other);
+    // Two default-constructed objects have empty devType_ and must compare equal.
+    EXPECT_TRUE(extraParams == other);
 
     std::vector<string> devType;
     devType.push_back("SetDevType");
@@ -161,6 +162,46 @@ HWTEST_F(ExtraParamsBaseTest, AppExecFwk_ExtraParams_OperatorEqual_0100, Functio
     string targetBundleName = "TargetBundleName";
     other.SetTargetBundleName(targetBundleName);
     EXPECT_FALSE(extraParams == other);
+}
+
+/**
+ * @tc.number: AaFwk_ExtraParams_OperatorEqual_0100
+ * @tc.name: operator== with empty devType
+ * @tc.desc: two ExtraParams with empty devType_ must be equal (W-173).
+ */
+HWTEST_F(ExtraParamsBaseTest, AaFwk_ExtraParams_OperatorEqual_0100, Function | MediumTest | Level1)
+{
+    ExtraParams left;
+    ExtraParams right;
+    EXPECT_TRUE(left == right);
+}
+
+/**
+ * @tc.number: AaFwk_ExtraParams_OperatorEqual_0200
+ * @tc.name: operator== with order-insensitive devType
+ * @tc.desc: same devType elements in different order must be equal.
+ */
+HWTEST_F(ExtraParamsBaseTest, AaFwk_ExtraParams_OperatorEqual_0200, Function | MediumTest | Level1)
+{
+    std::vector<string> dev1 = {ExtraParams::DEVICETYPE_SMART_PHONE, ExtraParams::DEVICETYPE_SMART_PAD};
+    std::vector<string> dev2 = {ExtraParams::DEVICETYPE_SMART_PAD, ExtraParams::DEVICETYPE_SMART_PHONE};
+    ExtraParams left(dev1, "", "", "");
+    ExtraParams right(dev2, "", "", "");
+    EXPECT_TRUE(left == right);
+}
+
+/**
+ * @tc.number: AaFwk_ExtraParams_OperatorEqual_0300
+ * @tc.name: operator== with duplicate devType elements
+ * @tc.desc: multiset difference must not be equal: {A,A} vs {A,B} (W-177).
+ */
+HWTEST_F(ExtraParamsBaseTest, AaFwk_ExtraParams_OperatorEqual_0300, Function | MediumTest | Level1)
+{
+    std::vector<string> dev1 = {ExtraParams::DEVICETYPE_SMART_PHONE, ExtraParams::DEVICETYPE_SMART_PHONE};
+    std::vector<string> dev2 = {ExtraParams::DEVICETYPE_SMART_PHONE, ExtraParams::DEVICETYPE_SMART_PAD};
+    ExtraParams left(dev1, "", "", "");
+    ExtraParams right(dev2, "", "", "");
+    EXPECT_FALSE(left == right);
 }
 }
 }
