@@ -4915,7 +4915,8 @@ HWTEST_F(WantBaseTest, AaFwk_Want_ParamResvAgentTaskId_0100, Function | MediumTe
  */
 HWTEST_F(WantBaseTest, AaFwk_Want_ParseUri_PickerSegment_0100, Function | MediumTest | Level1)
 {
-    std::string uri = "#Intent;action=action.system.home;PICK;junk-junk;end";
+    std::string uri = WantBaseTest::URI_STRING_HEAD + "action=action.system.home;PICK;junk-junk" +
+        WantBaseTest::URI_STRING_END;
     Want *result = Want::ParseUri(uri);
     EXPECT_NE(result, nullptr);
     if (result != nullptr) {
@@ -4927,11 +4928,12 @@ HWTEST_F(WantBaseTest, AaFwk_Want_ParseUri_PickerSegment_0100, Function | Medium
 /**
  * @tc.number: AaFwk_Want_ParseUri_FlagHex_0100
  * @tc.name: ParseUri with valid hex flag
- * @tc.desc: 8-digit hex flag round-trip with a well-formed Intent URI.
+ * @tc.desc: 8-digit hex flag round-trip with a well-formed Want URI.
  */
 HWTEST_F(WantBaseTest, AaFwk_Want_ParseUri_FlagHex_0100, Function | MediumTest | Level1)
 {
-    Want *result = Want::ParseUri("#Intent;flag=0x12345678;end");
+    std::string uri = WantBaseTest::URI_STRING_HEAD + "flag=0x12345678" + WantBaseTest::URI_STRING_END;
+    Want *result = Want::ParseUri(uri);
     EXPECT_NE(result, nullptr);
     if (result != nullptr) {
         EXPECT_EQ(0x12345678U, result->GetFlags());
