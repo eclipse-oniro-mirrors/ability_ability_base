@@ -50,8 +50,12 @@ bool SessionInfo::Marshalling(Parcel& parcel) const
     if (!DoMarshallingSix(parcel)) {
         return false;
     }
-    
-    return DoMarshallingSeven(parcel);
+
+    if (!DoMarshallingSeven(parcel)) {
+        return false;
+    }
+
+    return DoMarshallingEight(parcel);
 }
 
 sptr<SessionInfo> SessionInfo::Clone() const
@@ -463,6 +467,11 @@ SessionInfo* SessionInfo::Unmarshalling(Parcel& parcel)
     }
     ReadParcelOne(info, parcel);
     ReadParcelTwo(info, parcel);
+    if (ReadParcelThree(info, parcel) == nullptr) {
+        ABILITYBASE_LOGE("Read parcel three failed");
+        delete info;
+        return nullptr;
+    }
     return info;
 }
 
@@ -536,6 +545,63 @@ SessionInfo* SessionInfo::ReadParcelTwo(SessionInfo* info, Parcel& parcel)
         info->want = *want;
     }
     info->showParams.reset(parcel.ReadParcelable<Rosen::WindowShowParams>());
+    return info;
+}
+
+bool SessionInfo::DoMarshallingEight(Parcel& parcel) const
+{
+    if (originalCallerInfo.callerToken) {
+        if (!parcel.WriteBool(true) ||
+            !(static_cast<MessageParcel*>(&parcel))->WriteRemoteObject(originalCallerInfo.callerToken)) {
+            ABILITYBASE_LOGE("Write original caller token failed");
+            return false;
+        }
+    } else {
+        if (!parcel.WriteBool(false)) {
+            return false;
+        }
+    }
+
+    if (!parcel.WriteInt32(originalCallerInfo.persistentId)) {
+        ABILITYBASE_LOGE("Write original persistent id failed");
+        return false;
+    }
+
+    if (!parcel.WriteInt32(callerPersistentId)) {
+        ABILITYBASE_LOGE("Write caller persistent id failed");
+        return false;
+    }
+
+    return true;
+}
+
+SessionInfo* SessionInfo::ReadParcelThree(SessionInfo* info, Parcel& parcel)
+{
+    if (info == nullptr) {
+        ABILITYBASE_LOGE("ReadParcelThree: null info");
+        return nullptr;
+    }
+    bool hasCallerToken = false;
+    if (!parcel.ReadBool(hasCallerToken)) {
+        ABILITYBASE_LOGE("Read caller token flag failed");
+        return nullptr;
+    }
+    if (hasCallerToken) {
+        auto callerToken = (static_cast<MessageParcel*>(&parcel))->ReadRemoteObject();
+        if (callerToken == nullptr) {
+            ABILITYBASE_LOGE("Read caller token failed");
+            return nullptr;
+        }
+        info->originalCallerInfo.callerToken = callerToken;
+    }
+    int32_t persistentId = 0;
+    int32_t callerPersistentId = 0;
+    if (!parcel.ReadInt32(persistentId) || !parcel.ReadInt32(callerPersistentId)) {
+        ABILITYBASE_LOGE("Read caller ids failed");
+        return nullptr;
+    }
+    info->originalCallerInfo.persistentId = persistentId;
+    info->callerPersistentId = callerPersistentId;
     return info;
 }
 }  // namespace AAFwk
