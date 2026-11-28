@@ -200,6 +200,44 @@ HWTEST_F(AAFwkBaseObjectTest, BaseObject_test_010, TestSize.Level1)
 }
 
 /**
+ * @tc.number: BaseObject_test_011
+ * @tc.name: GetHashCode
+ * @tc.desc: test GetHashCode returns the object address and is stable for the same object.
+ */
+HWTEST_F(AAFwkBaseObjectTest, BaseObject_test_011, TestSize.Level1)
+{
+    Object object;
+    int64_t hashCode = object.GetHashCode();
+    EXPECT_EQ(hashCode, static_cast<int64_t>(reinterpret_cast<uintptr_t>(&object)));
+    EXPECT_EQ(hashCode, object.GetHashCode());
+}
+
+/**
+ * @tc.number: BaseObject_test_012
+ * @tc.name: GetHashCode
+ * @tc.desc: test different live objects have different hash codes.
+ */
+HWTEST_F(AAFwkBaseObjectTest, BaseObject_test_012, TestSize.Level1)
+{
+    Object object1;
+    Object object2;
+    EXPECT_NE(object1.GetHashCode(), object2.GetHashCode());
+}
+
+/**
+ * @tc.number: BaseObject_test_013
+ * @tc.name: GetHashCode
+ * @tc.desc: test GetHashCode through the IObject interface dispatch.
+ */
+HWTEST_F(AAFwkBaseObjectTest, BaseObject_test_013, TestSize.Level1)
+{
+    Object object;
+    IObject *iobject = static_cast<IObject *>(object.Query(g_IID_IObject));
+    ASSERT_NE(iobject, nullptr);
+    EXPECT_EQ(iobject->GetHashCode(), static_cast<int64_t>(reinterpret_cast<uintptr_t>(&object)));
+}
+
+/**
  * @tc.number: UserObject_test_001
  * @tc.name: ToString
  * @tc.desc: test ToString function and value_ is nullptr.
